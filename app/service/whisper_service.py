@@ -89,7 +89,7 @@ class WhisperProcess(QObject):
         cmd = [cli_path]
         cmd.extend(["-f", self.task.input_file])
 
-        # 仅当指定了具体语言时才传 -l；"auto"/空 时让 Whisper 自动检测
+        # 仅在指定了有效语言时传递 -l 参数，否则让 whisper 自动检测
         if self.task.language and self.task.language != "auto":
             cmd.extend(["-l", self.task.language])
 

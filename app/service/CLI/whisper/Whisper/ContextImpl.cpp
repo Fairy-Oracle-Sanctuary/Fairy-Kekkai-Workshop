@@ -492,17 +492,22 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 	std::vector<whisper_token> prompt_init = { vocab.token_sot };
 	if( vocab.is_multilingual() )
 	{
-		int langId = lookupLanguageId( params.language );
-		if( langId < 0 )
+		// 允许 0 (空字符串) 用于自动检测
+		if( params.language != 0 )
 		{
-			char lang[ 5 ];
-			*(uint32_t*)( &lang[ 0 ] ) = params.language;
-			lang[ 4 ] = '\0';
-			logError( u8"%s: unknown language '%s'", __func__, lang );
-			return E_INVALIDARG;
+			int langId = lookupLanguageId( params.language );
+			if( langId < 0 )
+			{
+				char lang[ 5 ];
+				*(uint32_t*)( &lang[ 0 ] ) = params.language;
+				lang[ 4 ] = '\0';
+				logError( u8"%s: unknown language '%s'", __func__, lang );
+				return E_INVALIDARG;
+			}
+			prompt_init.push_back( vocab.token_sot + 1 + langId );
 		}
+		// else: 自动检测 - 不添加语言 token，让 C++ 层处理
 
-		prompt_init.push_back( vocab.token_sot + 1 + langId );
 		if( params.flag( eFullParamsFlags::Translate ) )
 			prompt_init.push_back( vocab.token_translate );
 		else

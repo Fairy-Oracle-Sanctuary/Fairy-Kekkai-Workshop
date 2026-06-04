@@ -87,7 +87,7 @@ class WhisperInterface(BaseFunctionInterface):
         hint_label = BodyLabel(
             "内置 <b>Small</b> 模型对油库里语音已够用。"
             '需更高精度可<a href="https://pan.xunlei.com/s/VOu1R3aOfz05uqcbNUBSnEFSA1?pwd=62cr#" '
-            'style="color: #0078d4;">手动下载更大模型</a>后替换。',
+            'style="color: #0078d4;">手动下载更大模型</a>后替换。语音设置不推荐选择自动检测。',
         )
         hint_label.setWordWrap(True)
         hint_label.linkActivated.connect(
