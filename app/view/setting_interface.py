@@ -239,15 +239,36 @@ class SettingInterface(ScrollArea):
         self.ffmpegPathCard.setContent(path)
 
     def _detectExe(self, exe_name, url, cfg_item, path_card):
-        exe_path = Path(f"tools/{exe_name}{EXE_SUFFIX}").absolute()
-        if not exe_path.exists() and sys.platform == "win32":
-            exe_path_str = shutil.which(exe_name)
-            if exe_path_str:
-                exe_path = Path(exe_path_str)
-            else:
+        exe_path = None
+
+        if sys.platform == "linux":
+            # Linux: 优先使用系统包管理器安装的路径
+            system_paths = [
+                f"/usr/bin/{exe_name}",
+                f"/usr/local/bin/{exe_name}",
+            ]
+            exe_path = None
+            for path in system_paths:
+                if Path(path).exists():
+                    exe_path = Path(path)
+                    break
+            if exe_path is None:
+                exe_path_str = shutil.which(exe_name)
+                if exe_path_str:
+                    exe_path = Path(exe_path_str)
+        elif sys.platform == "win32":
+            exe_path = Path(f"tools/{exe_name}{EXE_SUFFIX}").absolute()
+            if not exe_path.exists():
+                exe_path_str = shutil.which(exe_name)
+                if exe_path_str:
+                    exe_path = Path(exe_path_str)
+                else:
+                    exe_path = None
+        elif sys.platform == "darwin":
+            exe_path = Path(f"tools/{exe_name}{EXE_SUFFIX}").absolute()
+            if not exe_path.exists():
                 exe_path = None
-        # macOS: check Homebrew paths
-        if exe_path is not None and not exe_path.exists() and sys.platform == "darwin":
+            # macOS: check Homebrew paths
             brew_paths = [
                 f"/opt/homebrew/bin/{exe_name}",  # Apple Silicon
                 f"/usr/local/bin/{exe_name}",  # Intel Mac
@@ -256,8 +277,7 @@ class SettingInterface(ScrollArea):
                 if Path(path).exists():
                     exe_path = path
                     break
-                else:
-                    exe_path = None
+
         if exe_path is not None:
             cfg.set(cfg_item, str(exe_path))
             event_bus.notification_service.show_success(
@@ -265,11 +285,26 @@ class SettingInterface(ScrollArea):
             )
             path_card.setContent(str(exe_path))
         else:
-            dialog = Dialog("检测失败", f"未检测到{exe_name}程序，是否要下载", self)
-            dialog.yesButton.setText("前往下载")
-            dialog.cancelButton.setText("取消")
-            if dialog.exec():
-                QDesktopServices.openUrl(QUrl(url))
+            if sys.platform == "linux":
+                install_hint = {
+                    "ffmpeg": "请执行: sudo apt install ffmpeg",
+                    "yt-dlp": "请执行: pip install yt-dlp",
+                }.get(exe_name, "")
+                dialog = Dialog(
+                    "检测失败",
+                    f"未检测到{exe_name}程序\n{install_hint}",
+                    self,
+                )
+                dialog.cancelButton.setText("确定")
+                dialog.yesButton.setVisible(False)
+                if dialog.exec():
+                    pass
+            else:
+                dialog = Dialog("检测失败", f"未检测到{exe_name}程序，是否要下载", self)
+                dialog.yesButton.setText("前往下载")
+                dialog.cancelButton.setText("取消")
+                if dialog.exec():
+                    QDesktopServices.openUrl(QUrl(url))
 
     def _onDectectionCardClicked(self):
         # ffmpeg

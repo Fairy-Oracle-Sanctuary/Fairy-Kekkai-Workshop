@@ -112,8 +112,7 @@ class DownloadInterface(ScrollArea):
         addDownloadBtn.clicked.connect(self.showAddDownloadDialog)
 
         # 创建更新组件
-        if sys.platform == "win32":
-            self.updateBtn = PushButton("更新yt-dlp", self)
+        self.updateBtn = PushButton("更新yt-dlp", self)
 
         # 创建分段控件
         self.segmentedWidget = SegmentedWidget(self)
@@ -145,9 +144,8 @@ class DownloadInterface(ScrollArea):
 
         # 设置布局
         self.vBoxLayout.addWidget(addDownloadBtn)
-        if sys.platform == "win32":
-            self.vBoxLayout.addWidget(self.updateBtn)
-            self.updateBtn.clicked.connect(self.updateYtDlp)
+        self.vBoxLayout.addWidget(self.updateBtn)
+        self.updateBtn.clicked.connect(self.updateYtDlp)
         self.vBoxLayout.addWidget(self.segmentedWidget)
         self.vBoxLayout.addWidget(self.taskListContainer)
 
@@ -201,7 +199,7 @@ class DownloadInterface(ScrollArea):
             path = QFileDialog.getExistingDirectory(
                 self,
                 self.tr("请选择要下载到的目录"),
-                os.path.expanduser("~\\Downloads"),
+                os.path.expanduser("~/Downloads"),
             )
             if not path:
                 event_bus.notification_service.show_warning(
@@ -256,14 +254,30 @@ class DownloadInterface(ScrollArea):
     def startDownload(self, task: DownloadTask):
         """开始下载任务"""
         # 检查 yt-dlp 路径
-        if not os.path.exists(cfg.ytdlpPath.value):
-            event_bus.notification_service.show_error(
-                "配置错误",
-                f"yt-dlp 路径不存在: {cfg.ytdlpPath.value}\n请在设置中配置正确的路径",
-            )
-            task.status = "失败"
-            self.updateTaskUI(task.id)
-            return
+        ytdlp_path = cfg.ytdlpPath.value
+        if not os.path.exists(ytdlp_path):
+            # Linux: 尝试通过 PATH 查找
+            if sys.platform == "linux":
+                import shutil
+                which_path = shutil.which("yt-dlp")
+                if which_path:
+                    cfg.set(cfg.ytdlpPath, which_path)
+                else:
+                    event_bus.notification_service.show_error(
+                        "配置错误",
+                        f"yt-dlp 路径不存在: {ytdlp_path}\n请执行: pip install yt-dlp",
+                    )
+                    task.status = "失败"
+                    self.updateTaskUI(task.id)
+                    return
+            else:
+                event_bus.notification_service.show_error(
+                    "配置错误",
+                    f"yt-dlp 路径不存在: {ytdlp_path}\n请在设置中配置正确的路径",
+                )
+                task.status = "失败"
+                self.updateTaskUI(task.id)
+                return
 
         # 创建下载线程
         download_thread = DownloadProcess(task)
@@ -433,13 +447,15 @@ class DownloadInterface(ScrollArea):
 
     def setUpdateBoxEnabled(self, enabled):
         """设置更新框状态"""
-        if sys.platform == "win32":
-            self.updateBtn.setEnabled(enabled)
+        self.updateBtn.setEnabled(enabled)
 
     def updateYtDlp(self):
         """Update yt-dlp"""
         self.setUpdateBoxEnabled(False)
-        self.update_thread = UpdateYtDlpThread()
+        if sys.platform == "linux":
+            self.update_thread = LinuxUpdateYtDlpThread()
+        else:
+            self.update_thread = UpdateYtDlpThread()
         self.update_thread.progress_signal.connect(self.onUpdateProgress)
         self.update_thread.finished_signal.connect(self.onUpdateFinished)
         self.update_thread.start()
@@ -571,6 +587,84 @@ class UpdateYtDlpThread(QThread):
 
     def _get_latest_version(self) -> str:
         """Get latest yt-dlp version from GitHub API"""
+        try:
+            response = urllib.request.urlopen(
+                "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest",
+                timeout=10,
+            )
+            data = json.loads(response.read().decode())
+            return data.get("tag_name", "").lstrip("v")
+        except Exception:
+            return None
+
+
+class LinuxUpdateYtDlpThread(QThread):
+    """Linux 下更新 yt-dlp 线程（使用 pip）"""
+
+    progress_signal = Signal(int, str)
+    finished_signal = Signal(bool, str)
+
+    def __init__(self):
+        super().__init__()
+        self._is_cancelled = False
+
+    def run(self):
+        try:
+            self.progress_signal.emit(0, "正在检查 yt-dlp 版本...")
+            current_version = self._get_current_version()
+            latest_version = self._get_latest_version()
+
+            if current_version and current_version == latest_version:
+                self.finished_signal.emit(
+                    True, f"yt-dlp 已是最新版本 ({latest_version})"
+                )
+                return
+
+            self.progress_signal.emit(0, f"正在更新 yt-dlp 到 {latest_version}...")
+
+            # 使用 pip 安装/更新 yt-dlp
+            result = subprocess.run(
+                [sys.executable, "-m", "pip", "install", "-U", "yt-dlp"],
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+
+            if self._is_cancelled:
+                self.finished_signal.emit(False, "yt-dlp 更新已取消")
+                return
+
+            if result.returncode == 0:
+                self.progress_signal.emit(100, "yt-dlp 更新完成")
+                self.finished_signal.emit(True, "yt-dlp 更新成功")
+            else:
+                self.finished_signal.emit(
+                    False, f"yt-dlp 更新失败:\n{result.stderr.strip()}"
+                )
+
+        except subprocess.TimeoutExpired:
+            self.finished_signal.emit(False, "yt-dlp 更新超时")
+        except Exception as e:
+            self.finished_signal.emit(False, f"yt-dlp 更新失败: {str(e)}")
+
+    def cancel(self):
+        self._is_cancelled = True
+
+    def _get_current_version(self) -> str:
+        try:
+            result = subprocess.run(
+                ["yt-dlp", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            if result.returncode == 0:
+                return result.stdout.strip()
+        except Exception:
+            pass
+        return None
+
+    def _get_latest_version(self) -> str:
         try:
             response = urllib.request.urlopen(
                 "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest",

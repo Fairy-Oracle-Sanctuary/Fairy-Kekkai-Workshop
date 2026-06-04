@@ -1,7 +1,9 @@
 # coding:utf-8
 import os
 import re
+import sys
 from datetime import datetime
+from pathlib import Path
 
 from PySide6.QtCore import QObject, QProcess, QTimer, Signal
 
@@ -143,8 +145,23 @@ class DownloadProcess(QObject):
         #     cmd.extend(["--audio-codec", cfg.audioCodec.value])
 
         # ffmpeg 路径
-        if cfg.ffmpegPath.value:
-            cmd.extend(["--ffmpeg-location", cfg.ffmpegPath.value])
+        ffmpeg_path = cfg.ffmpegPath.value
+        if ffmpeg_path:
+            # Linux 下优先使用系统 ffmpeg，避免 IDE 自带的 ffmpeg
+            if sys.platform == "linux":
+                import shutil
+                # 检查当前路径是否为非系统路径（如 IDE 自带）
+                if not ffmpeg_path.startswith(("/usr/bin/", "/usr/local/bin/")):
+                    # 尝试查找系统 ffmpeg
+                    for system_path in ["/usr/bin/ffmpeg", "/usr/local/bin/ffmpeg"]:
+                        if Path(system_path).exists():
+                            ffmpeg_path = system_path
+                            break
+                    else:
+                        which_path = shutil.which("ffmpeg")
+                        if which_path and which_path.startswith(("/usr/bin/", "/usr/local/bin/")):
+                            ffmpeg_path = which_path
+            cmd.extend(["--ffmpeg-location", ffmpeg_path])
 
         # 添加通用参数
         cmd.extend(
@@ -186,11 +203,22 @@ class DownloadProcess(QObject):
         self.task.start_time = datetime.now()
 
         try:
-            # 获取yt-dlp.exe路径
+            # 获取 yt-dlp 路径
             ytdlp_path = cfg.get(cfg.ytdlpPath)
             if not os.path.exists(ytdlp_path):
-                self.finished_signal.emit(False, f"yt-dlp.exe不存在: {ytdlp_path}")
-                return
+                # Linux: 尝试通过 PATH 查找
+                if sys.platform == "linux":
+                    import shutil
+                    which_path = shutil.which("yt-dlp")
+                    if which_path:
+                        ytdlp_path = which_path
+                        cfg.set(cfg.ytdlpPath, ytdlp_path)
+                    else:
+                        self.finished_signal.emit(False, f"yt-dlp 不存在: {ytdlp_path}\n请执行: pip install yt-dlp")
+                        return
+                else:
+                    self.finished_signal.emit(False, f"yt-dlp 不存在: {ytdlp_path}")
+                    return
 
             # 确保下载目录存在
             os.makedirs(self.task.download_path, exist_ok=True)
