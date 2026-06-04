@@ -234,3 +234,4 @@ x64/
 *.pch
 
 .VSCodeCounter/
+Output/
