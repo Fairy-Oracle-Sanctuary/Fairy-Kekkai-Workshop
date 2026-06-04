@@ -7,8 +7,8 @@
 ### 核心特性
 - 📥 **视频下载**：基于 yt-dlp，支持 YouTube 等多个视频平台
 - 🔤 **字幕提取**：集成 paddleocr，支持自定义 OCR 参数和模型路径
-- �️ **语音识别**：基于 [Const-me/Whisper](https://github.com/Const-me/Whisper)，支持多语言语音转字幕，带实时进度显示
-- �🌐 **智能翻译**：支持多个 AI 模型（OpenAI、Deepseek、腾讯混元、ERNIE、Gemini、书生等）
+- 🎤 **语音识别**：基于 [Const-me/Whisper](https://github.com/Const-me/Whisper)，支持多语言语音转字幕，带实时进度显示
+- 🌐 **智能翻译**：支持多个 AI 模型（OpenAI、Deepseek、腾讯混元、ERNIE、Gemini、书生等）
 - 🎬 **视频压制**：基于 FFmpeg，支持自定义编码参数
 - 💾 **项目管理**：完整的项目文件系统管理，支持导入/链接外部项目
 - 🎨 **主题切换**：标题栏快捷主题切换按钮，支持深色/浅色模式
@@ -61,6 +61,15 @@ Fairy-Kekkai-Workshop/
 │   │       ├── whispernet/         # WhisperNet CLI (C#)
 │   │       │   ├── Program.cs     # CLI 入口，支持进度输出
 │   │       │   └── WhisperNetCLI.csproj
+│   │       ├── whisper/            # Whisper C++ 源码
+│   │       │   ├── API/            # Whisper API 定义
+│   │       │   ├── CPU/            # CPU 实现
+│   │       │   ├── D3D/            # Direct3D 实现
+│   │       │   ├── ML/             # 机器学习模型
+│   │       │   ├── Whisper/        # Whisper 核心实现
+│   │       │   ├── Utils/          # 工具函数
+│   │       │   ├── Whisper.vcxproj # Visual Studio 项目文件
+│   │       │   └── ...             # 其他源文件
 │   │       └── paddleocr/         # paddleocr 源码
 │   │           └── main.cpp       # C++ CLI 实现
 │   │
@@ -142,8 +151,11 @@ Fairy-Kekkai-Workshop/
 
 5. **准备 Whisper 工具**（仅 Windows）
    - 下载 Whisper 模型文件（ggml 格式）放到 `tools/Whisper.model/` 目录
+   - 编译 Whisper C++ DLL: 使用 Visual Studio 2022 打开 `app/service/CLI/whisper/Whisper.vcxproj` 并编译 Release|x64 配置
    - 编译 WhisperNet CLI: `cd app/service/CLI/whispernet && dotnet publish -c Release -r win-x64 --self-contained`
-   - 复制发布文件夹内容到 `tools/Whisper/` 目录
+   - 复制以下文件到 `tools/Whisper/` 目录：
+     - 从 `app/service/CLI/whisper/x64/Release/` 复制 Whisper.dll 及其依赖
+     - 从 WhisperNet CLI 发布文件夹复制 WhisperNetCLI.exe、WhisperNet.dll、ComLight.dll 等
 
 5. **运行应用**
    ```bash
