@@ -62,9 +62,15 @@ namespace
 
 		void initialize( whisper_full_params& res, const Whisper::sFullParams& rsi, Whisper::iContext* context )
 		{
-			*(uint32_t*)( &language[ 0 ] ) = rsi.language;
-			language[ 4 ] = '\0';
-			res.language = language;
+			// 允许 0 用于自动检测
+			if( rsi.language == 0 )
+				res.language = "";
+			else
+			{
+				*(uint32_t*)( &language[ 0 ] ) = rsi.language;
+				language[ 4 ] = '\0';
+				res.language = language;
+			}
 
 			newContext = context;
 

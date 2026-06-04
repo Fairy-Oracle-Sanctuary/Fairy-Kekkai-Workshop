@@ -535,7 +535,7 @@ class Config(QConfig):
     whisperLanguage = OptionsConfigItem(
         "Whisper",
         "Language",
-        "auto",
+        "ja",
         OptionsValidator(["auto", "zh", "ja", "en", "ko", "fr", "de", "es"]),
         restart=False,
     )
