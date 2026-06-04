@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+echo "正在卸载 Fairy-Kekkai-Workshop..."
+
+# 清理 AppData 配置目录
+if [ -d /opt/fairy-kekkai-workshop/AppData ]; then
+    rm -rf /opt/fairy-kekkai-workshop/AppData
+fi
+
+echo "Fairy-Kekkai-Workshop 已卸载"
+exit 0
