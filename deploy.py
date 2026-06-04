@@ -17,12 +17,12 @@ if sys.platform == "win32":
         "--mingw64",
         "--show-memory",
         "--show-progress",
-        "--windows-icon-from-ico=Fairy-Kekkai-Workshop/app/resource/images/logo.ico",
+        "--windows-icon-from-ico=app/resource/images/logo.ico",
         f"--windows-file-version={VERSION}",
         f"--windows-product-version={VERSION}",
         '--windows-file-description="Fairy Kekkai Workshop"',
-        "--output-dir=Fairy-Kekkai-Workshop/dist",
-        "Fairy-Kekkai-Workshop/Fairy-Kekkai-Workshop.py",
+        "--output-dir=dist",
+        "Fairy-Kekkai-Workshop.py",
     ]
 
 elif sys.platform == "darwin":
@@ -39,9 +39,9 @@ elif sys.platform == "darwin":
         "--macos-disable-console",
         f"--macos-app-version={VERSION}",
         '--macos-app-name="Fairy Kekkai Workshop"',
-        "--macos-app-icon=Fairy-Kekkai-Workshop/app/resource/images/logo.ico",
-        "--output-dir=Fairy-Kekkai-Workshop/dist",
-        "Fairy-Kekkai-Workshop/Fairy-Kekkai-Workshop.py",
+        "--macos-app-icon=app/resource/images/logo.ico",
+        "--output-dir=dist",
+        "Fairy-Kekkai-Workshop.py",
     ]
 else:
     args = [
