@@ -1,0 +1,9 @@
+PySide6-Fluent-Widgets[full]
+opencv-python
+openai
+numpy
+Pillow
+requests
+spark_ai_python
+srt
+imageio
