@@ -186,22 +186,25 @@ class DownloadProcess(QObject):
         self.task.start_time = datetime.now()
 
         try:
-            # 获取yt-dlp.exe路径
+            # 获取yt-dlp路径
             ytdlp_path = cfg.get(cfg.ytdlpPath)
+            self.logger.info(
+                f"[DownloadProcess] ytdlp_path={ytdlp_path}, exists={os.path.exists(ytdlp_path)}"
+            )
             if not os.path.exists(ytdlp_path):
-                self.finished_signal.emit(False, f"yt-dlp.exe不存在: {ytdlp_path}")
+                self.logger.error(f"[DownloadProcess] yt-dlp 不存在: {ytdlp_path}")
+                self.finished_signal.emit(False, f"yt-dlp不存在: {ytdlp_path}")
                 return
 
             # 确保下载目录存在
             os.makedirs(self.task.download_path, exist_ok=True)
+            self.logger.info(
+                f"[DownloadProcess] 下载目录已就绪: {self.task.download_path}"
+            )
 
             # 构建命令
             cmd = self.build_ytdlp_command()
-            try:
-                print(f"yt-dlp command: {' '.join(cmd)}")
-            except UnicodeEncodeError:
-                # macOS/Windows terminal may not support Chinese characters
-                pass
+            self.logger.info(f"[DownloadProcess] yt-dlp 命令: {' '.join(cmd)}")
 
             # 创建QProcess
             self.process = QProcess()
@@ -217,7 +220,9 @@ class DownloadProcess(QObject):
             self.process.setArguments(cmd[1:])  # 去掉程序路径本身
 
             # 启动进程
+            self.logger.info("[DownloadProcess] 启动 yt-dlp 进程...")
             self.process.start()
+            self.logger.info("[DownloadProcess] yt-dlp 进程已启动")
 
         except Exception as e:
             if not self.is_cancelled:
@@ -230,7 +235,9 @@ class DownloadProcess(QObject):
                 self.task.end_time = datetime.now()
                 self.finished_signal.emit(False, error_msg)
                 event_bus.download_finished_signal.emit(False, error_msg)
-                self.logger.error(f"下载任务失败: {self.task.url} - {error_msg}")
+                self.logger.error(
+                    f"[DownloadProcess] 下载任务异常失败: {self.task.url} - {error_msg}"
+                )
 
     def handle_stdout(self):
         """处理标准输出"""
@@ -309,7 +316,7 @@ class DownloadProcess(QObject):
             self.task.progress = 100
             self.task.end_time = datetime.now()
             self.finished_signal.emit(True, "下载完成")
-            event_bus.download_finished_signal.emit(True, self.task.download_path)
+            event_bus.download_finished_signal.emit(True, str(self.task.download_path))
             self.logger.info(
                 f"下载任务已完成: {self.task.url} - {self.task.download_path}"
             )
@@ -344,6 +351,9 @@ class DownloadProcess(QObject):
         }
 
         error_msg = error_map.get(error, f"进程错误: {error}")
+        self.logger.error(
+            f"[DownloadProcess] QProcess 错误: {error_msg} (code={error})"
+        )
         self.finished_signal.emit(False, error_msg)
 
     def parse_progress_line(self, line):

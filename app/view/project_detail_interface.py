@@ -39,6 +39,7 @@ from qfluentwidgets import FluentIcon as FIF
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.events import EventBuilder
+from ..common.logger import Logger
 from ..components.dialog import (
     BatchTaskDialog,
     CustomDoubleMessageBox,
@@ -158,6 +159,7 @@ class ProjectDetailInterface(ScrollArea):
         self.subfolders = []
         self.topPipsPager = None
         self.bottomPipsPager = None
+        self.logger = Logger("ProjectDetail", "project")
 
         self._initWidgets()
 
@@ -494,9 +496,11 @@ class ProjectDetailInterface(ScrollArea):
 
         if task_type == "下载":
             video_url = project.project_video_url[self.card_id][idx]
+            self.logger.info(f"[下载] 准备发射信号: url={video_url}, path={raw}")
             event_bus.download_requested.emit(
                 EventBuilder.download_video(video_url, raw)
             )
+            self.logger.info("[下载] download_requested 信号已发射")
 
         elif task_type == "语音识别":
             video_path = os.path.join(raw, "生肉.mp4")
@@ -880,6 +884,7 @@ class FileItemWidget(CardWidget):
         parent=None,
     ):
         super().__init__(parent)
+        self.logger = Logger("FileItemWidget", "project")
         self.main_window = window
         self.card_id = card_id
         self.folder_num = folder_num
@@ -1125,8 +1130,10 @@ class FileItemWidget(CardWidget):
             video_url = dialog.LineEdit.text().strip()
             if video_url:
                 # 通过信号发送下载请求
-                download_path = Path(self.file_path).parent
-                print(download_path)
+                download_path = str(Path(self.file_path).parent)
+                self.logger.info(
+                    f"[单集下载] 准备发射信号: url={video_url}, path={download_path}"
+                )
                 # 发射信号
                 event_bus.download_requested.emit(
                     EventBuilder.download_video(
@@ -1134,6 +1141,7 @@ class FileItemWidget(CardWidget):
                         download_path,
                     )
                 )
+                self.logger.info("[单集下载] download_requested 信号已发射")
                 # 显示下载中的提示
                 # event_bus.notification_service.show_info(
                 #     "成功", f"已添加视频下载任务: {video_url}"

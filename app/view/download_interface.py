@@ -7,7 +7,6 @@ import sys
 import tempfile
 import urllib.request
 
-from app.common.config import cfg
 from PySide6.QtCore import QProcess, Qt, QThread, Signal
 from PySide6.QtWidgets import (
     QApplication,
@@ -25,6 +24,8 @@ from qfluentwidgets import (
     ScrollArea,
     SegmentedWidget,
 )
+
+from app.common.config import cfg
 
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
@@ -255,17 +256,26 @@ class DownloadInterface(ScrollArea):
 
     def startDownload(self, task: DownloadTask):
         """开始下载任务"""
+        self.logger.info(
+            f"[开始下载] task_id={task.id}, url={task.url}, path={task.download_path}"
+        )
         # 检查 yt-dlp 路径
-        if not os.path.exists(cfg.ytdlpPath.value):
+        ytdlp_path = cfg.ytdlpPath.value
+        self.logger.info(
+            f"[开始下载] yt-dlp 配置路径: {ytdlp_path}, 存在={os.path.exists(ytdlp_path)}"
+        )
+        if not os.path.exists(ytdlp_path):
+            self.logger.error(f"[开始下载] yt-dlp 路径不存在: {ytdlp_path}")
             event_bus.notification_service.show_error(
                 "配置错误",
-                f"yt-dlp 路径不存在: {cfg.ytdlpPath.value}\n请在设置中配置正确的路径",
+                f"yt-dlp 路径不存在: {ytdlp_path}\n请在设置中配置正确的路径",
             )
             task.status = "失败"
             self.updateTaskUI(task.id)
             return
 
         # 创建下载线程
+        self.logger.info(f"[开始下载] 创建 DownloadProcess, task_id={task.id}")
         download_thread = DownloadProcess(task)
         download_thread.progress_signal.connect(
             lambda progress, speed, filename: self.onDownloadProgress(
@@ -420,6 +430,7 @@ class DownloadInterface(ScrollArea):
 
     def addDownloadFromProject(self, request_data):
         """从项目界面添加下载任务"""
+        self.logger.info(f"[信号] 收到 download_requested: {request_data}")
         task = DownloadTask(
             url=request_data["url"],
             download_path=request_data["save_path"],
