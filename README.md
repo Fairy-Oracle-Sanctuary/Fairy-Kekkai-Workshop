@@ -275,13 +275,6 @@ A:
 - 推荐使用Deepseek或腾讯混元（支持较好）
 - Deepseek深度思考模式会增加推理时间，但翻译质量更高
 
-### Q: 视频压制很慢
-
-A:
-1. 使用硬件加速（需FFmpeg支持）：配置 `-hwaccel cuda` 或 `-hwaccel videotoolbox`
-2. 降低视频质量或分辨率
-3. 使用更快的编码器（`libx264` → `libx265` 或 `av1`）
-
 ### Q: 批量任务添加失败
 
 A:

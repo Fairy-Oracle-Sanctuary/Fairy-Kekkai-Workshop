@@ -236,3 +236,5 @@ x64/
 .VSCodeCounter/
 Output/
 .vscode/
+
+.DS_Store

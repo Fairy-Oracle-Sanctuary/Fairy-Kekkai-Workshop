@@ -132,16 +132,16 @@ Fairy-Kekkai-Workshop/
    cd Touhou-translate/Fairy-Kekkai-Workshop
    ```
 
-2. **创建虚拟环境**（推荐使用 uv）
+2. **创建虚拟环境**（推荐使用 venv）
    ```bash
-   uv venv
+   python -m venv .venv
    source .venv/bin/activate  # Unix/macOS
    .venv\Scripts\activate     # Windows
    ```
 
 3. **安装依赖**
    ```bash
-   uv pip install -r requirements.txt
+   pip install -r requirements.txt
    ```
 
 4. **准备 OCR 工具**
