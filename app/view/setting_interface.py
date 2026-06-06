@@ -2,10 +2,11 @@
 # from ..common.signal_bus import signalBus
 # from ..common.icon import Logo
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QUrl
+from PySide6.QtCore import Qt, QThread, QUrl
 from PySide6.QtGui import QDesktopServices, QFont
 from PySide6.QtWidgets import QFileDialog, QWidget
 from qfluentwidgets import (
@@ -16,6 +17,7 @@ from qfluentwidgets import (
     PushSettingCard,
     RangeSettingCard,
     ScrollArea,
+    Signal,
     SwitchSettingCard,
     TitleLabel,
     setFont,
@@ -26,10 +28,34 @@ from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import SettingCardGroup as CardGroup
 from qframelesswindow.utils import getSystemAccentColor
 
-from ..common.config import cfg
+from ..common.config import cfg, get_default_exe_path
 from ..common.event_bus import event_bus
-from ..common.setting import COPYLEFT, EXE_SUFFIX, TEAM, VERSION, YEAR
+from ..common.setting import COPYLEFT, TEAM, VERSION, YEAR
 from ..components.config_card import DetectionCard
+
+
+class ExeDetectThread(QThread):
+    """通过执行 version 命令检测可执行文件是否可用（macOS app bundle 内的文件无法用 exists 判断）"""
+
+    detected = Signal(str, bool)  # exe_path, success
+
+    def __init__(self, exe_path: str, version_flag: str = "-version"):
+        super().__init__()
+        self.exe_path = exe_path
+        self.version_flag = version_flag
+
+    def run(self):
+        try:
+            result = subprocess.run(
+                [self.exe_path, self.version_flag],
+                capture_output=True,
+                timeout=10,
+            )
+            print(result.stdout.decode("utf-8"))
+            print(result.stderr.decode("utf-8"))
+            self.detected.emit(self.exe_path, result.returncode == 0)
+        except (FileNotFoundError, subprocess.TimeoutExpired, TimeoutError, OSError):
+            self.detected.emit(self.exe_path, False)
 
 
 class SettingCardGroup(CardGroup):
@@ -238,40 +264,89 @@ class SettingInterface(ScrollArea):
         cfg.set(cfg.ffmpegPath, path)
         self.ffmpegPathCard.setContent(path)
 
-    def _detectExe(self, exe_name, url, cfg_item, path_card):
-        exe_path = Path(f"tools/{exe_name}{EXE_SUFFIX}").absolute()
-        if not exe_path.exists() and sys.platform == "win32":
-            exe_path_str = shutil.which(exe_name)
-            if exe_path_str:
-                exe_path = Path(exe_path_str)
-            else:
-                exe_path = None
-        # macOS: check Homebrew paths
-        if exe_path is not None and not exe_path.exists() and sys.platform == "darwin":
-            brew_paths = [
-                f"/opt/homebrew/bin/{exe_name}",  # Apple Silicon
-                f"/usr/local/bin/{exe_name}",  # Intel Mac
-            ]
-            for path in brew_paths:
-                if Path(path).exists():
-                    exe_path = path
-                    break
+    def _detectExe(self, exe_name, url, cfg_item, path_card, version_flag="-version"):
+        exe_path_str = get_default_exe_path(exe_name)
+        exe_path = Path(exe_path_str)
+
+        if sys.platform == "darwin":
+            # macOS: app bundle 内的文件无法用 exists判断，通过 version 命令检测
+            exe_path_str = str(exe_path)
+            if not hasattr(self, "_pending_detects"):
+                self._pending_detects = {}
+                self._detect_threads = []
+            self._pending_detects[exe_path_str] = {
+                "name": exe_name,
+                "url": url,
+                "cfg_item": cfg_item,
+                "path_card": path_card,
+            }
+            thread = ExeDetectThread(exe_path_str, version_flag)
+            thread.detected.connect(self._onExeDetected)
+            self._detect_threads.append(thread)
+            thread.start()
+        else:
+            # Windows / Linux: 使用 exists + which 回退
+            if not exe_path.exists() and sys.platform == "win32":
+                exe_path_str = shutil.which(exe_name)
+                if exe_path_str:
+                    exe_path = Path(exe_path_str)
                 else:
                     exe_path = None
-        if exe_path is not None:
-            cfg.set(cfg_item, str(exe_path))
+
+            if exe_path is not None:
+                cfg.set(cfg_item, str(exe_path))
+                event_bus.notification_service.show_success(
+                    "检测成功", f"{exe_name}路径已设置为" + str(exe_path)
+                )
+                path_card.setContent(str(exe_path))
+            else:
+                dialog = Dialog("检测失败", f"未检测到{exe_name}程序，是否要下载", self)
+                dialog.yesButton.setText("前往下载")
+                dialog.cancelButton.setText("取消")
+                if dialog.exec():
+                    QDesktopServices.openUrl(QUrl(url))
+
+    def _onExeDetected(self, exe_path: str, success: bool):
+        """macOS ExeDetectThread 检测完成回调"""
+        info = getattr(self, "_pending_detects", {}).pop(exe_path, None)
+        if info is None:
+            return
+
+        if success:
+            cfg.set(info["cfg_item"], exe_path)
             event_bus.notification_service.show_success(
-                "检测成功", f"{exe_name}路径已设置为" + str(exe_path)
+                "检测成功", f"{info['name']}路径已设置为" + exe_path
             )
-            path_card.setContent(str(exe_path))
+            info["path_card"].setContent(exe_path)
         else:
-            dialog = Dialog("检测失败", f"未检测到{exe_name}程序，是否要下载", self)
+            dialog = Dialog(
+                "检测失败",
+                f"未检测到{info['name']}程序，是否要下载",
+                self,
+            )
             dialog.yesButton.setText("前往下载")
             dialog.cancelButton.setText("取消")
             if dialog.exec():
-                QDesktopServices.openUrl(QUrl(url))
+                QDesktopServices.openUrl(QUrl(info["url"]))
+
+        # 所有检测完成后恢复按钮
+        if not getattr(self, "_pending_detects", {}):
+            self.detectionCard.openButton.setEnabled(True)
+            self.detectionCard.openButton.setText("检测")
 
     def _onDectectionCardClicked(self):
+        self.detectionCard.openButton.setEnabled(False)
+        self.detectionCard.openButton.setText("检测中...")
+
+        # ytdlp
+        self._detectExe(
+            "yt-dlp",
+            "https://github.com/yt-dlp/yt-dlp/releases",
+            cfg.ytdlpPath,
+            self.ytdlpPathCard,
+            version_flag="--version",
+        )
+
         # ffmpeg
         self._detectExe(
             "ffmpeg",
@@ -280,13 +355,9 @@ class SettingInterface(ScrollArea):
             self.ffmpegPathCard,
         )
 
-        # ytdlp
-        self._detectExe(
-            "yt-dlp",
-            "https://github.com/yt-dlp/yt-dlp/releases",
-            cfg.ytdlpPath,
-            self.ytdlpPathCard,
-        )
+        # Windows/Linux 同步检测，直接恢复按钮；macOS 由 _onExeDetected 回调恢复
+        if sys.platform != "darwin":
+            self.detectionCard.openButton.setEnabled(True)
 
     def _onAccentColorChanged(self):
         color = cfg.get(cfg.accentColor)

@@ -33,15 +33,17 @@ def get_default_exe_path(exe_name: str) -> str:
     if sys.platform == "win32":
         return str(Path(f"tools/{exe_name}{EXE_SUFFIX}").absolute())
 
-    # macOS: 优先检测 Homebrew 安装路径
+    # macOS: 优先使用打包后的app目录下的tools目录
     if sys.platform == "darwin":
-        brew_paths = [
-            f"/opt/homebrew/bin/{exe_name}",  # Apple Silicon
-            f"/usr/local/bin/{exe_name}",  # Intel Mac
-        ]
-        for path in brew_paths:
-            if Path(path).exists():
-                return path
+        # 检测是否在app bundle中运行
+        if ".app" in sys.executable:
+            # 在app bundle中，tools目录在Contents/MacOS下
+            bundle_path = Path(sys.executable)
+            resources_dir = bundle_path.parent.parent / "MacOS"
+            return str((resources_dir / "tools" / exe_name).absolute())
+        else:
+            # 开发环境，使用本地tools目录
+            return str(Path(f"tools/{exe_name}").absolute())
 
     # Linux 或其他: 使用 tools 目录
     return str(Path(f"tools/{exe_name}").absolute())
