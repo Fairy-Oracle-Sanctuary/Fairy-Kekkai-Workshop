@@ -285,7 +285,8 @@ class MainWindow(MSFluentWindow):
             self.videoCRInterface = VideocrStackedInterfaces(self)
         self.translateInterface = TranslateStackedInterfaces(self)
         self.ffmpegInterface = FFmpegStackedInterfaces(self)
-        self.whisperInterface = WhisperStackedInterfaces(self)
+        if sys.platform == "win32":
+            self.whisperInterface = WhisperStackedInterfaces(self)
         # self.releaseInterface = ReleaseStackedInterfaces(self)
         self.settingInterface = SettingInterface(self)
 
@@ -535,7 +536,7 @@ class MainWindow(MSFluentWindow):
                         thread.wait(1000)
 
         # 停止Whisper任务
-        if hasattr(self, "whisperInterface"):
+        if sys.platform == "win32" and hasattr(self, "whisperInterface"):
             whisper_interface = getattr(self.whisperInterface, "taskInterface", None)
             if whisper_interface and hasattr(whisper_interface, "active_threads"):
                 from PySide6.QtCore import QProcess
@@ -600,7 +601,7 @@ class MainWindow(MSFluentWindow):
                     running_tasks.append(f"压制任务: {active_count} 个")
 
         # 检查Whisper任务
-        if hasattr(self, "whisperInterface"):
+        if sys.platform == "win32" and hasattr(self, "whisperInterface"):
             whisper_interface = getattr(self.whisperInterface, "taskInterface", None)
             if whisper_interface and hasattr(whisper_interface, "active_threads"):
                 active_count = len(whisper_interface.active_threads)
