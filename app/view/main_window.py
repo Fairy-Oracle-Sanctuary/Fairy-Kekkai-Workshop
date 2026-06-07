@@ -9,7 +9,6 @@ from qfluentwidgets import (
     BodyLabel,
     InfoBarPosition,
     MessageBox,
-    MSFluentWindow,
     NavigationItemPosition,
     ProgressBar,
     SplashScreen,
@@ -83,7 +82,16 @@ class LoadingSplashScreen(SplashScreen):
         self._repositionExtras()
 
 
-class MainWindow(MSFluentWindow):
+window_class = cfg.get(cfg.windowClass)
+if window_class == "MSFluentWindow":
+    from qfluentwidgets import MSFluentWindow as window
+elif window_class == "FluentWindow":
+    from qfluentwidgets import FluentWindow as window
+else:
+    from qfluentwidgets import MSFluentWindow as window
+
+
+class MainWindow(window):
     def __init__(self):
         super().__init__()
         # 提前初始化背景标志，避免 paintEvent 在显示时访问未定义属性而崩溃
@@ -202,12 +210,11 @@ class MainWindow(MSFluentWindow):
                 if self.titleBar.isVisible():
                     title_bar_rect = self.titleBar.geometry()
 
-                    # 获取最小化、最大化、关闭按钮的位置
+                    # 获取最小化、最大化、关闭、主题按钮的位置
                     # 这些按钮通常在标题栏的右侧
                     button_width = 46  # 标准按钮宽度
                     button_height = title_bar_rect.height() - 15
 
-                    # 计算按钮区域
                     close_button_rect = QRect(
                         title_bar_rect.right() - button_width,
                         title_bar_rect.top(),
@@ -229,8 +236,16 @@ class MainWindow(MSFluentWindow):
                         button_height,
                     )
 
+                    theme_button_rect = QRect(
+                        minimize_button_rect.left() - button_width,
+                        title_bar_rect.top(),
+                        button_width,
+                        button_height,
+                    )
+
                     # 绘制不透明背景
                     button_color = QColor(45, 45, 45)  # 深灰色背景
+                    painter.fillRect(theme_button_rect, button_color)
                     painter.fillRect(minimize_button_rect, button_color)
                     painter.fillRect(maximize_button_rect, button_color)
                     painter.fillRect(close_button_rect, button_color)
@@ -260,9 +275,10 @@ class MainWindow(MSFluentWindow):
         self._updateThemeButtonIcon()
         self.themeButton.clicked.connect(self._toggleTheme)
         # 插入到最小化按钮左侧（buttonLayout: minBtn, maxBtn, closeBtn）
-        self.titleBar.buttonLayout.insertWidget(
-            0, self.themeButton, 0, Qt.AlignmentFlag.AlignTop
-        )
+        if window_class != "SplitFluentWindow":
+            self.titleBar.buttonLayout.insertWidget(
+                0, self.themeButton, 0, Qt.AlignmentFlag.AlignTop
+            )
 
     def _updateThemeButtonIcon(self):
         """根据当前主题更新按钮图标"""
@@ -333,13 +349,21 @@ class MainWindow(MSFluentWindow):
             selectable=False,
             position=NavigationItemPosition.BOTTOM,
         )
-        self.addSubInterface(
-            self.settingInterface,
-            FIF.SETTING,
-            "设置",
-            FIF.SETTING,
-            NavigationItemPosition.BOTTOM,
-        )
+        if window_class == "MSFluentWindow":
+            self.addSubInterface(
+                self.settingInterface,
+                FIF.SETTING,
+                "设置",
+                FIF.SETTING,
+                NavigationItemPosition.BOTTOM,
+            )
+        else:
+            self.addSubInterface(
+                self.settingInterface,
+                FIF.SETTING,
+                "设置",
+                NavigationItemPosition.BOTTOM,
+            )
 
     def _connectSignalToSlot(self):
         """连接信号到槽"""

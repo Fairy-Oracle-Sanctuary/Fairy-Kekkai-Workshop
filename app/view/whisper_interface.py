@@ -1,10 +1,13 @@
 # coding:utf-8
 
+import os
+
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QDesktopServices
 from qfluentwidgets import (
     BodyLabel,
     ComboBoxSettingCard,
+    Dialog,
 )
 from qfluentwidgets import FluentIcon as FIF
 
@@ -108,6 +111,30 @@ class WhisperInterface(BaseFunctionInterface):
 
     def _start_processing(self):
         """开始识别"""
+        cli_path = cfg.get(cfg.whisperCliPath)
+        if not cli_path or not os.path.exists(cli_path):
+            dialog = Dialog(
+                self.tr("警告"),
+                self.tr(f"Whisper CLI路径 {cli_path} 不存在"),
+                self.window(),
+            )
+            dialog.yesButton.setText("确认")
+            dialog.cancelButton.setVisible(False)
+            dialog.exec()
+            return
+
+        model_path = cfg.get(cfg.whisperModelPath)
+        if not model_path or not os.path.exists(model_path):
+            dialog = Dialog(
+                self.tr("警告"),
+                self.tr(f"Whisper模型路径 {model_path} 不存在"),
+                self.window(),
+            )
+            dialog.yesButton.setText("确认")
+            dialog.cancelButton.setVisible(False)
+            dialog.exec()
+            return
+
         args = self._get_args()
         self.addTask.emit(args)
         self.logger.info(

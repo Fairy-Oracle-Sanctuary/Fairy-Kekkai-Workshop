@@ -355,18 +355,21 @@ class TranslateThread(QThread):
                 if not self._is_running:
                     break
 
-                # 限制上下文：只保留最近两轮历史对话（1轮为 1对 user+assistant，共4条消息）
-                if len(messages) > 5:
-                    messages = [messages[0]] + messages[-4:]
-
                 batch = srt_items[i : i + batch_size]
                 batch_texts = [
                     f"{j + 1}. {item['text']}" for j, item in enumerate(batch)
                 ]
                 user_content = f"请翻译以下{len(batch)}句：\n" + "\n".join(batch_texts)
 
-                # 添加用户消息
-                messages.append({"role": "user", "content": user_content})
+                if cfg.get(cfg.useTranslateContext):
+                    # 限制上下文：只保留最近两轮历史对话（1轮为 1对 user+assistant，共4条消息）
+                    if len(messages) > 5:
+                        messages = [messages[0]] + messages[-4:]
+                    # 添加用户消息
+                    messages.append({"role": "user", "content": user_content})
+                else:
+                    # 只发 system prompt 和当前 user
+                    messages = [messages[0], {"role": "user", "content": user_content}]
 
                 # 调用翻译
                 full_response = ""

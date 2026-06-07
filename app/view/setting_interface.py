@@ -93,6 +93,18 @@ class SettingInterface(ScrollArea):
             texts=[self.tr("海沫绿"), self.tr("跟随系统设置")],
             parent=self.personalGroup,
         )
+        self.windowClassCard = ComboBoxSettingCard(
+            cfg.windowClass,
+            FIF.EMBED,
+            self.tr("窗口类型"),
+            self.tr("调整应用的窗口类型"),
+            texts=[
+                self.tr("MSFluentWindow"),
+                self.tr("FluentWindow"),
+                self.tr("SplitFluentWindow"),
+            ],
+            parent=self.personalGroup,
+        )
         self.zoomCard = ComboBoxSettingCard(
             cfg.dpiScale,
             FIF.ZOOM,
@@ -206,6 +218,7 @@ class SettingInterface(ScrollArea):
         self.personalGroup.addSettingCard(self.themeCard)
         self.personalGroup.addSettingCard(self.zoomCard)
         self.personalGroup.addSettingCard(self.accentColorCard)
+        self.personalGroup.addSettingCard(self.windowClassCard)
         self.personalGroup.addSettingCard(self.closeDirectlyCard)
         if sys.platform == "win32":
             self.personalGroup.addSettingCard(self.showBackgroundCard)
