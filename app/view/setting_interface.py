@@ -336,7 +336,8 @@ class SettingInterface(ScrollArea):
 
     def _onDectectionCardClicked(self):
         self.detectionCard.openButton.setEnabled(False)
-        self.detectionCard.openButton.setText("检测中...")
+        if sys.platform == "darwin":
+            self.detectionCard.openButton.setText("检测中...")
 
         # ytdlp
         self._detectExe(

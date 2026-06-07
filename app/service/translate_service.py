@@ -355,6 +355,10 @@ class TranslateThread(QThread):
                 if not self._is_running:
                     break
 
+                # 限制上下文：只保留最近两轮历史对话（1轮为 1对 user+assistant，共4条消息）
+                if len(messages) > 5:
+                    messages = [messages[0]] + messages[-4:]
+
                 batch = srt_items[i : i + batch_size]
                 batch_texts = [
                     f"{j + 1}. {item['text']}" for j, item in enumerate(batch)

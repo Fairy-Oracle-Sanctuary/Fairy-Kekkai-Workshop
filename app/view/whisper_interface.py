@@ -87,7 +87,10 @@ class WhisperInterface(BaseFunctionInterface):
         hint_label = BodyLabel(
             "内置 <b>Small</b> 模型对油库里语音已够用。"
             '需更高精度可<a href="https://pan.xunlei.com/s/VOu1R3aOfz05uqcbNUBSnEFSA1?pwd=62cr#" '
-            'style="color: #0078d4;">手动下载更大模型</a>后替换。语音设置不推荐选择自动检测。',
+            'style="color: #0078d4;">手动下载更大模型</a>后替换。'
+            "<b>注意</b>: 若是超过10分钟的视频强烈建议更换medium模型，超过30分钟的视频更换large模型。"
+            "更多模型可前往<a href='https://huggingface.co/ggerganov/whisper.cpp/tree/main' style='color: #0078d4;'>https://huggingface.co/ggerganov/whisper.cpp/tree/main</a>下载，"
+            "语音设置不推荐选择自动检测。目前模型存在幻觉，可能会生成一些重复文本，剪辑时请注意。"
         )
         hint_label.setWordWrap(True)
         hint_label.linkActivated.connect(
