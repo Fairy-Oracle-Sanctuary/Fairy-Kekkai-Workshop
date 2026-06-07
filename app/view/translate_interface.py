@@ -88,6 +88,15 @@ class TranslationInterface(BaseFunctionInterface):
         )
         self.settingsGroup.addSettingCard(self.AI_modelCard)
 
+        # 上下文关联开关
+        self.useTranslateContextCard = SwitchSettingCard(
+            FIF.UNIT,
+            "启用上下文关联",
+            "开启后AI翻译将参考前后字幕，关闭则每批独立翻译",
+            configItem=cfg.useTranslateContext,
+        )
+        self.settingsGroup.addSettingCard(self.useTranslateContextCard)
+
         # Deepseek 专属设置 - 模型选择
         self.deepseekModelCard = ComboBoxSettingCard(
             configItem=cfg.deepseekModel,

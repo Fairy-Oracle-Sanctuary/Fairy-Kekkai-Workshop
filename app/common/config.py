@@ -112,6 +112,13 @@ class Config(QConfig):
     accentColor = OptionsConfigItem(
         "MainWindow", "AccentColor", "#009faa", OptionsValidator(["#009faa", "Auto"])
     )
+    windowClass = OptionsConfigItem(
+        "MainWindow",
+        "WindowClass",
+        "MSFluentWindow",
+        OptionsValidator(["MSFluentWindow", "FluentWindow"]),
+        restart=True,
+    )
     closeDirectly = ConfigItem(
         "MainWindow", "CloseDirectly", False, BoolValidator(), restart=False
     )
@@ -469,6 +476,11 @@ class Config(QConfig):
         "PromptTemplate",
         "你是一个专业的{target_lang}翻译助手。\n请将以下{origin_lang}文本翻译为{target_lang}，并满足以下要求：\n- 翻译提供的文本内容，保持原意流畅自然\n- 若文本中出现人名，优先参照《东方Project》官方或相关常见译名进行匹配与统一，如果出现了非东方人物的名字，则照常翻译\n- 保持术语一致性，上下文连贯\n- 每行对应一条翻译，按顺序输出\n- 如因 OCR 识别错误导致语句无法理解或无法翻译，请将该句替换为 ***",
         restart=False,
+    )
+
+    # 是否启用AI翻译上下文（多轮对话）
+    useTranslateContext = ConfigItem(
+        "Translate", "UseTranslateContext", True, BoolValidator(), restart=False
     )
 
     # AI模型选择
