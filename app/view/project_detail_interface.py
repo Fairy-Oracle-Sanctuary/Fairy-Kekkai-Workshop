@@ -41,6 +41,7 @@ from ..common.event_bus import event_bus
 from ..common.events import EventBuilder
 from ..common.logger import Logger
 from ..components.dialog import (
+    BatchDeleteFileDialog,
     BatchTaskDialog,
     CustomDoubleMessageBox,
     CustomMessageBox,
@@ -369,9 +370,14 @@ class ProjectDetailInterface(ScrollArea):
         batchTaskButton.setToolTip("批量添加下载/语音识别/翻译/压制任务")
         batchTaskButton.clicked.connect(self._open_batch_task_dialog)
 
+        batchDeleteButton = PushButton("批量删除", self.view)
+        batchDeleteButton.setToolTip("按文件类型批量删除剧集文件")
+        batchDeleteButton.clicked.connect(self._open_batch_delete_dialog)
+
         topButtonLayout.addWidget(backButton)
         topButtonLayout.addWidget(refreshButton)
         topButtonLayout.addWidget(batchTaskButton)
+        topButtonLayout.addWidget(batchDeleteButton)
         topButtonLayout.addSpacing(15)
 
         # 创建项目标题
@@ -488,6 +494,63 @@ class ProjectDetailInterface(ScrollArea):
                 )
             else:
                 event_bus.notification_service.show_warning("提示", "没有选中任何任务")
+
+    def _open_batch_delete_dialog(self):
+        """打开批量删除文件对话框"""
+        if not self.subfolders:
+            event_bus.notification_service.show_warning("提示", "当前项目没有剧集")
+            return
+
+        dialog = BatchDeleteFileDialog(
+            self.card_id, self.subfolders, parent=self.window()
+        )
+        if not dialog.exec():
+            return
+
+        selected = dialog.get_selected()
+        if not selected:
+            event_bus.notification_service.show_warning("提示", "没有选中任何文件")
+            return
+
+        file_name = selected[0][2]
+        confirm = MessageBox(
+            "确认批量删除",
+            f"确定要批量删除 {len(selected)} 个 '{file_name}' 吗？此操作不可撤销。",
+            self.window(),
+        )
+        confirm.yesButton.setText("确定")
+        confirm.cancelButton.setText("取消")
+        if not confirm.exec():
+            return
+
+        paths = [
+            os.path.join(str(folder_path), target_file)
+            for _, folder_path, target_file in selected
+        ]
+
+        def _do_batch_delete():
+            deleted_count = 0
+            for file_path in paths:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    deleted_count += 1
+            return {"deleted_count": deleted_count, "file_name": file_name}
+
+        def _on_done(success, message, result):
+            if success:
+                deleted_count = result.get("result", {}).get("deleted_count", 0)
+                self.delayedRefreshProject()
+                event_bus.notification_service.show_success(
+                    "成功", f"已删除 {deleted_count} 个 '{file_name}'"
+                )
+            else:
+                event_bus.notification_service.show_error(
+                    "错误", f"批量删除失败: {message}"
+                )
+
+        FileOperationWorker.run_async(
+            self, "batch_delete_files", _do_batch_delete, _on_done
+        )
 
     def _dispatch_task(self, task_type, folder_num, folder_path):
         """根据任务类型派发信号"""
