@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 from qfluentwidgets import (
     BodyLabel,
     CaptionLabel,
+    ComboBox,
     ComboBoxSettingCard,
     Dialog,
     ExpandLayout,
@@ -43,12 +44,50 @@ from qfluentwidgets import (
     TitleLabel,
     ToolButton,
     isDarkTheme,
+    qconfig,
     setFont,
 )
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import SettingCardGroup as CardGroup
 
 from ..common.config import cfg
+
+
+class DictSettingCard(SettingCard):
+    """Setting card with a combo box"""
+
+    def __init__(
+        self,
+        configItem,
+        icon,
+        title,
+        content=None,
+        options_dict=None,
+        parent=None,
+    ):
+        super().__init__(icon, title, content, parent)
+        self.configItem = configItem
+        self.comboBox = ComboBox(self)
+        self.hBoxLayout.addWidget(self.comboBox, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+        self.optionToText = options_dict or {}
+        for option, text in self.optionToText.items():
+            self.comboBox.addItem(text, userData=option)
+
+        self.comboBox.setCurrentText(self.optionToText.get(qconfig.get(configItem), ""))
+        self.comboBox.currentIndexChanged.connect(self._onCurrentIndexChanged)
+        configItem.valueChanged.connect(self.setValue)
+
+    def _onCurrentIndexChanged(self, index: int):
+        qconfig.set(self.configItem, self.comboBox.itemData(index))
+
+    def setValue(self, value):
+        if value not in self.optionToText:
+            return
+
+        self.comboBox.setCurrentText(self.optionToText[value])
+        qconfig.set(self.configItem, value)
 
 
 class CustomModelDetectionThread(QThread):

@@ -330,14 +330,14 @@ class MainWindow(window):
                 self.settingInterface,
             ]
 
-        self.addSubInterface(self.homeInterface, FIF.HOME, "主页")
-        self.addSubInterface(self.projectInterface, FIF.FOLDER, "项目")
-        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, "下载")
+        self.addSubInterface(self.homeInterface, FIF.HOME, self.tr("主页"))
+        self.addSubInterface(self.projectInterface, FIF.FOLDER, self.tr("项目"))
+        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, self.tr("下载"))
         if sys.platform == "win32":
-            self.addSubInterface(self.videoCRInterface, FIF.VIDEO, "字幕")
-            self.addSubInterface(self.whisperInterface, FIF.MICROPHONE, "语音")
-        self.addSubInterface(self.translateInterface, FIF.MESSAGE, "翻译")
-        self.addSubInterface(self.ffmpegInterface, FIF.ZIP_FOLDER, "压制")
+            self.addSubInterface(self.videoCRInterface, FIF.VIDEO, self.tr("字幕"))
+            self.addSubInterface(self.whisperInterface, FIF.MICROPHONE, self.tr("语音"))
+        self.addSubInterface(self.translateInterface, FIF.MESSAGE, self.tr("翻译"))
+        self.addSubInterface(self.ffmpegInterface, FIF.ZIP_FOLDER, self.tr("压制"))
 
         # self.addSubInterface(self.releaseInterface, FIF.IMAGE_EXPORT, "发布")
 
@@ -345,7 +345,7 @@ class MainWindow(window):
         self.navigationInterface.addItem(
             routeKey="Help",
             icon=FIF.HELP,
-            text="帮助",
+            text=self.tr("帮助"),
             onClick=self.showHelpBox,
             selectable=False,
             position=NavigationItemPosition.BOTTOM,
@@ -354,7 +354,7 @@ class MainWindow(window):
             self.addSubInterface(
                 self.settingInterface,
                 FIF.SETTING,
-                "设置",
+                self.tr("设置"),
                 FIF.SETTING,
                 NavigationItemPosition.BOTTOM,
             )
@@ -362,7 +362,7 @@ class MainWindow(window):
             self.addSubInterface(
                 self.settingInterface,
                 FIF.SETTING,
-                "设置",
+                self.tr("设置"),
                 NavigationItemPosition.BOTTOM,
             )
 

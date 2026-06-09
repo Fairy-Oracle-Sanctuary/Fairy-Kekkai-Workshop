@@ -71,12 +71,27 @@ class WhisperProcess(QObject):
             self.process.waitForFinished(1000)
 
     @staticmethod
-    def _activate_as_current(output_file: str):
+    def _activate_as_current(output_file: str, input_file: str = None):
         """将提取结果复制为 原文.srt（作为当前活动原文）"""
         import shutil
 
         parent_dir = os.path.dirname(output_file)
         current_file = os.path.join(parent_dir, "原文.srt")
+
+        # 如果输出文件已经是 原文.srt，则直接返回
+        if os.path.abspath(output_file) == os.path.abspath(current_file):
+            return
+
+        # 只有当视频名为 生肉.mp4 且 原文.srt 不存在时才复制
+        if input_file:
+            input_filename = os.path.basename(input_file)
+            if input_filename != "生肉.mp4":
+                return
+
+        # 如果 原文.srt 已存在，则不复制
+        if os.path.exists(current_file):
+            return
+
         try:
             if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
                 shutil.copy2(output_file, current_file)
@@ -341,9 +356,12 @@ class WhisperProcess(QObject):
             else:
                 success_msg = "转录完成"
 
-            self.finished_signal.emit(True, success_msg)
             # 自动复制到 原文.srt（设为当前活动原文）
-            WhisperProcess._activate_as_current(self.task.output_file)
+            WhisperProcess._activate_as_current(
+                self.task.output_file, self.task.input_file
+            )
+
+            self.finished_signal.emit(True, success_msg)
             event_bus.whisper_finished_signal.emit(True, str(self.task.output_file))
         else:
             error_message = f"转录失败，错误码: {exit_code}"

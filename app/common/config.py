@@ -24,7 +24,6 @@ from .setting import (
     EXE_SUFFIX,
     PIC_SUFFIX,
     AI_model_dict,
-    subtitle_positions_list,
     translate_language_dict,
     videocr_languages_dict,
 )
@@ -133,7 +132,7 @@ class Config(QConfig):
     language = OptionsConfigItem(
         "MainWindow",
         "Language",
-        Language.AUTO,
+        Language.CHINESE_SIMPLIFIED,
         OptionsValidator(Language),
         LanguageSerializer(),
         restart=True,
@@ -389,20 +388,20 @@ class Config(QConfig):
     ocr_lang = OptionsConfigItem(
         "OCR",
         "Lang",
-        "中文与英文",
+        "japan",
         OptionsValidator(list(videocr_languages_dict.keys())),
         restart=False,
     )
 
     # 字幕位置
     # 命令行使用：--subtitle_position
-    ocr_position = OptionsConfigItem(
-        "OCR",
-        "Position",
-        "任意",
-        OptionsValidator(list(subtitle_positions_list.keys())),
-        restart=False,
-    )
+    # ocr_position = OptionsConfigItem(
+    #     "OCR",
+    #     "Position",
+    #     "任意",
+    #     OptionsValidator(list(subtitle_positions_list.keys())),
+    #     restart=False,
+    # )
 
     # 相似度阈值 (0-100)
     # 命令行使用：--sim_threshold
@@ -485,7 +484,7 @@ class Config(QConfig):
     origin_lang = OptionsConfigItem(
         "Translate",
         "OriginLang",
-        "日语",
+        "ja",
         OptionsValidator(list(translate_language_dict.keys())),
         restart=False,
     )
@@ -494,7 +493,7 @@ class Config(QConfig):
     target_lang = OptionsConfigItem(
         "Translate",
         "TargetLang",
-        "中文",
+        "zh",
         OptionsValidator(list(translate_language_dict.keys())),
         restart=False,
     )
@@ -516,7 +515,7 @@ class Config(QConfig):
     ai_model = OptionsConfigItem(
         "Translate",
         "AiModel",
-        "腾讯混元",
+        "deepseek",
         OptionsValidator(list(AI_model_dict.keys())),
         restart=False,
     )
