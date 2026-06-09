@@ -238,3 +238,6 @@ Output/
 .vscode/
 
 .DS_Store
+
+obj/
+temp/

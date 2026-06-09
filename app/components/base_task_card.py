@@ -19,6 +19,7 @@ from qfluentwidgets import (
 )
 
 from ..common.event_bus import event_bus
+from ..common.task_status import TaskStatus, status_text
 
 
 class BaseItemWidget(CardWidget):
@@ -32,14 +33,14 @@ class BaseItemWidget(CardWidget):
         self,
         task,
         progressBar_type="common",
-        task_type="默认",
+        task_type=None,
         parent=None,
     ):
         super().__init__(parent)
         self.task = task
         self.task_thread = None
         self.progressBar_type = progressBar_type
-        self.task_type = task_type
+        self.task_type = task_type or self.tr("默认")
 
         self._initUI()
 
@@ -52,7 +53,9 @@ class BaseItemWidget(CardWidget):
 
         self.imageLabel = ImageLabel()
         self.imageLabel.setImage(
-            QFileIconProvider().icon(QFileInfo(str(self.task.input_file))).pixmap(32, 32)
+            QFileIconProvider()
+            .icon(QFileInfo(str(self.task.input_file)))
+            .pixmap(32, 32)
         )
 
         self.filePathLabel = BodyLabel(str(self.task.input_file))
@@ -62,27 +65,30 @@ class BaseItemWidget(CardWidget):
         else:
             self.progressBar = ProgressBar()
 
-        self.statusLabel = CaptionLabel(self.task.status)
+        self.statusLabel = CaptionLabel(
+            status_text(self.task.status, self.tr("{}中").format(self.task_type))
+        )
 
         self.openFolderBtn = TransparentToolButton(FluentIcon.FOLDER, self)
-        self.openFolderBtn.setToolTip("打开文件夹")
-        self.openFolderBtn.setVisible(self.task.status == "已完成")
+        self.openFolderBtn.setToolTip(self.tr("打开文件夹"))
+        self.openFolderBtn.setVisible(self.task.status == TaskStatus.DONE)
         self.openFolderBtn.clicked.connect(self.openFolder)
 
         self.cancelBtn = TransparentToolButton(FluentIcon.CLOSE, self)
-        self.cancelBtn.setToolTip(f"取消{self.task_type}")
+        self.cancelBtn.setToolTip(self.tr("取消") + str(self.task_type))
         self.cancelBtn.setVisible(
-            self.task.status == f"{self.task_type}中" or self.task.status == "等待中"
+            self.task.status == TaskStatus.PROCESSING
+            or self.task.status == TaskStatus.WAITING
         )
         self.cancelBtn.clicked.connect(self.cancelTranslate)
 
         self.retryBtn = TransparentToolButton(FluentIcon.SYNC, self)
-        self.retryBtn.setToolTip(f"重新{self.task_type}")
-        self.retryBtn.setVisible(self.task.status == "失败")
+        self.retryBtn.setToolTip(self.tr("重新") + str(self.task_type))
+        self.retryBtn.setVisible(self.task.status == TaskStatus.FAILED)
         self.retryBtn.clicked.connect(self.retryTranslate)
 
         self.removeBtn = TransparentToolButton(FluentIcon.DELETE, self)
-        self.removeBtn.setToolTip("移除任务")
+        self.removeBtn.setToolTip(self.tr("移除任务"))
         self.removeBtn.setDisabled(True)
         self.removeBtn.clicked.connect(self.removeTask)
 
@@ -107,13 +113,13 @@ class BaseItemWidget(CardWidget):
 
     def updateStatusStyle(self, statusPill):
         """更新状态标签样式"""
-        if self.task.status == "等待中":
+        if self.task.status == TaskStatus.WAITING:
             statusPill.setProperty("isSecondary", True)
-        elif self.task.status == f"{self.task_type}中":
+        elif self.task.status == TaskStatus.PROCESSING:
             statusPill.setProperty("isPrimary", True)
-        elif self.task.status == "已完成":
+        elif self.task.status == TaskStatus.DONE:
             statusPill.setProperty("isSuccess", True)
-        elif self.task.status == "失败":
+        elif self.task.status == TaskStatus.FAILED:
             statusPill.setProperty("isError", True)
         statusPill.setStyle(statusPill.style())
 
@@ -122,20 +128,24 @@ class BaseItemWidget(CardWidget):
         self.task.status = status
         if not success:
             self.task.error_message = error_message
-        self.statusLabel.setText(self.task.status)
+        self.statusLabel.setText(
+            status_text(status, self.tr("{}中").format(self.task_type))
+        )
 
         # 显示/隐藏按钮
-        self.openFolderBtn.setVisible(status == "已完成")
-        self.cancelBtn.setVisible(status == f"{self.task_type}中")
-        self.retryBtn.setVisible(status == "失败")
+        self.openFolderBtn.setVisible(status == TaskStatus.DONE)
+        self.cancelBtn.setVisible(status == TaskStatus.PROCESSING)
+        self.retryBtn.setVisible(status == TaskStatus.FAILED)
 
         # 设置按钮可用性
         self.removeBtn.setEnabled(
-            status == "已完成" or status == "失败" or status == "已取消"
+            status == TaskStatus.DONE
+            or status == TaskStatus.FAILED
+            or status == TaskStatus.CANCELLED
         )
 
         # 进度条
-        self.progressBar.setVisible(status == f"{self.task_type}中")
+        self.progressBar.setVisible(status == TaskStatus.PROCESSING)
 
     def updateProgress(self, progress, input_file):
         """更新进度"""
@@ -149,7 +159,9 @@ class BaseItemWidget(CardWidget):
         self.progressBar.setValue(progress)
 
         # 更新状态标签
-        self.statusLabel.setText(self.task.status)
+        self.statusLabel.setText(
+            status_text(self.task.status, self.tr("{}中").format(self.task_type))
+        )
 
     def openFolder(self):
         """打开文件夹"""
@@ -176,10 +188,12 @@ class BaseItemWidget(CardWidget):
         """取消下载 - 异步版本"""
         # 添加确认对话框
         box = MessageBox(
-            "确认取消", f"确定要取消这个{self.task_type}任务吗？", self.window()
+            self.tr("确认取消"),
+            self.tr("确定要取消这个") + str(self.task_type) + self.tr("任务吗？"),
+            self.window(),
         )
-        box.yesButton.setText("确定")
-        box.cancelButton.setText("取消")
+        box.yesButton.setText(self.tr("确定"))
+        box.cancelButton.setText(self.tr("取消"))
         if box.exec():
             # 如果任务正在提取，找到对应的提取线程并取消
             if self.task_thread:
@@ -187,8 +201,8 @@ class BaseItemWidget(CardWidget):
                 self.task_thread.cancelled_signal.connect(self._onCancellationComplete)
 
                 # 立即更新UI状态，不等待线程结束
-                self.task.status = "正在取消..."
-                self.updateStatus("正在取消...")
+                self.task.status = TaskStatus.CANCELLING
+                self.updateStatus(TaskStatus.CANCELLING)
 
                 # 异步取消，不阻塞界面
                 self.task_thread.cancel()
@@ -215,10 +229,10 @@ class BaseItemWidget(CardWidget):
     def _completeCancellation(self):
         """完成取消操作"""
         # 更新任务状态
-        self.task.status = "已取消"
+        self.task.status = TaskStatus.CANCELLED
 
         # 更新UI状态
-        self.updateStatus("已取消")
+        self.updateStatus(TaskStatus.CANCELLED)
 
         # 恢复按钮状态
         self.removeBtn.setDisabled(False)
@@ -230,7 +244,8 @@ class BaseItemWidget(CardWidget):
 
         # 显示取消提示
         event_bus.notification_service.show_info(
-            f"{self.task_type}已取消", f"任务 '{self.task.input_file}' 已被取消"
+            str(self.task_type) + self.tr("已取消"),
+            self.tr("任务") + f" '{self.task.input_file}' " + self.tr("已被取消"),
         )
 
     def retryTranslate(self):

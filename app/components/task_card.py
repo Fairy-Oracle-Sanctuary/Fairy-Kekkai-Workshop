@@ -12,8 +12,8 @@ from .dialog import (
 class OcrItemWidget(BaseItemWidget):
     """OCR任务项组件"""
 
-    def __init__(self, task, progressBar_type="common", task_type="提取", parent=None):
-        super().__init__(task, progressBar_type, task_type, parent)
+    def __init__(self, task, progressBar_type="common", task_type=None, parent=None):
+        super().__init__(task, progressBar_type, task_type or self.tr("提取"), parent)
 
 
 class TranslateItemWidget(BaseItemWidget):
@@ -23,11 +23,11 @@ class TranslateItemWidget(BaseItemWidget):
         self,
         task,
         progressBar_type="determinate",
-        task_type="翻译",
+        task_type=None,
         ai_model=None,
         parent=None,
     ):
-        super().__init__(task, progressBar_type, task_type, parent)
+        super().__init__(task, progressBar_type, task_type or self.tr("翻译"), parent)
         self.ai_model = ai_model
         self.setImage(ai_model)
         self.clicked.connect(self.handleClick)
@@ -47,8 +47,8 @@ class TranslateItemWidget(BaseItemWidget):
 class FFmpegItemWidget(BaseItemWidget):
     """压制任务项组件"""
 
-    def __init__(self, task, progressBar_type="common", task_type="压制", parent=None):
-        super().__init__(task, progressBar_type, task_type, parent)
+    def __init__(self, task, progressBar_type="common", task_type=None, parent=None):
+        super().__init__(task, progressBar_type, task_type or self.tr("压制"), parent)
         self.clicked.connect(self.handleClick)
 
     def handleClick(self):
@@ -60,8 +60,8 @@ class FFmpegItemWidget(BaseItemWidget):
 class ReleaseItemWidget(BaseItemWidget):
     """B站上传任务项组件"""
 
-    def __init__(self, task, progressBar_type="common", task_type="上传", parent=None):
-        super().__init__(task, progressBar_type, task_type, parent)
+    def __init__(self, task, progressBar_type="common", task_type=None, parent=None):
+        super().__init__(task, progressBar_type, task_type or self.tr("上传"), parent)
         self.setImage()
         self.clicked.connect(self.handleClick)
 
@@ -78,8 +78,8 @@ class ReleaseItemWidget(BaseItemWidget):
 class WhisperItemWidget(BaseItemWidget):
     """语音识别任务项组件"""
 
-    def __init__(self, task, progressBar_type="common", task_type="识别", parent=None):
-        super().__init__(task, progressBar_type, task_type, parent)
+    def __init__(self, task, progressBar_type="common", task_type=None, parent=None):
+        super().__init__(task, progressBar_type, task_type or self.tr("识别"), parent)
         self.clicked.connect(self.handleClick)
 
     def handleClick(self):

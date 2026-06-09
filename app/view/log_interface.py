@@ -33,13 +33,21 @@ class LogWindow(FluentWindow):
         self.aiLogInterface = LogInterface("aiLog", self)
         self.ffmpegLogInterface = LogInterface("ffmpegLog", self)
 
-        self.addSubInterface(self.allLogInterface, FIF.HOME, "全部日志")
-        self.addSubInterface(self.projectLogInterface, FIF.FOLDER, "项目日志")
-        self.addSubInterface(self.downloadLogInterface, FIF.DOWNLOAD, "下载日志")
-        self.addSubInterface(self.videocrLogInterface, FIF.VIDEO, "字幕提取日志")
-        self.addSubInterface(self.whisperLogInterface, FIF.MICROPHONE, "语音识别日志")
-        self.addSubInterface(self.aiLogInterface, FIF.MESSAGE, "AI翻译日志")
-        self.addSubInterface(self.ffmpegLogInterface, FIF.ZIP_FOLDER, "FFmpeg压制日志")
+        self.addSubInterface(self.allLogInterface, FIF.HOME, self.tr("全部日志"))
+        self.addSubInterface(self.projectLogInterface, FIF.FOLDER, self.tr("项目日志"))
+        self.addSubInterface(
+            self.downloadLogInterface, FIF.DOWNLOAD, self.tr("下载日志")
+        )
+        self.addSubInterface(
+            self.videocrLogInterface, FIF.VIDEO, self.tr("字幕提取日志")
+        )
+        self.addSubInterface(
+            self.whisperLogInterface, FIF.MICROPHONE, self.tr("语音识别日志")
+        )
+        self.addSubInterface(self.aiLogInterface, FIF.MESSAGE, self.tr("AI翻译日志"))
+        self.addSubInterface(
+            self.ffmpegLogInterface, FIF.ZIP_FOLDER, self.tr("FFmpeg压制日志")
+        )
 
     def setLog(
         self,

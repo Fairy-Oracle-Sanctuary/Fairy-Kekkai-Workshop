@@ -11,8 +11,9 @@ Fairy-Kekkai-Workshop/deploy.py
 import os
 import sys
 
-from PySide6.QtCore import QSharedMemory
+from PySide6.QtCore import QSharedMemory, QTranslator
 from PySide6.QtWidgets import QApplication
+from qfluentwidgets import FluentTranslator
 
 from app.common.config import cfg
 from app.common.setting import TEAM, VERSION
@@ -51,6 +52,15 @@ def main():
     app.setApplicationName("Fairy-Kekkai-Workshop")
     app.setApplicationVersion(VERSION)
     app.setOrganizationName(TEAM)
+
+    # 安装翻译器
+    locale = cfg.get(cfg.language).value
+    translator = FluentTranslator(locale)
+    galleryTranslator = QTranslator()
+    galleryTranslator.load(locale, "app", ".", ":/app/i18n")
+
+    app.installTranslator(translator)
+    app.installTranslator(galleryTranslator)
 
     # 创建并显示主窗口
     window = MainWindow()

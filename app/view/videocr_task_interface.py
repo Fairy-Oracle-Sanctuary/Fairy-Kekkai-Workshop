@@ -15,8 +15,8 @@ class OcrTaskInterface(BaseTaskInterface):
     def __init__(self, parent=None):
         super().__init__(
             object_name="ocrTaskInterface",
-            processing_text="提取中",
-            task_type="提取",
+            processing_text=self.tr("提取中"),
+            task_type=self.tr("提取"),
             parent=parent,
         )
 
@@ -73,11 +73,13 @@ class OcrTaskInterface(BaseTaskInterface):
                         progress = (current_seconds / total_seconds) * 33
                         if current_seconds == 0:
                             self.log_signal.emit(
-                                "步骤1/3: 正在处理视频帧…", False, False
+                                self.tr("步骤1/3: 正在处理视频帧…"), False, False
                             )
                         else:
                             self.log_signal.emit(
-                                f"步骤1/3: 正在处理视频帧… {current_time_str} / {total_time_str}",
+                                self.tr("步骤1/3: 正在处理视频帧… {}/{}").format(
+                                    current_time_str, total_time_str
+                                ),
                                 False,
                                 True,
                             )
@@ -94,7 +96,11 @@ class OcrTaskInterface(BaseTaskInterface):
                     if total > 0:
                         progress = 33 + (current / total) * 20
                         self.log_signal.emit(
-                            f"步骤2/3: 正在进行文本检测 {current}/{total}", False, True
+                            self.tr("步骤2/3: 正在进行文本检测 {}/{}").format(
+                                current, total
+                            ),
+                            False,
+                            True,
                         )
                         return min(progress, 53)
 
@@ -107,7 +113,11 @@ class OcrTaskInterface(BaseTaskInterface):
                     if total > 0:
                         progress = 53 + ((current - 1) / total) * 13
                         self.log_signal.emit(
-                            f"步骤2/3: 正在分析检测帧 {current}/{total}", False, True
+                            self.tr("步骤2/3: 正在分析检测帧 {}/{}").format(
+                                current, total
+                            ),
+                            False,
+                            True,
                         )
                         return min(progress, 66)
 
@@ -135,7 +145,9 @@ class OcrTaskInterface(BaseTaskInterface):
                     if total > 0:
                         progress = 66 + (current / total) * 34
                         self.log_signal.emit(
-                            f"步骤3/3: 正在对图像进行OCR识别 {current}/{total}",
+                            self.tr("步骤3/3: 正在对图像进行OCR识别 {}/{}").format(
+                                current, total
+                            ),
                             False,
                             True,
                         )
@@ -143,7 +155,7 @@ class OcrTaskInterface(BaseTaskInterface):
 
             # Generating subtitles...
             elif "Generating subtitles..." in message:
-                self.log_signal.emit("正在生成字幕文件...", False, False)
+                self.log_signal.emit(self.tr("正在生成字幕文件..."), False, False)
 
             # 找到PaddleOCR路径
             elif "找到PaddleOCR路径:" in message:
@@ -189,7 +201,7 @@ class OcrTaskInterface(BaseTaskInterface):
             return None
 
         except Exception as e:
-            print(f"解析进度失败: {e}")
+            print(self.tr("解析进度失败: {}").format(e))
             return None
 
     def addOcrTask(self, args):

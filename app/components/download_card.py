@@ -7,17 +7,18 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 from qfluentwidgets import (
     CaptionLabel,
-    SimpleCardWidget,
     FluentIcon,
     IconWidget,
     MessageBox,
     PillPushButton,
     ProgressBar,
+    SimpleCardWidget,
     StrongBodyLabel,
     TransparentToolButton,
 )
 
 from ..common.event_bus import event_bus
+from ..common.task_status import TaskStatus, status_text
 from ..service.download_service import DownloadTask
 
 
@@ -54,7 +55,9 @@ class DownloadItemWidget(SimpleCardWidget):
         titleInfoLayout = QVBoxLayout()
         titleInfoLayout.setSpacing(2)
         # 显示文件名（若有）或默认标题
-        self.titleLabel = StrongBodyLabel(self.task.filename or "视频下载", self)
+        self.titleLabel = StrongBodyLabel(
+            self.task.filename or self.tr("视频下载"), self
+        )
         # 路径或项目信息用较小的说明文本
         projectInfo = CaptionLabel(str(self.task.download_path))
         projectInfo.setToolTip(str(self.task.download_path))
@@ -64,7 +67,9 @@ class DownloadItemWidget(SimpleCardWidget):
 
         # 状态标签
         # 状态标签：保留 Pill 风格，设置固定宽度便于对齐
-        self.statusPill = PillPushButton(self.task.status, self)
+        self.statusPill = PillPushButton(
+            status_text(self.task.status, self.tr("下载中")), self
+        )
         self.statusPill.setDisabled(True)
         self.statusPill.setChecked(True)
         self.statusPill.setFixedWidth(110)
@@ -83,7 +88,7 @@ class DownloadItemWidget(SimpleCardWidget):
         self.progressBar.setValue(self.task.progress)
         self.progressBar.setFixedHeight(8)
 
-        self.speedLabel = CaptionLabel(self.task.speed or "初始化中")
+        self.speedLabel = CaptionLabel(self.task.speed or self.tr("初始化中"))
         self.speedLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
         progressLayout.addWidget(self.progressBar, 4)
@@ -108,25 +113,25 @@ class DownloadItemWidget(SimpleCardWidget):
         # 操作按钮（紧凑排列并统一大小）
         btn_size = 26
         self.openFolderBtn = TransparentToolButton(FluentIcon.FOLDER, self)
-        self.openFolderBtn.setToolTip("打开文件夹")
-        self.openFolderBtn.setVisible(self.task.status == "已完成")
+        self.openFolderBtn.setToolTip(self.tr("打开文件夹"))
+        self.openFolderBtn.setVisible(self.task.status == TaskStatus.DONE)
         self.openFolderBtn.setFixedSize(btn_size, btn_size)
         self.openFolderBtn.clicked.connect(self.openFolder)
 
         self.cancelBtn = TransparentToolButton(FluentIcon.CLOSE, self)
-        self.cancelBtn.setToolTip("取消下载")
-        self.cancelBtn.setVisible(self.task.status == "下载中")
+        self.cancelBtn.setToolTip(self.tr("取消下载"))
+        self.cancelBtn.setVisible(self.task.status == TaskStatus.PROCESSING)
         self.cancelBtn.setFixedSize(btn_size, btn_size)
         self.cancelBtn.clicked.connect(self.cancelDownload)
 
         self.retryBtn = TransparentToolButton(FluentIcon.SYNC, self)
-        self.retryBtn.setToolTip("重新下载")
-        self.retryBtn.setVisible(self.task.status == "失败")
+        self.retryBtn.setToolTip(self.tr("重新下载"))
+        self.retryBtn.setVisible(self.task.status == TaskStatus.FAILED)
         self.retryBtn.setFixedSize(btn_size, btn_size)
         self.retryBtn.clicked.connect(self.retryDownload)
 
         self.removeBtn = TransparentToolButton(FluentIcon.DELETE, self)
-        self.removeBtn.setToolTip("移除任务")
+        self.removeBtn.setToolTip(self.tr("移除任务"))
         self.removeBtn.setDisabled(True)
         self.removeBtn.setFixedSize(btn_size, btn_size)
         self.removeBtn.clicked.connect(self.removeTask)
@@ -148,13 +153,13 @@ class DownloadItemWidget(SimpleCardWidget):
 
     def updateStatusStyle(self, statusPill):
         """更新状态标签样式"""
-        if self.task.status == "等待中":
+        if self.task.status == TaskStatus.WAITING:
             statusPill.setProperty("isSecondary", True)
-        elif self.task.status == "下载中":
+        elif self.task.status == TaskStatus.PROCESSING:
             statusPill.setProperty("isPrimary", True)
-        elif self.task.status == "已完成":
+        elif self.task.status == TaskStatus.DONE:
             statusPill.setProperty("isSuccess", True)
-        elif self.task.status == "失败":
+        elif self.task.status == TaskStatus.FAILED:
             statusPill.setProperty("isError", True)
         statusPill.setStyle(statusPill.style())
 
@@ -174,7 +179,7 @@ class DownloadItemWidget(SimpleCardWidget):
         self.speedLabel.setText(f"{progress}% {speed}")
 
         # 更新状态标签
-        self.statusPill.setText(self.task.status)
+        self.statusPill.setText(status_text(self.task.status, self.tr("下载中")))
         self.updateStatusStyle(self.statusPill)
 
     def updateStatus(self, status, success=True, error_message=""):
@@ -184,17 +189,17 @@ class DownloadItemWidget(SimpleCardWidget):
             self.task.error_message = error_message
 
         # 更新状态标签
-        self.statusPill.setText(status)
+        self.statusPill.setText(status_text(status, self.tr("下载中")))
         self.updateStatusStyle(self.statusPill)
 
         # 显示/隐藏按钮
-        self.openFolderBtn.setVisible(status == "已完成")
-        self.cancelBtn.setVisible(status == "下载中")
-        self.retryBtn.setVisible(status == "失败")
+        self.openFolderBtn.setVisible(status == TaskStatus.DONE)
+        self.cancelBtn.setVisible(status == TaskStatus.PROCESSING)
+        self.retryBtn.setVisible(status == TaskStatus.FAILED)
 
-        if status == "已完成":
+        if status == TaskStatus.DONE:
             self.removeBtn.setDisabled(False)
-        if status == "失败":
+        if status == TaskStatus.FAILED:
             self.removeBtn.setDisabled(False)
 
     def openFolder(self):
@@ -205,9 +210,11 @@ class DownloadItemWidget(SimpleCardWidget):
     def cancelDownload(self):
         """取消下载 - 异步版本"""
         # 添加确认对话框
-        box = MessageBox("确认取消", "确定要取消这个下载任务吗？", self.window())
-        box.yesButton.setText("确定")
-        box.cancelButton.setText("取消")
+        box = MessageBox(
+            self.tr("确认取消"), self.tr("确定要取消这个下载任务吗？"), self.window()
+        )
+        box.yesButton.setText(self.tr("确定"))
+        box.cancelButton.setText(self.tr("取消"))
         if box.exec():
             # 设置取消标志，阻止进度更新
             self._is_cancelling = True
@@ -215,8 +222,8 @@ class DownloadItemWidget(SimpleCardWidget):
             # 如果任务正在下载，找到对应的下载线程并取消
             if self.download_thread:
                 # 立即更新UI状态，不等待线程结束
-                self.task.status = "正在取消..."
-                self.updateStatus("正在取消...")
+                self.task.status = TaskStatus.CANCELLING
+                self.updateStatus(TaskStatus.CANCELLING)
 
                 # 禁用取消按钮，避免重复点击
                 self.cancelBtn.setEnabled(False)
@@ -251,13 +258,13 @@ class DownloadItemWidget(SimpleCardWidget):
         self._is_cancelling = False
 
         # 更新任务状态
-        self.task.status = "已取消"
+        self.task.status = TaskStatus.CANCELLED
         self.task.progress = 0
         self.task.speed = ""
         self.task.end_time = datetime.now()
 
         # 更新UI状态
-        self.updateStatus("已取消")
+        self.updateStatus(TaskStatus.CANCELLED)
 
         # 恢复按钮状态
         self.removeBtn.setDisabled(False)
@@ -267,7 +274,10 @@ class DownloadItemWidget(SimpleCardWidget):
 
         # 显示取消提示
         event_bus.notification_service.show_info(
-            "下载已取消", f"任务 '{self.task.filename or self.task.url}' 已被取消"
+            self.tr("下载已取消"),
+            self.tr("任务")
+            + f" '{self.task.filename or self.task.url}' "
+            + self.tr("已被取消"),
         )
 
     def retryDownload(self):

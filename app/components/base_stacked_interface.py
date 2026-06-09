@@ -44,13 +44,17 @@ class BaseStackedInterfaces(QWidget):
         if self.task_interface_class:
             self.taskInterface = self.task_interface_class()
             self.addSubInterface(
-                self.taskInterface, "taskInterface", f"{self.interface_name}任务"
+                self.taskInterface,
+                "taskInterface",
+                str(self.interface_name) + self.tr("任务"),
             )
 
         # 只有当设置界面类存在时才创建并添加
         if self.setting_interface_class:
             self.settingInterface = self.setting_interface_class()
-            self.addSubInterface(self.settingInterface, "settingInterface", "高级设置")
+            self.addSubInterface(
+                self.settingInterface, "settingInterface", self.tr("高级设置")
+            )
 
     def _setup_layout(self):
         """设置布局"""

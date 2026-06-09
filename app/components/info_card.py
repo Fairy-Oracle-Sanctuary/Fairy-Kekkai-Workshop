@@ -205,7 +205,7 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
             pass
 
         event_bus.notification_service.show_success(
-            self.tr("清空成功"), self.tr(f"已清空 {deleted} 个日志文件")
+            self.tr("清空成功"), self.tr("已清空 {} 个日志文件").format(deleted)
         )
 
     def __onResetClicked(self):

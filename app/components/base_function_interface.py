@@ -51,12 +51,14 @@ class BaseFunctionInterface(ScrollArea):
         self.main_layout = QVBoxLayout(self.view)
 
         # 文件选择卡片组
-        self.fileSelectionGroup = SettingCardGroup("文件选择", self.view)
+        self.fileSelectionGroup = SettingCardGroup(self.tr("文件选择"), self.view)
         self._create_file_selection_cards()
         self.main_layout.addWidget(self.fileSelectionGroup)
 
         # 设置卡片组
-        self.settingsGroup = SettingCardGroup(f"{self.function_type}设置", self.view)
+        self.settingsGroup = SettingCardGroup(
+            str(self.function_type) + self.tr("设置"), self.view
+        )
         self._create_settings_cards()
         self.main_layout.addWidget(self.settingsGroup)
 
@@ -74,9 +76,9 @@ class BaseFunctionInterface(ScrollArea):
         # 输入文件卡片
         self.inputFileCard = ChooseFileSettingCard(
             self.get_input_icon(),
-            f"{self.function_type}文件",
-            f"选择要{self.function_type}的文件",
-            "选择文件...",
+            self.tr("{}文件").format(self.function_type),
+            self.tr("选择要{}的文件").format(self.function_type),
+            self.tr("选择文件..."),
             self.fileSelectionGroup,
         )
         self.fileSelectionGroup.addSettingCard(self.inputFileCard)
@@ -84,9 +86,9 @@ class BaseFunctionInterface(ScrollArea):
         # 输出文件选择卡片
         self.outputFileCard = ChooseFileSettingCard(
             FIF.SAVE,
-            "输出文件",
-            f"设置{self.function_type}后的文件保存路径",
-            "输出文件路径...",
+            self.tr("输出文件"),
+            self.tr("设置{}后的文件保存路径").format(self.function_type),
+            self.tr("输出文件路径..."),
             self.fileSelectionGroup,
         )
         self.fileSelectionGroup.addSettingCard(self.outputFileCard)
@@ -103,13 +105,13 @@ class BaseFunctionInterface(ScrollArea):
         """创建操作按钮区域"""
         button_layout = QHBoxLayout()
 
-        self.start_btn = PrimaryPushButton(FIF.PLAY, "添加任务")
+        self.start_btn = PrimaryPushButton(FIF.PLAY, self.tr("添加任务"))
         self.start_btn.setEnabled(False)
 
-        self.previous_btn = PushButton(FIF.UP, "上一个")
+        self.previous_btn = PushButton(FIF.UP, self.tr("上一个"))
         self.previous_btn.setEnabled(False)
 
-        self.next_btn = PushButton(FIF.DOWN, "下一个")
+        self.next_btn = PushButton(FIF.DOWN, self.tr("下一个"))
         self.next_btn.setEnabled(False)
 
         button_layout.addWidget(self.start_btn)
@@ -141,14 +143,14 @@ class BaseFunctionInterface(ScrollArea):
 
             # 检查文件数量
             if len(urls) > 1:
-                self.show_error_message("只支持单个文件")
+                self.show_error_message(self.tr("只支持单个文件"))
                 event.ignore()
                 return
 
             # 获取第一个文件的本地路径
             file_url = urls[0]
             if not file_url.isLocalFile():
-                self.show_error_message("不支持网络文件")
+                self.show_error_message(self.tr("不支持网络文件"))
                 event.ignore()
                 return
 
@@ -156,7 +158,7 @@ class BaseFunctionInterface(ScrollArea):
 
             # 检查是否为文件夹
             if file_path.is_dir():
-                self.show_error_message("不支持文件夹")
+                self.show_error_message(self.tr("不支持文件夹"))
                 event.ignore()
                 return
 
@@ -169,7 +171,7 @@ class BaseFunctionInterface(ScrollArea):
 
             # 检查扩展名是否在允许列表中
             if file_extension not in allow_extensions:
-                self.show_error_message(f"不支持{file_extension}文件")
+                self.show_error_message(self.tr("不支持{}文件").format(file_extension))
                 event.ignore()
                 return
 
@@ -188,11 +190,11 @@ class BaseFunctionInterface(ScrollArea):
         """浏览输入文件"""
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            f"选择{self.function_type}文件",
+            self.tr("选择{}文件").format(self.function_type),
             cfg.get(cfg.lastOpenPath)
             if Path(cfg.get(cfg.lastOpenPath)).exists()
             else str(Path.home()),
-            f"文件 ({self.file_extension});;所有文件 (*.*)",
+            self.tr("文件 ({});;所有文件 (*.*)").format(self.file_extension),
         )
 
         if file_path:
@@ -228,14 +230,16 @@ class BaseFunctionInterface(ScrollArea):
     def _browse_output_file(self):
         """浏览输出文件"""
         if not self.file_path:
-            self.show_error_message(f"请先选择原{self.file_extension}文件")
+            self.show_error_message(
+                self.tr("请先选择原{}文件").format(self.file_extension)
+            )
             return
 
         file_path, _ = QFileDialog.getSaveFileName(
             self,
-            "保存文件",
+            self.tr("保存文件"),
             self.outputFileCard.lineEdit.text(),
-            f"文件 ({self.file_extension});;所有文件 (*.*)",
+            self.tr("文件 ({});;所有文件 (*.*)").format(self.file_extension),
         )
 
         if file_path:
@@ -314,19 +318,19 @@ class BaseFunctionInterface(ScrollArea):
     def updateTask(self, isRepeat, tasks, isMessage):
         """更新任务状态"""
         if isRepeat and isMessage:
-            self.show_error_message("重复的任务")
+            self.show_error_message(self.tr("重复的任务"))
         elif not isRepeat and isMessage:
-            self.show_success_message(f"任务-{tasks[-1]}-添加成功！")
+            self.show_success_message(self.tr("任务-{}-添加成功！").format(tasks[-1]))
         self.tasks = tasks
 
     def show_success_message(self, message):
         """显示成功消息"""
-        event_bus.notification_service.show_success("成功", message)
+        event_bus.notification_service.show_success(self.tr("成功"), message)
 
     def show_error_message(self, message):
         """显示错误消息"""
-        event_bus.notification_service.show_error("错误", message)
+        event_bus.notification_service.show_error(self.tr("错误"), message)
 
     def show_warning_message(self, message):
         """显示警告消息"""
-        event_bus.notification_service.show_warning("警告", message)
+        event_bus.notification_service.show_warning(self.tr("警告"), message)

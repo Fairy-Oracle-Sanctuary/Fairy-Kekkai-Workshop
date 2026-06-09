@@ -51,7 +51,7 @@ class ReleaseStackedInterfaces(BaseStackedInterfaces):
             main_interface_class=ReleaseInterface,
             task_interface_class=ReleaseTaskInterface,
             setting_interface_class=ReleaseSettingInterface,
-            interface_name="视频上传",
+            interface_name=self.tr("视频上传"),
         )
 
         # 连接专用信号
@@ -64,7 +64,7 @@ class ReleaseInterface(BaseFunctionInterface):
 
     def __init__(self, parent=None):
         self.file_video = None
-        super().__init__(parent, "上传")
+        super().__init__(parent, self.tr("上传"))
 
         self.file_extension = "*.mp4;*.flv;*.avi;*.wmv;*.mov;*.webm;*.mpeg4;*.ts;*.mpg;*.rm;*.rmvb;*.mkv;*.m4v;*.vob;*.swf;*.3gp;*.mts;*.m2v;*.mts;*.f4v;*.mt;*.3g2;*.asf"
         self.cover_extension = "*.png;*.pjp;*.jfif;*.jpe;*.pjpeg;*.jpeg;*.jpg"
@@ -76,11 +76,11 @@ class ReleaseInterface(BaseFunctionInterface):
 
         self.logger = Logger("ReleaseInterface", "release")
 
-        self.inputFileCard.titleLabel.setText("视频文件")
+        self.inputFileCard.titleLabel.setText(self.tr("视频文件"))
         self.outputFileCard.iconLabel.setIcon(FIF.PHOTO)
-        self.outputFileCard.titleLabel.setText("封面文件")
-        self.outputFileCard.contentLabel.setText("请选择你的封面")
-        self.outputFileCard.lineEdit.setPlaceholderText("选择文件...")
+        self.outputFileCard.titleLabel.setText(self.tr("封面文件"))
+        self.outputFileCard.contentLabel.setText(self.tr("请选择你的封面"))
+        self.outputFileCard.lineEdit.setPlaceholderText(self.tr("选择文件..."))
 
         self.inputFileCard.browseBtn.clicked.disconnect(self._browse_input_file)
         self.inputFileCard.browseBtn.clicked.connect(self._browse_video_file)
@@ -93,11 +93,11 @@ class ReleaseInterface(BaseFunctionInterface):
         """浏览输入文件"""
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            "选择视频文件",
+            self.tr("选择视频文件"),
             cfg.get(cfg.lastOpenPath)
             if Path(cfg.get(cfg.lastOpenPath)).exists()
             else str(Path.home()),
-            f"文件 ({self.file_extension});;所有文件 (*.*)",
+            self.tr("文件 ({});;所有文件 (*.*)").format(self.file_extension),
         )
 
         if file_path:
@@ -122,11 +122,11 @@ class ReleaseInterface(BaseFunctionInterface):
         """浏览封面文件"""
         file_path, _ = QFileDialog.getSaveFileName(
             self,
-            "选择封面文件",
+            self.tr("选择封面文件"),
             cfg.get(cfg.lastOpenPath)
             if Path(cfg.get(cfg.lastOpenPath)).exists()
             else str(Path.home()),
-            f"文件 ({self.cover_extension});;所有文件 (*.*)",
+            self.tr("文件 ({});;所有文件 (*.*)").format(self.cover_extension),
         )
 
         if file_path:
@@ -137,7 +137,7 @@ class ReleaseInterface(BaseFunctionInterface):
 
     def _create_settings_cards(self):
         """创建基础设置卡片"""
-        titleLabel = QLabel("基本设置", self)
+        titleLabel = QLabel(self.tr("基本设置"), self)
         self.main_layout.addWidget(titleLabel)
         setFont(titleLabel, 20)
         titleLabel.adjustSize()
@@ -149,38 +149,38 @@ class ReleaseInterface(BaseFunctionInterface):
     def _start_processing(self):
         """开始上传"""
         if not cfg.get(cfg.bilibiliSessdata):
-            self.show_error_message("请先填写Cookie：Sessdata")
+            self.show_error_message(self.tr("请先填写Cookie：Sessdata"))
             return
 
         if not cfg.get(cfg.bilibiliBiliJct):
-            self.show_error_message("请先填写Cookie：BiliJct")
+            self.show_error_message(self.tr("请先填写Cookie：BiliJct"))
             return
 
         if not cfg.get(cfg.bilibiliBuvid3):
-            self.show_error_message("请先填写Cookie：Buvid3")
+            self.show_error_message(self.tr("请先填写Cookie：Buvid3"))
             return
 
         if not self.inputFileCard.lineEdit.text():
-            self.show_error_message("请选择视频文件")
+            self.show_error_message(self.tr("请选择视频文件"))
             return
 
         if not self.outputFileCard.lineEdit.text():
-            self.show_error_message("请选择封面文件")
+            self.show_error_message(self.tr("请选择封面文件"))
             return
 
         if not self.settingCard.titleEdit.text():
-            self.show_error_message("请输入稿件标题")
+            self.show_error_message(self.tr("请输入稿件标题"))
             return
 
         if (
             self.settingCard.typeButtonGroup.checkedButton().text() == "转载"
             and not self.settingCard.repostEdit.text()
         ):
-            self.show_error_message("请输入转载链接")
+            self.show_error_message(self.tr("请输入转载链接"))
             return
 
         if not self.settingCard.tags:
-            self.show_error_message("请输入标签")
+            self.show_error_message(self.tr("请输入标签"))
             return
 
         # 检测时间
@@ -190,7 +190,7 @@ class ReleaseInterface(BaseFunctionInterface):
             if date < QDate.currentDate() or (
                 date == QDate.currentDate() and time < QTime.currentTime()
             ):
-                self.show_error_message("选择的时间必须大于现在的时间")
+                self.show_error_message(self.tr("选择的时间必须大于现在的时间"))
                 return
 
         args = self._get_args()
@@ -247,10 +247,10 @@ class ReleaseBaseSettingInterface(QWidget):
         self.view.addSpacing(12)
         titleLayout = QHBoxLayout()
 
-        titleLabel = BodyLabel("* 标题", self)
+        titleLabel = BodyLabel(self.tr("* 标题"), self)
 
         self.titleEdit = LineEdit(self)
-        self.titleEdit.setPlaceholderText("请输入稿件标题")
+        self.titleEdit.setPlaceholderText(self.tr("请输入稿件标题"))
         self.titleEdit.textChanged.connect(
             lambda: titleLength.setText(f"{len(self.titleEdit.text())}/80")
         )
@@ -270,10 +270,10 @@ class ReleaseBaseSettingInterface(QWidget):
         self.view.addSpacing(12)
         typeLayout = QHBoxLayout()
 
-        typeLabel = BodyLabel("  类型", self)
+        typeLabel = BodyLabel(self.tr("  类型"), self)
 
-        typeButton1 = RadioButton("自制")
-        typeButton2 = RadioButton("转载")
+        typeButton1 = RadioButton(self.tr("自制"))
+        typeButton2 = RadioButton(self.tr("转载"))
         self.typeButtonGroup = QButtonGroup(self)
         self.typeButtonGroup.addButton(typeButton1)
         self.typeButtonGroup.addButton(typeButton2)
@@ -468,9 +468,11 @@ class ReleaseBaseSettingInterface(QWidget):
     def _connect_signals(self):
         """连接信号槽"""
         self.typeButtonGroup.buttonToggled.connect(
-            lambda button: self._handle_type_change(True)
-            if button.text() == "转载"
-            else self._handle_type_change(False)
+            lambda button: (
+                self._handle_type_change(True)
+                if button.text() == "转载"
+                else self._handle_type_change(False)
+            )
         )
         self.scheduleBtn.checkedChanged.connect(
             lambda checked: self._handle_schedule_change(checked)
@@ -498,7 +500,7 @@ class ReleaseBaseSettingInterface(QWidget):
             date == QDate.currentDate() and time < QTime.currentTime()
         ):
             self.dateLabel.setText(
-                f"{date.toString('yyyy-MM-dd')} {time.toString('hh:mm')} 选择的时间必须大于现在的时间"
+                f"{date.toString('yyyy-MM-dd')} {time.toString('hh:mm')} {self.tr('选择的时间必须大于现在的时间')}"
             )
             return
 
@@ -545,16 +547,16 @@ class ReleaseBaseSettingInterface(QWidget):
     def _updateTagCount(self):
         """更新标签数量显示"""
         remaining = self.maxTags - len(self.tags)
-        self.tagCountLabel.setText(f"还可以添加{remaining}个标签")
+        self.tagCountLabel.setText(self.tr("还可以添加{}个标签").format(remaining))
 
     def _handleTagInputChange(self):
         """处理标签输入变化"""
         # 当标签数量达到上限时，禁用输入
         if len(self.tags) >= self.maxTags:
             self.tagInputHint.clear()
-            self.tagInputHint.setPlaceholderText("已达到标签上限")
+            self.tagInputHint.setPlaceholderText(self.tr("已达到标签上限"))
         else:
-            self.tagInputHint.setPlaceholderText("按回车键Enter创建标签")
+            self.tagInputHint.setPlaceholderText(self.tr("按回车键Enter创建标签"))
 
     def paintEvent(self, e):
         painter = QPainter(self)

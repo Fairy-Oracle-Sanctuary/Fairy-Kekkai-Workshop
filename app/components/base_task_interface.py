@@ -4,6 +4,8 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import ScrollArea, SegmentedWidget
 
+from ..common.task_status import TaskStatus, status_text
+
 
 class BaseTaskInterface(ScrollArea):
     """基础任务界面"""
@@ -49,18 +51,22 @@ class BaseTaskInterface(ScrollArea):
         self.failedTab = QWidget()
 
         self.segmentedWidget.addItem(
-            self.allTab, "全部", lambda: self.filterTasks("全部")
+            self.allTab, self.tr("全部"), lambda: self.filterTasks("all")
         )
         self.segmentedWidget.addItem(
             self.processingTab,
-            self.processing_text,
-            lambda: self.filterTasks(self.processing_text),
+            status_text(TaskStatus.PROCESSING, self.tr(self.processing_text)),
+            lambda: self.filterTasks(TaskStatus.PROCESSING),
         )
         self.segmentedWidget.addItem(
-            self.completedTab, "已完成", lambda: self.filterTasks("已完成")
+            self.completedTab,
+            status_text(TaskStatus.DONE),
+            lambda: self.filterTasks(TaskStatus.DONE),
         )
         self.segmentedWidget.addItem(
-            self.failedTab, "失败", lambda: self.filterTasks("失败")
+            self.failedTab,
+            status_text(TaskStatus.FAILED),
+            lambda: self.filterTasks(TaskStatus.FAILED),
         )
 
         self.segmentedWidget.setCurrentItem(self.allTab)
@@ -93,26 +99,26 @@ class BaseTaskInterface(ScrollArea):
 
     def getSuccessMessage(self, task_path):
         """获取成功消息"""
-        return f"-{task_path}- {self.task_type}完成"
+        return self.tr("-{}- {}完成").format(task_path, self.task_type)
 
     def getFailureMessage(self, task_path, message):
         """获取失败消息"""
-        return f"-{task_path}- {self.task_type}失败: {message}"
+        return self.tr("-{}- 失败: {}").format(task_path, message)
 
     def _updateMaxConcurrentTasks(self, value):
         """更新最大并发任务数"""
         self.max_concurrent_tasks = value
-        active_count = len([t for t in self.tasks if t.status == self.processing_text])
+        active_count = len([t for t in self.tasks if t.status == TaskStatus.PROCESSING])
 
         if active_count > self.max_concurrent_tasks:
             excess_count = active_count - self.max_concurrent_tasks
             stopped = 0
             for task in reversed(self.tasks):
-                if task.status == self.processing_text and stopped < excess_count:
+                if task.status == TaskStatus.PROCESSING and stopped < excess_count:
                     for thread in self.active_threads:
                         if thread.task.id == task.id:
                             thread.cancel()
-                            task.status = "等待中"
+                            task.status = TaskStatus.WAITING
                             self.updateTaskUI(task.id)
                             stopped += 1
                             break
@@ -148,17 +154,17 @@ class BaseTaskInterface(ScrollArea):
         self.startNextTask()
 
         # 更新过滤视图
-        self.filterTasks(self.segmentedWidget.currentItem().text())
+        self.filterTasks(self._currentFilter())
 
     def startNextTask(self):
         """开始下一个任务"""
-        active_count = len([t for t in self.tasks if t.status == self.processing_text])
+        active_count = len([t for t in self.tasks if t.status == TaskStatus.PROCESSING])
 
         if active_count >= self.max_concurrent_tasks:
             return
 
         # 查找等待中的任务
-        waiting_tasks = [t for t in self.tasks if t.status == "等待中"]
+        waiting_tasks = [t for t in self.tasks if t.status == TaskStatus.WAITING]
 
         if waiting_tasks:
             task = waiting_tasks[0]
@@ -208,7 +214,7 @@ class BaseTaskInterface(ScrollArea):
         self.active_threads.append(task_thread)
 
         # 更新任务状态
-        task.status = self.processing_text
+        task.status = TaskStatus.PROCESSING
 
         # 更新UI
         self.updateTaskUI(task.id)
@@ -237,15 +243,16 @@ class BaseTaskInterface(ScrollArea):
             if task.id == task_id:
                 task_path = self.getTaskPath(task)
                 if success:
-                    task.status = "已完成"
+                    task.status = TaskStatus.DONE
                     event_bus.notification_service.show_success(
-                        f"{self.task_type}完成", self.getSuccessMessage(task_path)
+                        self.tr("{}完成").format(self.task_type),
+                        self.getSuccessMessage(task_path),
                     )
                 else:
-                    task.status = "失败"
+                    task.status = TaskStatus.FAILED
                     if "取消" not in message:
                         event_bus.notification_service.show_error(
-                            f"{self.task_type}失败", message.strip()
+                            self.tr("{}失败").format(self.task_type), message.strip()
                         )
 
                 # 移除活跃线程
@@ -274,7 +281,9 @@ class BaseTaskInterface(ScrollArea):
                     widget.task, "progress"
                 ):
                     progress = (
-                        0 if widget.task.status == "已取消" else widget.task.progress
+                        0
+                        if widget.task.status == TaskStatus.CANCELLED
+                        else widget.task.progress
                     )
                     widget.updateProgress(progress, self.getTaskPath(widget.task))
 
@@ -283,14 +292,27 @@ class BaseTaskInterface(ScrollArea):
                 break
 
         # 更新过滤视图
-        self.filterTasks(self.segmentedWidget.currentItem().text())
+        self.filterTasks(self._currentFilter())
+
+    def _currentFilter(self):
+        """根据当前选中的标签页返回对应的过滤条件"""
+        current = self.segmentedWidget.currentItem()
+        if current == self.allTab:
+            return "all"
+        elif current == self.processingTab:
+            return TaskStatus.PROCESSING
+        elif current == self.completedTab:
+            return TaskStatus.DONE
+        elif current == self.failedTab:
+            return TaskStatus.FAILED
+        return "all"
 
     def filterTasks(self, filter_type):
         """过滤任务显示"""
         for i in range(self.taskListLayout.count()):
             widget = self.taskListLayout.itemAt(i).widget()
             if hasattr(widget, "task") and hasattr(widget.task, "status"):
-                if filter_type == "全部" or widget.task.status == filter_type:
+                if filter_type == "all" or widget.task.status == filter_type:
                     widget.setVisible(True)
                 else:
                     widget.setVisible(False)
@@ -299,7 +321,7 @@ class BaseTaskInterface(ScrollArea):
         """重新执行任务"""
         for task in self.tasks:
             if task.id == task_id:
-                task.status = "等待中"
+                task.status = TaskStatus.WAITING
                 if hasattr(task, "progress"):
                     task.progress = 0
                 if hasattr(task, "error_message"):

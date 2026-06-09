@@ -8,6 +8,7 @@ from PySide6.QtCore import QObject, QProcess, QTimer, Signal
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
+from ..common.task_status import TaskStatus
 
 
 def get_whisper_cli_path():
@@ -37,7 +38,7 @@ class WhisperTask:
         self.language = args.get("language", "")
         self.format = args.get("format", "srt")
         self.gpu = args.get("gpu", "")
-        self.status = "等待中"  # 等待中, 转录中, 已完成, 失败
+        self.status = TaskStatus.WAITING
         self.progress = 0
         self.error_message = ""
         self.output_history = ""  # 存储完整输出历史
@@ -163,14 +164,16 @@ class WhisperProcess(QObject):
         return 0
 
     def start(self):
-        self.task.status = "识别中"
+        self.task.status = TaskStatus.PROCESSING
         self.task.start_time = datetime.now()
 
         try:
             cli_path = get_whisper_cli_path()
 
             if not os.path.exists(cli_path):
-                self.finished_signal.emit(False, f"main.exe 不存在: {cli_path}")
+                self.finished_signal.emit(
+                    False, self.tr("main.exe 不存在: {}").format(cli_path)
+                )
                 return
 
             if self.task.model_file and not os.path.exists(self.task.model_file):
@@ -215,7 +218,7 @@ class WhisperProcess(QObject):
                 if self.output_lines:
                     error_msg += "\n输出日志:\n" + "\n".join(self.output_lines[-10:])
 
-                self.task.status = "失败"
+                self.task.status = TaskStatus.FAILED
                 self.task.error_message = error_msg
                 self.task.end_time = datetime.now()
                 self.finished_signal.emit(False, error_msg)
@@ -277,7 +280,7 @@ class WhisperProcess(QObject):
             # 检测完成标志
             if "LoadModel" in line and "RunComplete" in line:
                 self.task.progress = 100
-                self.progress_signal.emit(100, "完成", "转录完成")
+                self.progress_signal.emit(100, self.tr("完成"), self.tr("转录完成"))
 
     def handle_stderr(self):
         """处理标准错误输出 - main.exe 使用 UseStandardError，大部分输出在此"""
@@ -306,12 +309,12 @@ class WhisperProcess(QObject):
     def handle_finished(self, exit_code, exit_status):
         """进程完成处理"""
         if self.is_cancelled:
-            self.task.status = "已取消"
-            self.finished_signal.emit(False, "转录已取消")
+            self.task.status = TaskStatus.CANCELLED
+            self.finished_signal.emit(False, self.tr("转录已取消"))
             self.cancelled_signal.emit()
             self.logger.info(f"转录已取消 -{self.task.input_file}-")
         elif exit_code == 0:
-            self.task.status = "已完成"
+            self.task.status = TaskStatus.DONE
             self.task.progress = 100
             self.task.end_time = datetime.now()
             self.logger.info(f"转录完成 -{self.task.input_file}-")
@@ -350,7 +353,7 @@ class WhisperProcess(QObject):
                 last_lines = "\n".join(self.output_lines[-5:])
                 error_message += f"\n最后输出:\n{last_lines}"
 
-            self.task.status = "失败"
+            self.task.status = TaskStatus.FAILED
             self.task.error_message = error_message
             self.task.end_time = datetime.now()
             self.finished_signal.emit(False, error_message)
