@@ -8,6 +8,7 @@ from PySide6.QtCore import QObject, QProcess, QTimer, Signal
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
+from ..common.task_status import TaskStatus
 
 
 class DownloadTask:
@@ -30,7 +31,7 @@ class DownloadTask:
         self.quality = quality
         self.project_name = project_name
         self.episode_num = episode_num
-        self.status = "等待中"  # 等待中, 下载中, 已完成, 失败
+        self.status = TaskStatus.WAITING
         self.progress = 0
         self.speed = ""
         self.filename = ""
@@ -182,7 +183,7 @@ class DownloadProcess(QObject):
         #     self.finished_signal.emit(False, f"检测网络连接时发生未知错误: {str(e)}")
         #     return
 
-        self.task.status = "下载中"
+        self.task.status = TaskStatus.PROCESSING
         self.task.start_time = datetime.now()
 
         try:
@@ -193,7 +194,9 @@ class DownloadProcess(QObject):
             )
             if not os.path.exists(ytdlp_path):
                 self.logger.error(f"[DownloadProcess] yt-dlp 不存在: {ytdlp_path}")
-                self.finished_signal.emit(False, f"yt-dlp不存在: {ytdlp_path}")
+                self.finished_signal.emit(
+                    False, self.tr("yt-dlp不存在: {}").format(ytdlp_path)
+                )
                 return
 
             # 确保下载目录存在
@@ -230,7 +233,7 @@ class DownloadProcess(QObject):
                 if self.output_lines:
                     error_msg += "\n输出日志:\n" + "\n".join(self.output_lines[-10:])
 
-                self.task.status = "失败"
+                self.task.status = TaskStatus.FAILED
                 self.task.error_message = error_msg
                 self.task.end_time = datetime.now()
                 self.finished_signal.emit(False, error_msg)
@@ -307,15 +310,15 @@ class DownloadProcess(QObject):
     def handle_finished(self, exit_code, exit_status):
         """进程完成处理"""
         if self.is_cancelled:
-            self.task.status = "已取消"
-            self.finished_signal.emit(False, "下载已取消")
+            self.task.status = TaskStatus.CANCELLED
+            self.finished_signal.emit(False, self.tr("下载已取消"))
             self.cancelled_signal.emit()  # 发送取消完成信号
             self.logger.info(f"下载任务已取消: {self.task.url}")
         elif exit_code == 0:
-            self.task.status = "已完成"
+            self.task.status = TaskStatus.DONE
             self.task.progress = 100
             self.task.end_time = datetime.now()
-            self.finished_signal.emit(True, "下载完成")
+            self.finished_signal.emit(True, self.tr("下载完成"))
             event_bus.download_finished_signal.emit(True, str(self.task.download_path))
             self.logger.info(
                 f"下载任务已完成: {self.task.url} - {self.task.download_path}"
@@ -330,7 +333,7 @@ class DownloadProcess(QObject):
                 last_lines = "\n".join(self.output_lines[-5:])
                 error_message += f"\n最后输出:\n{last_lines}"
 
-            self.task.status = "失败"
+            self.task.status = TaskStatus.FAILED
             self.task.error_message = error_message
             self.task.end_time = datetime.now()
             self.finished_signal.emit(False, error_message)
@@ -397,7 +400,9 @@ class DownloadProcess(QObject):
                     # 提取纯文件名（去掉路径）
                     base_name = os.path.basename(filename)
                     self.task.filename = base_name
-                    self.progress_signal.emit(0, "开始下载", self.task.filename)
+                    self.progress_signal.emit(
+                        0, self.tr("开始下载"), self.task.filename
+                    )
                     return True
         return False
 

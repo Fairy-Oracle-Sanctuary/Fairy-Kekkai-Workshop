@@ -15,8 +15,8 @@ class WhisperTaskInterface(BaseTaskInterface):
     def __init__(self, parent=None):
         super().__init__(
             object_name="whisperTaskInterface",
-            processing_text="识别中",
-            task_type="识别",
+            processing_text=self.tr("识别中"),
+            task_type=self.tr("识别"),
             max_concurrent_tasks=1,
             parent=parent,
         )

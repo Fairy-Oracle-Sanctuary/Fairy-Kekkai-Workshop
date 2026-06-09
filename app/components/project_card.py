@@ -130,7 +130,8 @@ class ProjectInterface(ScrollArea):
                 dialog.titleInput.text().strip(),
             )
             event_bus.notification_service.show_success(
-                "成功", f"已创建新项目: {dialog.nameInput.text().strip()}"
+                self.tr("成功"),
+                self.tr("已创建新项目: {}").format(dialog.nameInput.text().strip()),
             )
         else:
             pass
@@ -140,17 +141,18 @@ class ProjectInterface(ScrollArea):
     def importProjectCard(self):
         """导入新项目"""
         folder_path = QFileDialog.getExistingDirectory(
-            self, "选择文件夹", "", QFileDialog.ShowDirsOnly
+            self, self.tr("选择文件夹"), "", QFileDialog.ShowDirsOnly
         )
 
         if folder_path:
             if not project.is_project(folder_path):
                 event_bus.notification_service.show_error(
-                    "错误", f"{folder_path} 并不是一个合法的项目"
+                    self.tr("错误"),
+                    self.tr("{} 并不是一个合法的项目").format(folder_path),
                 )
                 return
-            title = "选择导入模式"
-            content = "是否要把整个项目文件夹复制过来"
+            title = self.tr("选择导入模式")
+            content = self.tr("是否要把整个项目文件夹复制过来")
             folder_path = Path(folder_path)
             path = str(Path(project.projects_location) / folder_path.name)
             # 获取应用程序的顶级窗口
@@ -161,25 +163,25 @@ class ProjectInterface(ScrollArea):
                     break
 
             dialog = MessageBox(title, content, main_window)
-            dialog.yesButton.setText("复制")
-            dialog.cancelButton.setText("只连接路径")
+            dialog.yesButton.setText(self.tr("复制"))
+            dialog.cancelButton.setText(self.tr("只连接路径"))
 
             if dialog.exec():
                 try:
                     shutil.copytree(str(folder_path), path)
                     self.refreshProjectList(False)
                     event_bus.notification_service.show_success(
-                        "成功", f"已添加 {path}"
+                        self.tr("成功"), self.tr("已添加 {}").format(path)
                     )
                     self.logger.info(f"导入新项目: {path}")
                 except Exception as e:
-                    event_bus.notification_service.show_error("错误", f"{e}")
+                    event_bus.notification_service.show_error(self.tr("错误"), f"{e}")
                     self.logger.error(f"导入新项目失败: {e}")
             else:
                 project_path = cfg.linkProject.get("project_link")
                 if folder_path in project_path or folder_path in project.project_path:
                     event_bus.notification_service.show_error(
-                        "错误", f"已导入此路径 {folder_path}"
+                        self.tr("错误"), self.tr("已导入此路径 {}").format(folder_path)
                     )
                     self.logger.error(f"导入新项目失败: {folder_path} 已导入此路径")
                 else:
@@ -187,7 +189,7 @@ class ProjectInterface(ScrollArea):
                     cfg.linkProject.set("project_link", project_path)
                     self.refreshProjectList(False)
                     event_bus.notification_service.show_success(
-                        "成功", f"已添加 {folder_path}"
+                        self.tr("成功"), self.tr("已添加 {}").format(folder_path)
                     )
                     self.logger.info(f"导入新项目: {folder_path} 已连接路径")
 
@@ -219,21 +221,23 @@ class ProjectInterface(ScrollArea):
         """处理下载信息"""
         if isAllFinished:
             if isSuccess:
-                event_bus.notification_service.show_success("成功", "项目创建完毕")
+                event_bus.notification_service.show_success(
+                    self.tr("成功"), self.tr("项目创建完毕")
+                )
                 event_bus.download_list_finished_signal.emit(True, message)
                 self.logger.info(f"根据播放列表新建项目: {message}")
             else:
-                event_bus.notification_service.show_success("失败", message)
+                event_bus.notification_service.show_success(self.tr("失败"), message)
                 self.logger.error(f"根据播放列表新建项目失败: {message}")
             self.topButtonCard.newFromPlaylistButton.setEnabled(True)
         else:
             if isSuccess:
                 if message == "已创建项目文件夹,正在下载封面":
                     self.refreshProjectList(isMessage=False)
-                event_bus.notification_service.show_success("成功", message)
+                event_bus.notification_service.show_success(self.tr("成功"), message)
                 self.logger.info(f"根据播放列表新建项目: {message}")
             else:
-                event_bus.notification_service.show_error("错误", message)
+                event_bus.notification_service.show_error(self.tr("错误"), message)
                 self.logger.error(f"根据播放列表新建项目失败: {message}")
 
     def refreshProjectList(self, isMessage):
@@ -259,7 +263,9 @@ class ProjectInterface(ScrollArea):
             )
             card_id += 1
         if isMessage:
-            event_bus.notification_service.show_success("成功", "已刷新项目列表")
+            event_bus.notification_service.show_success(
+                self.tr("成功"), self.tr("已刷新项目列表")
+            )
 
     def openProjectDetail(self, project_ifm):
         """打开项目详情页面"""
@@ -283,12 +289,12 @@ class ProjectInterface(ScrollArea):
         isSuccess = project.delete_project(project_path)
         if isSuccess[0]:
             event_bus.notification_service.show_success(
-                "成功", f"项目 {project_path} 已删除"
+                self.tr("成功"), self.tr("项目 {} 已删除").format(project_path)
             )
             self.logger.info(f"删除项目: {project_path} 已删除")
         else:
             event_bus.notification_service.show_error(
-                "错误", f"删除项目失败: {isSuccess[-1]}"
+                self.tr("错误"), self.tr("删除项目失败: {}").format(isSuccess[-1])
             )
             self.logger.error(f"删除项目失败: {project_path} {isSuccess[-1]}")
         self.refreshProjectList(isMessage=False)
@@ -299,7 +305,7 @@ class ProjectInterface(ScrollArea):
         cfg.linkProject.set("project_link", link_path)
         self.refreshProjectList(isMessage=False)
         event_bus.notification_service.show_success(
-            "成功", f"已解除项目 {project_path} 的连接"
+            self.tr("成功"), self.tr("已解除项目 {} 的连接").format(project_path)
         )
         self.logger.info(f"解除项目连接: {project_path} 已解除连接")
 
@@ -474,7 +480,9 @@ class ProjectCard(CardWidget):
                 dialog.titleInput.text() + ".txt",
             )
             if not isSuccess_1[0]:
-                event_bus.notification_service.show_error("错误", isSuccess_1[-1])
+                event_bus.notification_service.show_error(
+                    self.tr("错误"), isSuccess_1[-1]
+                )
 
             # 连接文件则需要特殊处理
             if self.isLink:
@@ -498,18 +506,22 @@ class ProjectCard(CardWidget):
                 f"{project.project_path[self.card_id]}", dialog.nameInput.text()
             )
             if not isSuccess_2[0]:
-                event_bus.notification_service.show_error("错误", isSuccess_2[-1])
+                event_bus.notification_service.show_error(
+                    self.tr("错误"), isSuccess_2[-1]
+                )
 
             # 修改图标
             isSuccess_3 = project.change_icon(self.card_id, dialog.get_selected_icon())
             if not isSuccess_3[0]:
-                event_bus.notification_service.show_error("错误", isSuccess_3[-1])
+                event_bus.notification_service.show_error(
+                    self.tr("错误"), isSuccess_3[-1]
+                )
 
             self.refreshProject.emit(False)
             if isSuccess_1[0] and isSuccess_2[0] and isSuccess_3[0]:
-                event_bus.notification_service.show_success("成功", "已修改项目信息")
-        else:
-            pass
+                event_bus.notification_service.show_success(
+                    self.tr("成功"), self.tr("已修改项目信息")
+                )
 
     def showFlyout(self):
         flyout_view = CustomFlyoutView(self.path, isLink=self.isLink)
@@ -587,7 +599,7 @@ class CustomFlyoutView(FlyoutViewBase):
         else:
             # 如果路径不存在，显示错误信息
             event_bus.notification_service.show_success(
-                "错误", f"路径不存在: {self.path}"
+                self.tr("错误"), self.tr("路径不存在: {}").format(self.path)
             )
 
     def delateProjectConfirm(self):
@@ -606,8 +618,8 @@ class CustomFlyoutView(FlyoutViewBase):
                 break
 
         dialog = MessageBox(title, content, main_window)
-        dialog.yesButton.setText("确定")
-        dialog.cancelButton.setText("取消")
+        dialog.yesButton.setText(self.tr("确定"))
+        dialog.cancelButton.setText(self.tr("取消"))
         if dialog.exec():
             self.deleteRequested.emit(str(self.path))
         else:
@@ -629,8 +641,8 @@ class CustomFlyoutView(FlyoutViewBase):
                 break
 
         dialog = MessageBox(title, content, main_window)
-        dialog.yesButton.setText("确定")
-        dialog.cancelButton.setText("取消")
+        dialog.yesButton.setText(self.tr("确定"))
+        dialog.cancelButton.setText(self.tr("取消"))
         if dialog.exec():
             self.cancelLinkRequested.emit(str(self.path))
         else:

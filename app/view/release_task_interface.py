@@ -15,8 +15,8 @@ class ReleaseTaskInterface(BaseTaskInterface):
     def __init__(self, parent=None):
         super().__init__(
             object_name="releaseTaskInterface",
-            processing_text="上传中",
-            task_type="上传",
+            processing_text=self.tr("上传中"),
+            task_type=self.tr("上传"),
             max_concurrent_tasks=1,  # B站上传建议单任务执行
             parent=parent,
         )

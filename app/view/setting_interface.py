@@ -113,6 +113,14 @@ class SettingInterface(ScrollArea):
             texts=["100%", "125%", "150%", "175%", "200%", self.tr("跟随系统设置")],
             parent=self.personalGroup,
         )
+        self.languageCard = ComboBoxSettingCard(
+            cfg.language,
+            FIF.LANGUAGE,
+            self.tr("语言"),
+            self.tr("设置界面语言"),
+            texts=["简体中文", "English", self.tr("跟随系统设置")],
+            parent=self.personalGroup,
+        )
         self.closeDirectlyCard = SwitchSettingCard(
             FIF.CLOSE,
             self.tr("直接关闭"),
@@ -131,15 +139,15 @@ class SettingInterface(ScrollArea):
             self.backgroundPathCard = PushSettingCard(
                 self.tr("选择文件"),
                 FIF.PHOTO,
-                "选择背景图片",
+                self.tr("选择背景图片"),
                 cfg.get(cfg.backgroundPath),
                 self.personalGroup,
             )
             self.backgroundRectCard = RangeSettingCard(
                 cfg.backgroundRect,
                 FIF.TRANSPARENT,
-                title="背景透明度",
-                content="调整背景图片的透明度",
+                title=self.tr("背景透明度"),
+                content=self.tr("调整背景图片的透明度"),
             )
 
         # project
@@ -169,7 +177,7 @@ class SettingInterface(ScrollArea):
             self.downloadGroup,
         )
         self.detectionCard = DetectionCard(
-            FIF.SEARCH, "检测程序", "自动检测并更新程序路径"
+            FIF.SEARCH, self.tr("检测程序"), self.tr("自动检测并更新程序路径")
         )
 
         # 关于
@@ -217,6 +225,7 @@ class SettingInterface(ScrollArea):
 
         self.personalGroup.addSettingCard(self.themeCard)
         self.personalGroup.addSettingCard(self.zoomCard)
+        self.personalGroup.addSettingCard(self.languageCard)
         self.personalGroup.addSettingCard(self.accentColorCard)
         self.personalGroup.addSettingCard(self.windowClassCard)
         self.personalGroup.addSettingCard(self.closeDirectlyCard)
@@ -248,7 +257,9 @@ class SettingInterface(ScrollArea):
 
     def _showRestartTooltip(self):
         """show restart tooltip"""
-        event_bus.notification_service.show_success("更新成功", "配置在重启软件后生效")
+        event_bus.notification_service.show_success(
+            self.tr("更新成功"), self.tr("配置在重启软件后生效")
+        )
 
     def _backgroundPathCardClicked(self):
         path, _ = QFileDialog.getOpenFileName(self, self.tr("选择背景图片"))
@@ -309,13 +320,18 @@ class SettingInterface(ScrollArea):
             if exe_path is not None:
                 cfg.set(cfg_item, str(exe_path))
                 event_bus.notification_service.show_success(
-                    "检测成功", f"{exe_name}路径已设置为" + str(exe_path)
+                    self.tr("检测成功"),
+                    self.tr("{}路径已设置为{}").format(exe_name, str(exe_path)),
                 )
                 path_card.setContent(str(exe_path))
             else:
-                dialog = Dialog("检测失败", f"未检测到{exe_name}程序，是否要下载", self)
-                dialog.yesButton.setText("前往下载")
-                dialog.cancelButton.setText("取消")
+                dialog = Dialog(
+                    self.tr("检测失败"),
+                    self.tr("未检测到{}程序，是否要下载").format(exe_name),
+                    self,
+                )
+                dialog.yesButton.setText(self.tr("前往下载"))
+                dialog.cancelButton.setText(self.tr("取消"))
                 if dialog.exec():
                     QDesktopServices.openUrl(QUrl(url))
 
@@ -328,29 +344,30 @@ class SettingInterface(ScrollArea):
         if success:
             cfg.set(info["cfg_item"], exe_path)
             event_bus.notification_service.show_success(
-                "检测成功", f"{info['name']}路径已设置为" + exe_path
+                self.tr("检测成功"),
+                self.tr("{}路径已设置为{}").format(info["name"], exe_path),
             )
             info["path_card"].setContent(exe_path)
         else:
             dialog = Dialog(
-                "检测失败",
-                f"未检测到{info['name']}程序，是否要下载",
+                self.tr("检测失败"),
+                self.tr("未检测到{}程序，是否要下载").format(info["name"]),
                 self,
             )
-            dialog.yesButton.setText("前往下载")
-            dialog.cancelButton.setText("取消")
+            dialog.yesButton.setText(self.tr("前往下载"))
+            dialog.cancelButton.setText(self.tr("取消"))
             if dialog.exec():
                 QDesktopServices.openUrl(QUrl(info["url"]))
 
         # 所有检测完成后恢复按钮
         if not getattr(self, "_pending_detects", {}):
             self.detectionCard.openButton.setEnabled(True)
-            self.detectionCard.openButton.setText("检测")
+            self.detectionCard.openButton.setText(self.tr("检测"))
 
     def _onDectectionCardClicked(self):
         self.detectionCard.openButton.setEnabled(False)
         if sys.platform == "darwin":
-            self.detectionCard.openButton.setText("检测中...")
+            self.detectionCard.openButton.setText(self.tr("检测中..."))
 
         # ytdlp
         self._detectExe(

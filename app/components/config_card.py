@@ -72,15 +72,17 @@ class CustomModelDetectionThread(QThread):
         try:
             # 检查基本参数
             if not self.api_key or not self.api_key.strip():
-                self.detection_finished.emit(False, "❌ API密钥不能为空")
+                self.detection_finished.emit(False, "❌ " + self.tr("API密钥不能为空"))
                 return
 
             if not self.base_url or not self.base_url.strip():
-                self.detection_finished.emit(False, "❌ API基础URL不能为空")
+                self.detection_finished.emit(
+                    False, "❌ " + self.tr("API基础URL不能为空")
+                )
                 return
 
             if not self.model_name or not self.model_name.strip():
-                self.detection_finished.emit(False, "❌ 模型名称不能为空")
+                self.detection_finished.emit(False, "❌ " + self.tr("模型名称不能为空"))
                 return
 
             # 检查URL格式
@@ -89,7 +91,7 @@ class CustomModelDetectionThread(QThread):
                 or self.base_url.startswith("https://")
             ):
                 self.detection_finished.emit(
-                    False, "❌ API基础URL必须以http://或https://开头"
+                    False, "❌ " + self.tr("API基础URL必须以http://或https://开头")
                 )
                 return
 
@@ -98,7 +100,7 @@ class CustomModelDetectionThread(QThread):
                 from openai import OpenAI
             except ImportError:
                 self.detection_finished.emit(
-                    False, "❌ 未安装openai库，请运行: pip install openai"
+                    False, "❌ " + self.tr("未安装openai库，请运行: pip install openai")
                 )
                 return
 
@@ -124,28 +126,36 @@ class CustomModelDetectionThread(QThread):
             # 检查响应
             if response and response.choices:
                 self.detection_finished.emit(
-                    True, "✓ 参数配置正确，API连接成功！", normalized_base
+                    True, "✓ " + self.tr("参数配置正确，API连接成功！"), normalized_base
                 )
             else:
-                self.detection_finished.emit(False, "❌ API响应异常", normalized_base)
+                self.detection_finished.emit(
+                    False, "❌ " + self.tr("API响应异常"), normalized_base
+                )
 
         except Exception as e:
             error_msg = str(e)
 
             # 根据不同的错误类型提供更友好的提示
             if "401" in error_msg or "authentication" in error_msg.lower():
-                self.detection_finished.emit(False, "❌ API密钥无效或已过期", "")
+                self.detection_finished.emit(
+                    False, "❌ " + self.tr("API密钥无效或已过期"), ""
+                )
             elif "404" in error_msg:
-                self.detection_finished.emit(False, "❌ 模型不存在或API基础URL错误", "")
+                self.detection_finished.emit(
+                    False, "❌ " + self.tr("模型不存在或API基础URL错误"), ""
+                )
             elif "Connection" in error_msg or "connection" in error_msg.lower():
                 self.detection_finished.emit(
-                    False, "❌ 无法连接到API服务器，请检查网络和URL", ""
+                    False, "❌ " + self.tr("无法连接到API服务器，请检查网络和URL"), ""
                 )
             elif "timeout" in error_msg.lower():
-                self.detection_finished.emit(False, "❌ 请求超时，请检查网络连接", "")
+                self.detection_finished.emit(
+                    False, "❌ " + self.tr("请求超时，请检查网络连接"), ""
+                )
             else:
                 self.detection_finished.emit(
-                    False, f"❌ 检测失败: {error_msg[:100]}", ""
+                    False, "❌ " + self.tr("检测失败") + f": {error_msg[:100]}", ""
                 )
 
 
@@ -155,7 +165,7 @@ class DetectionCard(QFrame):
         self.iconWidget = IconWidget(icon)
         self.titleLabel = BodyLabel(title, self)
         self.contentLabel = CaptionLabel(content, self)
-        self.openButton = PushButton("检测", self)
+        self.openButton = PushButton(self.tr("检测"), self)
 
         self.hBoxLayout = QHBoxLayout(self)
         self.vBoxLayout = QVBoxLayout()
@@ -253,8 +263,10 @@ class PlainTextEditSettingCard(SettingCard):
 
     def showFlyout(self):
         Flyout.create(
-            title="Prompt编写帮助",
-            content="{origin_lang}表示原语言\n{target_lang}表示翻译后的语言\n{content}表示待翻译的文本",
+            title=self.tr("Prompt编写帮助"),
+            content=self.tr(
+                "{origin_lang}表示原语言\n{target_lang}表示翻译后的语言\n{content}表示待翻译的文本"
+            ),
             target=self.toolButton,
             parent=self,
             isClosable=True,
@@ -348,7 +360,7 @@ class ChooseFileSettingCard(SettingCard):
         self.lineEdit.setPlaceholderText(placeholderText)
         self.lineEdit.setReadOnly(True)
 
-        self.browseBtn = PushButton("浏览文件")
+        self.browseBtn = PushButton(self.tr("浏览文件"))
 
         self.remove_stretch()
         self.hBoxLayout.addSpacing(24)
@@ -1019,7 +1031,7 @@ class OCRSettingInterface(ScrollArea):
                 self.tr("paddleocr.exe 路径不能包含中文字符"),
                 self.window(),
             )
-            dialog.yesButton.setText("确认")
+            dialog.yesButton.setText(self.tr("确认"))
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -1041,7 +1053,7 @@ class OCRSettingInterface(ScrollArea):
                 self.tr("OCR.model 路径不能包含中文字符"),
                 self.window(),
             )
-            dialog.yesButton.setText("确认")
+            dialog.yesButton.setText(self.tr("确认"))
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -1064,7 +1076,7 @@ class OCRSettingInterface(ScrollArea):
                 self.tr("videocr-cli.exe 路径不能包含中文字符"),
                 self.window(),
             )
-            dialog.yesButton.setText("确认")
+            dialog.yesButton.setText(self.tr("确认"))
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -1087,7 +1099,7 @@ class OCRSettingInterface(ScrollArea):
                 self.tr("字幕提取临时文件夹temp 路径不能包含中文字符"),
                 self.window(),
             )
-            dialog.yesButton.setText("确认")
+            dialog.yesButton.setText(self.tr("确认"))
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -1147,7 +1159,7 @@ class TranslateSettingInterface(ScrollArea):
 
         # Deepseek
         self.deepseekGroup = SettingCardGroup(
-            self.tr("Deepseek (api付费 网页端免费 速度A 质量A 纠错A 稳定A)"),
+            self.tr("Deepseek"),
             self.scrollWidget,
         )
         self.DeepseekApiKeyCard = PasswordLineEditSettingCard(
@@ -1162,7 +1174,7 @@ class TranslateSettingInterface(ScrollArea):
 
         # GLM-4.5-FLASH
         self.glmGroup = SettingCardGroup(
-            self.tr("智谱 GLM-4.5-FLASH (免费 速度C 质量A 纠错B 稳定A)"),
+            self.tr("智谱 GLM-4.5-FLASH"),
             self.scrollWidget,
         )
         self.GplApiKeyCard = PasswordLineEditSettingCard(
@@ -1177,7 +1189,7 @@ class TranslateSettingInterface(ScrollArea):
 
         # Spark Lite
         self.sparkGroup = SettingCardGroup(
-            self.tr("讯飞 Spark Lite (免费 速度A 质量C 纠错C 稳定C)"), self.scrollWidget
+            self.tr("讯飞 Spark Lite"), self.scrollWidget
         )
         self.SparkApiKeyCard = PasswordLineEditSettingCard(
             cfg.sparkApiKey,
@@ -1190,9 +1202,7 @@ class TranslateSettingInterface(ScrollArea):
         self.SparkApiKeyCard.lineEdit.setFixedWidth(350)
 
         # 腾讯混元
-        self.hunyuanGroup = SettingCardGroup(
-            self.tr("腾讯混元 (免费 速度A 质量A 纠错A 稳定A)"), self.scrollWidget
-        )
+        self.hunyuanGroup = SettingCardGroup(self.tr("腾讯混元"), self.scrollWidget)
         self.HunyuanApiKeyCard = PasswordLineEditSettingCard(
             cfg.hunyuanApiKey,
             QIcon(":/app/images/icons/hunyuan-turbos-latest.svg"),
@@ -1204,9 +1214,7 @@ class TranslateSettingInterface(ScrollArea):
         self.HunyuanApiKeyCard.lineEdit.setFixedWidth(350)
 
         # 书生
-        self.internGroup = SettingCardGroup(
-            self.tr("书生 (免费 速度B 质量A 纠错A 稳定A)"), self.scrollWidget
-        )
+        self.internGroup = SettingCardGroup(self.tr("书生"), self.scrollWidget)
         self.InternApiKeyCard = PasswordLineEditSettingCard(
             cfg.internApiKey,
             QIcon(":/app/images/icons/intern-latest.svg"),
@@ -1219,7 +1227,7 @@ class TranslateSettingInterface(ScrollArea):
 
         # 百度ERNIE-Speed-128K
         self.ernieSpeedGroup = SettingCardGroup(
-            self.tr("百度ERNIE-Speed-128K (免费 速度A 质量B 纠错A 稳定E 不推荐使用)"),
+            self.tr("百度ERNIE-Speed-128K (不推荐使用)"),
             self.scrollWidget,
         )
         self.ErnieSpeedApiKeyCard = PasswordLineEditSettingCard(
@@ -1234,7 +1242,7 @@ class TranslateSettingInterface(ScrollArea):
 
         # Gemini 3 Flash
         self.geminiGroup = SettingCardGroup(
-            self.tr("Gemini 3 Flash (免费 速度S 质量A 纠错A 稳定S 需要挂梯子 最推荐)"),
+            self.tr("Gemini"),
             self.scrollWidget,
         )
         self.GeminiApiKeyCard = PasswordLineEditSettingCard(

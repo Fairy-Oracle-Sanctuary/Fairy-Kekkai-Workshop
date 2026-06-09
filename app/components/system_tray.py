@@ -56,7 +56,7 @@ class SystemTray(QSystemTrayIcon):
         self.main_window.hide()
         self.showMessage(
             "Fairy-Kekkai-Workshop",
-            "程序已最小化到系统托盘",
+            self.tr("程序已最小化到系统托盘"),
             QIcon(":/app/images/logo.png"),
             1500,
         )

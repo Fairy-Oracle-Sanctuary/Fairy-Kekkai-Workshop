@@ -1,7 +1,7 @@
 import re
 
 import requests
-from PySide6.QtCore import QThread, Signal
+from PySide6.QtCore import QCoreApplication, QThread, Signal
 
 from ..common.event_bus import event_bus
 from ..common.events import EventBuilder
@@ -41,7 +41,11 @@ class DownloadListThread(QThread):
         try:
             resp = requests.get(url=self.url, headers=headers, timeout=3)
         except requests.exceptions.Timeout:
-            self.finished_signal.emit(False, "请求超时", True)
+            self.finished_signal.emit(
+                False,
+                QCoreApplication.translate("DownloadListThread", "请求超时"),
+                True,
+            )
             return
 
         pattern = r'\[\{"url":"(.*?)","width":\d*,"height":\d*\}\]\},"title":\{"runs":\[\{"text":"(.*?)"\}\]'
@@ -49,7 +53,11 @@ class DownloadListThread(QThread):
         name = re.findall(pattern, resp.text)
 
         if not name:
-            self.finished_signal.emit(False, "网址错误", True)
+            self.finished_signal.emit(
+                False,
+                QCoreApplication.translate("DownloadListThread", "网址错误"),
+                True,
+            )
             return
 
         for i in name[:-1]:
@@ -79,7 +87,13 @@ class DownloadListThread(QThread):
                 title.write(title_name[-1])
                 title.write("\n\n")
 
-        self.finished_signal.emit(True, "已创建项目文件夹,正在下载封面", False)
+        self.finished_signal.emit(
+            True,
+            QCoreApplication.translate(
+                "DownloadListThread", "已创建项目文件夹,正在下载封面"
+            ),
+            False,
+        )
 
         cover_num = len(url_list)
         for i in range(1, cover_num + 1):
@@ -87,7 +101,13 @@ class DownloadListThread(QThread):
                 url_list[i - 1][1], self.project_name + "/" + str(i) + "/封面.jpg"
             )
 
-        self.finished_signal.emit(True, "封面下载完成,开始添加下载视频任务", False)
+        self.finished_signal.emit(
+            True,
+            QCoreApplication.translate(
+                "DownloadListThread", "封面下载完成,开始添加下载视频任务"
+            ),
+            False,
+        )
 
         video_list = []
         for i in url_list:
@@ -100,7 +120,11 @@ class DownloadListThread(QThread):
                 )
             )
 
-        self.finished_signal.emit(True, "已完成项目初始化！", True)
+        self.finished_signal.emit(
+            True,
+            QCoreApplication.translate("DownloadListThread", "已完成项目初始化！"),
+            True,
+        )
 
     def download_image(self, image_url, save_path):
         """
@@ -121,7 +145,19 @@ class DownloadListThread(QThread):
                 # 3. 将响应的二进制内容写入文件
                 f.write(response.content)
 
-            self.finished_signal.emit(True, f"图片成功下载并保存到: {save_path}", False)
+            self.finished_signal.emit(
+                True,
+                QCoreApplication.translate(
+                    "DownloadListThread", "图片成功下载并保存到: {}"
+                ).format(save_path),
+                False,
+            )
 
         except requests.exceptions.RequestException as e:
-            self.finished_signal.emit(False, f"下载图片时出错: {e}", False)
+            self.finished_signal.emit(
+                False,
+                QCoreApplication.translate(
+                    "DownloadListThread", "下载图片时出错: {}"
+                ).format(e),
+                False,
+            )

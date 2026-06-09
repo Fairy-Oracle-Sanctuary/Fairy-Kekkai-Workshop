@@ -50,7 +50,7 @@ class ProjectStackedInterface(QWidget):
         self.stackedWidget.setCurrentWidget(self.projectDetailInterface)
         # 通知信息
         event_bus.notification_service.show_success(
-            "打开成功", f"已打开项目 {project_info[0]}"
+            self.tr("打开成功"), self.tr("已打开项目 {}").format(project_info[0])
         )
 
     def showProjectList(self):

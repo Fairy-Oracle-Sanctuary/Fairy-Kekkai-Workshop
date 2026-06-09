@@ -18,7 +18,7 @@ class FFmpegStackedInterfaces(BaseStackedInterfaces):
             main_interface_class=FFmpegInterface,
             task_interface_class=FFmpegTaskInterface,
             setting_interface_class=FFmpegSettingInterface,
-            interface_name="视频压制",
+            interface_name=self.tr("视频压制"),
         )
 
         # 连接专用信号
@@ -31,7 +31,7 @@ class FFmpegInterface(BaseFunctionInterface):
 
     def __init__(self, parent=None):
         self.file_video = None
-        super().__init__(parent, "压制")
+        super().__init__(parent, self.tr("压制"))
 
         self.file_extension = "*.mp4;*.flv;*.mkv;*.avi;*.wmv;*.mpg;*.avs;*.mov"
         self.default_output_suffix = "_compressed.mp4"

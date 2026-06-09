@@ -96,10 +96,3 @@ class Srt:
             f.write(content)
 
         return f"内容已成功写入 {output_file}"
-
-
-if __name__ == "__main__":
-    srt_file = r"D:\Touhou-project\projects\名为喜欢的这份心情终将抵达之所\13\原文.srt"
-    srt_obj = Srt(srt_file)
-    for i in srt_obj.raw_content.split("\n\n"):
-        print(i + "\n\n")

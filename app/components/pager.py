@@ -96,7 +96,12 @@ class Pager(QWidget):
 
         setToolTipInfos(
             [self.topButton, self.bottomButton, self.previousButton, self.nextButton],
-            ["跳转到第一页", "跳转到最后一页", "上一页", "下一页"],
+            [
+                self.tr("跳转到第一页"),
+                self.tr("跳转到最后一页"),
+                self.tr("上一页"),
+                self.tr("下一页"),
+            ],
             2500,
             ToolTipPosition.TOP,
         )
@@ -132,8 +137,10 @@ class Pager(QWidget):
             FluentIcon.CARE_RIGHT_SOLID, self
         )
 
-        self.jumpLabel: BodyLabel = BodyLabel("跳转到")
-        self.countLabel: BodyLabel = BodyLabel(f"页 共计 {self.__pages} 页")
+        self.jumpLabel: BodyLabel = BodyLabel(self.tr("跳转到"))
+        self.countLabel: BodyLabel = BodyLabel(
+            self.tr("页 共计 {} 页").format(self.__pages)
+        )
 
         self.jumpEdit: LineEdit = LineEdit(self)
         self.jumpEdit.setValidator(QIntValidator(self))
@@ -225,7 +232,7 @@ class Pager(QWidget):
         if self.__pages == number:
             return
         self.__pages = number
-        self.countLabel.setText(f"页 共计 {self.__pages} 页")
+        self.countLabel.setText(self.tr("页 共计 {} 页").format(self.__pages))
         self.__updateButtons()
 
     def setCurrentPage(self, page: int) -> None:

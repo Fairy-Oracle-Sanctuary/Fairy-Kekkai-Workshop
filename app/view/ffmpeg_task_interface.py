@@ -16,8 +16,8 @@ class FFmpegTaskInterface(BaseTaskInterface):
     def __init__(self, parent=None):
         super().__init__(
             object_name="ocrTaskInterface",
-            processing_text="压制中",
-            task_type="压制",
+            processing_text=self.tr("压制中"),
+            task_type=self.tr("压制"),
             max_concurrent_tasks=3,
             parent=parent,
         )

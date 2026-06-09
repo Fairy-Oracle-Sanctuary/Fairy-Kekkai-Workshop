@@ -136,14 +136,19 @@ def handle_startup_error():
 
                 # 尝试显示错误对话框
                 try:
+                    from PySide6.QtCore import QCoreApplication
                     from PySide6.QtWidgets import QApplication, QMessageBox
 
                     if not QApplication.instance():
                         app = QApplication([])  # noqa
                     msg_box = QMessageBox()
                     msg_box.setIcon(QMessageBox.Critical)
-                    msg_box.setWindowTitle("启动错误")
-                    msg_box.setText("应用程序启动失败")
+                    msg_box.setWindowTitle(
+                        QCoreApplication.translate("StartupHandler", "启动错误")
+                    )
+                    msg_box.setText(
+                        QCoreApplication.translate("StartupHandler", "应用程序启动失败")
+                    )
                     msg_box.setInformativeText(
                         f"错误信息: {str(e)}\n\n详细日志已保存到:\n{startup_handler.startup_log_file}"
                     )
@@ -175,14 +180,21 @@ def setup_global_exception_handler():
 
         # 尝试显示错误对话框
         try:
+            from PySide6.QtCore import QCoreApplication
             from PySide6.QtWidgets import QApplication, QMessageBox
 
             app = QApplication.instance()
             if app:
                 msg_box = QMessageBox()
                 msg_box.setIcon(QMessageBox.Critical)
-                msg_box.setWindowTitle("程序错误")
-                msg_box.setText("程序运行时发生未处理的错误")
+                msg_box.setWindowTitle(
+                    QCoreApplication.translate("StartupHandler", "程序错误")
+                )
+                msg_box.setText(
+                    QCoreApplication.translate(
+                        "StartupHandler", "程序运行时发生未处理的错误"
+                    )
+                )
                 msg_box.setInformativeText(
                     f"错误信息: {str(exc_value)}\n\n详细日志已保存到:\n{startup_handler.startup_log_file}"
                 )

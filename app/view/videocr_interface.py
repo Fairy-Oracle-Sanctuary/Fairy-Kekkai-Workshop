@@ -46,7 +46,7 @@ class VideocrStackedInterfaces(BaseStackedInterfaces):
             main_interface_class=VideocrInterface,
             task_interface_class=OcrTaskInterface,
             setting_interface_class=OCRSettingInterface,
-            interface_name="字幕提取",
+            interface_name=self.tr("字幕提取"),
         )
 
         # 连接专用信号
@@ -77,7 +77,7 @@ class VideocrInterface(BaseFunctionInterface):
         self.fps = 0
         self.video_preview = None
 
-        super().__init__(parent, "提取字幕")
+        super().__init__(parent, self.tr("提取字幕"))
 
         self.file_extension = "*.mp4;*.flv;*.mkv;*.avi;*.wmv;*.m2ts;*.ts;*.mov;*.webm"
         self.default_output_suffix = "_OCR.srt"
@@ -117,7 +117,7 @@ class VideocrInterface(BaseFunctionInterface):
 
         # 标题
         title_layout = QHBoxLayout()
-        title_label = StrongBodyLabel("视频预览")
+        title_label = StrongBodyLabel(self.tr("视频预览"))
         title_layout.addWidget(title_label)
         title_layout.addStretch()
         layout.addLayout(title_layout)
@@ -131,8 +131,8 @@ class VideocrInterface(BaseFunctionInterface):
         self.progress_slider = Slider(Qt.Horizontal)
         self.progress_slider.setEnabled(False)
 
-        self.frame_label = CaptionLabel("帧: -/-")
-        self.time_label = CaptionLabel("时间: -/-")
+        self.frame_label = CaptionLabel(self.tr("帧: -/-"))
+        self.time_label = CaptionLabel(self.tr("时间: -/-"))
 
         control_layout.addWidget(self.progress_slider, 4)
         control_layout.addWidget(self.frame_label, 1)
@@ -141,7 +141,7 @@ class VideocrInterface(BaseFunctionInterface):
         self.log_text = TextEdit()
         self.log_text.setMinimumHeight(200)
         self.log_text.setReadOnly(True)
-        self.log_text.setPlaceholderText("处理日志将显示在这里...")
+        self.log_text.setPlaceholderText(self.tr("处理日志将显示在这里..."))
 
         layout.addLayout(control_layout)
         layout.addWidget(self.log_text)
@@ -164,7 +164,7 @@ class VideocrInterface(BaseFunctionInterface):
         super()._create_button_layout(main_layout)
 
         # 为OCR界面添加清空日志按钮
-        self.clear_btn = PushButton(FIF.DELETE, "清空日志")
+        self.clear_btn = PushButton(FIF.DELETE, self.tr("清空日志"))
         main_layout.itemAt(main_layout.count() - 1).layout().addWidget(self.clear_btn)
         self.clear_btn.clicked.connect(self._clear_log)
 
@@ -207,11 +207,13 @@ class VideocrInterface(BaseFunctionInterface):
             self.video_preview.refresh_select_btn()
             self.refresh_start_btn()
 
-            self._log_message(f"成功加载视频: {video_path}")
-            self._log_message(f"总帧数: {self.total_frames}, FPS: {self.fps:.2f}")
+            self._log_message(self.tr("成功加载视频: {}").format(video_path))
+            self._log_message(
+                self.tr("总帧数: {}, FPS: {:.2f}").format(self.total_frames, self.fps)
+            )
 
         except Exception as e:
-            self._log_message(f"加载视频失败: {str(e)}", is_error=True)
+            self._log_message(self.tr("加载视频失败: {}").format(str(e)), is_error=True)
 
     def _update_video_frame(self, frame_number):
         """更新视频帧显示"""
@@ -224,12 +226,17 @@ class VideocrInterface(BaseFunctionInterface):
                 self.current_frame = frame_number
 
                 # 更新帧和时间信息
-                self.frame_label.setText(f"帧: {frame_number + 1}/{self.total_frames}")
+                self.frame_label.setText(
+                    self.tr("帧: {}/{}").format(frame_number + 1, self.total_frames)
+                )
                 if self.fps > 0:
                     current_time = frame_number / self.fps
                     total_time = self.total_frames / self.fps
                     self.time_label.setText(
-                        f"时间: {self._format_time(current_time)}/{self._format_time(total_time)}"
+                        self.tr("时间: {}/{}").format(
+                            self._format_time(current_time),
+                            self._format_time(total_time),
+                        )
                     )
 
     def _format_time(self, seconds):
@@ -253,17 +260,21 @@ class VideocrInterface(BaseFunctionInterface):
         # 检测paddleocr.exe是否存在
         paddleocr_path = cfg.get(cfg.paddleocrPath)
         if not os.path.exists(paddleocr_path):
-            self.show_error_message(f"paddleocr.exe不存在: {paddleocr_path}")
+            self.show_error_message(
+                self.tr("paddleocr.exe不存在: {}").format(paddleocr_path)
+            )
             return
 
         # 检测paddleocr路径内是否有中文
         if re.search("[\u4e00-\u9fff\u3400-\u4dbf]", cfg.get(cfg.paddleocrPath)):
             dialog = Dialog(
                 self.tr("警告"),
-                self.tr(f"PaddleOCR路径 {cfg.get(cfg.paddleocrPath)} 不能包含中文字符"),
+                self.tr("PaddleOCR路径 {} 不能包含中文字符").format(
+                    cfg.get(cfg.paddleocrPath)
+                ),
                 self.window(),
             )
-            dialog.yesButton.setText("确认")
+            dialog.yesButton.setText(self.tr("确认"))
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -272,12 +283,12 @@ class VideocrInterface(BaseFunctionInterface):
         if re.search("[\u4e00-\u9fff\u3400-\u4dbf]", cfg.get(cfg.supportFilesPath)):
             dialog = Dialog(
                 self.tr("警告"),
-                self.tr(
-                    f"支持文件夹路径 {cfg.get(cfg.supportFilesPath)} 不能包含中文字符"
+                self.tr("支持文件夹路径 {} 不能包含中文字符").format(
+                    cfg.get(cfg.supportFilesPath)
                 ),
                 self.window(),
             )
-            dialog.yesButton.setText("确认")
+            dialog.yesButton.setText(self.tr("确认"))
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -287,40 +298,47 @@ class VideocrInterface(BaseFunctionInterface):
         if re.search("[\u4e00-\u9fff\u3400-\u4dbf]", temp_path):
             dialog = Dialog(
                 self.tr("警告"),
-                self.tr(f"临时文件夹路径 {temp_path} 不能包含中文字符"),
+                self.tr("临时文件夹路径 {} 不能包含中文字符").format(temp_path),
                 self.window(),
             )
-            dialog.yesButton.setText("确认")
+            dialog.yesButton.setText(self.tr("确认"))
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
 
         if not os.path.exists(cfg.get(cfg.paddleocrPath)):
             self.show_error_message(
-                f"PaddleOCR路径不存在: {cfg.get(cfg.paddleocrPath)}"
+                self.tr("PaddleOCR路径不存在: {}").format(cfg.get(cfg.paddleocrPath))
             )
             return
 
         if not os.path.exists(cfg.get(cfg.supportFilesPath)):
             self.show_error_message(
-                f"支持文件夹路径不存在: {cfg.get(cfg.supportFilesPath)}"
+                self.tr("支持文件夹路径不存在: {}").format(
+                    cfg.get(cfg.supportFilesPath)
+                )
             )
             return
 
         if not self.file_path:
-            self.show_error_message("请先选择视频文件")
+            self.show_error_message(self.tr("请先选择视频文件"))
             return
 
         if not self.outputFileCard.lineEdit.text():
-            self.show_error_message("请设置输出文件路径")
+            self.show_error_message(self.tr("请设置输出文件路径"))
             return
 
         selection_rect = self.video_preview.get_selection_rect()
         if not selection_rect:
-            self.show_error_message("请先框选字幕区域")
+            self.show_error_message(self.tr("请先框选字幕区域"))
             return
         self._log_message(
-            f"使用自定义区域: {selection_rect.x()}, {selection_rect.y()}, {selection_rect.width()}x{selection_rect.height()}"
+            self.tr("使用自定义区域: {}, {}, {}x{}").format(
+                selection_rect.x(),
+                selection_rect.y(),
+                selection_rect.width(),
+                selection_rect.height(),
+            )
         )
 
         # 组合参数发送信号

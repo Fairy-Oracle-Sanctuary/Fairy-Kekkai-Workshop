@@ -30,7 +30,7 @@ class WhisperStackedInterfaces(BaseStackedInterfaces):
             main_interface_class=WhisperInterface,
             task_interface_class=WhisperTaskInterface,
             setting_interface_class=WhisperSettingInterface,
-            interface_name="语音识别",
+            interface_name=self.tr("语音识别"),
         )
 
         # 连接专用信号
@@ -43,7 +43,7 @@ class WhisperInterface(BaseFunctionInterface):
 
     def __init__(self, parent=None):
         self.file_video = None
-        super().__init__(parent, "识别")
+        super().__init__(parent, self.tr("识别"))
 
         self.file_extension = (
             "*.mp4;*.flv;*.mkv;*.avi;*.wmv;*.mpg;*.mov;*.wav;*.mp3;*.flac"
@@ -61,25 +61,25 @@ class WhisperInterface(BaseFunctionInterface):
         self.languageCard = ComboBoxSettingCard(
             cfg.whisperLanguage,
             FIF.LANGUAGE,
-            "识别语言",
-            "选择要识别的语言",
+            self.tr("识别语言"),
+            self.tr("选择要识别的语言"),
             texts=[
-                "自动检测",
-                "中文",
-                "日语",
-                "英语",
-                "韩语",
-                "法语",
-                "德语",
-                "西班牙语",
+                self.tr("自动检测"),
+                self.tr("中文"),
+                self.tr("日语"),
+                self.tr("英语"),
+                self.tr("韩语"),
+                self.tr("法语"),
+                self.tr("德语"),
+                self.tr("西班牙语"),
             ],
             parent=self.settingsGroup,
         )
         self.formatCard = ComboBoxSettingCard(
             cfg.whisperOutputFormat,
             FIF.DOCUMENT,
-            "输出格式",
-            "选择字幕输出格式",
+            self.tr("输出格式"),
+            self.tr("选择字幕输出格式"),
             texts=["srt", "txt", "vtt"],
             parent=self.settingsGroup,
         )
@@ -88,12 +88,14 @@ class WhisperInterface(BaseFunctionInterface):
 
         # 模型说明提示卡片
         hint_label = BodyLabel(
-            "内置 <b>Small</b> 模型对油库里语音已够用。"
-            '需更高精度可<a href="https://pan.xunlei.com/s/VOu1R3aOfz05uqcbNUBSnEFSA1?pwd=62cr#" '
-            'style="color: #0078d4;">手动下载更大模型</a>后替换。'
-            "<b>注意</b>: 若是超过10分钟的视频强烈建议更换medium模型，超过30分钟的视频更换large模型。"
-            "更多模型可前往<a href='https://huggingface.co/ggerganov/whisper.cpp/tree/main' style='color: #0078d4;'>https://huggingface.co/ggerganov/whisper.cpp/tree/main</a>下载，"
-            "语音设置不推荐选择自动检测。目前模型存在幻觉，可能会生成一些重复文本，剪辑时请注意。"
+            self.tr(
+                "内置 <b>Small</b> 模型对油库里语音已够用。"
+                '需更高精度可<a href="https://pan.xunlei.com/s/VOu1R3aOfz05uqcbNUBSnEFSA1?pwd=62cr#" '
+                'style="color: #0078d4;">手动下载更大模型</a>后替换。'
+                "<b>注意</b>: 若是超过10分钟的视频强烈建议更换medium模型，超过30分钟的视频更换large模型。"
+                "更多模型可前往<a href='https://huggingface.co/ggerganov/whisper.cpp/tree/main' style='color: #0078d4;'>https://huggingface.co/ggerganov/whisper.cpp/tree/main</a>下载，"
+                "语音设置不推荐选择自动检测。目前模型存在幻觉，可能会生成一些重复文本，剪辑时请注意。"
+            )
         )
         hint_label.setWordWrap(True)
         hint_label.linkActivated.connect(
@@ -115,10 +117,10 @@ class WhisperInterface(BaseFunctionInterface):
         if not cli_path or not os.path.exists(cli_path):
             dialog = Dialog(
                 self.tr("警告"),
-                self.tr(f"Whisper CLI路径 {cli_path} 不存在"),
+                self.tr("Whisper CLI路径 {} 不存在").format(cli_path),
                 self.window(),
             )
-            dialog.yesButton.setText("确认")
+            dialog.yesButton.setText(self.tr("确认"))
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -127,10 +129,10 @@ class WhisperInterface(BaseFunctionInterface):
         if not model_path or not os.path.exists(model_path):
             dialog = Dialog(
                 self.tr("警告"),
-                self.tr(f"Whisper模型路径 {model_path} 不存在"),
+                self.tr("Whisper模型路径 {} 不存在").format(model_path),
                 self.window(),
             )
-            dialog.yesButton.setText("确认")
+            dialog.yesButton.setText(self.tr("确认"))
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
