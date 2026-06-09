@@ -34,5 +34,6 @@
         <file>images/controls/SkipEndFill_black.svg</file>
         <file>images/logo.ico</file>
         <file>images/controls/whisper.svg</file>
+        <file>i18n/app.en_US.qm</file>
     </qresource>
 </RCC>

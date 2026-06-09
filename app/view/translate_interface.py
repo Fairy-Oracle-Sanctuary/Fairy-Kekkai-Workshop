@@ -18,7 +18,7 @@ from ..common.logger import Logger
 from ..common.setting import AI_model_dict, translate_language_dict
 from ..components.base_function_interface import BaseFunctionInterface
 from ..components.base_stacked_interface import BaseStackedInterfaces
-from ..components.config_card import TranslateSettingInterface
+from ..components.config_card import DictSettingCard, TranslateSettingInterface
 from ..service.srt_service import Srt
 
 
@@ -60,31 +60,31 @@ class TranslationInterface(BaseFunctionInterface):
     def _create_settings_cards(self):
         """创建翻译设置卡片"""
         # 原语言设置卡片
-        self.origin_languageCard = ComboBoxSettingCard(
+        self.origin_languageCard = DictSettingCard(
             configItem=cfg.origin_lang,
             icon=FIF.GLOBE,
             title=self.tr("原文语言"),
             content=self.tr("选择字幕文本的语言"),
-            texts=translate_language_dict.keys(),
+            options_dict=translate_language_dict,
         )
         self.settingsGroup.addSettingCard(self.origin_languageCard)
 
         # 翻译语言设置卡片
-        self.target_languageCard = ComboBoxSettingCard(
+        self.target_languageCard = DictSettingCard(
             configItem=cfg.target_lang,
             icon=FIF.LANGUAGE,
             title=self.tr("翻译语言"),
             content=self.tr("选择翻译后的语言"),
-            texts=translate_language_dict.keys(),
+            options_dict=translate_language_dict,
         )
         self.settingsGroup.addSettingCard(self.target_languageCard)
 
-        self.AI_modelCard = ComboBoxSettingCard(
+        self.AI_modelCard = DictSettingCard(
             configItem=cfg.ai_model,
             icon=FIF.BOOK_SHELF,
             title=self.tr("AI模型"),
             content=self.tr("选择AI模型"),
-            texts=AI_model_dict.keys(),
+            options_dict=AI_model_dict,
         )
         self.settingsGroup.addSettingCard(self.AI_modelCard)
 
@@ -122,7 +122,7 @@ class TranslationInterface(BaseFunctionInterface):
     def _onAIModelChanged(self, model_name: str):
         """根据选择的AI模型动态显示/隐藏专属设置"""
         # Deepseek 专属设置
-        is_deepseek = model_name == "Deepseek"
+        is_deepseek = model_name == "deepseek"
         self.deepseekModelCard.setVisible(is_deepseek)
         self.deepseekReasoningCard.setVisible(is_deepseek)
 
@@ -175,39 +175,41 @@ class TranslationInterface(BaseFunctionInterface):
 
     def _start_processing(self):
         """开始翻译"""
-        if cfg.get(cfg.ai_model) == "Deepseek" and not cfg.get(cfg.deepseekApiKey):
+        if cfg.get(cfg.ai_model) == "deepseek" and not cfg.get(cfg.deepseekApiKey):
             self.show_error_message(self.tr("请先填写您的DeepSeek API Key"))
             return
 
-        elif cfg.get(cfg.ai_model) == "GLM-4.5-FLASH" and not cfg.get(cfg.glmApiKey):
+        elif cfg.get(cfg.ai_model) == "glm-4.5-flash" and not cfg.get(cfg.glmApiKey):
             self.show_error_message(self.tr("请先填写您的GLM-4.5-FLASH API Key"))
             return
 
-        elif cfg.get(cfg.ai_model) == "Spark-Lite" and not cfg.get(cfg.sparkApiKey):
+        elif cfg.get(cfg.ai_model) == "spark-lite" and not cfg.get(cfg.sparkApiKey):
             self.show_error_message(self.tr("请先填写您的Spark-Lite API Key"))
             return
 
-        elif cfg.get(cfg.ai_model) == "腾讯混元" and not cfg.get(cfg.hunyuanApiKey):
+        elif cfg.get(cfg.ai_model) == "hunyuan-turbos-latest" and not cfg.get(
+            cfg.hunyuanApiKey
+        ):
             self.show_error_message(self.tr("请先填写您的腾讯混元 API Key"))
             return
 
-        elif cfg.get(cfg.ai_model) == "书生" and not cfg.get(cfg.internApiKey):
+        elif cfg.get(cfg.ai_model) == "intern-latest" and not cfg.get(cfg.internApiKey):
             self.show_error_message(self.tr("请先填写您的书生 API Key"))
             return
 
-        elif cfg.get(cfg.ai_model) == "百度ERNIE-Speed-128K" and not cfg.get(
+        elif cfg.get(cfg.ai_model) == "ernie-speed-128k" and not cfg.get(
             cfg.ernieSpeedApiKey
         ):
             self.show_error_message(self.tr("请先填写您的百度ERNIE-Speed-128K API Key"))
             return
 
-        elif cfg.get(cfg.ai_model) == "Gemini 3 Flash" and not cfg.get(
+        elif cfg.get(cfg.ai_model) == "gemini-3-flash-preview" and not cfg.get(
             cfg.geminiApiKey
         ):
             self.show_error_message(self.tr("请先填写您的Gemini 3 Flash API Key"))
             return
 
-        elif cfg.get(cfg.ai_model) == "自定义模型":
+        elif cfg.get(cfg.ai_model) == "custom-model":
             if not cfg.get(cfg.customModelEnabled):
                 self.show_error_message(self.tr("请先在设置中启用自定义模型"))
                 return
@@ -239,11 +241,11 @@ class TranslationInterface(BaseFunctionInterface):
         args["origin_lang"] = cfg.get(cfg.origin_lang)
         args["target_lang"] = cfg.get(cfg.target_lang)
         args["raw_content"] = self.file_srt.raw_content
-        args["AI"] = AI_model_dict.get(cfg.get(cfg.ai_model), "glm-4.5-flash")
+        args["AI"] = cfg.get(cfg.ai_model)
         args["temperature"] = float(cfg.get(cfg.aiTemperature))
 
         # Deepseek 专属参数
-        if cfg.get(cfg.ai_model) == "Deepseek":
+        if cfg.get(cfg.ai_model) == "deepseek":
             args["deepseek_model"] = cfg.get(cfg.deepseekModel)
             args["deepseek_reasoning"] = cfg.get(cfg.deepseekReasoning)
 

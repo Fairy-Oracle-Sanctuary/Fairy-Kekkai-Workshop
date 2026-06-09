@@ -12,8 +12,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 from qfluentwidgets import (
+    BodyLabel,
     CaptionLabel,
-    ComboBoxSettingCard,
     Dialog,
     PushButton,
     SimpleCardWidget,
@@ -27,12 +27,11 @@ from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
 from ..common.setting import (
-    subtitle_positions_list,
     videocr_languages_dict,
 )
 from ..components.base_function_interface import BaseFunctionInterface
 from ..components.base_stacked_interface import BaseStackedInterfaces
-from ..components.config_card import OCRSettingInterface
+from ..components.config_card import DictSettingCard, OCRSettingInterface
 from ..service.video_service import VideoPreview
 from ..view.videocr_task_interface import OcrTaskInterface
 
@@ -80,10 +79,19 @@ class VideocrInterface(BaseFunctionInterface):
         super().__init__(parent, self.tr("提取字幕"))
 
         self.file_extension = "*.mp4;*.flv;*.mkv;*.avi;*.wmv;*.m2ts;*.ts;*.mov;*.webm"
-        self.default_output_suffix = "_OCR.srt"
+        self.default_output_suffix = ""
         self.special_filename_mapping = {"生肉.mp4": "原文_OCR.srt"}
 
         self.logger = Logger("VideocrInterface", "videocr")
+
+    def _generate_output_path(self, input_path):
+        from pathlib import Path
+
+        input_path = Path(input_path)
+        for special_name, output_name in self.special_filename_mapping.items():
+            if input_path.name == special_name:
+                return input_path.parent / output_name
+        return input_path.parent / "原文.srt"
 
     def get_input_icon(self):
         return FIF.VIDEO
@@ -91,12 +99,12 @@ class VideocrInterface(BaseFunctionInterface):
     def _create_settings_cards(self):
         """创建OCR设置卡片"""
         # 语言设置卡片
-        self.languageCard = ComboBoxSettingCard(
+        self.languageCard = DictSettingCard(
             configItem=cfg.ocr_lang,
             icon=FIF.LANGUAGE,
             title="识别语言",
             content="选择字幕文本的语言",
-            texts=videocr_languages_dict.keys(),
+            options_dict=videocr_languages_dict,
         )
         self.settingsGroup.addSettingCard(self.languageCard)
 
@@ -143,8 +151,16 @@ class VideocrInterface(BaseFunctionInterface):
         self.log_text.setReadOnly(True)
         self.log_text.setPlaceholderText(self.tr("处理日志将显示在这里..."))
 
+        hint_label = BodyLabel(
+            self.tr(
+                "对于核显来说提取效果可能不是很好，可以通过调整高级设置里的参数来微调。"
+            )
+        )
+        hint_label.setWordWrap(True)
+
         layout.addLayout(control_layout)
         layout.addWidget(self.log_text)
+        layout.addWidget(hint_label)
 
         # 连接信号
         self.progress_slider.valueChanged.connect(self._seek_video)
@@ -365,9 +381,7 @@ class VideocrInterface(BaseFunctionInterface):
         args["use_server_model"] = cfg.get(cfg.useServerModel)
         # args["brightness_threshold"] = cfg.get(cfg.brightnessThreshold)
         args["ssim_threshold"] = cfg.get(cfg.ssimThreshold)
-        args["subtitle_position"] = subtitle_positions_list.get(
-            cfg.get(cfg.ocr_position), "center"
-        )
+        args["subtitle_position"] = "center"
         args["frames_to_skip"] = cfg.get(cfg.framesToSkip)
         args["use_dual_zone"] = cfg.get(cfg.useDualZone)
 

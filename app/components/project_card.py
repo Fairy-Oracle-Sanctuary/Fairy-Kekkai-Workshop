@@ -325,16 +325,16 @@ class TopButtonCard(SimpleCardWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         # 创建三个按钮
-        self.newProjectButton = PushButton("新建项目", self)
-        self.importProjectButton = PushButton("导入项目", self)
-        self.newFromPlaylistButton = PushButton("根据视频列表创建项目", self)
-        self.refreshButton = PrimaryPushButton("刷新项目列表", self)
+        self.newProjectButton = PushButton(self.tr("新建项目"), self)
+        self.importProjectButton = PushButton(self.tr("导入项目"), self)
+        self.newFromPlaylistButton = PushButton(self.tr("根据视频列表创建项目"), self)
+        self.refreshButton = PrimaryPushButton(self.tr("刷新项目列表"), self)
 
         # 设置按钮样式
         self.newProjectButton.setFixedWidth(120)
         self.importProjectButton.setFixedWidth(120)
-        self.newFromPlaylistButton.setFixedWidth(200)
-        self.refreshButton.setFixedWidth(120)
+        self.newFromPlaylistButton.setFixedWidth(230)
+        self.refreshButton.setFixedWidth(150)
 
         # 创建水平布局
         self.hBoxLayout = QHBoxLayout(self)

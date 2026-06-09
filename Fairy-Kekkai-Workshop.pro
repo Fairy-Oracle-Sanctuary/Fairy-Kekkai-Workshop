@@ -28,6 +28,7 @@ SOURCES += Fairy-Kekkai-Workshop.py \
     app/view/videocr_interface.py \
     app/view/videocr_task_interface.py \
     app/view/whisper_interface.py \
-    app/view/whisper_task_interface.py
+    app/view/whisper_task_interface.py \
+    app/view/log_interface.py
 
 TRANSLATIONS += app/resource/i18n/app.en_US.ts

@@ -89,7 +89,7 @@ class WhisperInterface(BaseFunctionInterface):
         # 模型说明提示卡片
         hint_label = BodyLabel(
             self.tr(
-                "内置 <b>Small</b> 模型对油库里语音已够用。"
+                "内置 <b>Small</b> 模型对油库里语音勉强够用，还是推荐更大的模型。"
                 '需更高精度可<a href="https://pan.xunlei.com/s/VOu1R3aOfz05uqcbNUBSnEFSA1?pwd=62cr#" '
                 'style="color: #0078d4;">手动下载更大模型</a>后替换。'
                 "<b>注意</b>: 若是超过10分钟的视频强烈建议更换medium模型，超过30分钟的视频更换large模型。"
