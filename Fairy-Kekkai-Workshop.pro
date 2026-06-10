@@ -31,4 +31,6 @@ SOURCES += Fairy-Kekkai-Workshop.py \
     app/view/whisper_task_interface.py \
     app/view/log_interface.py
 
-TRANSLATIONS += app/resource/i18n/app.en_US.ts
+TRANSLATIONS += app/resource/i18n/app.en_US.ts \
+    app/resource/i18n/app.ja_JP.ts \
+    app/resource/i18n/app.ko_KR.ts

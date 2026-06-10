@@ -2504,209 +2504,209 @@ Please configure the correct path in settings</translation>
         <translation>Startup complete</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="333"/>
+        <location filename="../../view/main_window.py" line="336"/>
         <source>主页</source>
         <translation>Home</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="334"/>
+        <location filename="../../view/main_window.py" line="337"/>
         <source>项目</source>
         <translation>Project</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="335"/>
+        <location filename="../../view/main_window.py" line="338"/>
         <source>下载</source>
         <translation>Download</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="337"/>
+        <location filename="../../view/main_window.py" line="340"/>
         <source>字幕</source>
         <translation>Subtitles</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="338"/>
+        <location filename="../../view/main_window.py" line="341"/>
         <source>语音</source>
         <translation>Voice</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="339"/>
+        <location filename="../../view/main_window.py" line="342"/>
         <source>翻译</source>
         <translation>Translate</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="340"/>
+        <location filename="../../view/main_window.py" line="343"/>
         <source>压制</source>
         <translation>Encode</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="348"/>
+        <location filename="../../view/main_window.py" line="351"/>
         <source>帮助</source>
         <translation>Help</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="357"/>
-        <location filename="../../view/main_window.py" line="365"/>
+        <location filename="../../view/main_window.py" line="360"/>
+        <location filename="../../view/main_window.py" line="368"/>
         <source>设置</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="399"/>
+        <location filename="../../view/main_window.py" line="402"/>
         <source>支持项目</source>
         <translation>Support Project</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="400"/>
+        <location filename="../../view/main_window.py" line="403"/>
         <source>现在团队人手紧缺，如果感兴趣的话请加入我们</source>
         <translation>We need more team members, join us if interested!</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="403"/>
+        <location filename="../../view/main_window.py" line="406"/>
         <source>访问仓库</source>
         <translation>Visit Repository</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="404"/>
+        <location filename="../../view/main_window.py" line="407"/>
         <source>下次一定</source>
         <translation>Maybe Later</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="445"/>
+        <location filename="../../view/main_window.py" line="448"/>
         <source>有以下任务正在运行，确定要关闭吗？
 
 {}</source>
         <translation>The following tasks are still running, close anyway?\n\n{}</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="448"/>
+        <location filename="../../view/main_window.py" line="451"/>
         <source>确认关闭</source>
         <translation>Confirm Close</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="449"/>
-        <location filename="../../view/main_window.py" line="670"/>
-        <location filename="../../view/main_window.py" line="672"/>
+        <location filename="../../view/main_window.py" line="452"/>
+        <location filename="../../view/main_window.py" line="673"/>
+        <location filename="../../view/main_window.py" line="675"/>
         <source>关闭</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="450"/>
+        <location filename="../../view/main_window.py" line="453"/>
         <source>取消</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="603"/>
+        <location filename="../../view/main_window.py" line="606"/>
         <source>下载任务: {} 个</source>
         <translation>Download tasks: {}</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="615"/>
+        <location filename="../../view/main_window.py" line="618"/>
         <source>翻译任务: {} 个</source>
         <translation>Translation tasks: {}</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="624"/>
+        <location filename="../../view/main_window.py" line="627"/>
         <source>OCR任务: {} 个</source>
         <translation>OCR tasks: {}</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="633"/>
+        <location filename="../../view/main_window.py" line="636"/>
         <source>压制任务: {} 个</source>
         <translation>Encoding tasks: {}</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="643"/>
+        <location filename="../../view/main_window.py" line="646"/>
         <source>识别任务: {} 个</source>
         <translation>Transcription tasks: {}</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="651"/>
+        <location filename="../../view/main_window.py" line="654"/>
         <source>检测到新版本</source>
         <translation>New version detected</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="653"/>
+        <location filename="../../view/main_window.py" line="656"/>
         <source>新版本</source>
         <translation>New Version</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="654"/>
+        <location filename="../../view/main_window.py" line="657"/>
         <source>可用，你是否要下载新版本？</source>
         <translation>available. Do you want to download it?</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="660"/>
+        <location filename="../../view/main_window.py" line="663"/>
         <source>没有新版本</source>
         <translation>No new version</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="661"/>
+        <location filename="../../view/main_window.py" line="664"/>
         <source>Fairy Kekkai Workshop 已是最新版本</source>
         <translation>Fairy Kekkai Workshop is up to date</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="669"/>
+        <location filename="../../view/main_window.py" line="672"/>
         <source>确定</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="713"/>
-        <location filename="../../view/main_window.py" line="779"/>
+        <location filename="../../view/main_window.py" line="716"/>
+        <location filename="../../view/main_window.py" line="782"/>
         <source>下载完成 -{}-</source>
         <translation>Download complete -{}-</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="720"/>
-        <location filename="../../view/main_window.py" line="786"/>
+        <location filename="../../view/main_window.py" line="723"/>
+        <location filename="../../view/main_window.py" line="789"/>
         <source>下载失败 -{}-</source>
         <translation>Download failed -{}-</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="735"/>
+        <location filename="../../view/main_window.py" line="738"/>
         <source>视频字幕识别完成 -{}-</source>
         <translation>Subtitle recognition complete -{}-</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="742"/>
+        <location filename="../../view/main_window.py" line="745"/>
         <source>视频字幕识别失败 -{}-</source>
         <translation>Subtitle recognition failed -{}-</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="757"/>
+        <location filename="../../view/main_window.py" line="760"/>
         <source>翻译完成 -{}-</source>
         <translation>Translation complete -{}-</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="764"/>
+        <location filename="../../view/main_window.py" line="767"/>
         <source>翻译失败 -{}-</source>
         <translation>Translation failed -{}-</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="801"/>
+        <location filename="../../view/main_window.py" line="804"/>
         <source>压制完成 -{}-</source>
         <translation>Encoding complete -{}-</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="808"/>
+        <location filename="../../view/main_window.py" line="811"/>
         <source>压制失败 -{}-</source>
         <translation>Encoding failed -{}-</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="823"/>
+        <location filename="../../view/main_window.py" line="826"/>
         <source>上传完成 -{}-</source>
         <translation>Upload complete -{}-</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="830"/>
+        <location filename="../../view/main_window.py" line="833"/>
         <source>上传失败 -{}-</source>
         <translation>Upload failed -{}-</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="846"/>
+        <location filename="../../view/main_window.py" line="849"/>
         <source>语音识别完成 -{}-</source>
         <translation>Speech recognition complete -{}-</translation>
     </message>
     <message>
-        <location filename="../../view/main_window.py" line="853"/>
+        <location filename="../../view/main_window.py" line="856"/>
         <source>语音识别失败 -{}-</source>
         <translation>Speech recognition failed -{}-</translation>
     </message>
