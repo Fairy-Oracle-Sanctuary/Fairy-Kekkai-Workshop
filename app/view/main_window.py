@@ -252,6 +252,9 @@ class MainWindow(window):
                     painter.fillRect(close_button_rect, button_color)
             # 调用父类的绘制事件，确保其他内容正常显示
             super().paintEvent(event)
+        else:
+            # 没有背景图片时，也要调用父类的绘制事件，确保 Windows 10 暗色模式背景正常
+            super().paintEvent(event)
 
     def setBackgroundImage(self, imagePath):
         """设置背景图片路径"""
