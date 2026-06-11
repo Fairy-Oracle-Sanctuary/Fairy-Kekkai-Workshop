@@ -95,7 +95,7 @@ if __name__ == "__main__":
 - Whisper 构建文档完善
 - 图标与界面细节更新
 - 用户可自定义窗口类型
-
+- 支持了英文，软件默认为中文
 
 ## 下载提示
 - [Fairy-Kekkai-Workshop-v2.0.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0/Fairy-Kekkai-Workshop-v2.0.0-Windows-x86_64-Setup.exe)
