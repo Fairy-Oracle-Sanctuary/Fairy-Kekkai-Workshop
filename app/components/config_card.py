@@ -73,9 +73,11 @@ class DictSettingCard(SettingCard):
 
         self.optionToText = options_dict or {}
         for option, text in self.optionToText.items():
-            self.comboBox.addItem(text, userData=option)
+            self.comboBox.addItem(self.tr(text), userData=option)
 
-        self.comboBox.setCurrentText(self.optionToText.get(qconfig.get(configItem), ""))
+        self.comboBox.setCurrentText(
+            self.tr(self.optionToText.get(qconfig.get(configItem), ""))
+        )
         self.comboBox.currentIndexChanged.connect(self._onCurrentIndexChanged)
         configItem.valueChanged.connect(self.setValue)
 
@@ -86,7 +88,7 @@ class DictSettingCard(SettingCard):
         if value not in self.optionToText:
             return
 
-        self.comboBox.setCurrentText(self.optionToText[value])
+        self.comboBox.setCurrentText(self.tr(self.optionToText[value]))
         qconfig.set(self.configItem, value)
 
 

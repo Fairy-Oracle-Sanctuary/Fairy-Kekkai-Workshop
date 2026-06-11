@@ -102,8 +102,8 @@ class VideocrInterface(BaseFunctionInterface):
         self.languageCard = DictSettingCard(
             configItem=cfg.ocr_lang,
             icon=FIF.LANGUAGE,
-            title="识别语言",
-            content="选择字幕文本的语言",
+            title=self.tr("识别语言"),
+            content=self.tr("选择字幕文本的语言"),
             options_dict=videocr_languages_dict,
         )
         self.settingsGroup.addSettingCard(self.languageCard)

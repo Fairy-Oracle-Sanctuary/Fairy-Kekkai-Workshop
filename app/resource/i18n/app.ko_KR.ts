@@ -3039,6 +3039,11 @@
 <context>
     <name>ProjectCard</name>
     <message>
+        <location filename="../../components/project_card.py" line="387"/>
+        <source>打开项目</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../components/project_card.py" line="484"/>
         <location filename="../../components/project_card.py" line="510"/>
         <location filename="../../components/project_card.py" line="517"/>
@@ -4591,10 +4596,82 @@
     </message>
 </context>
 <context>
+    <name>VideoPreview</name>
+    <message>
+        <location filename="../../service/video_service.py" line="37"/>
+        <source>视频预览区域
+
+点击浏览按钮选择视频文件</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="54"/>
+        <source>框选区域</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="56"/>
+        <source>清除框选</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="65"/>
+        <location filename="../../service/video_service.py" line="632"/>
+        <source>框选区域坐标: 未选择</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="113"/>
+        <source>框选区域坐标: 正在选择...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="502"/>
+        <location filename="../../service/video_service.py" line="507"/>
+        <source>无法加载视频帧</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="568"/>
+        <source>区域 {} 坐标</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="592"/>
+        <source>宽度:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="594"/>
+        <source>高度:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="603"/>
+        <source>应用</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="645"/>
+        <source>区域{}: x={}, y={}, w={}, h={}</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideocrInterface</name>
     <message>
         <location filename="../../view/videocr_interface.py" line="79"/>
         <source>提取字幕</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../view/videocr_interface.py" line="105"/>
+        <source>识别语言</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../view/videocr_interface.py" line="106"/>
+        <source>选择字幕文本的语言</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
