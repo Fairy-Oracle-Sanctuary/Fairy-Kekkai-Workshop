@@ -384,7 +384,7 @@ class ProjectCard(CardWidget):
         self.contentLabel.setSizePolicy(
             QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred
         )
-        self.openButton = PrimaryPushButton("打开项目", self)
+        self.openButton = PrimaryPushButton(self.tr("打开项目"), self)
         self.editButton = TransparentToolButton(FIF.EDIT, self)
         self.moreButton = TransparentToolButton(FIF.MORE, self)
 

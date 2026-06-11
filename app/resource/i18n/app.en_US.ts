@@ -2,44 +2,44 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
-    <name>AI_Model</name>
+    <name>DictSettingCard</name>
     <message>
-        <location filename="../../common/setting.py" line="182"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>腾讯混元</source>
         <translation>Tencent Hunyuan</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="183"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>Deepseek</source>
         <translation>Deepseek</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="184"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>Gemini 3 Flash</source>
         <translation>Gemini 3 Flash</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="185"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>书生</source>
         <translation>InternLM</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="186"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>GLM-4.5-FLASH</source>
         <translation>GLM-4.5-FLASH</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="187"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>Spark-Lite</source>
         <translation>Spark-Lite</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="188"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>百度ERNIE-Speed-128K</source>
         <translation>Baidu ERNIE-Speed-128K</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="189"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>自定义模型</source>
         <translation>Custom Model</translation>
     </message>
@@ -1780,606 +1780,578 @@ Please configure the correct path in settings</translation>
     </message>
 </context>
 <context>
-    <name>Language</name>
+    <name>DictSettingCard</name>
     <message>
-        <location filename="../../common/setting.py" line="32"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>中文与英文</source>
         <translation>Chinese &amp; English</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="33"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>繁体中文</source>
         <translation>Traditional Chinese</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="34"/>
-        <location filename="../../common/setting.py" line="149"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>英语</source>
         <translation>English</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="35"/>
-        <location filename="../../common/setting.py" line="151"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>日语</source>
         <translation>Japanese</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="36"/>
-        <location filename="../../common/setting.py" line="152"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>韩语</source>
         <translation>Korean</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="37"/>
-        <location filename="../../common/setting.py" line="153"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>法语</source>
         <translation>French</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="38"/>
-        <location filename="../../common/setting.py" line="154"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>德语</source>
         <translation>German</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="39"/>
-        <location filename="../../common/setting.py" line="155"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>西班牙语</source>
         <translation>Spanish</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="40"/>
-        <location filename="../../common/setting.py" line="156"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>葡萄牙语</source>
         <translation>Portuguese</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="41"/>
-        <location filename="../../common/setting.py" line="159"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>意大利语</source>
         <translation>Italian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="42"/>
-        <location filename="../../common/setting.py" line="157"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>俄语</source>
         <translation>Russian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="43"/>
-        <location filename="../../common/setting.py" line="158"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>阿拉伯语</source>
         <translation>Arabic</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="44"/>
-        <location filename="../../common/setting.py" line="160"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>荷兰语</source>
         <translation>Dutch</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="45"/>
-        <location filename="../../common/setting.py" line="168"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>希腊语</source>
         <translation>Greek</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="46"/>
-        <location filename="../../common/setting.py" line="166"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>瑞典语</source>
         <translation>Swedish</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="47"/>
-        <location filename="../../common/setting.py" line="172"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>挪威语</source>
         <translation>Norwegian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="48"/>
-        <location filename="../../common/setting.py" line="170"/>
-        <source>丹麦语</source>
+        <location filename="../../components/config_card.py" line="80"/>
         <translation>Danish</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="49"/>
-        <location filename="../../common/setting.py" line="171"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>芬兰语</source>
         <translation>Finnish</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="50"/>
-        <location filename="../../common/setting.py" line="167"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>波兰语</source>
         <translation>Polish</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="51"/>
-        <location filename="../../common/setting.py" line="169"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>捷克语</source>
         <translation>Czech</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="52"/>
-        <location filename="../../common/setting.py" line="173"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>匈牙利语</source>
         <translation>Hungarian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="53"/>
-        <location filename="../../common/setting.py" line="174"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>罗马尼亚语</source>
         <translation>Romanian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="54"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>保加利亚语</source>
         <translation>Bulgarian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="55"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>塞尔维亚语(西里尔文)</source>
         <translation>Serbian (Cyrillic)</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="56"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>塞尔维亚语(拉丁文)</source>
         <translation>Serbian (Latin)</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="57"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>克罗地亚语</source>
         <translation>Croatian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="58"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>斯洛伐克语</source>
         <translation>Slovak</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="59"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>斯洛文尼亚语</source>
         <translation>Slovenian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="60"/>
-        <location filename="../../common/setting.py" line="175"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>乌克兰语</source>
         <translation>Ukrainian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="61"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>白俄罗斯语</source>
         <translation>Belarusian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="62"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>阿尔巴尼亚语</source>
         <translation>Albanian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="63"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>爱沙尼亚语</source>
         <translation>Estonian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="64"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>拉脱维亚语</source>
         <translation>Latvian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="65"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>立陶宛语</source>
         <translation>Lithuanian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="66"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>冰岛语</source>
         <translation>Icelandic</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="67"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>爱尔兰语</source>
         <translation>Irish</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="68"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>威尔士语</source>
         <translation>Welsh</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="69"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>马耳他语</source>
         <translation>Maltese</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="70"/>
-        <location filename="../../common/setting.py" line="161"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>印地语</source>
         <translation>Hindi</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="71"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>乌尔都语</source>
         <translation>Urdu</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="72"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>孟加拉语</source>
         <translation>Bengali</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="73"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>泰米尔语</source>
         <translation>Tamil</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="74"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>泰卢固语</source>
         <translation>Telugu</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="75"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>马拉地语</source>
         <translation>Marathi</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="76"/>
-        <location filename="../../common/setting.py" line="164"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>泰语</source>
         <translation>Thai</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="77"/>
-        <location filename="../../common/setting.py" line="163"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>越南语</source>
         <translation>Vietnamese</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="78"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>印度尼西亚语</source>
         <translation>Indonesian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="79"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>马来语</source>
         <translation>Malay</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="80"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>菲律宾语</source>
         <translation>Filipino</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="81"/>
-        <location filename="../../common/setting.py" line="176"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>波斯语</source>
         <translation>Persian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="82"/>
-        <location filename="../../common/setting.py" line="162"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>土耳其语</source>
         <translation>Turkish</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="83"/>
-        <location filename="../../common/setting.py" line="177"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>希伯来语</source>
         <translation>Hebrew</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="84"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>尼泊尔语</source>
         <translation>Nepali</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="85"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>僧伽罗语</source>
         <translation>Sinhala</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="86"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>缅甸语</source>
         <translation>Burmese</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="87"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>高棉语</source>
         <translation>Khmer</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="88"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>老挝语</source>
         <translation>Lao</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="89"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>蒙古语</source>
         <translation>Mongolian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="90"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>维吾尔语</source>
         <translation>Uyghur</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="91"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>乌兹别克语</source>
         <translation>Uzbek</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="92"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>斯瓦希里语</source>
         <translation>Swahili</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="93"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>南非荷兰语</source>
         <translation>Afrikaans</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="94"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>拉丁语</source>
         <translation>Latin</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="95"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>梵语</source>
         <translation>Sanskrit</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="96"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>毛利语</source>
         <translation>Maori</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="97"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>阿巴扎语</source>
         <translation>Abaza</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="98"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>阿迪格语</source>
         <translation>Adyghe</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="99"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>安吉卡语</source>
         <translation>Angika</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="100"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>阿瓦尔语</source>
         <translation>Avar</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="101"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>阿塞拜疆语</source>
         <translation>Azerbaijani</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="102"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>博杰普尔语</source>
         <translation>Bhojpuri</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="103"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>波斯尼亚语</source>
         <translation>Bosnian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="104"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>车臣语</source>
         <translation>Chechen</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="105"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>达尔格瓦语</source>
         <translation>Dargwa</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="106"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>果阿康卡尼语</source>
         <translation>Goan Konkani</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="107"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>哈里亚纳语</source>
         <translation>Haryanvi</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="108"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>印古什语</source>
         <translation>Ingush</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="109"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>卡巴尔达语</source>
         <translation>Kabardian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="110"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>库尔德语</source>
         <translation>Kurdish</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="111"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>拉克语</source>
         <translation>Lak</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="112"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>列兹金语</source>
         <translation>Lezgi</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="113"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>马加希语</source>
         <translation>Magahi</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="114"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>迈蒂利语</source>
         <translation>Maithili</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="115"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>那格浦尔语</source>
         <translation>Nagpuri</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="116"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>尼瓦尔语</source>
         <translation>Newar</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="117"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>奥克语</source>
         <translation>Occitan</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="118"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>巴利语</source>
         <translation>Pali</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="119"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>塔巴萨兰语</source>
         <translation>Tabassaran</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="120"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>俾路支语</source>
         <translation>Balochi</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="121"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>巴什基尔语</source>
         <translation>Bashkir</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="122"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>巴斯克语</source>
         <translation>Basque</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="123"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>布里亚特语</source>
         <translation>Buryat</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="124"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>加泰罗尼亚语</source>
         <translation>Catalan</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="125"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>加利西亚语</source>
         <translation>Galician</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="126"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>格鲁吉亚语</source>
         <translation>Georgian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="127"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>卡尔梅克语</source>
         <translation>Kalmyk</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="128"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>喀拉卡尔帕克语</source>
         <translation>Karakalpak</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="129"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>哈萨克语</source>
         <translation>Kazakh</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="130"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>科米语</source>
         <translation>Komi</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="131"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>吉尔吉斯语</source>
         <translation>Kyrgyz</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="132"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>卢森堡语</source>
         <translation>Luxembourgish</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="133"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>马其顿语</source>
         <translation>Macedonian</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="134"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>草原马里语</source>
         <translation>Meadow Mari</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="135"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>摩尔多瓦语</source>
         <translation>Moldovan</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="136"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>奥塞梯语</source>
         <translation>Ossetic</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="137"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>克丘亚语</source>
         <translation>Quechua</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="138"/>
+        <location filename="../../components/config_card.py" line="80"/> 
         <source>罗曼什语</source>
         <translation>Romansh</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="139"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>信德语</source>
         <translation>Sindhi</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="140"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>塔吉克语</source>
         <translation>Tajik</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="141"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>鞑靼语</source>
         <translation>Tatar</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="142"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>图瓦语</source>
         <translation>Tuva</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="143"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>乌德穆尔特语</source>
         <translation>Udmurt</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="144"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>萨哈语</source>
         <translation>Sakha (Yakut)</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="150"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>中文</source>
         <translation>Chinese</translation>
     </message>
     <message>
-        <location filename="../../common/setting.py" line="165"/>
+        <location filename="../../components/config_card.py" line="80"/>
         <source>印尼语</source>
         <translation>Indonesian</translation>
     </message>
@@ -2574,7 +2546,9 @@ Please configure the correct path in settings</translation>
         <source>有以下任务正在运行，确定要关闭吗？
 
 {}</source>
-        <translation>The following tasks are still running, close anyway?\n\n{}</translation>
+        <translation>The following tasks are still running, close anyway?
+
+{}</translation>
     </message>
     <message>
         <location filename="../../view/main_window.py" line="451"/>
@@ -3041,6 +3015,11 @@ Please configure the correct path in settings</translation>
 </context>
 <context>
     <name>ProjectCard</name>
+    <message>
+        <location filename="../../components/project_card.py" line="387"/>
+        <source>打开项目</source>
+        <translation>Open Project</translation>
+    </message>
     <message>
         <location filename="../../components/project_card.py" line="484"/>
         <location filename="../../components/project_card.py" line="510"/>
@@ -4594,11 +4573,85 @@ Please configure the correct path in settings</translation>
     </message>
 </context>
 <context>
+    <name>VideoPreview</name>
+    <message>
+        <location filename="../../service/video_service.py" line="37"/>
+        <source>视频预览区域
+
+点击浏览按钮选择视频文件</source>
+        <translation>Video Preview Area
+
+Click browse button to select video file</translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="54"/>
+        <source>框选区域</source>
+        <translation>Select Area</translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="56"/>
+        <source>清除框选</source>
+        <translation>Clear Selection</translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="65"/>
+        <location filename="../../service/video_service.py" line="632"/>
+        <source>框选区域坐标: 未选择</source>
+        <translation>Selection coordinates: Not selected</translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="113"/>
+        <source>框选区域坐标: 正在选择...</source>
+        <translation>Selection coordinates: Selecting...</translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="502"/>
+        <location filename="../../service/video_service.py" line="507"/>
+        <source>无法加载视频帧</source>
+        <translation>Failed to load video frame</translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="568"/>
+        <source>区域 {} 坐标</source>
+        <translation>Area {} coordinates</translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="592"/>
+        <source>宽度:</source>
+        <translation>Width:</translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="594"/>
+        <source>高度:</source>
+        <translation>Height:</translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="603"/>
+        <source>应用</source>
+        <translation>Apply</translation>
+    </message>
+    <message>
+        <location filename="../../service/video_service.py" line="645"/>
+        <source>区域{}: x={}, y={}, w={}, h={}</source>
+        <translation>Area{}: x={}, y={}, w={}, h={}</translation>
+    </message>
+</context>
+<context>
     <name>VideocrInterface</name>
     <message>
         <location filename="../../view/videocr_interface.py" line="79"/>
         <source>提取字幕</source>
         <translation>Extract Subtitles</translation>
+    </message>
+    <message>
+        <location filename="../../view/videocr_interface.py" line="105"/>
+        <source>识别语言</source>
+        <translation>Recognition Language</translation>
+    </message>
+    <message>
+        <location filename="../../view/videocr_interface.py" line="106"/>
+        <source>选择字幕文本的语言</source>
+        <translation>Select subtitle text language</translation>
     </message>
     <message>
         <location filename="../../view/videocr_interface.py" line="128"/>

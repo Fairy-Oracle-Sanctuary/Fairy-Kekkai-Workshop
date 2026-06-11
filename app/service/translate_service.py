@@ -414,6 +414,7 @@ class TranslateThread(QThread):
             if not self._is_running:
                 # 如果是因为取消而停止，发送取消信号
                 self.cancelled_signal.emit()
+                self.finished_signal.emit(False, self.tr("任务已取消"))
                 self.logger.info(f"翻译任务已取消: {self.task.input_file}")
             else:
                 # 翻译完成后进行后处理：去除思考内容
