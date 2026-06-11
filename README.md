@@ -7,11 +7,11 @@
 </h1>
 
 <p align="center">
-  <i>一站式烤肉自由软件</i>
+  <i>All-in-one video subtitle processing software</i>
 </p>
 
 <p align="center">
-  完整的项目管理、支持1800+网站视频下载、对于YouTube额外支持根据视频列表一键创建项目、基于PaddleOCR的视频OCR、Whisper语音识别、可自定义接入AI的字幕文件翻译、基于FFmpeg的视频压制。
+  Complete project management, support for 1800+ video download sites, one-click project creation from YouTube playlists, PaddleOCR-based video OCR, Whisper speech recognition, customizable AI subtitle translation, and FFmpeg-based video compression.
 </p>
 
 <p align="center">
@@ -34,89 +34,96 @@
 </p>
 
 <p align="center">
-  <a href="#功能特性">功能特性</a> •
-  <a href="#快速开始">快速开始</a> •
-  <a href="#使用说明">使用说明</a> •
-  <a href="#配置说明">配置说明</a> •
-  <a href="#常见问题">常见问题</a>
+ <a href="README.md">English</a> | <a href="README.zh.md">简体中文</a>
 </p>
 
+![thumbnail](thumbnail.png)
+
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#configuration">Configuration</a> •
+  <a href="#faq">FAQ</a>
+</p>
+
+
+
+## Features
+
+### 📁 Project Management
+- Complete project file system management
+- Support for importing/linking external projects
+- Automatic project progress tracking (cover, raw video, cooked video, original subtitles, translated subtitles)
+- Intelligent batch task filtering and dispatch
+- Support for one-click project creation from YouTube playlists
+
+### 📥 Video Download
+- Based on yt-dlp, supports 1800+ video sites
+- Support for playlist batch download
+- Automatic video cover download
+- Configurable concurrent download count
+- Support for custom video quality and format
+
+### 🔤 Subtitle Extraction (OCR)
+- Integrated PaddleOCR with custom OCR parameters
+- Visual subtitle area selection
+- Support for dual-area OCR (top and bottom subtitles)
+- GPU acceleration support
+- Real-time log output
+
+### 🎙️ Speech Recognition
+- Based on [Const-me/Whisper](https://github.com/Const-me/Whisper)
+- Multi-language speech-to-subtitle support (Chinese, Japanese, English, Korean, etc.)
+- Real-time progress display
+- Support for SRT, TXT, VTT output formats
+- GPU acceleration support
+
+### 🌐 Smart Translation
+- Support for multiple AI models: Deepseek, Tencent Hunyuan, ERNIE, Gemini, InternLM, etc.
+- Customizable translation prompt templates
+- Deepseek exclusive features: model switching (v4-flash/v4-pro) and deep reasoning mode
+- Real-time translation progress display
+- Support for streaming output
+
+### 🎬 Video Compression
+- Based on FFmpeg with custom encoding parameters
+- Hardware acceleration support (CUDA, VideoToolbox)
+- Automatic subtitle embedding
+- Real-time log output
+
+### 🎨 Interface Features
+- Modern UI design (PySide6 + QFluentWidgets)
+- Title bar quick theme switching (dark/light mode)
+- Splash screen with progress bar and status text
+- Quick navigation between adjacent files
+- Visual project progress display
+- Multi-language support (Chinese, English)
+
 ---
 
-## 功能特性
+## System Requirements
 
-### 📁 项目管理
-- 完整的项目文件系统管理
-- 支持导入/链接外部项目
-- 项目进度自动追踪（封面、原视频、熟肉、原字幕、译文）
-- 批量任务智能筛选和派发
-- 支持从YouTube播放列表一键创建项目
-
-### 📥 视频下载
-- 基于 yt-dlp，支持1800+视频网站
-- 支持播放列表批量下载
-- 自动下载视频封面
-- 可配置并发下载数
-- 支持自定义视频质量和格式
-
-### 🔤 字幕提取（OCR）
-- 集成 PaddleOCR，支持自定义OCR参数
-- 可视化字幕区域选择
-- 支持双区域OCR（上下字幕）
-- 支持GPU加速
-- 实时日志输出
-
-### 🎙️ 语音识别
-- 基于 [Const-me/Whisper](https://github.com/Const-me/Whisper)
-- 支持多语言语音转字幕（中文、日语、英语、韩语等）
-- 实时进度显示
-- 支持SRT、TXT、VTT输出格式
-- 支持GPU加速
-
-### 🌐 智能翻译
-- 支持多个AI模型：Deepseek、腾讯混元、ERNIE、Gemini、书生等
-- 可自定义翻译提示词模板
-- Deepseek专属功能：模型切换（v4-flash/v4-pro）和深度思考模式
-- 实时翻译进度显示
-- 支持流式输出
-
-### 🎬 视频压制
-- 基于FFmpeg，支持自定义编码参数
-- 支持硬件加速（CUDA、VideoToolbox）
-- 自动嵌入字幕
-- 实时输出日志
-
-### 🎨 界面特性
-- 现代化UI设计（PySide6 + QFluentWidgets）
-- 标题栏快捷主题切换（深色/浅色模式）
-- 带进度条和状态文字的启动页
-- 相邻文件快速导航
-- 项目进度可视化展示
+- **Operating System**: Windows 10/11 (recommended)
+  - OCR and speech recognition features are Windows-only
+  - Other features support macOS/Linux
+- **Python**: 3.9+
+- **Hardware**:
+  - GPU (optional): For OCR, Whisper, and video compression acceleration
+  - Memory: 8GB or more recommended
 
 ---
 
-## 系统要求
+## Quick Start
 
-- **操作系统**：Windows 10/11（推荐）
-  - OCR和语音识别功能仅支持Windows
-  - 其他功能支持macOS/Linux
-- **Python**：3.9+
-- **硬件**：
-  - GPU（可选）：用于OCR、Whisper、视频压制加速
-  - 内存：建议8GB以上
-
----
-
-## 快速开始
-
-### 1. 克隆仓库
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop.git
 cd Fairy-Kekkai-Workshop
 ```
 
-### 2. 创建虚拟环境（推荐使用 uv）
+### 2. Create virtual environment (uv recommended)
 
 ```bash
 uv venv
@@ -126,35 +133,35 @@ uv venv
 source .venv/bin/activate
 ```
 
-### 3. 安装依赖
+### 3. Install dependencies
 
 ```bash
 uv pip install -r requirements.txt
 ```
 
-### 4. 准备外部工具
+### 4. Prepare external tools
 
-#### OCR 工具（仅 Windows）
-- 下载 [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) 放到 `tools/PaddleOCR/` 目录
-- 下载OCR模型文件放到 `tools/OCR.model/` 目录
-- 编译videocr CLI：`cd app/service/CLI && python deploy.py`
+#### OCR Tools (Windows only)
+- Download [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) and place in `tools/PaddleOCR/` directory
+- Download OCR model files and place in `tools/OCR.model/` directory
+- Compile videocr CLI: `cd app/service/CLI && python deploy.py`
 
-#### Whisper 工具（仅 Windows）
-- 下载Whisper模型文件（ggml格式）放到 `tools/Whisper.model/` 目录
-- 编译WhisperNet CLI：`cd app/service/CLI/whispernet && dotnet publish -c Release -r win-x64 --self-contained`
-- 复制发布文件夹内容到 `tools/Whisper/` 目录
+#### Whisper Tools (Windows only)
+- Download Whisper model files (ggml format) and place in `tools/Whisper.model/` directory
+- Compile WhisperNet CLI: `cd app/service/CLI/whispernet && dotnet publish -c Release -r win-x64 --self-contained`
+- Copy published folder contents to `tools/Whisper/` directory
 
-#### 其他工具
-- **FFmpeg**：视频压制工具
-  - Windows：下载编译版本或通过 scoop/chocolatey 安装
-  - macOS：`brew install ffmpeg`
-  - Linux：`sudo apt-get install ffmpeg`
-- **yt-dlp**：视频下载工具
+#### Other Tools
+- **FFmpeg**: Video compression tool
+  - Windows: Download compiled version or install via scoop/chocolatey
+  - macOS: `brew install ffmpeg`
+  - Linux: `sudo apt-get install ffmpeg`
+- **yt-dlp**: Video download tool
   ```bash
   uv pip install yt-dlp
   ```
 
-### 5. 运行应用
+### 5. Run the application
 
 ```bash
 python Fairy-Kekkai-Workshop.py
@@ -162,180 +169,181 @@ python Fairy-Kekkai-Workshop.py
 
 ---
 
-## 使用说明
+## Usage
 
-### 首次运行
+### First Run
 
-首次运行时会显示新手引导，介绍软件的主要功能和使用方法。
+On first run, a tutorial will be displayed introducing the main features and usage of the software.
 
-### 主页功能
+### Home Page Features
 
-- **关于卡片**：显示应用版本信息，包含清空日志和重置设置按钮
-- **项目管理**：创建和管理视频字幕项目
-- **下载**：从YouTube等平台下载视频
-- **OCR**：从视频中提取硬字幕（仅Windows）
-- **语音识别**：从视频中提取语音转字幕（仅Windows）
-- **翻译**：使用AI模型翻译字幕
-- **压制**：使用FFmpeg压制视频
-- **设置**：配置应用参数和外部工具路径
+- **About Card**: Displays application version information, includes clear logs and reset settings buttons
+- **Project Management**: Create and manage video subtitle projects
+- **Download**: Download videos from YouTube and other platforms
+- **OCR**: Extract hard subtitles from videos (Windows only)
+- **Speech Recognition**: Extract speech-to-subtitles from videos (Windows only)
+- **Translation**: Translate subtitles using AI models
+- **Compression**: Compress videos using FFmpeg
+- **Settings**: Configure application parameters and external tool paths
 
-### 项目管理流程
+### Project Management Workflow
 
-1. **创建项目**：手动创建或从YouTube播放列表导入
-2. **添加剧集**：设置集数、标题、视频URL
-3. **批量任务**：选择任务类型，智能筛选符合条件的剧集
-4. **执行任务**：通过事件总线自动派发到对应功能界面
-5. **进度追踪**：自动更新项目进度，可视化展示
+1. **Create Project**: Manual creation or import from YouTube playlist
+2. **Add Episodes**: Set episode number, title, video URL
+3. **Batch Tasks**: Select task type, intelligently filter eligible episodes
+4. **Execute Tasks**: Automatically dispatch to corresponding feature interfaces via event bus
+5. **Progress Tracking**: Automatically update project progress with visual display
 
-### 主题切换
+### Theme Switching
 
-点击标题栏最小化按钮左侧的主题切换按钮，可在深色/浅色模式之间快速切换。
+Click the theme switch button to the left of the minimize button in the title bar to quickly switch between dark/light mode.
 
-### 日志管理
+### Log Management
 
-- 日志自动保存到 `AppData/Log/` 目录
-- 在主页「关于」卡片中点击清空日志按钮可清空所有日志
+- Logs are automatically saved to the `AppData/Log/` directory
+- Click the clear logs button in the "About" card on the home page to clear all logs
 
-### 重置设置
+### Reset Settings
 
-- 在主页「关于」卡片中点击重置设置按钮可恢复默认配置
-- 重置后会自动重启应用
-
----
-
-## 配置说明
-
-主要配置项可在设置页面修改：
-
-### 个性化
-- 主题模式（深色/浅色）
-- 主题色
-- 界面缩放
-- 背景图片
-
-### 项目
-- 项目详情页数量
-
-### 下载
-- yt-dlp路径
-- FFmpeg路径
-- 视频格式
-- 视频质量
-- 最大并发下载数
-
-### Whisper（仅 Windows）
-- CLI路径
-- 模型路径
-- 语言选择
-- 输出格式
-
-### AI 翻译
-- 各AI模型的API Key配置
-- Deepseek模型选择（v4-flash/v4-pro）
-- Deepseek深度思考模式开关
-- 翻译提示词模板
+- Click the reset settings button in the "About" card on the home page to restore default configuration
+- The application will automatically restart after reset
 
 ---
 
-## 开发文档
+## Configuration
 
-详细的开发文档请参阅 [DEVELOPMENT.md](DEVELOPMENT.md)
+Main configuration items can be modified in the settings page:
+
+### Personalization
+- Theme mode (dark/light)
+- Theme color
+- Interface scaling
+- Background image
+- Language (Chinese/English)
+
+### Project
+- Number of project detail pages
+
+### Download
+- yt-dlp path
+- FFmpeg path
+- Video format
+- Video quality
+- Maximum concurrent downloads
+
+### Whisper (Windows only)
+- CLI path
+- Model path
+- Language selection
+- Output format
+
+### AI Translation
+- API Key configuration for each AI model
+- Deepseek model selection (v4-flash/v4-pro)
+- Deepseek deep reasoning mode toggle
+- Translation prompt template
 
 ---
 
-## 常见问题
+## Development Documentation
 
-### Q: 应用启动时显示 Shiboken 警告
+For detailed development documentation, please refer to [DEVELOPMENT.md](DEVELOPMENT.md)
 
-A: 这是 PySide6 的正常警告，不影响功能。可以安全忽略。
+---
 
-### Q: 字幕提取失败
+## FAQ
+
+### Q: Application shows Shiboken warning on startup
+
+A: This is a normal PySide6 warning and does not affect functionality. It can be safely ignored.
+
+### Q: Subtitle extraction failed
 
 A:
-1. 确保 `paddleocr.exe` 存在于 `tools/PaddleOCR/` 目录
-2. 确保OCR模型文件存在于 `tools/OCR.model/` 目录
-3. 检查VC++运行时是否已安装（需要MSVCP140.dll和VCRUNTIME140.dll）
-4. 检查GPU驱动是否支持DirectML（如使用GPU）
-5. 如果打包后出现 `t2s.json not found` 错误，需要确保OpenCC字典文件正确打包
+1. Ensure `paddleocr.exe` exists in the `tools/PaddleOCR/` directory
+2. Ensure OCR model files exist in the `tools/OCR.model/` directory
+3. Check if VC++ runtime is installed (requires MSVCP140.dll and VCRUNTIME140.dll)
+4. Check if GPU driver supports DirectML (if using GPU)
+5. If `t2s.json not found` error occurs after packaging, ensure OpenCC dictionary files are correctly packaged
 
-### Q: Whisper 语音识别失败
-
-A:
-1. 确保 WhisperNetCLI.exe 存在于 `tools/Whisper/` 目录
-2. 确保所有依赖DLL（Whisper.dll、WhisperNet.dll、ComLight.dll）在同一目录
-3. 确保Whisper模型文件存在于 `tools/Whisper.model/` 目录
-4. 语言设置为 `auto` 时，CLI会自动检测语言
-5. 检查GPU驱动是否支持DirectML（如使用GPU）
-
-### Q: 翻译功能不可用
+### Q: Whisper speech recognition failed
 
 A:
-- 确保已配置相应AI服务的API Key（在设置页面）
-- 部分AI模型（Spark、GLM）因SDK不兼容已禁用
-- 推荐使用Deepseek或腾讯混元（支持较好）
-- Deepseek深度思考模式会增加推理时间，但翻译质量更高
+1. Ensure WhisperNetCLI.exe exists in the `tools/Whisper/` directory
+2. Ensure all dependent DLLs (Whisper.dll, WhisperNet.dll, ComLight.dll) are in the same directory
+3. Ensure Whisper model files exist in the `tools/Whisper.model/` directory
+4. When language is set to `auto`, CLI will automatically detect language
+5. Check if GPU driver supports DirectML (if using GPU)
 
-### Q: 批量任务添加失败
+### Q: Translation function unavailable
 
 A:
-1. 检查项目文件结构是否完整（标题.txt、集文件夹）
-2. 确保筛选条件正确（如下载任务需要视频URL）
-3. 检查文件路径是否包含中文字符（某些工具不支持）
+- Ensure the corresponding AI service API Key is configured (in settings page)
+- Some AI models (Spark, GLM) are disabled due to SDK incompatibility
+- Deepseek or Tencent Hunyuan are recommended (better support)
+- Deepseek deep reasoning mode increases inference time but provides higher translation quality
+
+### Q: Batch task addition failed
+
+A:
+1. Check if project file structure is complete (title.txt, episode folders)
+2. Ensure filter conditions are correct (e.g., download tasks require video URL)
+3. Check if file paths contain Chinese characters (some tools don't support them)
 
 ---
 
-## 已知限制
+## Known Limitations
 
-| 功能 | 状态 | 备注 |
-|------|------|------|
-| 视频下载 | ✅ | 基于yt-dlp，支持1800+网站 |
-| 字幕提取 | ✅ | PaddleOCR，需手动安装模型，仅Windows |
-| 语音识别 | ✅ | WhisperNet，仅Windows，支持实时进度 |
-| 翻译 | ✅ | 多AI模型支持，部分SDK不兼容 |
-| 视频压制 | ✅ | 基于FFmpeg，支持多种编码器 |
-| B站上传 | ⚠️ | 功能已实现但因API问题未正式启用 |
-| 批量处理 | ✅ | 支持批量任务，智能筛选 |
-
----
-
-## 技术栈
-
-- **UI框架**：PySide6 + QFluentWidgets (Modern UI)
-- **视频处理**：FFmpeg + yt-dlp
-- **字幕识别**：paddleocr
-- **语音识别**：[Const-me/Whisper](https://github.com/Const-me/Whisper)
-- **翻译**：多个云API（OpenAI、Deepseek、腾讯混元等）
-- **配置存储**：JSON
-- **日志**：内置Logger
-- **包管理**：uv（推荐）
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Video Download | ✅ | Based on yt-dlp, supports 1800+ sites |
+| Subtitle Extraction | ✅ | PaddleOCR, requires manual model installation, Windows only |
+| Speech Recognition | ✅ | WhisperNet, Windows only, real-time progress support |
+| Translation | ✅ | Multi-AI model support, some SDKs incompatible |
+| Video Compression | ✅ | Based on FFmpeg, supports multiple encoders |
+| Bilibili Upload | ⚠️ | Feature implemented but not officially enabled due to API issues |
+| Batch Processing | ✅ | Supports batch tasks with intelligent filtering |
 
 ---
 
-## 贡献指南
+## Tech Stack
 
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
-
-详细的开发指南请参阅 [DEVELOPMENT.md](DEVELOPMENT.md)
-
----
-
-## 许可证
-
-本项目采用 GPL 许可证。详见仓库根目录的 LICENSE 文件。
-
-**特别说明**：软件的图标（icon）单独采用 CC-BY-SA 许可证。
+- **UI Framework**: PySide6 + QFluentWidgets (Modern UI)
+- **Video Processing**: FFmpeg + yt-dlp
+- **Subtitle Recognition**: paddleocr
+- **Speech Recognition**: [Const-me/Whisper](https://github.com/Const-me/Whisper)
+- **Translation**: Multiple cloud APIs (OpenAI, Deepseek, Tencent Hunyuan, etc.)
+- **Configuration Storage**: JSON
+- **Logging**: Built-in Logger
+- **Package Management**: uv (recommended)
 
 ---
 
-## 致谢
+## Contributing
 
-- videocli 来自 [VideOCR](https://github.com/timminator/VideOCR)
-- OCR实现思路来自 [LunaTranslator](https://github.com/HIllya51/LunaTranslator)
-- Whisper来自 [Const-me/Whisper](https://github.com/Const-me/Whisper)
+1. Fork this repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+For detailed development guidelines, please refer to [DEVELOPMENT.md](DEVELOPMENT.md)
+
+---
+
+## License
+
+This project is licensed under the GPL license. See the LICENSE file in the repository root for details.
+
+**Special Note**: The software icon is separately licensed under CC-BY-SA.
+
+---
+
+## Acknowledgments
+
+- videocli from [VideOCR](https://github.com/timminator/VideOCR)
+- OCR implementation ideas from [LunaTranslator](https://github.com/HIllya51/LunaTranslator)
+- Whisper from [Const-me/Whisper](https://github.com/Const-me/Whisper)
 
 ---
 

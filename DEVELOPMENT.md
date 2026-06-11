@@ -13,6 +13,7 @@
 - 💾 **项目管理**：完整的项目文件系统管理，支持导入/链接外部项目
 - 🎨 **主题切换**：标题栏快捷主题切换按钮，支持深色/浅色模式
 - 🚀 **启动页**：带进度条和状态文字的启动页面
+- 🌍 **多语言支持**：支持中文、英文界面
 
 ---
 
@@ -511,7 +512,41 @@ def _toggleTheme(self):
 - 深色模式：显示太阳图标（切到浅色）
 - 浅色模式：显示月亮图标（切到深色）
 
-### 10. 批量任务系统（`app/components/dialog.py`）
+### 10. 多语言系统（`app/resource/i18n/`）
+
+应用支持中文和英文界面，使用 Qt Linguist 进行翻译管理。
+
+**翻译文件**：
+- `app.en_US.ts` - 英文翻译源文件
+- `app.ja_JP.ts` - 日语翻译源文件（预留）
+- `app.ko_KR.ts` - 韩语翻译源文件（预留）
+
+**翻译流程**：
+```bash
+# 提取需要翻译的字符串
+lupdate.exe Fairy-Kekkai-Workshop.pro
+
+# 生成 .qm 翻译文件
+lrelease.exe Fairy-Kekkai-Workshop.pro
+```
+
+**使用翻译**：
+```python
+# 在代码中使用 self.tr() 标记可翻译字符串
+self.setWindowTitle(self.tr("LOG"))
+self.addSubInterface(self.allLogInterface, FIF.HOME, self.tr("全部日志"))
+```
+
+**语言配置**：
+- 默认语言：中文（`Language.CHINESE_SIMPLIFIED`）
+- 配置项：`cfg.language`（在 `app/common/config.py`）
+
+**翻译注意事项**：
+- 确保类继承自 `QObject` 或其子类（如 `FluentWindow`、`ScrollArea`）
+- 对于不在 QObject 子类中的翻译，使用 `QCoreApplication.translate()`
+- 对于枚举类翻译，创建辅助 QObject 子类（参考 `app/common/task_status.py`）
+
+### 11. 批量任务系统（`app/components/dialog.py`）
 
 批量任务对话框支持一次性为多集添加相同类型的任务。
 
