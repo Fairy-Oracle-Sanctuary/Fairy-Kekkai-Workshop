@@ -102,4 +102,98 @@ if __name__ == "__main__":
 - [Fairy-Kekkai-Workshop-v2.0.0-macos-arm64](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0/Fairy-Kekkai-Workshop-v2.0.0-macos-arm64.dmg)(macos arm64)
 - 迅雷链接：https://pan.xunlei.com/s/VOl2n0KP6LH3zXUqcYX1iYUAA1?pwd=yzim#
 
+# Fairy Kekkai Workshop
+
+---
+
+## 中文简介
+
+Fairy Kekkai Workshop（仙·结界工坊）是一款自由软件字幕制作平台，旨在为字幕组、内容创作者、本地化团队以及个人用户提供完整的一站式字幕制作解决方案。
+
+软件集项目管理、OCR 字幕识别、语音转文字、AI 辅助翻译、视频处理与压制等功能于一体，并整合 PaddleOCR、Whisper、FFmpeg 等优秀自由软件与开源项目，帮助用户高效完成从素材处理到成品发布的整个工作流程。
+
+Fairy Kekkai Workshop 尊重用户自由。用户可以自由运行、研究、修改和再分发本软件。本项目致力于构建开放、透明、可持续发展的字幕制作生态，而非将用户锁定在封闭的平台和服务之中。
+
+### 主要功能
+
+* 项目管理与任务组织
+* OCR 字幕提取
+* Whisper 语音识别
+* AI 辅助翻译
+* 字幕编辑与校对
+* FFmpeg 视频编码与压制
+* GPU 加速支持
+* 多格式字幕导出
+
+项目地址：https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop
+
+---
+
+## English Description
+
+Fairy Kekkai Workshop is a free software platform designed for subtitle production, localization, and media processing workflows.
+The application integrates project management, OCR subtitle extraction, speech recognition, AI-assisted translation, subtitle editing, and video encoding into a unified environment. By leveraging powerful free and open-source technologies such as PaddleOCR, Whisper, and FFmpeg, Fairy Kekkai Workshop helps users efficiently complete the entire workflow from source processing to final release.
+Fairy Kekkai Workshop respects user freedom. Users are free to run, study, modify, and redistribute the software. The project is committed to building an open, transparent, and sustainable ecosystem for subtitle creation rather than locking users into proprietary platforms or services.
+
+### Key Features
+
+* Project management and workflow organization
+* OCR-based subtitle extraction
+* Whisper speech recognition
+* AI-assisted subtitle translation
+* Subtitle editing and review
+* FFmpeg-powered video encoding
+* GPU acceleration support
+* Multiple subtitle export formats
+
+### Philosophy
+
+Fairy Kekkai Workshop is developed under the spirit of free software. We believe users should control their tools, not the other way around. Transparency, freedom, collaboration, and community-driven development are fundamental values of this project.
+
+Project page: https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop
+
+
+---
+
+✨一站式字幕制作平台 • 📁项目管理 • 🔤OCR提取 • 🎙️语音识别 • 🌐AI翻译 • 🎬视频压制 • ⚡GPU加速 • 🔓自由软件
+
+✨All-in-One Fansub Platform • 📁Project Management • 🔤OCR Extraction • 🎙️Speech Recognition • 🌐AI Translation • 🎬Video Encoding • ⚡GPU Acceleration • 🔓Free Software
+
+---
+
+Copyleft 🄯 2025 天机阁(Fairy-Oracle-Sanctuary)
+Copyleft 🄯 2025 Fairy Oracle Sanctuary
+
+---
+
+本软件为自由软件。
+
+软件源代码采用 GNU General Public License v3.0（GPL-3.0）许可协议发布；项目图标及相关美术资源采用 Creative Commons Attribution-ShareAlike 4.0 International（CC BY-SA 4.0）许可协议发布。
+
+用户有权根据相应许可证条款自由运行、研究、修改和再分发本软件。
+
+This software is free software.
+
+The source code is licensed under the GNU General Public License v3.0 (GPL-3.0). Project icons and artwork are licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).
+
+Users are free to run, study, modify, and redistribute the software in accordance with the applicable license terms.
+
+---
+
+Fairy Kekkai Workshop 是一款基于 PySide6（Qt for Python）开发的桌面字幕制作与本地化软件。
+
+软件需要使用 runFullTrust 功能，因为其核心功能涉及项目管理以及用户指定工作目录中的文件操作，包括创建、读取、移动、重命名和删除项目文件及生成的媒体资源。
+
+软件还集成了 FFmpeg、Whisper、PaddleOCR 和 yt-dlp 等外部工具，需要通过创建子进程完成媒体处理、OCR 识别、语音转文字、字幕生成、翻译流程和视频编码等任务。
+
+runFullTrust 仅用于实现上述桌面应用核心功能，不用于监控用户活动、修改系统设置、访问无关文件或收集用户个人信息。
+
+Fairy Kekkai Workshop is a desktop subtitle production and localization application built with PySide6 (Qt for Python).
+
+The application requires the runFullTrust capability because it provides project management features that operate on user-selected working directories, including creating, reading, moving, renaming, and deleting project files and generated media assets.
+
+The application also integrates external processing tools such as FFmpeg, Whisper, PaddleOCR, and yt-dlp. These tools are executed as child processes to perform media acquisition, OCR recognition, speech transcription, subtitle generation, translation workflows, and video encoding.
+
+The runFullTrust capability is required solely to support these core desktop application functions. The application does not use this capability to monitor user activity, modify system settings, access unrelated files, or collect personal information.
+
 """
