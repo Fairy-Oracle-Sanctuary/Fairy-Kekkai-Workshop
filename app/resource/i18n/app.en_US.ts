@@ -2133,8 +2133,8 @@ Please configure the correct path in settings</translation>
     </message>
     <message>
         <location filename="../../view/home_interface.py" line="121"/>
-        <source>Whisper模型 (已内置)</source>
-        <translation>Whisper Model (Built-in)</translation>
+        <source>Whisper模型 (未内置)</source>
+        <translation>Whisper Model (Not built-in)</translation>
     </message>
     <message>
         <location filename="../../view/home_interface.py" line="124"/>
