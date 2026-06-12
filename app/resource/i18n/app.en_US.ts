@@ -501,24 +501,44 @@
 <context>
     <name>CustomFlyoutView</name>
     <message>
-        <location filename="../../components/project_card.py" line="602"/>
+        <location filename="../../components/project_card.py" line="693"/>
+        <source>打开项目路径</source>
+        <translation>Open Project Path</translation>
+    </message>
+    <message>
+        <location filename="../../components/project_card.py" line="703"/>
+        <source>置顶</source>
+        <translation>Pin to Top</translation>
+    </message>
+    <message>
+        <location filename="../../components/project_card.py" line="709"/>
+        <source>取消项目连接</source>
+        <translation>Unlink Project</translation>
+    </message>
+    <message>
+        <location filename="../../components/project_card.py" line="714"/>
+        <source>永久删除项目</source>
+        <translation>Permanently Delete Project</translation>
+    </message>
+    <message>
+        <location filename="../../components/project_card.py" line="734"/>
         <source>错误</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="602"/>
+        <location filename="../../components/project_card.py" line="734"/>
         <source>路径不存在: {}</source>
         <translation>Path does not exist: {}</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="621"/>
-        <location filename="../../components/project_card.py" line="644"/>
+        <location filename="../../components/project_card.py" line="759"/>
+        <location filename="../../components/project_card.py" line="782"/>
         <source>确定</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="622"/>
-        <location filename="../../components/project_card.py" line="645"/>
+        <location filename="../../components/project_card.py" line="760"/>
+        <location filename="../../components/project_card.py" line="783"/>
         <source>取消</source>
         <translation>Cancel</translation>
     </message>
@@ -611,496 +631,495 @@
     <name>DictSettingCard</name>
     <message>
         <source>腾讯混元</source>
-        <translation type="vanished">Tencent Hunyuan</translation>
+        <translation>Tencent Hunyuan</translation>
     </message>
     <message>
         <source>Deepseek</source>
-        <translation type="vanished">Deepseek</translation>
+        <translation>Deepseek</translation>
     </message>
     <message>
         <source>Gemini 3 Flash</source>
-        <translation type="vanished">Gemini 3 Flash</translation>
+        <translation>Gemini 3 Flash</translation>
     </message>
     <message>
         <source>书生</source>
-        <translation type="vanished">InternLM</translation>
+        <translation>InternLM</translation>
     </message>
     <message>
         <source>GLM-4.5-FLASH</source>
-        <translation type="vanished">GLM-4.5-FLASH</translation>
+        <translation>GLM-4.5-FLASH</translation>
     </message>
     <message>
         <source>Spark-Lite</source>
-        <translation type="vanished">Spark-Lite</translation>
+        <translation>Spark-Lite</translation>
     </message>
     <message>
         <source>百度ERNIE-Speed-128K</source>
-        <translation type="vanished">Baidu ERNIE-Speed-128K</translation>
+        <translation>Baidu ERNIE-Speed-128K</translation>
     </message>
     <message>
         <source>自定义模型</source>
-        <translation type="vanished">Custom Model</translation>
+        <translation>Custom Model</translation>
     </message>
     <message>
         <source>中文与英文</source>
-        <translation type="vanished">Chinese &amp; English</translation>
+        <translation>Chinese &amp; English</translation>
     </message>
     <message>
         <source>繁体中文</source>
-        <translation type="vanished">Traditional Chinese</translation>
+        <translation>Traditional Chinese</translation>
     </message>
     <message>
         <source>英语</source>
-        <translation type="vanished">English</translation>
+        <translation>English</translation>
     </message>
     <message>
         <source>日语</source>
-        <translation type="vanished">Japanese</translation>
+        <translation>Japanese</translation>
     </message>
     <message>
         <source>韩语</source>
-        <translation type="vanished">Korean</translation>
+        <translation>Korean</translation>
     </message>
     <message>
         <source>法语</source>
-        <translation type="vanished">French</translation>
+        <translation>French</translation>
     </message>
     <message>
         <source>德语</source>
-        <translation type="vanished">German</translation>
+        <translation>German</translation>
     </message>
     <message>
         <source>西班牙语</source>
-        <translation type="vanished">Spanish</translation>
+        <translation>Spanish</translation>
     </message>
     <message>
         <source>葡萄牙语</source>
-        <translation type="vanished">Portuguese</translation>
+        <translation>Portuguese</translation>
     </message>
     <message>
         <source>意大利语</source>
-        <translation type="vanished">Italian</translation>
+        <translation>Italian</translation>
     </message>
     <message>
         <source>俄语</source>
-        <translation type="vanished">Russian</translation>
+        <translation>Russian</translation>
     </message>
     <message>
         <source>阿拉伯语</source>
-        <translation type="vanished">Arabic</translation>
+        <translation>Arabic</translation>
     </message>
     <message>
         <source>荷兰语</source>
-        <translation type="vanished">Dutch</translation>
+        <translation>Dutch</translation>
     </message>
     <message>
         <source>希腊语</source>
-        <translation type="vanished">Greek</translation>
+        <translation>Greek</translation>
     </message>
     <message>
         <source>瑞典语</source>
-        <translation type="vanished">Swedish</translation>
+        <translation>Swedish</translation>
     </message>
     <message>
         <source>挪威语</source>
-        <translation type="vanished">Norwegian</translation>
+        <translation>Norwegian</translation>
     </message>
     <message>
-        <location filename="../../components/config_card.py" line="80"/>
         <source></source>
         <translation>Danish</translation>
     </message>
     <message>
         <source>芬兰语</source>
-        <translation type="vanished">Finnish</translation>
+        <translation>Finnish</translation>
     </message>
     <message>
         <source>波兰语</source>
-        <translation type="vanished">Polish</translation>
+        <translation>Polish</translation>
     </message>
     <message>
         <source>捷克语</source>
-        <translation type="vanished">Czech</translation>
+        <translation>Czech</translation>
     </message>
     <message>
         <source>匈牙利语</source>
-        <translation type="vanished">Hungarian</translation>
+        <translation>Hungarian</translation>
     </message>
     <message>
         <source>罗马尼亚语</source>
-        <translation type="vanished">Romanian</translation>
+        <translation>Romanian</translation>
     </message>
     <message>
         <source>保加利亚语</source>
-        <translation type="vanished">Bulgarian</translation>
+        <translation>Bulgarian</translation>
     </message>
     <message>
         <source>塞尔维亚语(西里尔文)</source>
-        <translation type="vanished">Serbian (Cyrillic)</translation>
+        <translation>Serbian (Cyrillic)</translation>
     </message>
     <message>
         <source>塞尔维亚语(拉丁文)</source>
-        <translation type="vanished">Serbian (Latin)</translation>
+        <translation>Serbian (Latin)</translation>
     </message>
     <message>
         <source>克罗地亚语</source>
-        <translation type="vanished">Croatian</translation>
+        <translation>Croatian</translation>
     </message>
     <message>
         <source>斯洛伐克语</source>
-        <translation type="vanished">Slovak</translation>
+        <translation>Slovak</translation>
     </message>
     <message>
         <source>斯洛文尼亚语</source>
-        <translation type="vanished">Slovenian</translation>
+        <translation>Slovenian</translation>
     </message>
     <message>
         <source>乌克兰语</source>
-        <translation type="vanished">Ukrainian</translation>
+        <translation>Ukrainian</translation>
     </message>
     <message>
         <source>白俄罗斯语</source>
-        <translation type="vanished">Belarusian</translation>
+        <translation>Belarusian</translation>
     </message>
     <message>
         <source>阿尔巴尼亚语</source>
-        <translation type="vanished">Albanian</translation>
+        <translation>Albanian</translation>
     </message>
     <message>
         <source>爱沙尼亚语</source>
-        <translation type="vanished">Estonian</translation>
+        <translation>Estonian</translation>
     </message>
     <message>
         <source>拉脱维亚语</source>
-        <translation type="vanished">Latvian</translation>
+        <translation>Latvian</translation>
     </message>
     <message>
         <source>立陶宛语</source>
-        <translation type="vanished">Lithuanian</translation>
+        <translation>Lithuanian</translation>
     </message>
     <message>
         <source>冰岛语</source>
-        <translation type="vanished">Icelandic</translation>
+        <translation>Icelandic</translation>
     </message>
     <message>
         <source>爱尔兰语</source>
-        <translation type="vanished">Irish</translation>
+        <translation>Irish</translation>
     </message>
     <message>
         <source>威尔士语</source>
-        <translation type="vanished">Welsh</translation>
+        <translation>Welsh</translation>
     </message>
     <message>
         <source>马耳他语</source>
-        <translation type="vanished">Maltese</translation>
+        <translation>Maltese</translation>
     </message>
     <message>
         <source>印地语</source>
-        <translation type="vanished">Hindi</translation>
+        <translation>Hindi</translation>
     </message>
     <message>
         <source>乌尔都语</source>
-        <translation type="vanished">Urdu</translation>
+        <translation>Urdu</translation>
     </message>
     <message>
         <source>孟加拉语</source>
-        <translation type="vanished">Bengali</translation>
+        <translation>Bengali</translation>
     </message>
     <message>
         <source>泰米尔语</source>
-        <translation type="vanished">Tamil</translation>
+        <translation>Tamil</translation>
     </message>
     <message>
         <source>泰卢固语</source>
-        <translation type="vanished">Telugu</translation>
+        <translation>Telugu</translation>
     </message>
     <message>
         <source>马拉地语</source>
-        <translation type="vanished">Marathi</translation>
+        <translation>Marathi</translation>
     </message>
     <message>
         <source>泰语</source>
-        <translation type="vanished">Thai</translation>
+        <translation>Thai</translation>
     </message>
     <message>
         <source>越南语</source>
-        <translation type="vanished">Vietnamese</translation>
+        <translation>Vietnamese</translation>
     </message>
     <message>
         <source>印度尼西亚语</source>
-        <translation type="vanished">Indonesian</translation>
+        <translation>Indonesian</translation>
     </message>
     <message>
         <source>马来语</source>
-        <translation type="vanished">Malay</translation>
+        <translation>Malay</translation>
     </message>
     <message>
         <source>菲律宾语</source>
-        <translation type="vanished">Filipino</translation>
+        <translation>Filipino</translation>
     </message>
     <message>
         <source>波斯语</source>
-        <translation type="vanished">Persian</translation>
+        <translation>Persian</translation>
     </message>
     <message>
         <source>土耳其语</source>
-        <translation type="vanished">Turkish</translation>
+        <translation>Turkish</translation>
     </message>
     <message>
         <source>希伯来语</source>
-        <translation type="vanished">Hebrew</translation>
+        <translation>Hebrew</translation>
     </message>
     <message>
         <source>尼泊尔语</source>
-        <translation type="vanished">Nepali</translation>
+        <translation>Nepali</translation>
     </message>
     <message>
         <source>僧伽罗语</source>
-        <translation type="vanished">Sinhala</translation>
+        <translation>Sinhala</translation>
     </message>
     <message>
         <source>缅甸语</source>
-        <translation type="vanished">Burmese</translation>
+        <translation>Burmese</translation>
     </message>
     <message>
         <source>高棉语</source>
-        <translation type="vanished">Khmer</translation>
+        <translation>Khmer</translation>
     </message>
     <message>
         <source>老挝语</source>
-        <translation type="vanished">Lao</translation>
+        <translation>Lao</translation>
     </message>
     <message>
         <source>蒙古语</source>
-        <translation type="vanished">Mongolian</translation>
+        <translation>Mongolian</translation>
     </message>
     <message>
         <source>维吾尔语</source>
-        <translation type="vanished">Uyghur</translation>
+        <translation>Uyghur</translation>
     </message>
     <message>
         <source>乌兹别克语</source>
-        <translation type="vanished">Uzbek</translation>
+        <translation>Uzbek</translation>
     </message>
     <message>
         <source>斯瓦希里语</source>
-        <translation type="vanished">Swahili</translation>
+        <translation>Swahili</translation>
     </message>
     <message>
         <source>南非荷兰语</source>
-        <translation type="vanished">Afrikaans</translation>
+        <translation>Afrikaans</translation>
     </message>
     <message>
         <source>拉丁语</source>
-        <translation type="vanished">Latin</translation>
+        <translation>Latin</translation>
     </message>
     <message>
         <source>梵语</source>
-        <translation type="vanished">Sanskrit</translation>
+        <translation>Sanskrit</translation>
     </message>
     <message>
         <source>毛利语</source>
-        <translation type="vanished">Maori</translation>
+        <translation>Maori</translation>
     </message>
     <message>
         <source>阿巴扎语</source>
-        <translation type="vanished">Abaza</translation>
+        <translation>Abaza</translation>
     </message>
     <message>
         <source>阿迪格语</source>
-        <translation type="vanished">Adyghe</translation>
+        <translation>Adyghe</translation>
     </message>
     <message>
         <source>安吉卡语</source>
-        <translation type="vanished">Angika</translation>
+        <translation>Angika</translation>
     </message>
     <message>
         <source>阿瓦尔语</source>
-        <translation type="vanished">Avar</translation>
+        <translation>Avar</translation>
     </message>
     <message>
         <source>阿塞拜疆语</source>
-        <translation type="vanished">Azerbaijani</translation>
+        <translation>Azerbaijani</translation>
     </message>
     <message>
         <source>博杰普尔语</source>
-        <translation type="vanished">Bhojpuri</translation>
+        <translation>Bhojpuri</translation>
     </message>
     <message>
         <source>波斯尼亚语</source>
-        <translation type="vanished">Bosnian</translation>
+        <translation>Bosnian</translation>
     </message>
     <message>
         <source>车臣语</source>
-        <translation type="vanished">Chechen</translation>
+        <translation>Chechen</translation>
     </message>
     <message>
         <source>达尔格瓦语</source>
-        <translation type="vanished">Dargwa</translation>
+        <translation>Dargwa</translation>
     </message>
     <message>
         <source>果阿康卡尼语</source>
-        <translation type="vanished">Goan Konkani</translation>
+        <translation>Goan Konkani</translation>
     </message>
     <message>
         <source>哈里亚纳语</source>
-        <translation type="vanished">Haryanvi</translation>
+        <translation>Haryanvi</translation>
     </message>
     <message>
         <source>印古什语</source>
-        <translation type="vanished">Ingush</translation>
+        <translation>Ingush</translation>
     </message>
     <message>
         <source>卡巴尔达语</source>
-        <translation type="vanished">Kabardian</translation>
+        <translation>Kabardian</translation>
     </message>
     <message>
         <source>库尔德语</source>
-        <translation type="vanished">Kurdish</translation>
+        <translation>Kurdish</translation>
     </message>
     <message>
         <source>拉克语</source>
-        <translation type="vanished">Lak</translation>
+        <translation>Lak</translation>
     </message>
     <message>
         <source>列兹金语</source>
-        <translation type="vanished">Lezgi</translation>
+        <translation>Lezgi</translation>
     </message>
     <message>
         <source>马加希语</source>
-        <translation type="vanished">Magahi</translation>
+        <translation>Magahi</translation>
     </message>
     <message>
         <source>迈蒂利语</source>
-        <translation type="vanished">Maithili</translation>
+        <translation>Maithili</translation>
     </message>
     <message>
         <source>那格浦尔语</source>
-        <translation type="vanished">Nagpuri</translation>
+        <translation>Nagpuri</translation>
     </message>
     <message>
         <source>尼瓦尔语</source>
-        <translation type="vanished">Newar</translation>
+        <translation>Newar</translation>
     </message>
     <message>
         <source>奥克语</source>
-        <translation type="vanished">Occitan</translation>
+        <translation>Occitan</translation>
     </message>
     <message>
         <source>巴利语</source>
-        <translation type="vanished">Pali</translation>
+        <translation>Pali</translation>
     </message>
     <message>
         <source>塔巴萨兰语</source>
-        <translation type="vanished">Tabassaran</translation>
+        <translation>Tabassaran</translation>
     </message>
     <message>
         <source>俾路支语</source>
-        <translation type="vanished">Balochi</translation>
+        <translation>Balochi</translation>
     </message>
     <message>
         <source>巴什基尔语</source>
-        <translation type="vanished">Bashkir</translation>
+        <translation>Bashkir</translation>
     </message>
     <message>
         <source>巴斯克语</source>
-        <translation type="vanished">Basque</translation>
+        <translation>Basque</translation>
     </message>
     <message>
         <source>布里亚特语</source>
-        <translation type="vanished">Buryat</translation>
+        <translation>Buryat</translation>
     </message>
     <message>
         <source>加泰罗尼亚语</source>
-        <translation type="vanished">Catalan</translation>
+        <translation>Catalan</translation>
     </message>
     <message>
         <source>加利西亚语</source>
-        <translation type="vanished">Galician</translation>
+        <translation>Galician</translation>
     </message>
     <message>
         <source>格鲁吉亚语</source>
-        <translation type="vanished">Georgian</translation>
+        <translation>Georgian</translation>
     </message>
     <message>
         <source>卡尔梅克语</source>
-        <translation type="vanished">Kalmyk</translation>
+        <translation>Kalmyk</translation>
     </message>
     <message>
         <source>喀拉卡尔帕克语</source>
-        <translation type="vanished">Karakalpak</translation>
+        <translation>Karakalpak</translation>
     </message>
     <message>
         <source>哈萨克语</source>
-        <translation type="vanished">Kazakh</translation>
+        <translation>Kazakh</translation>
     </message>
     <message>
         <source>科米语</source>
-        <translation type="vanished">Komi</translation>
+        <translation>Komi</translation>
     </message>
     <message>
         <source>吉尔吉斯语</source>
-        <translation type="vanished">Kyrgyz</translation>
+        <translation>Kyrgyz</translation>
     </message>
     <message>
         <source>卢森堡语</source>
-        <translation type="vanished">Luxembourgish</translation>
+        <translation>Luxembourgish</translation>
     </message>
     <message>
         <source>马其顿语</source>
-        <translation type="vanished">Macedonian</translation>
+        <translation>Macedonian</translation>
     </message>
     <message>
         <source>草原马里语</source>
-        <translation type="vanished">Meadow Mari</translation>
+        <translation>Meadow Mari</translation>
     </message>
     <message>
         <source>摩尔多瓦语</source>
-        <translation type="vanished">Moldovan</translation>
+        <translation>Moldovan</translation>
     </message>
     <message>
         <source>奥塞梯语</source>
-        <translation type="vanished">Ossetic</translation>
+        <translation>Ossetic</translation>
     </message>
     <message>
         <source>克丘亚语</source>
-        <translation type="vanished">Quechua</translation>
+        <translation>Quechua</translation>
     </message>
     <message>
         <source>罗曼什语</source>
-        <translation type="vanished">Romansh</translation>
+        <translation>Romansh</translation>
     </message>
     <message>
         <source>信德语</source>
-        <translation type="vanished">Sindhi</translation>
+        <translation>Sindhi</translation>
     </message>
     <message>
         <source>塔吉克语</source>
-        <translation type="vanished">Tajik</translation>
+        <translation>Tajik</translation>
     </message>
     <message>
         <source>鞑靼语</source>
-        <translation type="vanished">Tatar</translation>
+        <translation>Tatar</translation>
     </message>
     <message>
         <source>图瓦语</source>
-        <translation type="vanished">Tuva</translation>
+        <translation>Tuva</translation>
     </message>
     <message>
         <source>乌德穆尔特语</source>
-        <translation type="vanished">Udmurt</translation>
+        <translation>Udmurt</translation>
     </message>
     <message>
         <source>萨哈语</source>
-        <translation type="vanished">Sakha (Yakut)</translation>
+        <translation>Sakha (Yakut)</translation>
     </message>
     <message>
         <source>中文</source>
-        <translation type="vanished">Chinese</translation>
+        <translation>Chinese</translation>
     </message>
     <message>
         <source>印尼语</source>
-        <translation type="vanished">Indonesian</translation>
+        <translation>Indonesian</translation>
     </message>
 </context>
 <context>
@@ -2892,24 +2911,24 @@ Please configure the correct path in settings</translation>
 <context>
     <name>ProjectCard</name>
     <message>
-        <location filename="../../components/project_card.py" line="387"/>
+        <location filename="../../components/project_card.py" line="484"/>
         <source>打开项目</source>
         <translation>Open Project</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="484"/>
-        <location filename="../../components/project_card.py" line="510"/>
-        <location filename="../../components/project_card.py" line="517"/>
+        <location filename="../../components/project_card.py" line="600"/>
+        <location filename="../../components/project_card.py" line="626"/>
+        <location filename="../../components/project_card.py" line="633"/>
         <source>错误</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="523"/>
+        <location filename="../../components/project_card.py" line="639"/>
         <source>成功</source>
         <translation>Success</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="524"/>
+        <location filename="../../components/project_card.py" line="640"/>
         <source>已修改项目信息</source>
         <translation>Project info updated</translation>
     </message>
@@ -3243,101 +3262,107 @@ Please configure the correct path in settings</translation>
 <context>
     <name>ProjectInterface</name>
     <message>
-        <location filename="../../components/project_card.py" line="133"/>
-        <location filename="../../components/project_card.py" line="174"/>
-        <location filename="../../components/project_card.py" line="192"/>
-        <location filename="../../components/project_card.py" line="225"/>
+        <location filename="../../components/project_card.py" line="196"/>
         <location filename="../../components/project_card.py" line="237"/>
-        <location filename="../../components/project_card.py" line="267"/>
-        <location filename="../../components/project_card.py" line="292"/>
-        <location filename="../../components/project_card.py" line="308"/>
+        <location filename="../../components/project_card.py" line="255"/>
+        <location filename="../../components/project_card.py" line="288"/>
+        <location filename="../../components/project_card.py" line="300"/>
+        <location filename="../../components/project_card.py" line="348"/>
+        <location filename="../../components/project_card.py" line="377"/>
+        <location filename="../../components/project_card.py" line="393"/>
+        <location filename="../../components/project_card.py" line="406"/>
         <source>成功</source>
         <translation>Success</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="134"/>
+        <location filename="../../components/project_card.py" line="197"/>
         <source>已创建新项目: {}</source>
         <translation>New project created: {}</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="144"/>
+        <location filename="../../components/project_card.py" line="207"/>
         <source>选择文件夹</source>
         <translation>Select Folder</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="150"/>
-        <location filename="../../components/project_card.py" line="178"/>
-        <location filename="../../components/project_card.py" line="184"/>
-        <location filename="../../components/project_card.py" line="240"/>
-        <location filename="../../components/project_card.py" line="297"/>
+        <location filename="../../components/project_card.py" line="213"/>
+        <location filename="../../components/project_card.py" line="241"/>
+        <location filename="../../components/project_card.py" line="247"/>
+        <location filename="../../components/project_card.py" line="303"/>
+        <location filename="../../components/project_card.py" line="382"/>
         <source>错误</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="151"/>
+        <location filename="../../components/project_card.py" line="214"/>
         <source>{} 并不是一个合法的项目</source>
         <translation>{} is not a valid project</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="155"/>
+        <location filename="../../components/project_card.py" line="218"/>
         <source>选择导入模式</source>
         <translation>Select Import Mode</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="156"/>
+        <location filename="../../components/project_card.py" line="219"/>
         <source>是否要把整个项目文件夹复制过来</source>
         <translation>Copy the entire project folder?</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="166"/>
+        <location filename="../../components/project_card.py" line="229"/>
         <source>复制</source>
         <translation>Copy</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="167"/>
+        <location filename="../../components/project_card.py" line="230"/>
         <source>只连接路径</source>
         <translation>Link only</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="174"/>
-        <location filename="../../components/project_card.py" line="192"/>
+        <location filename="../../components/project_card.py" line="237"/>
+        <location filename="../../components/project_card.py" line="255"/>
         <source>已添加 {}</source>
         <translation>{} added</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="184"/>
+        <location filename="../../components/project_card.py" line="247"/>
         <source>已导入此路径 {}</source>
         <translation>Path imported: {}</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="226"/>
+        <location filename="../../components/project_card.py" line="289"/>
         <source>项目创建完毕</source>
         <translation>Project created</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="230"/>
+        <location filename="../../components/project_card.py" line="293"/>
         <source>失败</source>
         <translation>Failed</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="268"/>
+        <location filename="../../components/project_card.py" line="349"/>
         <source>已刷新项目列表</source>
         <translation>Project list refreshed</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="292"/>
+        <location filename="../../components/project_card.py" line="377"/>
         <source>项目 {} 已删除</source>
         <translation>Project {} deleted</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="297"/>
+        <location filename="../../components/project_card.py" line="382"/>
         <source>删除项目失败: {}</source>
         <translation>Delete project failed: {}</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="308"/>
+        <location filename="../../components/project_card.py" line="393"/>
         <source>已解除项目 {} 的连接</source>
         <translation>Unlinked project {}</translation>
+    </message>
+    <message>
+        <location filename="../../components/project_card.py" line="407"/>
+        <source>项目已置顶</source>
+        <translation>Project pinned to top</translation>
     </message>
 </context>
 <context>
@@ -4015,22 +4040,22 @@ Please configure the correct path in settings</translation>
 <context>
     <name>TopButtonCard</name>
     <message>
-        <location filename="../../components/project_card.py" line="328"/>
+        <location filename="../../components/project_card.py" line="425"/>
         <source>新建项目</source>
         <translation>New Project</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="329"/>
+        <location filename="../../components/project_card.py" line="426"/>
         <source>导入项目</source>
         <translation>Import Project</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="330"/>
+        <location filename="../../components/project_card.py" line="427"/>
         <source>根据视频列表创建项目</source>
         <translation>Create project from video list</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="331"/>
+        <location filename="../../components/project_card.py" line="428"/>
         <source>刷新项目列表</source>
         <translation>Refresh project list</translation>
     </message>
