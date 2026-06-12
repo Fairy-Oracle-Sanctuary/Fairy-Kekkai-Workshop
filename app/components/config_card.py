@@ -1526,35 +1526,35 @@ class WhisperSettingInterface(ScrollArea):
         )
 
         # 语言设置
-        self.languageGroup = SettingCardGroup(self.tr("语言设置"), self.scrollWidget)
-        self.languageCard = ComboBoxSettingCard(
-            cfg.whisperLanguage,
-            FIF.LANGUAGE,
-            self.tr("识别语言"),
-            self.tr("选择要识别的语言"),
-            texts=[
-                "自动检测",
-                "中文",
-                "日语",
-                "英语",
-                "韩语",
-                "法语",
-                "德语",
-                "西班牙语",
-            ],
-            parent=self.languageGroup,
-        )
+        # self.languageGroup = SettingCardGroup(self.tr("语言设置"), self.scrollWidget)
+        # self.languageCard = ComboBoxSettingCard(
+        #     cfg.whisperLanguage,
+        #     FIF.LANGUAGE,
+        #     self.tr("识别语言"),
+        #     self.tr("选择要识别的语言"),
+        #     texts=[
+        #         "自动检测",
+        #         "中文",
+        #         "日语",
+        #         "英语",
+        #         "韩语",
+        #         "法语",
+        #         "德语",
+        #         "西班牙语",
+        #     ],
+        #     parent=self.languageGroup,
+        # )
 
-        # 输出格式
-        self.formatGroup = SettingCardGroup(self.tr("输出格式"), self.scrollWidget)
-        self.formatCard = ComboBoxSettingCard(
-            cfg.whisperOutputFormat,
-            FIF.DOCUMENT,
-            self.tr("输出格式"),
-            self.tr("选择字幕输出格式"),
-            texts=["SRT", "TXT", "JSON"],
-            parent=self.formatGroup,
-        )
+        # # 输出格式
+        # self.formatGroup = SettingCardGroup(self.tr("输出格式"), self.scrollWidget)
+        # self.formatCard = ComboBoxSettingCard(
+        #     cfg.whisperOutputFormat,
+        #     FIF.DOCUMENT,
+        #     self.tr("输出格式"),
+        #     self.tr("选择字幕输出格式"),
+        #     texts=["SRT", "TXT", "JSON"],
+        #     parent=self.formatGroup,
+        # )
 
         # GPU 设置
         self.gpuGroup = SettingCardGroup(self.tr("GPU 加速"), self.scrollWidget)
@@ -1621,10 +1621,10 @@ class WhisperSettingInterface(ScrollArea):
         self.modelPathGroup.addSettingCard(self.modelPathCard)
 
         # 语言设置
-        self.languageGroup.addSettingCard(self.languageCard)
+        # self.languageGroup.addSettingCard(self.languageCard)
 
         # 输出格式
-        self.formatGroup.addSettingCard(self.formatCard)
+        # self.formatGroup.addSettingCard(self.formatCard)
 
         # GPU 设置
         self.gpuGroup.addSettingCard(self.useGpuCard)
@@ -1635,8 +1635,8 @@ class WhisperSettingInterface(ScrollArea):
         self.expandLayout.setContentsMargins(36, 10, 36, 0)
         self.expandLayout.addWidget(self.cliPathGroup)
         self.expandLayout.addWidget(self.modelPathGroup)
-        self.expandLayout.addWidget(self.languageGroup)
-        self.expandLayout.addWidget(self.formatGroup)
+        # self.expandLayout.addWidget(self.languageGroup)
+        # self.expandLayout.addWidget(self.formatGroup)
         self.expandLayout.addWidget(self.gpuGroup)
 
     def _connectSignalToSlot(self):
