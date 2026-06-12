@@ -501,24 +501,44 @@
 <context>
     <name>CustomFlyoutView</name>
     <message>
-        <location filename="../../components/project_card.py" line="602"/>
+        <location filename="../../components/project_card.py" line="693"/>
+        <source>打开项目路径</source>
+        <translation>Open Project Path</translation>
+    </message>
+    <message>
+        <location filename="../../components/project_card.py" line="703"/>
+        <source>置顶</source>
+        <translation>Pin to Top</translation>
+    </message>
+    <message>
+        <location filename="../../components/project_card.py" line="709"/>
+        <source>取消项目连接</source>
+        <translation>Unlink Project</translation>
+    </message>
+    <message>
+        <location filename="../../components/project_card.py" line="714"/>
+        <source>永久删除项目</source>
+        <translation>Permanently Delete Project</translation>
+    </message>
+    <message>
+        <location filename="../../components/project_card.py" line="734"/>
         <source>错误</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="602"/>
+        <location filename="../../components/project_card.py" line="734"/>
         <source>路径不存在: {}</source>
         <translation>Path does not exist: {}</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="621"/>
-        <location filename="../../components/project_card.py" line="644"/>
+        <location filename="../../components/project_card.py" line="759"/>
+        <location filename="../../components/project_card.py" line="782"/>
         <source>确定</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="622"/>
-        <location filename="../../components/project_card.py" line="645"/>
+        <location filename="../../components/project_card.py" line="760"/>
+        <location filename="../../components/project_card.py" line="783"/>
         <source>取消</source>
         <translation>Cancel</translation>
     </message>
@@ -706,7 +726,6 @@
         <translation>Norwegian</translation>
     </message>
     <message>
-        <location filename="../../components/config_card.py" line="80"/>
         <source></source>
         <translation>Danish</translation>
     </message>
@@ -2133,8 +2152,8 @@ Please configure the correct path in settings</translation>
     </message>
     <message>
         <location filename="../../view/home_interface.py" line="121"/>
-        <source>Whisper模型 (已内置)</source>
-        <translation>Whisper Model (Built-in)</translation>
+        <source>Whisper模型 (未内置)</source>
+        <translation>Whisper Model (Not built-in)</translation>
     </message>
     <message>
         <location filename="../../view/home_interface.py" line="124"/>
@@ -2892,24 +2911,24 @@ Please configure the correct path in settings</translation>
 <context>
     <name>ProjectCard</name>
     <message>
-        <location filename="../../components/project_card.py" line="387"/>
+        <location filename="../../components/project_card.py" line="484"/>
         <source>打开项目</source>
         <translation>Open Project</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="484"/>
-        <location filename="../../components/project_card.py" line="510"/>
-        <location filename="../../components/project_card.py" line="517"/>
+        <location filename="../../components/project_card.py" line="600"/>
+        <location filename="../../components/project_card.py" line="626"/>
+        <location filename="../../components/project_card.py" line="633"/>
         <source>错误</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="523"/>
+        <location filename="../../components/project_card.py" line="639"/>
         <source>成功</source>
         <translation>Success</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="524"/>
+        <location filename="../../components/project_card.py" line="640"/>
         <source>已修改项目信息</source>
         <translation>Project info updated</translation>
     </message>
@@ -3243,101 +3262,107 @@ Please configure the correct path in settings</translation>
 <context>
     <name>ProjectInterface</name>
     <message>
-        <location filename="../../components/project_card.py" line="133"/>
-        <location filename="../../components/project_card.py" line="174"/>
-        <location filename="../../components/project_card.py" line="192"/>
-        <location filename="../../components/project_card.py" line="225"/>
+        <location filename="../../components/project_card.py" line="196"/>
         <location filename="../../components/project_card.py" line="237"/>
-        <location filename="../../components/project_card.py" line="267"/>
-        <location filename="../../components/project_card.py" line="292"/>
-        <location filename="../../components/project_card.py" line="308"/>
+        <location filename="../../components/project_card.py" line="255"/>
+        <location filename="../../components/project_card.py" line="288"/>
+        <location filename="../../components/project_card.py" line="300"/>
+        <location filename="../../components/project_card.py" line="348"/>
+        <location filename="../../components/project_card.py" line="377"/>
+        <location filename="../../components/project_card.py" line="393"/>
+        <location filename="../../components/project_card.py" line="406"/>
         <source>成功</source>
         <translation>Success</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="134"/>
+        <location filename="../../components/project_card.py" line="197"/>
         <source>已创建新项目: {}</source>
         <translation>New project created: {}</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="144"/>
+        <location filename="../../components/project_card.py" line="207"/>
         <source>选择文件夹</source>
         <translation>Select Folder</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="150"/>
-        <location filename="../../components/project_card.py" line="178"/>
-        <location filename="../../components/project_card.py" line="184"/>
-        <location filename="../../components/project_card.py" line="240"/>
-        <location filename="../../components/project_card.py" line="297"/>
+        <location filename="../../components/project_card.py" line="213"/>
+        <location filename="../../components/project_card.py" line="241"/>
+        <location filename="../../components/project_card.py" line="247"/>
+        <location filename="../../components/project_card.py" line="303"/>
+        <location filename="../../components/project_card.py" line="382"/>
         <source>错误</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="151"/>
+        <location filename="../../components/project_card.py" line="214"/>
         <source>{} 并不是一个合法的项目</source>
         <translation>{} is not a valid project</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="155"/>
+        <location filename="../../components/project_card.py" line="218"/>
         <source>选择导入模式</source>
         <translation>Select Import Mode</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="156"/>
+        <location filename="../../components/project_card.py" line="219"/>
         <source>是否要把整个项目文件夹复制过来</source>
         <translation>Copy the entire project folder?</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="166"/>
+        <location filename="../../components/project_card.py" line="229"/>
         <source>复制</source>
         <translation>Copy</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="167"/>
+        <location filename="../../components/project_card.py" line="230"/>
         <source>只连接路径</source>
         <translation>Link only</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="174"/>
-        <location filename="../../components/project_card.py" line="192"/>
+        <location filename="../../components/project_card.py" line="237"/>
+        <location filename="../../components/project_card.py" line="255"/>
         <source>已添加 {}</source>
         <translation>{} added</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="184"/>
+        <location filename="../../components/project_card.py" line="247"/>
         <source>已导入此路径 {}</source>
         <translation>Path imported: {}</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="226"/>
+        <location filename="../../components/project_card.py" line="289"/>
         <source>项目创建完毕</source>
         <translation>Project created</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="230"/>
+        <location filename="../../components/project_card.py" line="293"/>
         <source>失败</source>
         <translation>Failed</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="268"/>
+        <location filename="../../components/project_card.py" line="349"/>
         <source>已刷新项目列表</source>
         <translation>Project list refreshed</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="292"/>
+        <location filename="../../components/project_card.py" line="377"/>
         <source>项目 {} 已删除</source>
         <translation>Project {} deleted</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="297"/>
+        <location filename="../../components/project_card.py" line="382"/>
         <source>删除项目失败: {}</source>
         <translation>Delete project failed: {}</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="308"/>
+        <location filename="../../components/project_card.py" line="393"/>
         <source>已解除项目 {} 的连接</source>
         <translation>Unlinked project {}</translation>
+    </message>
+    <message>
+        <location filename="../../components/project_card.py" line="407"/>
+        <source>项目已置顶</source>
+        <translation>Project pinned to top</translation>
     </message>
 </context>
 <context>
@@ -4015,22 +4040,22 @@ Please configure the correct path in settings</translation>
 <context>
     <name>TopButtonCard</name>
     <message>
-        <location filename="../../components/project_card.py" line="328"/>
+        <location filename="../../components/project_card.py" line="425"/>
         <source>新建项目</source>
         <translation>New Project</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="329"/>
+        <location filename="../../components/project_card.py" line="426"/>
         <source>导入项目</source>
         <translation>Import Project</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="330"/>
+        <location filename="../../components/project_card.py" line="427"/>
         <source>根据视频列表创建项目</source>
         <translation>Create project from video list</translation>
     </message>
     <message>
-        <location filename="../../components/project_card.py" line="331"/>
+        <location filename="../../components/project_card.py" line="428"/>
         <source>刷新项目列表</source>
         <translation>Refresh project list</translation>
     </message>
