@@ -118,7 +118,7 @@ class HomeInterface(ScrollArea):
         if sys.platform == "win32":
             urlSamepleView.addOpenUrlCard(
                 icon=FIF.LIBRARY_FILL,
-                title=self.tr("Whisper模型 (已内置)"),
+                title=self.tr("Whisper模型 (未内置)"),
                 content=self.tr(
                     "Whisper模型下载地址，下载后可在设置里设定路径，目前软件内置的模型为small，对于油库里语音识别效果足够"
                 ),

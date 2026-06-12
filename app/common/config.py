@@ -112,6 +112,17 @@ class ProjectConfig:
             del self.config[key]
             self.save()
 
+    def get_project_order(self):
+        """获取项目排序列表，返回路径字符串列表"""
+        order = self.get("project_order", [])
+        if not isinstance(order, list):
+            return []
+        return order
+
+    def set_project_order(self, order: list):
+        """设置项目排序列表"""
+        self.set("project_order", order)
+
     def get_all(self):
         """获取所有配置"""
         return self.config.copy()
