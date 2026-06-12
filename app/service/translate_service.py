@@ -358,7 +358,8 @@ class TranslateThread(QThread):
 
                 batch = srt_items[i : i + batch_size]
                 batch_texts = [
-                    f"{j + 1}. {item['text']}" for j, item in enumerate(batch)
+                    f"{j + 1}. {item['text'].replace(chr(10), ' ')}"
+                    for j, item in enumerate(batch)
                 ]
                 user_content = f"请翻译以下{len(batch)}句：\n" + "\n".join(batch_texts)
 
