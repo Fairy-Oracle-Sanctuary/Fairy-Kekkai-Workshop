@@ -2,8 +2,8 @@ import os
 import shutil
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QUrl, Signal
-from PySide6.QtGui import QDesktopServices
+from PySide6.QtCore import QMimeData, Qt, QUrl, Signal
+from PySide6.QtGui import QDesktopServices, QDrag
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -42,6 +42,68 @@ from ..service.project_service import project
 from .dialog import ProjectProgressDialog
 
 
+class ReorderableCardsContainer(QWidget):
+    """支持拖拽排序的卡片容器"""
+
+    orderChanged = Signal(list)  # 排序变更信号，携带排序后的路径列表
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+        layout.setSpacing(10)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasText():
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasText():
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        from_index = int(event.mimeData().text())
+        layout = self.layout()
+
+        # 根据drop位置计算目标索引
+        drop_y = event.position().toPoint().y()
+        to_index = 0
+        for i in range(layout.count()):
+            child = layout.itemAt(i).widget()
+            if child is None:
+                continue
+            child_center_y = child.y() + child.height() // 2
+            if drop_y > child_center_y:
+                to_index = i + 1
+
+        # 纠正索引：移除旧项的影响
+        if to_index > from_index:
+            to_index -= 1
+
+        if from_index == to_index:
+            return
+
+        # 从布局中取出源卡片，插入到目标位置
+        item = layout.takeAt(from_index)
+        layout.insertWidget(to_index, item.widget())
+
+        # 收集当前顺序并通知
+        new_order = []
+        for i in range(layout.count()):
+            child = layout.itemAt(i).widget()
+            if isinstance(child, ProjectCard):
+                new_order.append(str(child.path))
+        self.orderChanged.emit(new_order)
+
+        event.acceptProposedAction()
+
+
 class ProjectInterface(ScrollArea):
     openProjectDetailSignal = Signal(list)
     projectDeleted = Signal(str)
@@ -59,8 +121,8 @@ class ProjectInterface(ScrollArea):
         self.topButtonCard = TopButtonCard()
 
         # 项目卡片容器
-        self.cardsContainer = QWidget()
-        self.cardsLayout = QVBoxLayout(self.cardsContainer)
+        self.cardsContainer = ReorderableCardsContainer()
+        self.cardsLayout = self.cardsContainer.layout()
         self.cardsLayout.setSpacing(10)
         self.cardsLayout.setContentsMargins(0, 0, 0, 0)
         self.cardsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -98,6 +160,7 @@ class ProjectInterface(ScrollArea):
             lambda: self.refreshProjectList(isMessage=True)
         )
         self.projectDeleted.connect(self.deleteProject)
+        self.cardsContainer.orderChanged.connect(self._onOrderChanged)
 
     def addProjectCard(self, project, icon, title, content, id, path, isLink=False):
         """添加项目卡片到布局"""
@@ -244,24 +307,42 @@ class ProjectInterface(ScrollArea):
         """刷新项目列表"""
         # 清空当前所有卡片
         for i in reversed(range(self.cardsLayout.count())):
-            self.cardsLayout.itemAt(i).widget().setParent(None)
-
-        # 重置卡片id
-        card_id = 0
+            widget = self.cardsLayout.itemAt(i).widget()
+            if widget:
+                widget.setParent(None)
 
         # 重新加载项目
         project.__init__()
-        for project_num in range(len(project.project_title)):
+
+        # 按保存的顺序排列项目
+        order = cfg.linkProject.get_project_order()
+        ordered_paths = list(project.project_path)
+
+        # 更新顺序：移除已删除的项目，新项目追加到末尾
+        path_set = {str(p) for p in ordered_paths}
+        ordered = [p for p in order if p in path_set]
+        for p in ordered_paths:
+            if str(p) not in set(ordered):
+                ordered.append(str(p))
+        if ordered != order:
+            cfg.linkProject.set_project_order(ordered)
+
+        # 建立路径到索引的映射
+        path_to_idx = {str(p): i for i, p in enumerate(ordered_paths)}
+        ordered_paths.sort(
+            key=lambda p: ordered.index(str(p)) if str(p) in ordered else float("inf")
+        )
+
+        for card_id, p in enumerate(ordered_paths):
             self.addProjectCard(
                 project,
-                project.project_icons[project_num],
-                project.project_name[project_num],
-                str(project.project_path[card_id]),
+                project.project_icons[path_to_idx[str(p)]],
+                project.project_name[path_to_idx[str(p)]],
+                str(p),
                 card_id,
-                project.project_path[card_id],
-                isLink=project.isLink[card_id],
+                p,
+                isLink=project.isLink[path_to_idx[str(p)]],
             )
-            card_id += 1
         if isMessage:
             event_bus.notification_service.show_success(
                 self.tr("成功"), self.tr("已刷新项目列表")
@@ -284,6 +365,10 @@ class ProjectInterface(ScrollArea):
         #     project_name=project_name,
         #     episode_num=episode_num
         # )
+
+    def _onOrderChanged(self, new_order: list):
+        """拖拽排序后保存新顺序"""
+        cfg.linkProject.set_project_order(new_order)
 
     def deleteProject(self, project_path):
         isSuccess = project.delete_project(project_path)
@@ -308,6 +393,18 @@ class ProjectInterface(ScrollArea):
             self.tr("成功"), self.tr("已解除项目 {} 的连接").format(project_path)
         )
         self.logger.info(f"解除项目连接: {project_path} 已解除连接")
+
+    def moveProjectToTop(self, project_path):
+        """将项目移动到最顶层"""
+        order = cfg.linkProject.get_project_order()
+        if project_path in order:
+            order.remove(project_path)
+        order.insert(0, project_path)
+        cfg.linkProject.set_project_order(order)
+        self.refreshProjectList(isMessage=False)
+        event_bus.notification_service.show_success(
+            self.tr("成功"), self.tr("项目已置顶")
+        )
 
     def showProjectList(self):
         """显示项目列表页面"""
@@ -421,6 +518,25 @@ class ProjectCard(CardWidget):
         self.hBoxLayout.addWidget(self.editButton, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.moreButton, 0, Qt.AlignRight)
 
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._drag_start_pos = event.position().toPoint()
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if not hasattr(self, "_drag_start_pos"):
+            return super().mouseMoveEvent(event)
+
+        if (event.position().toPoint() - self._drag_start_pos).manhattanLength() < 10:
+            return super().mouseMoveEvent(event)
+
+        drag = QDrag(self)
+        mime = QMimeData()
+        mime.setText(str(self.card_id))
+        drag.setMimeData(mime)
+        drag.exec(Qt.DropAction.MoveAction)
+        del self._drag_start_pos
+
     def resizeEvent(self, event):
         """窗口大小改变时自适应截断标题和路径"""
         super().resizeEvent(event)
@@ -527,6 +643,7 @@ class ProjectCard(CardWidget):
         flyout_view = CustomFlyoutView(self.path, isLink=self.isLink)
         flyout_view.deleteRequested.connect(self.handleDeleteRequest)
         flyout_view.cancelLinkRequested.connect(self.handleCancelLinkRequest)
+        flyout_view.moveToTopRequested.connect(self.handleMoveToTopRequest)
         flyout = Flyout.make(
             flyout_view, self.moreButton, self, aniType=FlyoutAnimationType.PULL_UP
         )
@@ -550,10 +667,20 @@ class ProjectCard(CardWidget):
                 break
             parent = parent.parent()
 
+    def handleMoveToTopRequest(self, project_path):
+        """处理置顶请求"""
+        parent = self.parent()
+        while parent:
+            if isinstance(parent, ProjectInterface):
+                parent.moveProjectToTop(project_path)
+                break
+            parent = parent.parent()
+
 
 class CustomFlyoutView(FlyoutViewBase):
     deleteRequested = Signal(str)
     cancelLinkRequested = Signal(str)
+    moveToTopRequested = Signal(str)
 
     def __init__(self, path, isLink=False, parent=None):
         super().__init__(parent)
@@ -563,23 +690,28 @@ class CustomFlyoutView(FlyoutViewBase):
         self.flyout = None  # 用于存储Flyout引用
 
         self.vBoxLayout = QVBoxLayout(self)
-        self.openButton = PrimaryPushButton("打开项目路径")
+        self.openButton = PrimaryPushButton(self.tr("打开项目路径"))
 
         self.openButton.clicked.connect(self.openProjectPath)
 
-        self.openButton.setFixedWidth(140)
+        self.openButton.setFixedWidth(150)
 
         self.vBoxLayout.setSpacing(12)
         self.vBoxLayout.setContentsMargins(20, 16, 20, 16)
         self.vBoxLayout.addWidget(self.openButton)
 
+        self.moveToTopButton = PushButton(self.tr("置顶"))
+        self.moveToTopButton.setFixedWidth(140)
+        self.moveToTopButton.clicked.connect(self.moveProjectToTop)
+        self.vBoxLayout.addWidget(self.moveToTopButton)
+
         if isLink:
-            self.cancelLinkButton = PushButton("取消项目连接")
+            self.cancelLinkButton = PushButton(self.tr("取消项目连接"))
             self.cancelLinkButton.setFixedWidth(140)
             self.cancelLinkButton.clicked.connect(self.cancelLinkProjectConfirm)
             self.vBoxLayout.addWidget(self.cancelLinkButton)
         else:
-            self.deleteButton = PushButton("永久删除项目")
+            self.deleteButton = PushButton(self.tr("永久删除项目"))
             self.deleteButton.setFixedWidth(140)
             self.deleteButton.clicked.connect(self.delateProjectConfirm)
             self.vBoxLayout.addWidget(self.deleteButton)
@@ -601,6 +733,12 @@ class CustomFlyoutView(FlyoutViewBase):
             event_bus.notification_service.show_success(
                 self.tr("错误"), self.tr("路径不存在: {}").format(self.path)
             )
+
+    def moveProjectToTop(self):
+        """置顶项目"""
+        if self.flyout:
+            self.flyout.hide()
+        self.moveToTopRequested.emit(str(self.path))
 
     def delateProjectConfirm(self):
         """永久删除项目"""
