@@ -153,7 +153,11 @@ class VideocrInterface(BaseFunctionInterface):
 
         hint_label = BodyLabel(
             self.tr(
-                "对于核显来说提取效果可能不是很好，可以通过调整高级设置里的参数来微调。"
+                "参数调整建议：\n"
+                "• 漏句 → 降低「跳过的帧数」，提高「SSIM阈值」，降低「最大图像宽度」至 720\n"
+                "• 误识别多 → 提高「置信度阈值」至 0.5~0.7，过滤低质量识别结果\n"
+                "• 字幕断句多 → 提高「相似度阈值」至 75~85，增大「最大合并间隔」至 0.2~0.5\n"
+                "以上参数均在「高级设置」中调整"
             )
         )
         hint_label.setWordWrap(True)
@@ -400,6 +404,7 @@ class VideocrInterface(BaseFunctionInterface):
         args["ocr_image_max_width"] = cfg.get(cfg.ocrImageMaxWidth)
         args["post_processing"] = cfg.get(cfg.postProcessing)
         args["min_subtitle_duration_sec"] = cfg.get(cfg.minSubtitleDuration)
+        args["confidence_threshold"] = cfg.get(cfg.confidenceThreshold)
         args["paddleocr_path"] = cfg.get(cfg.paddleocrPath)
         args["supportFilesPath"] = cfg.get(cfg.supportFilesPath)
 

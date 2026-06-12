@@ -29,7 +29,7 @@ extern "C" {
         void* pOcrObj,
         const cv::Mat* mat,
         Directional mode,
-        void (*cb)(float, float, float, float, float, float, float, float, const char*),
+        void (*cb)(float, float, float, float, float, float, float, float, float, const char*),
         void (*cb2)(const char*)
     );
     __declspec(dllimport) void OcrDestroy(void* pOcrObj);

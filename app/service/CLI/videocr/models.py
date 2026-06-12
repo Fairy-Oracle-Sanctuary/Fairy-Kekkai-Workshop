@@ -33,11 +33,13 @@ class PredictedFrames:
         pred_data: list[list[Any]],
         zone_index: int,
         lang: str,
+        confidence_threshold: float = 0.0,
     ) -> None:
         self.start_index = index
         self.end_index = index
         self.zone_index = zone_index
         self.lines: list[list[PredictedText]] = []
+        self._confidence_threshold = confidence_threshold
 
         all_words: list[PredictedText] = []
         for word_pred in pred_data[0]:
@@ -46,6 +48,9 @@ class PredictedFrames:
             bounding_box = word_pred[0]
             text = word_pred[1][0]
             conf = word_pred[1][1]
+
+            if conf < confidence_threshold:
+                continue
 
             all_words.append(PredictedText(bounding_box, conf, text))
 
@@ -107,8 +112,9 @@ class PredictedSubtitle:
         sim_threshold: int,
         lang: str,
         language_model: wordninja.LanguageModel | None,
+        confidence_threshold: float = 0.0,
     ):
-        self.frames = [f for f in frames if f.confidence > 0]
+        self.frames = [f for f in frames if f.confidence > confidence_threshold]
         self.frames.sort(key=lambda frame: frame.start_index)
         self.zone_index = zone_index
         self.sim_threshold = sim_threshold
