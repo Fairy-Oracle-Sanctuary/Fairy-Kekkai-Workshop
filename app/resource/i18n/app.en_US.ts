@@ -611,99 +611,99 @@
     <name>DictSettingCard</name>
     <message>
         <source>腾讯混元</source>
-        <translation type="vanished">Tencent Hunyuan</translation>
+        <translation>Tencent Hunyuan</translation>
     </message>
     <message>
         <source>Deepseek</source>
-        <translation type="vanished">Deepseek</translation>
+        <translation>Deepseek</translation>
     </message>
     <message>
         <source>Gemini 3 Flash</source>
-        <translation type="vanished">Gemini 3 Flash</translation>
+        <translation>Gemini 3 Flash</translation>
     </message>
     <message>
         <source>书生</source>
-        <translation type="vanished">InternLM</translation>
+        <translation>InternLM</translation>
     </message>
     <message>
         <source>GLM-4.5-FLASH</source>
-        <translation type="vanished">GLM-4.5-FLASH</translation>
+        <translation>GLM-4.5-FLASH</translation>
     </message>
     <message>
         <source>Spark-Lite</source>
-        <translation type="vanished">Spark-Lite</translation>
+        <translation>Spark-Lite</translation>
     </message>
     <message>
         <source>百度ERNIE-Speed-128K</source>
-        <translation type="vanished">Baidu ERNIE-Speed-128K</translation>
+        <translation>Baidu ERNIE-Speed-128K</translation>
     </message>
     <message>
         <source>自定义模型</source>
-        <translation type="vanished">Custom Model</translation>
+        <translation>Custom Model</translation>
     </message>
     <message>
         <source>中文与英文</source>
-        <translation type="vanished">Chinese &amp; English</translation>
+        <translation>Chinese &amp; English</translation>
     </message>
     <message>
         <source>繁体中文</source>
-        <translation type="vanished">Traditional Chinese</translation>
+        <translation>Traditional Chinese</translation>
     </message>
     <message>
         <source>英语</source>
-        <translation type="vanished">English</translation>
+        <translation>English</translation>
     </message>
     <message>
         <source>日语</source>
-        <translation type="vanished">Japanese</translation>
+        <translation>Japanese</translation>
     </message>
     <message>
         <source>韩语</source>
-        <translation type="vanished">Korean</translation>
+        <translation>Korean</translation>
     </message>
     <message>
         <source>法语</source>
-        <translation type="vanished">French</translation>
+        <translation>French</translation>
     </message>
     <message>
         <source>德语</source>
-        <translation type="vanished">German</translation>
+        <translation>German</translation>
     </message>
     <message>
         <source>西班牙语</source>
-        <translation type="vanished">Spanish</translation>
+        <translation>Spanish</translation>
     </message>
     <message>
         <source>葡萄牙语</source>
-        <translation type="vanished">Portuguese</translation>
+        <translation>Portuguese</translation>
     </message>
     <message>
         <source>意大利语</source>
-        <translation type="vanished">Italian</translation>
+        <translation>Italian</translation>
     </message>
     <message>
         <source>俄语</source>
-        <translation type="vanished">Russian</translation>
+        <translation>Russian</translation>
     </message>
     <message>
         <source>阿拉伯语</source>
-        <translation type="vanished">Arabic</translation>
+        <translation>Arabic</translation>
     </message>
     <message>
         <source>荷兰语</source>
-        <translation type="vanished">Dutch</translation>
+        <translation>Dutch</translation>
     </message>
     <message>
         <source>希腊语</source>
-        <translation type="vanished">Greek</translation>
+        <translation>Greek</translation>
     </message>
     <message>
         <source>瑞典语</source>
-        <translation type="vanished">Swedish</translation>
+        <translation>Swedish</translation>
     </message>
     <message>
         <source>挪威语</source>
-        <translation type="vanished">Norwegian</translation>
+        <translation>Norwegian</translation>
     </message>
     <message>
         <location filename="../../components/config_card.py" line="80"/>
@@ -712,395 +712,395 @@
     </message>
     <message>
         <source>芬兰语</source>
-        <translation type="vanished">Finnish</translation>
+        <translation>Finnish</translation>
     </message>
     <message>
         <source>波兰语</source>
-        <translation type="vanished">Polish</translation>
+        <translation>Polish</translation>
     </message>
     <message>
         <source>捷克语</source>
-        <translation type="vanished">Czech</translation>
+        <translation>Czech</translation>
     </message>
     <message>
         <source>匈牙利语</source>
-        <translation type="vanished">Hungarian</translation>
+        <translation>Hungarian</translation>
     </message>
     <message>
         <source>罗马尼亚语</source>
-        <translation type="vanished">Romanian</translation>
+        <translation>Romanian</translation>
     </message>
     <message>
         <source>保加利亚语</source>
-        <translation type="vanished">Bulgarian</translation>
+        <translation>Bulgarian</translation>
     </message>
     <message>
         <source>塞尔维亚语(西里尔文)</source>
-        <translation type="vanished">Serbian (Cyrillic)</translation>
+        <translation>Serbian (Cyrillic)</translation>
     </message>
     <message>
         <source>塞尔维亚语(拉丁文)</source>
-        <translation type="vanished">Serbian (Latin)</translation>
+        <translation>Serbian (Latin)</translation>
     </message>
     <message>
         <source>克罗地亚语</source>
-        <translation type="vanished">Croatian</translation>
+        <translation>Croatian</translation>
     </message>
     <message>
         <source>斯洛伐克语</source>
-        <translation type="vanished">Slovak</translation>
+        <translation>Slovak</translation>
     </message>
     <message>
         <source>斯洛文尼亚语</source>
-        <translation type="vanished">Slovenian</translation>
+        <translation>Slovenian</translation>
     </message>
     <message>
         <source>乌克兰语</source>
-        <translation type="vanished">Ukrainian</translation>
+        <translation>Ukrainian</translation>
     </message>
     <message>
         <source>白俄罗斯语</source>
-        <translation type="vanished">Belarusian</translation>
+        <translation>Belarusian</translation>
     </message>
     <message>
         <source>阿尔巴尼亚语</source>
-        <translation type="vanished">Albanian</translation>
+        <translation>Albanian</translation>
     </message>
     <message>
         <source>爱沙尼亚语</source>
-        <translation type="vanished">Estonian</translation>
+        <translation>Estonian</translation>
     </message>
     <message>
         <source>拉脱维亚语</source>
-        <translation type="vanished">Latvian</translation>
+        <translation>Latvian</translation>
     </message>
     <message>
         <source>立陶宛语</source>
-        <translation type="vanished">Lithuanian</translation>
+        <translation>Lithuanian</translation>
     </message>
     <message>
         <source>冰岛语</source>
-        <translation type="vanished">Icelandic</translation>
+        <translation>Icelandic</translation>
     </message>
     <message>
         <source>爱尔兰语</source>
-        <translation type="vanished">Irish</translation>
+        <translation>Irish</translation>
     </message>
     <message>
         <source>威尔士语</source>
-        <translation type="vanished">Welsh</translation>
+        <translation>Welsh</translation>
     </message>
     <message>
         <source>马耳他语</source>
-        <translation type="vanished">Maltese</translation>
+        <translation>Maltese</translation>
     </message>
     <message>
         <source>印地语</source>
-        <translation type="vanished">Hindi</translation>
+        <translation>Hindi</translation>
     </message>
     <message>
         <source>乌尔都语</source>
-        <translation type="vanished">Urdu</translation>
+        <translation>Urdu</translation>
     </message>
     <message>
         <source>孟加拉语</source>
-        <translation type="vanished">Bengali</translation>
+        <translation>Bengali</translation>
     </message>
     <message>
         <source>泰米尔语</source>
-        <translation type="vanished">Tamil</translation>
+        <translation>Tamil</translation>
     </message>
     <message>
         <source>泰卢固语</source>
-        <translation type="vanished">Telugu</translation>
+        <translation>Telugu</translation>
     </message>
     <message>
         <source>马拉地语</source>
-        <translation type="vanished">Marathi</translation>
+        <translation>Marathi</translation>
     </message>
     <message>
         <source>泰语</source>
-        <translation type="vanished">Thai</translation>
+        <translation>Thai</translation>
     </message>
     <message>
         <source>越南语</source>
-        <translation type="vanished">Vietnamese</translation>
+        <translation>Vietnamese</translation>
     </message>
     <message>
         <source>印度尼西亚语</source>
-        <translation type="vanished">Indonesian</translation>
+        <translation>Indonesian</translation>
     </message>
     <message>
         <source>马来语</source>
-        <translation type="vanished">Malay</translation>
+        <translation>Malay</translation>
     </message>
     <message>
         <source>菲律宾语</source>
-        <translation type="vanished">Filipino</translation>
+        <translation>Filipino</translation>
     </message>
     <message>
         <source>波斯语</source>
-        <translation type="vanished">Persian</translation>
+        <translation>Persian</translation>
     </message>
     <message>
         <source>土耳其语</source>
-        <translation type="vanished">Turkish</translation>
+        <translation>Turkish</translation>
     </message>
     <message>
         <source>希伯来语</source>
-        <translation type="vanished">Hebrew</translation>
+        <translation>Hebrew</translation>
     </message>
     <message>
         <source>尼泊尔语</source>
-        <translation type="vanished">Nepali</translation>
+        <translation>Nepali</translation>
     </message>
     <message>
         <source>僧伽罗语</source>
-        <translation type="vanished">Sinhala</translation>
+        <translation>Sinhala</translation>
     </message>
     <message>
         <source>缅甸语</source>
-        <translation type="vanished">Burmese</translation>
+        <translation>Burmese</translation>
     </message>
     <message>
         <source>高棉语</source>
-        <translation type="vanished">Khmer</translation>
+        <translation>Khmer</translation>
     </message>
     <message>
         <source>老挝语</source>
-        <translation type="vanished">Lao</translation>
+        <translation>Lao</translation>
     </message>
     <message>
         <source>蒙古语</source>
-        <translation type="vanished">Mongolian</translation>
+        <translation>Mongolian</translation>
     </message>
     <message>
         <source>维吾尔语</source>
-        <translation type="vanished">Uyghur</translation>
+        <translation>Uyghur</translation>
     </message>
     <message>
         <source>乌兹别克语</source>
-        <translation type="vanished">Uzbek</translation>
+        <translation>Uzbek</translation>
     </message>
     <message>
         <source>斯瓦希里语</source>
-        <translation type="vanished">Swahili</translation>
+        <translation>Swahili</translation>
     </message>
     <message>
         <source>南非荷兰语</source>
-        <translation type="vanished">Afrikaans</translation>
+        <translation>Afrikaans</translation>
     </message>
     <message>
         <source>拉丁语</source>
-        <translation type="vanished">Latin</translation>
+        <translation>Latin</translation>
     </message>
     <message>
         <source>梵语</source>
-        <translation type="vanished">Sanskrit</translation>
+        <translation>Sanskrit</translation>
     </message>
     <message>
         <source>毛利语</source>
-        <translation type="vanished">Maori</translation>
+        <translation>Maori</translation>
     </message>
     <message>
         <source>阿巴扎语</source>
-        <translation type="vanished">Abaza</translation>
+        <translation>Abaza</translation>
     </message>
     <message>
         <source>阿迪格语</source>
-        <translation type="vanished">Adyghe</translation>
+        <translation>Adyghe</translation>
     </message>
     <message>
         <source>安吉卡语</source>
-        <translation type="vanished">Angika</translation>
+        <translation>Angika</translation>
     </message>
     <message>
         <source>阿瓦尔语</source>
-        <translation type="vanished">Avar</translation>
+        <translation>Avar</translation>
     </message>
     <message>
         <source>阿塞拜疆语</source>
-        <translation type="vanished">Azerbaijani</translation>
+        <translation>Azerbaijani</translation>
     </message>
     <message>
         <source>博杰普尔语</source>
-        <translation type="vanished">Bhojpuri</translation>
+        <translation>Bhojpuri</translation>
     </message>
     <message>
         <source>波斯尼亚语</source>
-        <translation type="vanished">Bosnian</translation>
+        <translation>Bosnian</translation>
     </message>
     <message>
         <source>车臣语</source>
-        <translation type="vanished">Chechen</translation>
+        <translation>Chechen</translation>
     </message>
     <message>
         <source>达尔格瓦语</source>
-        <translation type="vanished">Dargwa</translation>
+        <translation>Dargwa</translation>
     </message>
     <message>
         <source>果阿康卡尼语</source>
-        <translation type="vanished">Goan Konkani</translation>
+        <translation>Goan Konkani</translation>
     </message>
     <message>
         <source>哈里亚纳语</source>
-        <translation type="vanished">Haryanvi</translation>
+        <translation>Haryanvi</translation>
     </message>
     <message>
         <source>印古什语</source>
-        <translation type="vanished">Ingush</translation>
+        <translation>Ingush</translation>
     </message>
     <message>
         <source>卡巴尔达语</source>
-        <translation type="vanished">Kabardian</translation>
+        <translation>Kabardian</translation>
     </message>
     <message>
         <source>库尔德语</source>
-        <translation type="vanished">Kurdish</translation>
+        <translation>Kurdish</translation>
     </message>
     <message>
         <source>拉克语</source>
-        <translation type="vanished">Lak</translation>
+        <translation>Lak</translation>
     </message>
     <message>
         <source>列兹金语</source>
-        <translation type="vanished">Lezgi</translation>
+        <translation>Lezgi</translation>
     </message>
     <message>
         <source>马加希语</source>
-        <translation type="vanished">Magahi</translation>
+        <translation>Magahi</translation>
     </message>
     <message>
         <source>迈蒂利语</source>
-        <translation type="vanished">Maithili</translation>
+        <translation>Maithili</translation>
     </message>
     <message>
         <source>那格浦尔语</source>
-        <translation type="vanished">Nagpuri</translation>
+        <translation>Nagpuri</translation>
     </message>
     <message>
         <source>尼瓦尔语</source>
-        <translation type="vanished">Newar</translation>
+        <translation>Newar</translation>
     </message>
     <message>
         <source>奥克语</source>
-        <translation type="vanished">Occitan</translation>
+        <translation>Occitan</translation>
     </message>
     <message>
         <source>巴利语</source>
-        <translation type="vanished">Pali</translation>
+        <translation>Pali</translation>
     </message>
     <message>
         <source>塔巴萨兰语</source>
-        <translation type="vanished">Tabassaran</translation>
+        <translation>Tabassaran</translation>
     </message>
     <message>
         <source>俾路支语</source>
-        <translation type="vanished">Balochi</translation>
+        <translation>Balochi</translation>
     </message>
     <message>
         <source>巴什基尔语</source>
-        <translation type="vanished">Bashkir</translation>
+        <translation>Bashkir</translation>
     </message>
     <message>
         <source>巴斯克语</source>
-        <translation type="vanished">Basque</translation>
+        <translation>Basque</translation>
     </message>
     <message>
         <source>布里亚特语</source>
-        <translation type="vanished">Buryat</translation>
+        <translation>Buryat</translation>
     </message>
     <message>
         <source>加泰罗尼亚语</source>
-        <translation type="vanished">Catalan</translation>
+        <translation>Catalan</translation>
     </message>
     <message>
         <source>加利西亚语</source>
-        <translation type="vanished">Galician</translation>
+        <translation>Galician</translation>
     </message>
     <message>
         <source>格鲁吉亚语</source>
-        <translation type="vanished">Georgian</translation>
+        <translation>Georgian</translation>
     </message>
     <message>
         <source>卡尔梅克语</source>
-        <translation type="vanished">Kalmyk</translation>
+        <translation>Kalmyk</translation>
     </message>
     <message>
         <source>喀拉卡尔帕克语</source>
-        <translation type="vanished">Karakalpak</translation>
+        <translation>Karakalpak</translation>
     </message>
     <message>
         <source>哈萨克语</source>
-        <translation type="vanished">Kazakh</translation>
+        <translation>Kazakh</translation>
     </message>
     <message>
         <source>科米语</source>
-        <translation type="vanished">Komi</translation>
+        <translation>Komi</translation>
     </message>
     <message>
         <source>吉尔吉斯语</source>
-        <translation type="vanished">Kyrgyz</translation>
+        <translation>Kyrgyz</translation>
     </message>
     <message>
         <source>卢森堡语</source>
-        <translation type="vanished">Luxembourgish</translation>
+        <translation>Luxembourgish</translation>
     </message>
     <message>
         <source>马其顿语</source>
-        <translation type="vanished">Macedonian</translation>
+        <translation>Macedonian</translation>
     </message>
     <message>
         <source>草原马里语</source>
-        <translation type="vanished">Meadow Mari</translation>
+        <translation>Meadow Mari</translation>
     </message>
     <message>
         <source>摩尔多瓦语</source>
-        <translation type="vanished">Moldovan</translation>
+        <translation>Moldovan</translation>
     </message>
     <message>
         <source>奥塞梯语</source>
-        <translation type="vanished">Ossetic</translation>
+        <translation>Ossetic</translation>
     </message>
     <message>
         <source>克丘亚语</source>
-        <translation type="vanished">Quechua</translation>
+        <translation>Quechua</translation>
     </message>
     <message>
         <source>罗曼什语</source>
-        <translation type="vanished">Romansh</translation>
+        <translation>Romansh</translation>
     </message>
     <message>
         <source>信德语</source>
-        <translation type="vanished">Sindhi</translation>
+        <translation>Sindhi</translation>
     </message>
     <message>
         <source>塔吉克语</source>
-        <translation type="vanished">Tajik</translation>
+        <translation>Tajik</translation>
     </message>
     <message>
         <source>鞑靼语</source>
-        <translation type="vanished">Tatar</translation>
+        <translation>Tatar</translation>
     </message>
     <message>
         <source>图瓦语</source>
-        <translation type="vanished">Tuva</translation>
+        <translation>Tuva</translation>
     </message>
     <message>
         <source>乌德穆尔特语</source>
-        <translation type="vanished">Udmurt</translation>
+        <translation>Udmurt</translation>
     </message>
     <message>
         <source>萨哈语</source>
-        <translation type="vanished">Sakha (Yakut)</translation>
+        <translation>Sakha (Yakut)</translation>
     </message>
     <message>
         <source>中文</source>
-        <translation type="vanished">Chinese</translation>
+        <translation>Chinese</translation>
     </message>
     <message>
         <source>印尼语</source>
-        <translation type="vanished">Indonesian</translation>
+        <translation>Indonesian</translation>
     </message>
 </context>
 <context>
@@ -4550,9 +4550,17 @@ Click browse button to select video file</translation>
         <translation>Processing logs will be displayed here...</translation>
     </message>
     <message>
-        <location filename="../../view/videocr_interface.py" line="158"/>
-        <source>对于核显来说提取效果可能不是很好，可以通过调整高级设置里的参数来微调。</source>
-        <translation>Extraction results may not be optimal for integrated GPUs. You can fine-tune parameters in advanced settings.</translation>
+        <location filename="../../view/videocr_interface.py" line="162"/>
+        <source>参数调整建议：
+• 漏句 → 降低「跳过的帧数」，提高「SSIM阈值」，降低「最大图像宽度」至 720
+• 误识别多 → 提高「置信度阈值」至 0.5~0.7，过滤低质量识别结果
+• 字幕断句多 → 提高「相似度阈值」至 75~85，增大「最大合并间隔」至 0.2~0.5
+以上参数均在「高级设置」中调整</source>
+        <translation>Parameter adjustment tips:
+• Missing lines -> decrease &quot;Frames to Skip&quot;, increase &quot;SSIM Threshold&quot;, lower &quot;Max Image Width&quot; to 720
+• Too many false positives -> increase &quot;Confidence Threshold&quot; to 0.5~0.7 to filter low-quality results
+• Subtitle fragmentation -> increase &quot;Similarity Threshold&quot; to 75~85, increase &quot;Max Merge Gap&quot; to 0.2~0.5
+All parameters above can be adjusted in &quot;Advanced Settings&quot;</translation>
     </message>
     <message>
         <location filename="../../view/videocr_interface.py" line="183"/>

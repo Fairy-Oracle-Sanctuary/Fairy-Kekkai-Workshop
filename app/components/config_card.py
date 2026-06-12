@@ -953,6 +953,17 @@ class OCRSettingInterface(ScrollArea):
             parent=self.processingGroup,
         )
 
+        # 置信度阈值 (0.0-1.0)
+        self.confidenceThresholdCard = NumberLineEditSettingCard(
+            cfg.confidenceThreshold,
+            FIF.FILTER,
+            self.tr("置信度阈值"),
+            self.tr("低于此置信度的OCR结果将被过滤 (0.0-1.0, 0=不过滤)"),
+            placeholderText=str(cfg.confidenceThreshold.value),
+            validator=QDoubleValidator(0.0, 1.0, 2),
+            parent=self.processingGroup,
+        )
+
         # 功能开关
         self.featureGroup = SettingCardGroup(self.tr("功能开关"), self.scrollWidget)
         self.useGpuCard = SwitchSettingCard(
@@ -1039,6 +1050,7 @@ class OCRSettingInterface(ScrollArea):
         self.processingGroup.addSettingCard(self.ocrImageMaxWidthCard)
         self.processingGroup.addSettingCard(self.framesToSkipCard)
         self.processingGroup.addSettingCard(self.minSubtitleDurationCard)
+        self.processingGroup.addSettingCard(self.confidenceThresholdCard)
 
         # 功能开关
         self.featureGroup.addSettingCard(self.useGpuCard)

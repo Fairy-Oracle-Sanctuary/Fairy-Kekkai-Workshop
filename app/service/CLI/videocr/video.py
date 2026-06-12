@@ -82,10 +82,12 @@ class Video:
         frames_to_skip: int,
         crop_zones: list[dict[str, int]],
         ocr_image_max_width: int,
+        confidence_threshold: float = 0.0,
     ) -> None:
         ssim_threshold_ratio = ssim_threshold / 100
         self.lang = lang
         self.use_fullframe = use_fullframe
+        self.confidence_threshold = confidence_threshold
         self.validated_zones = []
         self.pred_frames_zone1 = []
         self.pred_frames_zone2 = []
@@ -1180,6 +1182,7 @@ class Video:
                     pred_data,
                     zone_index,
                     lang,
+                    self.confidence_threshold,
                 )
                 frame_predictions_dict[zone_index][frame_index] = predicted_frame
 
@@ -1260,6 +1263,7 @@ class Video:
             lang,
             post_processing,
             min_subtitle_duration_sec,
+            self.confidence_threshold,
         )
         subs_zone2 = self._process_single_zone(
             self.pred_frames_zone2,
@@ -1268,6 +1272,7 @@ class Video:
             lang,
             post_processing,
             min_subtitle_duration_sec,
+            self.confidence_threshold,
         )
 
         if subs_zone1 and not subs_zone2:
@@ -1292,6 +1297,7 @@ class Video:
         lang: str,
         post_processing: bool,
         min_subtitle_duration_sec: float,
+        confidence_threshold: float = 0.0,
     ) -> list[PredictedSubtitle]:
         if not pred_frames:
             return []
@@ -1315,7 +1321,12 @@ class Video:
         subs: list[PredictedSubtitle] = []
         for frame in sorted(pred_frames, key=lambda f: f.start_index):
             new_sub = PredictedSubtitle(
-                [frame], frame.zone_index, sim_threshold, lang, language_model
+                [frame],
+                frame.zone_index,
+                sim_threshold,
+                lang,
+                language_model,
+                confidence_threshold,
             )
             if not new_sub.text:
                 continue

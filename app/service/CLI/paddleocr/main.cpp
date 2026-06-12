@@ -60,6 +60,7 @@ static cv::Mat load_image_rgb(const fs::path &path) {
 struct OcrResult {
   std::array<cv::Point2f, 4> box;
   std::string text;
+  float confidence;
 };
 
 static std::vector<OcrResult> run_ocr_on_image(void *ocr, const cv::Mat &rgb) {
@@ -75,11 +76,12 @@ static std::vector<OcrResult> run_ocr_on_image(void *ocr, const cv::Mat &rgb) {
   g_results = &results;
 
   auto callback = [](float x1, float y1, float x2, float y2, float x3, float y3,
-                     float x4, float y4, const char *text) {
+                     float x4, float y4, float conf, const char *text) {
     OcrResult r;
     r.box = {cv::Point2f(x1, y1), cv::Point2f(x2, y2), cv::Point2f(x3, y3),
              cv::Point2f(x4, y4)};
     r.text = text ? text : "";
+    r.confidence = conf;
     g_results->push_back(r);
   };
 
@@ -194,7 +196,7 @@ static int cmd_text_detection(const std::map<std::string, std::string> &args) {
     for (size_t i = 0; i < results.size(); ++i) {
       if (i)
         json << ",";
-      json << "1.0"; // Luna does not expose per-box confidence
+      json << results[i].confidence;
     }
     json << "]}";
 
@@ -311,7 +313,7 @@ static int cmd_ocr(const std::map<std::string, std::string> &args) {
         if (i)
           out_json << ",";
         out_json << "{\"box\":" << format_poly_json(results[i].box)
-                 << ",\"text\":\"" << results[i].text << "\",\"score\":100.0}";
+                 << ",\"text\":\"" << results[i].text << "\",\"score\":" << results[i].confidence << "}";
       }
       out_json << "]}" << std::endl;
     } else {

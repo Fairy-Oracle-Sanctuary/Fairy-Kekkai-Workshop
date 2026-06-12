@@ -111,6 +111,9 @@ class OCRProcess(QObject):
         cmd_args.extend(
             ["--min_subtitle_duration", str(args["min_subtitle_duration_sec"])]
         )
+        cmd_args.extend(
+            ["--confidence_threshold", str(args["confidence_threshold"])]
+        )
 
         # 处理paddleocr_path参数
         if "paddleocr_path" in args and args["paddleocr_path"]:

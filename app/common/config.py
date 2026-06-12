@@ -424,7 +424,7 @@ class Config(QConfig):
     # SSIM阈值 (0-100)
     # 命令行使用：--ssim_threshold
     ssimThreshold = RangeConfigItem(
-        "OCR", "SsimThreshold", 92, RangeValidator(0, 100), restart=False
+        "OCR", "SsimThreshold", 90, RangeValidator(0, 100), restart=False
     )
 
     # 最大OCR图像宽度（像素）
@@ -436,13 +436,19 @@ class Config(QConfig):
     # 跳过的帧数
     # 命令行使用：--frames_to_skip
     framesToSkip = RangeConfigItem(
-        "OCR", "FramesToSkip", 3, RangeValidator(0, 100), restart=False
+        "OCR", "FramesToSkip", 2, RangeValidator(0, 100), restart=False
     )
 
     # 最小字幕持续时间（秒）
     # 命令行使用：--min_subtitle_duration
     minSubtitleDuration = RangeConfigItem(
         "OCR", "MinSubtitleDuration", 0.2, RangeValidator(0.1, 10.0), restart=False
+    )
+
+    # 置信度阈值 (0.0-1.0)
+    # 命令行使用：--confidence_threshold
+    confidenceThreshold = RangeConfigItem(
+        "OCR", "ConfidenceThreshold", 0.3, RangeValidator(0.0, 1.0), restart=False
     )
 
     # 是否启用GPU使用
