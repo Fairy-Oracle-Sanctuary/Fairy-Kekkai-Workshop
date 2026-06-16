@@ -15,21 +15,24 @@
 </p>
 
 <p align="center">
-
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/LICENSE-GPL%20|%20CCBYSA%20-green" alt="LICENSE 6.6.2"/>
+    <img src="https://img.shields.io/badge/LICENSE-GPL%20|%20CCBYSA-green" alt="LICENSE"/>
   </a>
 
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/Python-3.9.13-blue" alt="Python 3.9.13"/>
+    <img src="https://img.shields.io/badge/Python-3.9.13-yellow" alt="Python 3.9.13"/>
   </a>
 
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/Version-2.0.0-blue.svg" alt="Version 2.0.0"/>
+    <img src="https://img.shields.io/badge/Version-2.0.0-purple" alt="Version 2.0.0"/>
   </a>
 
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-blue" alt="Platform Windows | macOS"/>
+    <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-orange" alt="Platform Windows | macOS"/>
+  </a>
+
+  <a style="text-decoration:none">
+    <img src="https://img.shields.io/badge/Language-English%20|%20简体中文-cyan" alt="Language English | 简体中文"/>
   </a>
 </p>
 
