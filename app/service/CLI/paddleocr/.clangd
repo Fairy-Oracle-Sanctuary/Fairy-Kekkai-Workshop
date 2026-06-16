@@ -1,4 +1,14 @@
 CompileFlags:
   Add:
-    - -ID:/CODE/LunaTranslator/src/NativeImpl/build/x64_win10/_deps/opencv-src/windows-x64/include
     - -std=c++17
+    - -FI
+    - D:/CODE/Fairy-Kekkai-Workshop/app/service/CLI/paddleocr/cvutils_compat.h
+    - -ID:/CODE/Fairy-Kekkai-Workshop/app/service/CLI/paddleocr/build/_deps/opencv-src/windows-x64/include
+    - -ID:/CODE/Fairy-Kekkai-Workshop/app/service/CLI/paddleocr/build/_deps/clipper2-src/CPP/Clipper2Lib/include
+    - -ID:/CODE/Fairy-Kekkai-Workshop/app/service/CLI/paddleocr/build/_deps/onnxruntime-src/build/native/include
+    - -IC:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/atlmfc/include
+    - -IC:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/include
+    - -IC:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/um
+    - -IC:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared
+    - -IC:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/ucrt
+    - -IC:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/winrt
