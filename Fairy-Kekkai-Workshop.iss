@@ -2,7 +2,7 @@
 ; 有关创建 Inno Setup 脚本文件的详细信息，请参阅帮助文档！
 
 #define MyAppName "Fairy Kekkai Workshop"
-#define MyAppVersion "1.18.0"
+#define MyAppVersion "2.0.0"
 #define MyAppPublisher "Fairy Oracle Sanctuary"
 #define MyAppURL "https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate"
 #define MyAppExeName "Fairy-Kekkai-Workshop.exe"
@@ -46,9 +46,9 @@ Name: "chinesesimp"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
-[InstallDelete]
+;[InstallDelete]
 ; 安装前删除旧版本的所有文件和子目录
-Type: filesandordirs; Name: "{app}\*"
+;Type: filesandordirs; Name: "{app}\*"
 
 [Files]
 Source: "C:\Users\ZHANGBaoHang\Desktop\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion

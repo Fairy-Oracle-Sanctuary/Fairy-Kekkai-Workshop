@@ -78,6 +78,17 @@ if __name__ == "__main__":
 
 """
 ## 更新日志
+- PaddleOCR 独立构建：CVUtils 源码（DBNet/CRNN/ONNX Runtime/SSIM）全部从 LunaTranslator 迁移至本项目，CMake FetchContent 自动下载 OpenCV/Clipper2/ONNX Runtime/DirectML，零手动配置
+- OCR 访问冲突崩溃保护：新增 SEH 异常捕获（catch-all + /EHa），极端场景下自动跳过问题帧而非崩溃
+- AI 翻译 SRT 多行修复：发送前将字幕内换行替换为空格，避免多行字幕导致 AI 编号错乱
+- OCR 默认参数优化：SSIM 阈值 92→90，新增置信度阈值配置（0.0-1.0，默认 0.3），支持词语级+帧级双重过滤；UI 新增参数调整指南
+- Whisper 设置界面重构：模型选择逻辑简化，自动检测可用模型
+- 项目拖拽排序与置顶功能
+- 国际化（i18n）系统全面上线：基于 Qt Linguist，支持中文、英文
+- Windows 10 暗色模式背景渲染修复
+- 语言词典重构为使用语言代码作为键值
+- 文档完善：双语 README 增加项目理念与许可说明；DEVELOPMENT.md 新增 paddleocr C++ 编译章节和 OCR 参数参考表
+- 更新 Qt 资源编译器至 6.10.2
 - 优化翻译上下文管理，分批翻译时仅保留两轮历史，极大降低 API Token 消耗与延迟（支持 Deepseek/多模型）
 - Whisper 自动语音识别（ASR）集成，支持命令行工具，核心模块切换为 Const-me/Whisper 实现，性能与兼容性提升
 - 新增新手引导功能，提升首次使用体验
@@ -95,7 +106,6 @@ if __name__ == "__main__":
 - Whisper 构建文档完善
 - 图标与界面细节更新
 - 用户可自定义窗口类型
-- 支持了英文，软件默认为中文
 
 ## 下载提示
 - [Fairy-Kekkai-Workshop-v2.0.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0/Fairy-Kekkai-Workshop-v2.0.0-Windows-x86_64-Setup.exe)
