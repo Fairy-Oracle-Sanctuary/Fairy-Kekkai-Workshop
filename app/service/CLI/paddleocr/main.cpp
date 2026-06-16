@@ -180,7 +180,14 @@ static int cmd_text_detection(const std::map<std::string, std::string> &args) {
     if (rgb.empty())
       continue;
 
-    auto results = run_ocr_on_image(ocr, rgb);
+    std::vector<OcrResult> results;
+    try {
+      results = run_ocr_on_image(ocr, rgb);
+    } catch (...) {
+      std::cerr << "Error on image " << img_path.filename() << ": skipped" << std::endl;
+      ++processed;
+      continue;
+    }
 
     std::ostringstream json;
     std::string path_str = img_path.string();
@@ -304,7 +311,14 @@ static int cmd_ocr(const std::map<std::string, std::string> &args) {
     if (rgb.empty())
       continue;
 
-    auto results = run_ocr_on_image(ocr, rgb);
+    std::vector<OcrResult> results;
+    try {
+      results = run_ocr_on_image(ocr, rgb);
+    } catch (...) {
+      std::cerr << "Error on image " << img_path.filename() << ": skipped" << std::endl;
+      ++processed;
+      continue;
+    }
 
     if (out_json.is_open()) {
       out_json << "{\"image\":\"" << img_path.filename().string()
