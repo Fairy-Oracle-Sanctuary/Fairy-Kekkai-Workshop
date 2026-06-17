@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="app\resource\images\logo.png" alt="logo" width="200"/>
+  <img src="docs\images\logo.png" alt="logo" width="200"/>
 </p>
 
 <h1 align="center">
@@ -40,7 +40,7 @@
  <a href="README.md">English</a> | <a href="README.zh.md">简体中文</a>
 </p>
 
-![thumbnail](thumbnail.png)
+![thumbnail](docs\images\thumbnail.png)
 
 <p align="center">
   <a href="#功能特性">功能特性</a> •
