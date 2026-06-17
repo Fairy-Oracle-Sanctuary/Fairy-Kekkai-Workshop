@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fairy Kekkai Workshop | 仙·结界工坊</title>
   <meta name="description" content="一站式烤肉自由软件：项目管理、视频下载、PaddleOCR 字幕提取、Whisper 语音识别、AI 翻译、FFmpeg 视频压制。">
-  <link rel="icon" type="image/png" sizes="128x128" href="images/logo.png">
-  <link rel="shortcut icon" type="image/png" href="images/logo.png">
+  <link rel="icon" type="image/png" sizes="128x128" href="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/logo_eqwl0k.png">
+  <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/logo_eqwl0k.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
       <div class="nav-container">
         <div class="nav-brand">
           <div class="nav-logo">
-            <img src="images/logo.png" alt="Fairy Kekkai Workshop Logo">
+            <img src="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/logo_eqwl0k.png" alt="Fairy Kekkai Workshop Logo">
           </div>
           <span class="nav-title"></span>
         </div>
@@ -30,10 +30,9 @@
         </button>
         <div class="nav-menu" id="navMenu">
           <div class="nav-links">
-            <a href="#features" class="nav-link" data-i18n="nav.features">功能特性</a>
-            <a href="#workflow" class="nav-link" data-i18n="nav.workflow">工作流程</a>
-            <a href="#guide" class="nav-link" data-i18n="nav.guide">使用指南</a>
-            <a href="#download" class="nav-link" data-i18n="nav.download">下载</a>
+            <a href="index.html#features" class="nav-link" data-i18n="nav.features">功能特性</a>
+            <a href="docs.html" class="nav-link" data-i18n="nav.docs">文档</a>
+            <a href="download.html" class="nav-link" data-i18n="nav.download">下载</a>
           </div>
           <div class="nav-actions">
             <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -83,7 +82,7 @@
             从下载、字幕提取、语音识别、AI 翻译到视频压制，完整的视频字幕处理工作流。基于 PySide6 与 QFluentWidgets 打造的现代化桌面应用。
           </p>
           <div class="hero-actions">
-            <a href="#download" class="btn btn-primary">
+            <a href="download.html" class="btn btn-primary">
               <span data-i18n="hero.downloadButton">立即下载</span>
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -100,7 +99,8 @@
           </div>
         </div>
         <div class="hero-showcase">
-          <img src="images/thumbnail.png" alt="Fairy Kekkai Workshop 界面预览" class="showcase-img">
+          <img src="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/thumbnail_full_qs4gz6.png" alt="Fairy Kekkai Workshop 界面预览" class="showcase-img showcase-img-light">
+          <img src="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682613/thumbnail_full_black_hcrbkt.png" alt="Fairy Kekkai Workshop 界面预览" class="showcase-img showcase-img-dark">
         </div>
       </div>
     </section>
@@ -177,143 +177,11 @@
       </div>
     </section>
 
-    <!-- Workflow Section -->
-    <section class="workflow" id="workflow">
-      <div class="section-container">
-        <div class="section-header">
-          <h2 class="section-title" data-i18n="workflow.title">自动化工作流</h2>
-          <p class="section-subtitle" data-i18n="workflow.subtitle">按顺序完成下载、提取、翻译、对轴和压制</p>
-        </div>
-        <div class="workflow-grid">
-          <div class="workflow-card">
-            <div class="workflow-num">01</div>
-            <h4 class="workflow-step-title" data-i18n="workflow.step1.title">创建项目</h4>
-            <p class="workflow-step-desc" data-i18n="workflow.step1.desc">新建项目，或者从 YouTube 播放列表导入视频，软件会自动建好文件夹。</p>
-          </div>
-          <div class="workflow-card">
-            <div class="workflow-num">02</div>
-            <h4 class="workflow-step-title" data-i18n="workflow.step2.title">提取字幕</h4>
-            <p class="workflow-step-desc" data-i18n="workflow.step2.desc">有硬字幕就用 OCR 提取，需要听写就用 Whisper 转字幕。</p>
-          </div>
-          <div class="workflow-card">
-            <div class="workflow-num">03</div>
-            <h4 class="workflow-step-title" data-i18n="workflow.step3.title">翻译与对轴</h4>
-            <p class="workflow-step-desc" data-i18n="workflow.step3.desc">用 AI 先翻译字幕，再手动校对、改时间轴，让字幕和画面重新对上。</p>
-          </div>
-          <div class="workflow-card">
-            <div class="workflow-num">04</div>
-            <h4 class="workflow-step-title" data-i18n="workflow.step4.title">压制视频</h4>
-            <p class="workflow-step-desc" data-i18n="workflow.step4.desc">把字幕嵌进视频，并按需要压小体积，方便保存和分享。</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Guide Section -->
-    <section class="guide" id="guide">
-      <div class="section-container">
-        <div class="section-header">
-          <h2 class="section-title" data-i18n="guide.title">快速上手</h2>
-          <p class="section-subtitle" data-i18n="guide.subtitle">几步即可释放完整的本地算力</p>
-        </div>
-        <div class="guide-container">
-          <div class="tab-buttons">
-            <button class="tab-btn active" data-tab="sys" data-i18n="guide.tab.sys">系统要求</button>
-            <button class="tab-btn" data-tab="prep" data-i18n="guide.tab.prep">环境准备</button>
-            <button class="tab-btn" data-tab="run" data-i18n="guide.tab.run">本地运行</button>
-          </div>
-          <div class="tab-panel active" id="tab-sys">
-            <ul class="guide-list">
-              <li data-i18n="guide.sys.os"><strong>操作系统：</strong>支持 Windows 与 macOS（暂不支持 Linux）。由于组件依赖，字幕提取 (OCR) 与语音识别 (Whisper) 仅支持 Windows 平台，其余功能在 macOS 上均可正常使用。</li>
-              <li data-i18n="guide.sys.python"><strong>运行环境：</strong>Python 3.9 及以上版本，推荐使用 uv 进行极速依赖管理。</li>
-              <li data-i18n="guide.sys.gpu"><strong>硬件加速：</strong>推荐配备 GPU，用于 OCR、Whisper 与视频压制加速；建议内存 8GB 以上。</li>
-            </ul>
-          </div>
-          <div class="tab-panel" id="tab-prep">
-            <p class="guide-intro" data-i18n="guide.prep.intro">软件发布包已内置集成 FFmpeg、yt-dlp 与 PaddleOCR，开箱即用。唯独 Whisper 语音转文字模型由于文件体积较大，需要您手动下载并关联：</p>
-            <ul class="guide-list">
-              <li data-i18n="guide.prep.download"><strong>下载模型文件：</strong>前往迅雷网盘或 Hugging Face 下载所需的 ggml 格式 Whisper 模型。</li>
-              <li data-i18n="guide.prep.config"><strong>关联本地路径：</strong>打开软件进入「设置」界面，在「Whisper -> 模型路径」中选中您下载的 .bin 模型文件。</li>
-              <li data-i18n="guide.prep.tips"><strong>模型选择建议：</strong>短视频推荐使用 base 或 small 模型；10分钟以上推荐 medium，30分钟以上推荐 large 以防幻觉重复。</li>
-            </ul>
-          </div>
-          <div class="tab-panel" id="tab-run">
-            <p class="guide-intro" data-i18n="guide.run.intro">极简的本地部署流程：</p>
-            <pre class="code-block"><code># 1. 克隆仓库
-git clone https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop.git
-cd Fairy-Kekkai-Workshop
-
-# 2. 创建并激活虚拟环境
-uv venv
-.venv\Scripts\activate        # Windows
-source .venv/bin/activate     # Unix/macOS
-
-# 3. 安装依赖
-uv pip install -r requirements.txt
-
-# 4. 运行应用
-python Fairy-Kekkai-Workshop.py</code></pre>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Download Section -->
-    <section class="download" id="download">
-      <div class="download-container">
-        <h2 class="download-title" data-i18n="download.title">立即开始你的烤肉之旅</h2>
-        <p class="download-desc" data-i18n="download.desc">完全本地化算力驱动，不收集任何视频内容与密钥隐私。</p>
-        <div class="download-grid">
-          <!-- Windows Card -->
-          <div class="download-card">
-            <div class="download-platform">
-              <svg class="platform-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 5.1L10.5 4v7.5H3V5.1zM10.5 12.5V20L3 18.9v-6.4h7.5zM11.5 3.9L21 2.5v9H11.5V3.9zM21 12.5V21.5l-9.5-1.3v-7.7H21z"/>
-              </svg>
-              <div>
-                <h3 class="platform-name">Windows 10 / 11</h3>
-                <p class="platform-detail" data-i18n="download.win.detail">完整支持 OCR、语音识别与硬件加速压制</p>
-              </div>
-            </div>
-            <a href="https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases" target="_blank" class="btn btn-primary">
-              <span data-i18n="download.btn">获取最新安装包</span>
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-            </a>
-          </div>
-
-          <!-- macOS Card -->
-          <div class="download-card">
-            <div class="download-platform">
-              <svg class="platform-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-.96.04-2.13.64-2.82 1.45-.6.7-1.13 1.84-.99 2.94.12.01.21.02.31.02.9 0 2.01-.54 2.51-1.35z"/>
-              </svg>
-              <div>
-                <h3 class="platform-name">macOS 10.15+</h3>
-                <p class="platform-detail" data-i18n="download.mac.detail">支持视频下载、AI 翻译、项目管理及视频压制</p>
-              </div>
-            </div>
-            <a href="https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases" target="_blank" class="btn btn-secondary">
-              <span data-i18n="download.btn">获取最新安装包</span>
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Footer -->
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-logo">
-          <img src="images/logo.png" alt="Fairy Kekkai Workshop Logo">
+          <img src="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/logo_eqwl0k.png" alt="Fairy Kekkai Workshop Logo">
         </div>
         <p class="footer-quote" data-i18n="footer.quote">“连接世界，连接每一个相信自由与善意的人。”</p>
         <div class="footer-links">
