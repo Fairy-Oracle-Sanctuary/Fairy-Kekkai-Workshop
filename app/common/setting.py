@@ -12,8 +12,8 @@ if sys.platform == "win32":
 else:
     COPYLEFT = "©️ "
 
-RELEASE_URL = "https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate/releases"
-GITHUB_URL = "https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate"
+RELEASE_URL = "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases"
+GITHUB_URL = "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop"
 
 CONFIG_FOLDER = Path("AppData").absolute()
 
