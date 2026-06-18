@@ -190,20 +190,7 @@ Users are free to run, study, modify, and redistribute the software in accordanc
 
 ---
 
-Fairy Kekkai Workshop 是一款基于 PySide6（Qt for Python）开发的桌面字幕制作与本地化软件。
+The application requires runFullTrust for project file operations and executing external tools (FFmpeg, Whisper, PaddleOCR, yt-dlp) for media processing. This capability is used solely for core desktop application functions.
 
-软件需要使用 runFullTrust 功能，因为其核心功能涉及项目管理以及用户指定工作目录中的文件操作，包括创建、读取、移动、重命名和删除项目文件及生成的媒体资源。
-
-软件还集成了 FFmpeg、Whisper、PaddleOCR 和 yt-dlp 等外部工具，需要通过创建子进程完成媒体处理、OCR 识别、语音转文字、字幕生成、翻译流程和视频编码等任务。
-
-runFullTrust 仅用于实现上述桌面应用核心功能，不用于监控用户活动、修改系统设置、访问无关文件或收集用户个人信息。
-
-Fairy Kekkai Workshop is a desktop subtitle production and localization application built with PySide6 (Qt for Python).
-
-The application requires the runFullTrust capability because it provides project management features that operate on user-selected working directories, including creating, reading, moving, renaming, and deleting project files and generated media assets.
-
-The application also integrates external processing tools such as FFmpeg, Whisper, PaddleOCR, and yt-dlp. These tools are executed as child processes to perform media acquisition, OCR recognition, speech transcription, subtitle generation, translation workflows, and video encoding.
-
-The runFullTrust capability is required solely to support these core desktop application functions. The application does not use this capability to monitor user activity, modify system settings, access unrelated files, or collect personal information.
-
+Our application is a desktop software installer that requires elevation during installation to write to Program Files directory and register file associations in the system registry. The installed application itself runs without elevation. This is standard practice for desktop software distribution on Windows.
 """

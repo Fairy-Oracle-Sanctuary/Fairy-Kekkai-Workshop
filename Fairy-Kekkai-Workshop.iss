@@ -33,12 +33,13 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
-LicenseFile=D:\Touhou-project\projects\LICENSE.txt
+LicenseFile=D:\CODE\Fairy-Kekkai-Workshop\LICENSE
 ; 取消注释以下行以在非管理员安装模式下运行 (仅为当前用户安装)。
 PrivilegesRequired=admin
-OutputBaseFilename=mysetup
+OutputBaseFilename=Fairy-Kekkai-Workshop
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile=D:\CODE\Fairy-Kekkai-Workshop\app\resource\images\logo.ico
 
 [Languages]
 Name: "chinesesimp"; MessagesFile: "compiler:Default.isl"
