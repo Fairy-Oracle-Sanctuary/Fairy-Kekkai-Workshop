@@ -7,6 +7,10 @@
 </h1>
 
 <p align="center">
+  <a href="https://fkw.ora-san.org/">软件官网</a>
+</p>
+
+<p align="center">
   <i>一站式烤肉自由软件</i>
 </p>
 
