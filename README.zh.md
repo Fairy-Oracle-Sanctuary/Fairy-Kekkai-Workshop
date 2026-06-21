@@ -144,25 +144,7 @@ uv pip install -r requirements.txt
 
 ### 4. 准备外部工具
 
-#### OCR 工具（仅 Windows）
-- 下载 [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) 放到 `tools/PaddleOCR/` 目录
-- 下载OCR模型文件放到 `tools/OCR.model/` 目录
-- 编译videocr CLI：`cd app/service/CLI && python deploy.py`
-
-#### Whisper 工具（仅 Windows）
-- 下载Whisper模型文件（ggml格式）放到 `tools/Whisper.model/` 目录
-- 编译WhisperNet CLI：`cd app/service/CLI/whispernet && dotnet publish -c Release -r win-x64 --self-contained`
-- 复制发布文件夹内容到 `tools/Whisper/` 目录
-
-#### 其他工具
-- **FFmpeg**：视频压制工具
-  - Windows：下载编译版本或通过 scoop/chocolatey 安装
-  - macOS：`brew install ffmpeg`
-  - Linux：`sudo apt-get install ffmpeg`
-- **yt-dlp**：视频下载工具
-  ```bash
-  uv pip install yt-dlp
-  ```
+从 [Releases](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases) 页面下载 `tools.zip`，解压到项目根目录的 `tools/` 文件夹下即可，无需手动编译或单独安装各外部工具。
 
 ### 5. 运行应用
 

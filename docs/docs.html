@@ -134,7 +134,7 @@
         <section class="docs-section" id="source">
           <h2 data-i18n="docs.source.title">源码运行</h2>
           <p class="guide-intro" data-i18n="guide.run.intro">源码运行与部署流程（开发者/高级用户）：</p>
-          <pre class="code-block"><code># 1. 克隆仓库
+          <pre class="code-block"><code data-i18n="guide.run.code"># 1. 克隆仓库
 git clone https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop.git
 cd Fairy-Kekkai-Workshop
 
@@ -146,7 +146,10 @@ source .venv/bin/activate     # Unix/macOS
 # 3. 安装依赖
 uv pip install -r requirements.txt
 
-# 4. 运行应用
+# 4. 从 Releases 下载 tools.zip，解压到项目根目录的 tools/ 文件夹
+#    https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases
+
+# 5. 运行应用
 python Fairy-Kekkai-Workshop.py</code></pre>
         </section>
       </article>
