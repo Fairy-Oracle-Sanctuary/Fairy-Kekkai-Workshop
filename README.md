@@ -144,25 +144,7 @@ uv pip install -r requirements.txt
 
 ### 4. Prepare external tools
 
-#### OCR Tools (Windows only)
-- Download [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) and place in `tools/PaddleOCR/` directory
-- Download OCR model files and place in `tools/OCR.model/` directory
-- Compile videocr CLI: `cd app/service/CLI && python deploy.py`
-
-#### Whisper Tools (Windows only)
-- Download Whisper model files (ggml format) and place in `tools/Whisper.model/` directory
-- Compile WhisperNet CLI: `cd app/service/CLI/whispernet && dotnet publish -c Release -r win-x64 --self-contained`
-- Copy published folder contents to `tools/Whisper/` directory
-
-#### Other Tools
-- **FFmpeg**: Video compression tool
-  - Windows: Download compiled version or install via scoop/chocolatey
-  - macOS: `brew install ffmpeg`
-  - Linux: `sudo apt-get install ffmpeg`
-- **yt-dlp**: Video download tool
-  ```bash
-  uv pip install yt-dlp
-  ```
+Download `tools.zip` from the [Releases](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases) page and extract it into the `tools/` directory at the project root. No manual compilation or separate installation of external tools is required.
 
 ### 5. Run the application
 
