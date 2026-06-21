@@ -7,6 +7,10 @@
 </h1>
 
 <p align="center">
+  <a href="https://fkw.ora-san.org/">Official Website</a>
+</p>
+
+<p align="center">
   <i>All-in-one video subtitle processing software</i>
 </p>
 
@@ -40,7 +44,7 @@
  <a href="README.md">English</a> | <a href="README.zh.md">简体中文</a>
 </p>
 
-![thumbnail](docs\images\thumbnail.png)
+![thumbnail](docs/images/thumbnail_full_black.png)
 
 <p align="center">
   <a href="#features">Features</a> •

@@ -7,6 +7,10 @@
 </h1>
 
 <p align="center">
+  <a href="https://fkw.ora-san.org/">软件官网</a>
+</p>
+
+<p align="center">
   <i>一站式烤肉自由软件</i>
 </p>
 
@@ -40,7 +44,7 @@
  <a href="README.md">English</a> | <a href="README.zh.md">简体中文</a>
 </p>
 
-![thumbnail](docs\images\thumbnail.png)
+![thumbnail](docs/images/thumbnail_full_black.png)
 
 <p align="center">
   <a href="#功能特性">功能特性</a> •
