@@ -4,7 +4,7 @@
 #define MyAppName "Fairy Kekkai Workshop"
 #define MyAppVersion "2.0.0"
 #define MyAppPublisher "Fairy Oracle Sanctuary"
-#define MyAppURL "https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate"
+#define MyAppURL "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop"
 #define MyAppExeName "Fairy-Kekkai-Workshop.exe"
 #define MyAppAssocName MyAppName + "文件"
 #define MyAppAssocExt ".myp"
