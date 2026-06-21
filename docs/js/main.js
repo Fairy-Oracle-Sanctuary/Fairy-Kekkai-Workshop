@@ -156,6 +156,27 @@ const htmlKeys = new Set([
   'guide.prep.intro', 'guide.prep.download', 'guide.prep.config', 'guide.prep.tips'
 ]);
 
+// Showcase images per locale
+const showcaseImages = {
+  zh: {
+    light: 'https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/thumbnail_full_qs4gz6.png',
+    dark:  'https://res.cloudinary.com/do6rggmy6/image/upload/v1781682613/thumbnail_full_black_hcrbkt.png'
+  },
+  en: {
+    light: 'https://res.cloudinary.com/do6rggmy6/image/upload/v1782085537/thumbnail_full_en_npfb7n.png',
+    dark:  'https://res.cloudinary.com/do6rggmy6/image/upload/v1782085537/thumbnail_full_en_black_alrths.png'
+  }
+};
+
+function updateShowcaseImages() {
+  const imgLight = document.getElementById('showcase-light');
+  const imgDark  = document.getElementById('showcase-dark');
+  if (!imgLight || !imgDark) return;
+  const imgs = showcaseImages[currentLocale] || showcaseImages.zh;
+  imgLight.src = imgs.light;
+  imgDark.src  = imgs.dark;
+}
+
 // Update all translations
 function updateTranslations() {
   localStorage.setItem('locale', currentLocale);
@@ -180,6 +201,8 @@ function updateTranslations() {
 
   // Update html lang attribute
   document.documentElement.lang = currentLocale;
+
+  updateShowcaseImages();
 }
 
 // Particle background
