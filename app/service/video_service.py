@@ -112,30 +112,27 @@ class VideoPreview(SimpleCardWidget):
         # 更新坐标显示
         self.coords_label.setText(self.tr("框选区域坐标: 正在选择..."))
 
-    def _clear_selection(self):
-        """清除框选区域"""
+    def reset_selection_state(self):
+        """重置框选状态"""
         self.crop_boxes.clear()
         self.drawn_rect_ids.clear()
         self.start_point_img = None
         self.end_point_img = None
 
-        # 清除临时记录的鼠标位置
         if hasattr(self, "mouse_start_pos"):
             del self.mouse_start_pos
 
         self.is_selecting = False
         self.clear_selection_btn.setEnabled(False)
-        self.select_btn.setEnabled(True)
+        self.select_btn.setEnabled(self.current_frame is not None)
         self.previewLabel.setCursor(Qt.ArrowCursor)
-
-        # 更新坐标显示（这会清除坐标编辑组件）
         self._update_coords_display()
-
-        # 重绘画布
         self._redraw_canvas_and_boxes()
-
-        # 发送信号
         self.isCropChoose.emit(False)
+
+    def _clear_selection(self):
+        """清除框选区域"""
+        self.reset_selection_state()
 
     def _on_mouse_press(self, event):
         """处理鼠标按下事件"""
@@ -468,12 +465,10 @@ class VideoPreview(SimpleCardWidget):
         """设置视频帧"""
         if frame_data is not None:
             try:
-                # 保存原始帧尺寸
-                if self.original_frame_size is None:
-                    self.original_frame_size = (
-                        frame_data.shape[1],
-                        frame_data.shape[0],
-                    )
+                self.original_frame_size = (
+                    frame_data.shape[1],
+                    frame_data.shape[0],
+                )
 
                 # 将OpenCV图像转换为QPixmap
                 rgb_image = cv2.cvtColor(frame_data, cv2.COLOR_BGR2RGB)
@@ -503,6 +498,8 @@ class VideoPreview(SimpleCardWidget):
         else:
             self.current_frame = None
             self.current_pixmap = None
+            self.original_frame_size = None
+            self.reset_selection_state()
             self.previewLabel.clear()
             self.previewLabel.setText(self.tr("无法加载视频帧"))
 

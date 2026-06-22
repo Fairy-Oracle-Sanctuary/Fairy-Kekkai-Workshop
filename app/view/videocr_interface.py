@@ -215,6 +215,7 @@ class VideocrInterface(BaseFunctionInterface):
             self.total_frames = int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
             self.fps = self.video_capture.get(cv2.CAP_PROP_FPS)
             self.current_frame = 0
+            self.video_preview.reset_selection_state()
 
             # 设置进度条
             self.progress_slider.setRange(0, self.total_frames - 1)
