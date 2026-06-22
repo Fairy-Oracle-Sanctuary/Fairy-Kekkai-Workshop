@@ -669,8 +669,25 @@ def process_ssim_group(
             cx2, cy2 = min(w, int(rect[2])), min(h, int(rect[3]))
             current_crops.append(img[cy1:cy2, cx1:cx2])
 
+        crop_x1 = max(0, int(min(rect[0] for rect in union_rects)))
+        crop_y1 = max(0, int(min(rect[1] for rect in union_rects)))
+        crop_x2 = min(w, int(max(rect[2] for rect in union_rects)))
+        crop_y2 = min(h, int(max(rect[3] for rect in union_rects)))
+
+        pad_x = max(8, int((crop_x2 - crop_x1) * 0.03))
+        pad_y = max(6, int((crop_y2 - crop_y1) * 0.20))
+        crop_x1 = max(0, crop_x1 - pad_x)
+        crop_y1 = max(0, crop_y1 - pad_y)
+        crop_x2 = min(w, crop_x2 + pad_x)
+        crop_y2 = min(h, crop_y2 + pad_y)
+
+        if crop_x2 <= crop_x1 or crop_y2 <= crop_y1:
+            rec_img = img.copy()
+        else:
+            rec_img = img[crop_y1:crop_y2, crop_x1:crop_x2].copy()
+
         item_dict = {
-            "img": img.copy(),
+            "img": rec_img,
             "frame_idx": m["frame_idx"],
             "det_score": det_score,
         }

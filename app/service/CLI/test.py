@@ -1,9 +1,9 @@
 from videocr.api import save_subtitles_to_file
 
 save_subtitles_to_file(
-    video_path=r"D:\Touhou-project\projects\夜回三\10\生肉.mp4",
-    file_path=r"D:\Touhou-project\projects\夜回三\10\原文.srt",
-    temp_dir=r"D:\Touhou-project\projects\temp",
+    video_path=r"C:\Users\ZHANGBaoHang\Downloads\1.mkv",
+    file_path=r"C:\Users\ZHANGBaoHang\Downloads\1.srt",
+    temp_dir=r"D:\CODE\Fairy-Kekkai-Workshop\temp1",
     # ── 语言 & 引擎 ──
     lang="japan",
     ocr_engine="paddleocr",
@@ -11,10 +11,11 @@ save_subtitles_to_file(
     use_gpu=True,
     # ── 时间范围 ──
     time_start="0:00",
-    time_end="0:30",
+    time_end="3:00",
     # ── 检测区域 ──
-    use_fullframe=True,
+    use_fullframe=False,
     subtitle_position="any",
+    crop_zones=[{"x": 12, "y": 582, "width": 1265, "height": 135}],
     # ── 去重 ──
     ssim_threshold=95,
     frames_to_skip=0,
@@ -30,3 +31,6 @@ save_subtitles_to_file(
     paddleocr_path=r"D:\CODE\Fairy-Kekkai-Workshop\tools\PaddleOCR\paddleocr.exe",
     supportFilesPath=r"D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model",
 )
+"""
+"D:\CODE\Fairy-Kekkai-Workshop\tools\PaddleOCR\paddleocr.exe" ocr --input "D:\CODE\Fairy-Kekkai-Workshop\temp1\rec_images" --device gpu --lang japan --text_detection_model_dir "D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model\high\cjk_mobile" --text_recognition_model_dir "D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model\high\cjk_mobile" --output "D:\CODE\Fairy-Kekkai-Workshop\temp1\ocr_results.json" --progress_file "D:\CODE\Fairy-Kekkai-Workshop\temp1\ocr_progress.txt"
+"""

@@ -108,7 +108,7 @@ if __name__ == "__main__":
 - 用户可自定义窗口类型
 
 ## 下载提示
-- [Fairy-Kekkai-Workshop-v2.0.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0/Fairy-Kekkai-Workshop-v2.0.0-Windows-x86_64-Setup.exe)
+- [Fairy-Kekkai-Workshop-v2.0.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0/Fairy-Kekkai-Workshop-v2.0.0-Windows-x86_64-Setup.exe)(windows10/11)
 - [Fairy-Kekkai-Workshop-v2.0.0-macos-arm64](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0/Fairy-Kekkai-Workshop-v2.0.0-macos-arm64.dmg)(macos arm64)
 - 迅雷链接：https://pan.xunlei.com/s/VOl2n0KP6LH3zXUqcYX1iYUAA1?pwd=yzim#
 
