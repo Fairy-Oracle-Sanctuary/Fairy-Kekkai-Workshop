@@ -49,6 +49,7 @@ from ..components.dialog import (
 )
 from ..components.pager import Pager
 from ..service.project_service import project
+from ..common.text import Text
 
 
 class FileOperationWorker(QThread):
@@ -101,6 +102,7 @@ class LoadProjectThread(QThread):
 
     def __init__(self, project_path, card_id, items_per_page, current_page):
         super().__init__()
+        self.globalText = Text()
         self.project_path = project_path
         self.card_id = card_id
         self.items_per_page = items_per_page
@@ -108,18 +110,18 @@ class LoadProjectThread(QThread):
 
     def run(self):
         """执行耗时的数据准备"""
-        self.progress.emit(10, self.tr("正在刷新项目信息..."))
+        self.progress.emit(10, self.globalText.RPI)
         project.refresh_project(self.card_id)
 
-        self.progress.emit(40, self.tr("正在扫描剧集文件夹..."))
+        self.progress.emit(40, self.globalText.SEF)
         subfolders = self.get_subfolders(self.project_path)
 
-        self.progress.emit(70, self.tr("正在计算分页..."))
+        self.progress.emit(70, self.globalText.CP)
         total_episodes = len(subfolders)
         total_pages = (total_episodes + self.items_per_page - 1) // self.items_per_page
         current_page = min(self.current_page, total_pages) if total_pages > 0 else 1
 
-        self.progress.emit(100, self.tr("加载完成"))
+        self.progress.emit(100, self.globalText.LoadComplete)
         self.finished.emit(subfolders, total_episodes, total_pages, current_page)
 
     def get_subfolders(self, project_path):
@@ -144,6 +146,7 @@ class ProjectDetailInterface(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.view = QWidget(self)
 
         self.vBoxLayout = QVBoxLayout(self.view)
@@ -214,7 +217,7 @@ class ProjectDetailInterface(ScrollArea):
         layout.addWidget(self.progress_ring, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # 状态标签
-        self.loading_status = BodyLabel(self.tr("正在加载项目..."), self.view)
+        self.loading_status = BodyLabel(self.globalText.LoadingProject, self.view)
         self.loading_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.loading_status, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -266,21 +269,21 @@ class ProjectDetailInterface(ScrollArea):
 
         # 显示下载中的提示
         event_bus.notification_service.show_info(
-            self.tr("开始下载"), self.tr("正在下载图片...")
+            self.globalText.StartDownload, self.globalText.DownloadingImage
         )
 
     def on_image_download_finished(self, success, message, save_path):
         """图片下载完成回调"""
         if success:
             event_bus.notification_service.show_success(
-                self.tr("成功"), self.tr("图片已下载到: {}").format(save_path)
+                self.globalText.Success, self.globalText.ImageDownloadedTo.format(save_path)
             )
             # 刷新项目详情页面
             self.loadProject(
                 self.current_project_path, self.card_id, project, isMessage=False
             )
         else:
-            event_bus.notification_service.show_error(self.tr("错误"), message)
+            event_bus.notification_service.show_error(self.globalText.Error, message)
 
     def _clearLayout(self, layout):
         """递归清空布局中的所有控件"""
@@ -350,7 +353,7 @@ class ProjectDetailInterface(ScrollArea):
             self._clearLayout(self.vBoxLayout)
         except Exception as e:
             event_bus.notification_service.show_error(
-                self.tr("错误"), self.tr("刷新时出错: {}").format(str(e).strip())
+                self.globalText.Error, self.globalText.ErrorRefreshing.format(str(e).strip())
             )
             self.backToProjectListSignal.emit()
             return
@@ -358,22 +361,22 @@ class ProjectDetailInterface(ScrollArea):
         # 创建顶部按钮栏
         topButtonLayout = QHBoxLayout()
 
-        backButton = PrimaryPushButton(self.tr("返回项目列表"), self.view)
+        backButton = PrimaryPushButton(self.globalText.BackToProjectList, self.view)
         backButton.clicked.connect(self.backToProjectListSignal.emit)
 
-        refreshButton = PushButton(self.tr("刷新项目列表"), self.view)
+        refreshButton = PushButton(self.globalText.RefreshProjectList, self.view)
         refreshButton.clicked.connect(
             lambda: self.loadProject(
                 self.current_project_path, self.card_id, isMessage=True
             )
         )
 
-        batchTaskButton = PushButton(self.tr("批量任务"), self.view)
-        batchTaskButton.setToolTip(self.tr("批量添加下载/语音识别/翻译/压制任务"))
+        batchTaskButton = PushButton(self.globalText.BatchTasks, self.view)
+        batchTaskButton.setToolTip(self.globalText.BADTTET)
         batchTaskButton.clicked.connect(self._open_batch_task_dialog)
 
-        batchDeleteButton = PushButton(self.tr("批量删除"), self.view)
-        batchDeleteButton.setToolTip(self.tr("按文件类型批量删除剧集文件"))
+        batchDeleteButton = PushButton(self.globalText.BatchDelete, self.view)
+        batchDeleteButton.setToolTip(self.globalText.DEFBTIB)
         batchDeleteButton.clicked.connect(self._open_batch_delete_dialog)
 
         topButtonLayout.addWidget(backButton)
@@ -392,7 +395,7 @@ class ProjectDetailInterface(ScrollArea):
 
         # 创建分页信息标签
         page_info_label = BodyLabel(
-            self.tr("共 {} 集，第 {}/{} 页").format(
+            self.globalText.EpisodesTotalPage.format(
                 self.total_episodes, self.current_page, total_pages
             ),
             self.view,
@@ -436,7 +439,7 @@ class ProjectDetailInterface(ScrollArea):
         hBoxLayout = QHBoxLayout()
         if self.current_page == total_pages:
             addButtonBottom = PrimaryToolButton(FIF.ADD)
-            addButtonBottom.setToolTip(self.tr("插入新的一集"))
+            addButtonBottom.setToolTip(self.globalText.InsertNewEpisode)
             addButtonBottom.clicked.connect(
                 lambda checked, fn=len(project.project_subtitle[self.card_id]) + 1: (
                     self.addEpisode(fn)
@@ -473,14 +476,14 @@ class ProjectDetailInterface(ScrollArea):
 
         if self.isMessage:
             event_bus.notification_service.show_success(
-                self.tr("成功"), self.tr("已刷新文件列表")
+                self.globalText.Success, self.globalText.FileListRefreshed
             )
 
     def _open_batch_task_dialog(self):
         """打开批量任务对话框"""
         if not self.subfolders:
             event_bus.notification_service.show_warning(
-                self.tr("提示"), self.tr("当前项目没有剧集")
+                self.globalText.Info, self.globalText.NEICP
             )
             return
 
@@ -494,23 +497,23 @@ class ProjectDetailInterface(ScrollArea):
                     count += 1
                 except Exception as e:
                     event_bus.notification_service.show_error(
-                        self.tr("错误"),
-                        self.tr("第 {} 集添加失败: {}").format(folder_num, str(e)),
+                        self.globalText.Error,
+                        self.globalText.FailedToAddEpisode.format(folder_num, str(e)),
                     )
             if count > 0:
                 event_bus.notification_service.show_success(
-                    self.tr("成功"), self.tr("已添加 {} 个任务").format(count)
+                    self.globalText.Success, self.globalText.TasksAdded.format(count)
                 )
             else:
                 event_bus.notification_service.show_warning(
-                    self.tr("提示"), self.tr("没有选中任何任务")
+                    self.globalText.Info, self.globalText.NoTasksSelected
                 )
 
     def _open_batch_delete_dialog(self):
         """打开批量删除文件对话框"""
         if not self.subfolders:
             event_bus.notification_service.show_warning(
-                self.tr("提示"), self.tr("当前项目没有剧集")
+                self.globalText.Info, self.globalText.NEICP
             )
             return
 
@@ -523,20 +526,20 @@ class ProjectDetailInterface(ScrollArea):
         selected = dialog.get_selected()
         if not selected:
             event_bus.notification_service.show_warning(
-                self.tr("提示"), self.tr("没有选中任何文件")
+                self.globalText.Info, self.globalText.NoFilesSelected
             )
             return
 
         file_name = selected[0][2]
         confirm = MessageBox(
-            self.tr("确认批量删除"),
-            self.tr("确定要批量删除 {} 个 '{}' 吗？此操作不可撤销。").format(
+            self.globalText.ConfirmBatchDelete,
+            self.globalText.AYSYWTDTCBU.format(
                 len(selected), file_name
             ),
             self.window(),
         )
-        confirm.yesButton.setText(self.tr("确定"))
-        confirm.cancelButton.setText(self.tr("取消"))
+        confirm.yesButton.setText(self.globalText.OK)
+        confirm.cancelButton.setText(self.globalText.Cancel)
         if not confirm.exec():
             return
 
@@ -558,12 +561,12 @@ class ProjectDetailInterface(ScrollArea):
                 deleted_count = result.get("result", {}).get("deleted_count", 0)
                 self.delayedRefreshProject()
                 event_bus.notification_service.show_success(
-                    self.tr("成功"),
-                    self.tr("已删除 {} 个 '{}'").format(deleted_count, file_name),
+                    self.globalText.Success,
+                    self.globalText.Deleted.format(deleted_count, file_name),
                 )
             else:
                 event_bus.notification_service.show_error(
-                    self.tr("错误"), self.tr("批量删除失败: {}").format(message)
+                    self.globalText.Error, self.globalText.BatchDeleteFailed.format(message)
                 )
 
         FileOperationWorker.run_async(
@@ -610,7 +613,7 @@ class ProjectDetailInterface(ScrollArea):
         folderTitleLayout.setContentsMargins(0, 0, 0, 0)
 
         # 文件夹标题（过长则截断，完整标题通过 tooltip 显示）
-        full_title = self.tr("第 {} 集 - {}").format(
+        full_title = self.globalText.Episode.format(
             folder_num, project.project_subtitle[self.card_id][folder_num - 1]
         )
         MAX_TITLE_LEN = 40
@@ -628,14 +631,14 @@ class ProjectDetailInterface(ScrollArea):
 
         # 插入按钮
         addEpisodeButton = TransparentToolButton(FIF.ADD, folderTitleWidget)
-        addEpisodeButton.setToolTip(self.tr("在这之前插入新的一集"))
+        addEpisodeButton.setToolTip(self.globalText.INEBT)
         addEpisodeButton.clicked.connect(
             lambda checked, fn=folder_num: self.addEpisode(fn)
         )
 
         # 删除按钮
         deleteButton = TransparentToolButton(FIF.DELETE, folderTitleWidget)
-        deleteButton.setToolTip(self.tr("删除这一集(不可撤销)"))
+        deleteButton.setToolTip(self.globalText.DTEI)
         if len(self.subfolders) <= 1:
             deleteButton.setDisabled(True)
         deleteButton.clicked.connect(
@@ -644,7 +647,7 @@ class ProjectDetailInterface(ScrollArea):
 
         # 编辑标题按钮
         editTitleButton = TransparentToolButton(FIF.EDIT, folderTitleWidget)
-        editTitleButton.setToolTip(self.tr("编辑本集标题和视频url"))
+        editTitleButton.setToolTip(self.globalText.EETAVU)
         editTitleButton.clicked.connect(
             lambda checked, fn=folder_num: self.editEpisodeTitle(fn)
         )
@@ -652,7 +655,7 @@ class ProjectDetailInterface(ScrollArea):
         # 打开链接标签
         openurlButton = TransparentToolButton(FIF.LINK, folderTitleWidget)
         openurlButton.setToolTip(
-            self.tr("打开本集链接: {}").format(
+            self.globalText.OpenEpisodeLink.format(
                 project.project_video_url[self.card_id][folder_num - 1]
             )
         )
@@ -738,28 +741,28 @@ class ProjectDetailInterface(ScrollArea):
         subtitle_isTranslated = project.project_subtitle_isTranslated[self.card_id]
         if subtitle_isTranslated:
             dialog = CustomTripleMessageBox(
-                title=self.tr("在第 {} 集处插入").format(folder_num),
-                input1=self.tr("原标题:"),
-                input2=self.tr("翻译后标题:"),
-                input3=self.tr("视频URL:"),
-                text1=self.tr("请输入原标题"),
-                text2=self.tr("请输入翻译后标题"),
-                text3=self.tr("请输入视频URL"),
+                title=self.globalText.InsertAtEpisode.format(folder_num),
+                input1=self.globalText.OriginalTitle,
+                input2=self.globalText.TranslatedTitle,
+                input3=self.globalText.VideoURL,
+                text1=self.globalText.PEOT,
+                text2=self.globalText.PETT,
+                text3=self.globalText.PleaseEnterVideoURL2,
                 parent=main_window if main_window else self.window(),
-                error1=self.tr("请输入原标题"),
-                error2=self.tr("请输入翻译后标题"),
-                error3=self.tr("请输入视频URL"),
+                error1=self.globalText.PEOT,
+                error2=self.globalText.PETT,
+                error3=self.globalText.PleaseEnterVideoURL2,
             )
         else:
             dialog = CustomDoubleMessageBox(
-                title=self.tr("在第 {} 集处插入").format(folder_num),
-                input1=self.tr("原标题:"),
-                input2=self.tr("视频URL:"),
-                text1=self.tr("请输入原标题"),
-                text2=self.tr("请输入视频URL"),
+                title=self.globalText.InsertAtEpisode.format(folder_num),
+                input1=self.globalText.OriginalTitle,
+                input2=self.globalText.VideoURL,
+                text1=self.globalText.PEOT,
+                text2=self.globalText.PleaseEnterVideoURL2,
                 parent=main_window if main_window else self.window(),
-                error1=self.tr("请输入原标题"),
-                error2=self.tr("请输入视频URL"),
+                error1=self.globalText.PEOT,
+                error2=self.globalText.PleaseEnterVideoURL2,
             )
 
         if dialog.exec():
@@ -785,23 +788,23 @@ class ProjectDetailInterface(ScrollArea):
                     if data and data[0]:
                         self.loadProject(project_path, card_id, isMessage=False)
                         event_bus.notification_service.show_success(
-                            self.tr("成功"), self.tr("已插入新的一集")
+                            self.globalText.Success, self.globalText.NewEpisodeInserted
                         )
                     else:
                         event_bus.notification_service.show_error(
-                            self.tr("错误"), data[-1] if data else self.tr("未知错误")
+                            self.globalText.Error, data[-1] if data else self.globalText.UnknownError
                         )
                 else:
                     event_bus.notification_service.show_error(
-                        self.tr("错误"), self.tr("添加失败: {}").format(message)
+                        self.globalText.Error, self.globalText.AddFailed.format(message)
                     )
 
             FileOperationWorker.run_async(self, "add_episode", _do_add, _on_done)
 
     def deleteEpisode(self, folder_num):
         """删除一集（异步）"""
-        title = self.tr("确认删除")
-        content = self.tr("确定要删除这一集吗？此操作不可撤销。")
+        title = self.globalText.ConfirmDelete
+        content = self.globalText.AYSYWTDTETCBU
 
         main_window = None
         for widget in QApplication.topLevelWidgets():
@@ -810,11 +813,11 @@ class ProjectDetailInterface(ScrollArea):
                 break
 
         dialog = MessageBox(title, content, main_window)
-        dialog.yesButton.setText(self.tr("确定"))
-        dialog.cancelButton.setText(self.tr("取消"))
+        dialog.yesButton.setText(self.globalText.OK)
+        dialog.cancelButton.setText(self.globalText.Cancel)
         if dialog.exec():
             event_bus.notification_service.show_info(
-                self.tr("处理中"), self.tr("正在删除第 {} 集...").format(folder_num)
+                self.globalText.Processing, self.globalText.DeletingEpisode.format(folder_num)
             )
 
             def _do_delete():
@@ -828,16 +831,16 @@ class ProjectDetailInterface(ScrollArea):
                             self.current_project_path, self.card_id, isMessage=False
                         )
                         event_bus.notification_service.show_success(
-                            self.tr("成功"),
-                            self.tr("已删除第 {} 集").format(folder_num),
+                            self.globalText.Success,
+                            self.globalText.EpisodeDeleted.format(folder_num),
                         )
                     else:
                         event_bus.notification_service.show_error(
-                            self.tr("错误"), data[-1] if data else self.tr("未知错误")
+                            self.globalText.Error, data[-1] if data else self.globalText.UnknownError
                         )
                 else:
                     event_bus.notification_service.show_error(
-                        self.tr("错误"), self.tr("删除失败: {}").format(message)
+                        self.globalText.Error, self.globalText.DeleteFailed.format(message)
                     )
 
             FileOperationWorker.run_async(self, "delete_episode", _do_delete, _on_done)
@@ -852,14 +855,14 @@ class ProjectDetailInterface(ScrollArea):
                 break
 
         dialog = CustomDoubleMessageBox(
-            title=self.tr("编辑第 {} 集的标题和视频URL").format(folder_num),
-            input1=self.tr("标题:"),
-            input2=self.tr("URL:"),
+            title=self.globalText.ETAVUFE.format(folder_num),
+            input1=self.globalText.Title,
+            input2=self.globalText.URL,
             text1=f"{project.project_subtitle[self.card_id][folder_num - 1]}",
             text2=f"{project.project_video_url[self.card_id][folder_num - 1]}",
             parent=main_window if main_window else self.window(),
-            error1=self.tr("请输入标题"),
-            error2=self.tr("请输入视频url"),
+            error1=self.globalText.PleaseEnterTitle,
+            error2=self.globalText.PleaseEnterVideoURL3,
         )
         dialog.LineEdit_1.setText(
             f"{project.project_subtitle[self.card_id][folder_num - 1]}"
@@ -875,8 +878,8 @@ class ProjectDetailInterface(ScrollArea):
                 self.card_id, folder_num, dialog.LineEdit_2.text().strip(), offset=1
             )
             event_bus.notification_service.show_success(
-                self.tr("成功"),
-                self.tr("编辑第 {} 集标题和视频url成功").format(folder_num),
+                self.globalText.Success,
+                self.globalText.ETAUU.format(folder_num),
             )
             self.loadProject(self.current_project_path, self.card_id)
         else:
@@ -885,7 +888,7 @@ class ProjectDetailInterface(ScrollArea):
     def copyFileToFolder(self, source_path, folder_path, file_name):
         """复制文件到指定文件夹（异步）"""
         event_bus.notification_service.show_info(
-            self.tr("处理中"), self.tr("正在复制文件 {}...").format(file_name)
+            self.globalText.Processing, self.globalText.CopyingFile.format(file_name)
         )
 
         def _do_copy():
@@ -897,14 +900,14 @@ class ProjectDetailInterface(ScrollArea):
             if success:
                 QTimer.singleShot(100, self.delayedRefreshProject)
                 event_bus.notification_service.show_success(
-                    self.tr("成功"),
-                    self.tr("已上传文件到: {}/{}").format(
+                    self.globalText.Success,
+                    self.globalText.FileUploadedTo.format(
                         os.path.basename(folder_path), file_name
                     ),
                 )
             else:
                 event_bus.notification_service.show_error(
-                    self.tr("错误"), self.tr("上传文件失败: {}").format(message)
+                    self.globalText.Error, self.globalText.FileUploadFailed.format(message)
                 )
 
         FileOperationWorker.run_async(self, "copy_file", _do_copy, _on_done)
@@ -974,6 +977,7 @@ class FileItemWidget(CardWidget):
         parent=None,
     ):
         super().__init__(parent)
+        self.globalText = Text()
         self.logger = Logger("FileItemWidget", "project")
         self.main_window = window
         self.card_id = card_id
@@ -1019,7 +1023,7 @@ class FileItemWidget(CardWidget):
         # 下载按钮（仅在需要时显示）
         if self.download_need and not self.file_exists:
             self.downloadBtn = TransparentToolButton(FIF.DOWNLOAD, self)
-            self.downloadBtn.setToolTip(self.tr("下载缺失的文件"))
+            self.downloadBtn.setToolTip(self.globalText.DownloadMissingFiles)
             self.downloadBtn.setFixedSize(32, 32)
             self.downloadBtn.clicked.connect(self.donwloadFile)
             buttonLayout.addWidget(self.downloadBtn)
@@ -1027,13 +1031,13 @@ class FileItemWidget(CardWidget):
         # 提取字幕按钮 (生肉.mp4 卡片上，始终显示)
         if self.extract_need and self.file_exists and sys.platform == "win32":
             self.extractBtn = TransparentToolButton(FIF.ALIGNMENT, self)
-            self.extractBtn.setToolTip(self.tr("OCR提取字幕"))
+            self.extractBtn.setToolTip(self.globalText.OCRExtractSubtitles)
             self.extractBtn.setFixedSize(32, 32)
             self.extractBtn.clicked.connect(self.extractSubtitle)
             buttonLayout.addWidget(self.extractBtn)
 
             self.whisperBtn = TransparentToolButton(FIF.MICROPHONE, self)
-            self.whisperBtn.setToolTip(self.tr("语音识别提取字幕"))
+            self.whisperBtn.setToolTip(self.globalText.SRES)
             self.whisperBtn.setFixedSize(32, 32)
             self.whisperBtn.clicked.connect(self.extractWhisper)
             buttonLayout.addWidget(self.whisperBtn)
@@ -1041,7 +1045,7 @@ class FileItemWidget(CardWidget):
         # 设为当前原文按钮 (存档文件：原文_OCR.srt, 原文_Whisper.srt)
         if self.archive_target and self.file_exists:
             self.setActiveBtn = TransparentToolButton(FIF.ACCEPT, self)
-            self.setActiveBtn.setToolTip(self.tr("设为当前原文"))
+            self.setActiveBtn.setToolTip(self.globalText.SetAsCurrentOriginal)
             self.setActiveBtn.setFixedSize(32, 32)
             self.setActiveBtn.clicked.connect(self.setAsCurrentSubtitle)
             buttonLayout.addWidget(self.setActiveBtn)
@@ -1053,7 +1057,7 @@ class FileItemWidget(CardWidget):
             and (self.other_exists[3] or self.other_exists[4] or self.other_exists[5])
         ):
             self.translateBtn = TransparentToolButton(FIF.GLOBE, self)
-            self.translateBtn.setToolTip(self.tr("翻译字幕"))
+            self.translateBtn.setToolTip(self.globalText.TranslateSubtitles)
             self.translateBtn.setFixedSize(32, 32)
             self.translateBtn.clicked.connect(self.translateSubtitle)
             buttonLayout.addWidget(self.translateBtn)
@@ -1061,20 +1065,20 @@ class FileItemWidget(CardWidget):
         # 视频压制按钮 (当有熟肉.mp4时显示)
         if self.ffmpeg_need and self.other_exists[2]:
             self.ffmpegBtn = TransparentToolButton(FIF.VIDEO, self)
-            self.ffmpegBtn.setToolTip(self.tr("视频压制"))
+            self.ffmpegBtn.setToolTip(self.globalText.VideoEncoding)
             self.ffmpegBtn.setFixedSize(32, 32)
             self.ffmpegBtn.clicked.connect(self.ffmpegVideo)
             buttonLayout.addWidget(self.ffmpegBtn)
 
         # 打开文件路径按钮
         self.openPathBtn = TransparentToolButton(FIF.FOLDER, self)
-        self.openPathBtn.setToolTip(self.tr("打开文件所在路径"))
+        self.openPathBtn.setToolTip(self.globalText.OpenFileLocation)
         self.openPathBtn.setFixedSize(32, 32)
         self.openPathBtn.clicked.connect(self.openFileLocation)
 
         # 删除文件按钮
         self.deleteBtn = TransparentToolButton(FIF.DELETE, self)
-        self.deleteBtn.setToolTip(self.tr("删除文件"))
+        self.deleteBtn.setToolTip(self.globalText.DeleteFiles)
         self.deleteBtn.setFixedSize(32, 32)
         self.deleteBtn.clicked.connect(self.deleteFile)
         self.deleteBtn.setEnabled(self.file_exists)
@@ -1121,13 +1125,13 @@ class FileItemWidget(CardWidget):
             return
 
         dialog = MessageBox(
-            self.tr("确认删除"),
-            self.tr("确定要删除文件 '{}' 吗？此操作不可撤销。").format(self.file_name),
+            self.globalText.ConfirmDelete,
+            self.globalText.AYSYWTDFTACBU.format(self.file_name),
             self.window(),
         )
 
-        dialog.yesButton.setText(self.tr("确定"))
-        dialog.cancelButton.setText(self.tr("取消"))
+        dialog.yesButton.setText(self.globalText.OK)
+        dialog.cancelButton.setText(self.globalText.Cancel)
 
         if dialog.exec():
             file_path = self.file_path
@@ -1155,11 +1159,11 @@ class FileItemWidget(CardWidget):
                             break
                         p = p.parent()
                     event_bus.notification_service.show_success(
-                        self.tr("成功"), self.tr("已删除文件: {}").format(file_name)
+                        self.globalText.Success, self.globalText.FileDeleted.format(file_name)
                     )
                 else:
                     event_bus.notification_service.show_error(
-                        self.tr("错误"), self.tr("删除文件时出错: {}").format(message)
+                        self.globalText.Error, self.globalText.ErrorDeletingFile.format(message)
                     )
 
             FileOperationWorker.run_async(
@@ -1182,7 +1186,7 @@ class FileItemWidget(CardWidget):
         download_path = os.path.dirname(self.file_path)
 
         dialog = CustomMessageBox(
-            title=self.tr("下载第 {} 集封面").format(self.folder_num),
+            title=self.globalText.DCFE.format(self.folder_num),
             text="请输入视频ID: https://www.youtube.com/watch?v=",
             parent=self.window(),
             min_width=450,
@@ -1208,7 +1212,7 @@ class FileItemWidget(CardWidget):
         download_path = os.path.dirname(self.file_path)
 
         dialog = CustomMessageBox(
-            title=self.tr("下载第 {} 集生肉视频").format(self.folder_num),
+            title=self.globalText.DRVFE.format(self.folder_num),
             text="请输入视频url: https://www.youtube.com/watch?v=",
             parent=self.window(),
             min_width=450,
@@ -1256,12 +1260,12 @@ class FileItemWidget(CardWidget):
             if os.path.exists(self.file_path):
                 shutil.copy2(self.file_path, target)
                 event_bus.notification_service.show_success(
-                    self.tr("成功"),
-                    self.tr("已将 {} 设为当前原文").format(self.file_name),
+                    self.globalText.Success,
+                    self.globalText.SetAsCurrentOrigina2.format(self.file_name),
                 )
         except Exception as e:
             event_bus.notification_service.show_error(
-                self.tr("错误"), self.tr("设置失败: {}").format(str(e))
+                self.globalText.Error, self.globalText.SettingFailed.format(str(e))
             )
 
     def translateSubtitle(self):
@@ -1292,6 +1296,7 @@ class FileListWidget(QWidget):
 
     def __init__(self, window, card_id, folder_num, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.layout = QVBoxLayout(self)
         self.main_window = window
         self.card_id = card_id
@@ -1373,7 +1378,7 @@ class FileListWidget(QWidget):
                 subprocess.call(("xdg-open", file_path))
         except Exception as e:
             event_bus.notification_service.show_error(
-                self.tr("错误"), self.tr("打开文件失败: {}").format(str(e))
+                self.globalText.Error, self.globalText.FailedToOpenFile.format(str(e))
             )
 
     def fallbackOpenFile(self, file_path):
@@ -1387,7 +1392,7 @@ class FileListWidget(QWidget):
                 subprocess.call(("xdg-open", file_path))
         except Exception as e:
             event_bus.notification_service.show_error(
-                self.tr("错误"), self.tr("无法打开文件: {}").format(str(e))
+                self.globalText.Error, self.globalText.CannotOpenFile.format(str(e))
             )
 
     def uploadMissingFile(self, file_path):
@@ -1427,12 +1432,12 @@ class FileListWidget(QWidget):
                                 break
                             p = p.parent()
                         event_bus.notification_service.show_success(
-                            self.tr("成功"), self.tr("已上传文件: {}").format(dest_name)
+                            self.globalText.Success, self.globalText.FileUploaded.format(dest_name)
                         )
                     else:
                         event_bus.notification_service.show_error(
-                            self.tr("错误"),
-                            self.tr("上传文件失败: {}").format(message),
+                            self.globalText.Error,
+                            self.globalText.FileUploadFailed.format(message),
                         )
 
                 FileOperationWorker.run_async(

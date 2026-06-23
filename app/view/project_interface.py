@@ -5,11 +5,13 @@ from PySide6.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from ..common.event_bus import event_bus
 from ..components.project_card import ProjectInterface
 from .project_detail_interface import ProjectDetailInterface
+from ..common.text import Text
 
 
 class ProjectStackedInterface(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
 
         # 创建堆叠窗口
         self.stackedWidget = QStackedWidget(self)
@@ -50,7 +52,7 @@ class ProjectStackedInterface(QWidget):
         self.stackedWidget.setCurrentWidget(self.projectDetailInterface)
         # 通知信息
         event_bus.notification_service.show_success(
-            self.tr("打开成功"), self.tr("已打开项目 {}").format(project_info[0])
+            self.globalText.OpenedSuccessfully, self.globalText.ProjectOpened.format(project_info[0])
         )
 
     def showProjectList(self):

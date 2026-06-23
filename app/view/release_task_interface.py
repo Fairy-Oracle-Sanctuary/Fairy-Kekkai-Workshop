@@ -5,6 +5,7 @@ from PySide6.QtCore import Signal
 from ..components.base_task_interface import BaseTaskInterface
 from ..components.task_card import ReleaseItemWidget
 from ..service.release_service import ReleaseProcess, ReleaseTask
+from ..common.text import Text
 
 
 class ReleaseTaskInterface(BaseTaskInterface):
@@ -13,13 +14,15 @@ class ReleaseTaskInterface(BaseTaskInterface):
     log_signal = Signal(str, bool, bool)
 
     def __init__(self, parent=None):
+        globalText = Text()
         super().__init__(
             object_name="releaseTaskInterface",
-            processing_text=self.tr("上传中"),
-            task_type=self.tr("上传"),
+            processing_text=globalText.TextAuto046,
+            task_type=globalText.Upload,
             max_concurrent_tasks=1,  # B站上传建议单任务执行
             parent=parent,
         )
+        self.globalText = globalText
 
     def createTask(self, args):
         return ReleaseTask(args)

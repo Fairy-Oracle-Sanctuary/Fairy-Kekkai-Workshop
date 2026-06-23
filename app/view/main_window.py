@@ -35,6 +35,7 @@ from .project_interface import ProjectStackedInterface
 from .setting_interface import SettingInterface
 from .translate_interface import TranslateStackedInterfaces
 from .whisper_interface import WhisperStackedInterfaces
+from ..common.text import Text
 
 if sys.platform == "win32":
     from .videocr_interface import VideocrStackedInterfaces
@@ -45,6 +46,7 @@ class LoadingSplashScreen(SplashScreen):
 
     def __init__(self, icon, parent=None):
         super().__init__(icon, parent)
+        self.globalText = Text()
 
         # 进度条（禁用动画，使同步初始化期间能即时显示进度）
         self.progressBar = ProgressBar(self, useAni=False)
@@ -52,7 +54,7 @@ class LoadingSplashScreen(SplashScreen):
         self.progressBar.setValue(0)
 
         # 状态文字
-        self.statusLabel = BodyLabel(self.tr("正在启动..."), self)
+        self.statusLabel = BodyLabel(self.globalText.Starting, self)
         self.statusLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self._repositionExtras()
@@ -95,6 +97,7 @@ else:
 class MainWindow(window):
     def __init__(self):
         super().__init__()
+        self.globalText = Text()
         # 提前初始化背景标志，避免 paintEvent 在显示时访问未定义属性而崩溃
         self.isShowBackground = False
 
@@ -109,7 +112,7 @@ class MainWindow(window):
         # 显示主窗口，使作为其子控件的启动页可见，并立即绘制
         self.show()
         QApplication.processEvents()
-        self.splashScreen.setProgress(10, self.tr("正在初始化服务..."))
+        self.splashScreen.setProgress(10, self.globalText.InitializingServices)
 
         # 初始化版本服务
         self.versionManager = VersionService()
@@ -121,7 +124,7 @@ class MainWindow(window):
         self.notification_service.set_default_duration(3000)
         self.notification_service.set_position(InfoBarPosition.BOTTOM_RIGHT)
         event_bus.notification_service = self.notification_service
-        self.splashScreen.setProgress(30, self.tr("正在读取设置..."))
+        self.splashScreen.setProgress(30, self.globalText.LoadingSettings)
 
         # 读取设置
         self.settings = QSettings("Fairy-Kekkai-Workshop", "Settings")
@@ -133,12 +136,12 @@ class MainWindow(window):
                 self.backgroundPixmap = QPixmap(cfg.get(cfg.backgroundPath))
             else:
                 event_bus.notification_service.show_error(
-                    self.tr("背景图片错误"), self.tr("请检查图片是否存在")
+                    self.globalText.BackgroundImageError, self.globalText.PCITIE
                 )
 
-        self.splashScreen.setProgress(50, self.tr("正在加载界面..."))
+        self.splashScreen.setProgress(50, self.globalText.LoadingInterface)
         self._initNavigation()
-        self.splashScreen.setProgress(80, self.tr("正在初始化系统托盘..."))
+        self.splashScreen.setProgress(80, self.globalText.IST)
 
         # 初始化系统托盘
         self.system_tray = SystemTray(self)
@@ -149,7 +152,7 @@ class MainWindow(window):
         self._connectSignalToSlot()
         if sys.platform == "win32":
             self._initThemeButton()
-        self.splashScreen.setProgress(100, self.tr("启动完成"))
+        self.splashScreen.setProgress(100, self.globalText.StartupComplete)
 
         # 检查是否首次运行，显示新手引导
         if cfg.get(cfg.isFirstRun):
@@ -333,14 +336,14 @@ class MainWindow(window):
                 self.settingInterface,
             ]
 
-        self.addSubInterface(self.homeInterface, FIF.HOME, self.tr("主页"))
-        self.addSubInterface(self.projectInterface, FIF.FOLDER, self.tr("项目"))
-        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, self.tr("下载"))
+        self.addSubInterface(self.homeInterface, FIF.HOME, self.globalText.Home)
+        self.addSubInterface(self.projectInterface, FIF.FOLDER, self.globalText.Project)
+        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, self.globalText.Download)
         if sys.platform == "win32":
-            self.addSubInterface(self.videoCRInterface, FIF.VIDEO, self.tr("字幕"))
-            self.addSubInterface(self.whisperInterface, FIF.MICROPHONE, self.tr("语音"))
-        self.addSubInterface(self.translateInterface, FIF.MESSAGE, self.tr("翻译"))
-        self.addSubInterface(self.ffmpegInterface, FIF.ZIP_FOLDER, self.tr("压制"))
+            self.addSubInterface(self.videoCRInterface, FIF.VIDEO, self.globalText.Subtitles)
+            self.addSubInterface(self.whisperInterface, FIF.MICROPHONE, self.globalText.Voice)
+        self.addSubInterface(self.translateInterface, FIF.MESSAGE, self.globalText.Translate)
+        self.addSubInterface(self.ffmpegInterface, FIF.ZIP_FOLDER, self.globalText.Encode)
 
         # self.addSubInterface(self.releaseInterface, FIF.IMAGE_EXPORT, "发布")
 
@@ -348,7 +351,7 @@ class MainWindow(window):
         self.navigationInterface.addItem(
             routeKey="Help",
             icon=FIF.HELP,
-            text=self.tr("帮助"),
+            text=self.globalText.Help,
             onClick=self.showHelpBox,
             selectable=False,
             position=NavigationItemPosition.BOTTOM,
@@ -357,7 +360,7 @@ class MainWindow(window):
             self.addSubInterface(
                 self.settingInterface,
                 FIF.SETTING,
-                self.tr("设置"),
+                self.globalText.Settings,
                 FIF.SETTING,
                 NavigationItemPosition.BOTTOM,
             )
@@ -365,7 +368,7 @@ class MainWindow(window):
             self.addSubInterface(
                 self.settingInterface,
                 FIF.SETTING,
-                self.tr("设置"),
+                self.globalText.Settings,
                 NavigationItemPosition.BOTTOM,
             )
 
@@ -399,12 +402,12 @@ class MainWindow(window):
 
     def showHelpBox(self):
         w = MessageBox(
-            self.tr("支持项目"),
-            self.tr("现在团队人手紧缺，如果感兴趣的话请加入我们"),
+            self.globalText.SupportProject,
+            self.globalText.WNMTMJUII,
             self,
         )
-        w.yesButton.setText(self.tr("访问仓库"))
-        w.cancelButton.setText(self.tr("下次一定"))
+        w.yesButton.setText(self.globalText.VisitRepository)
+        w.cancelButton.setText(self.globalText.MaybeLater)
 
         if w.exec():
             QDesktopServices.openUrl(QUrl(GITHUB_URL))
@@ -445,12 +448,12 @@ class MainWindow(window):
             # 显示确认对话框
             from qfluentwidgets import MessageBox
 
-            message = self.tr("有以下任务正在运行，确定要关闭吗？\n\n{}").format(
+            message = self.globalText.TFTASRCA.format(
                 running_tasks
             )
-            dialog = MessageBox(self.tr("确认关闭"), message, self)
-            dialog.yesButton.setText(self.tr("关闭"))
-            dialog.cancelButton.setText(self.tr("取消"))
+            dialog = MessageBox(self.globalText.ConfirmClose, message, self)
+            dialog.yesButton.setText(self.globalText.Close)
+            dialog.cancelButton.setText(self.globalText.Cancel)
 
             if dialog.exec():
                 # 用户确认关闭，先停止所有运行中的任务
@@ -603,7 +606,7 @@ class MainWindow(window):
                 active_count = len(download_interface.active_downloads)
                 if active_count > 0:
                     running_tasks.append(
-                        self.tr("下载任务: {} 个").format(active_count)
+                        self.globalText.DownloadTasks.format(active_count)
                     )
 
         # 检查翻译任务
@@ -615,7 +618,7 @@ class MainWindow(window):
                 active_count = len(translate_interface.active_threads)
                 if active_count > 0:
                     running_tasks.append(
-                        self.tr("翻译任务: {} 个").format(active_count)
+                        self.globalText.TranslationTasks.format(active_count)
                     )
 
         # 检查OCR任务
@@ -624,7 +627,7 @@ class MainWindow(window):
             if ocr_interface and hasattr(ocr_interface, "active_threads"):
                 active_count = len(ocr_interface.active_threads)
                 if active_count > 0:
-                    running_tasks.append(self.tr("OCR任务: {} 个").format(active_count))
+                    running_tasks.append(self.globalText.OCRTasks.format(active_count))
 
         # 检查FFmpeg任务
         if hasattr(self, "ffmpegInterface"):
@@ -633,7 +636,7 @@ class MainWindow(window):
                 active_count = len(ffmpeg_interface.active_threads)
                 if active_count > 0:
                     running_tasks.append(
-                        self.tr("压制任务: {} 个").format(active_count)
+                        self.globalText.EncodingTasks.format(active_count)
                     )
 
         # 检查Whisper任务
@@ -643,7 +646,7 @@ class MainWindow(window):
                 active_count = len(whisper_interface.active_threads)
                 if active_count > 0:
                     running_tasks.append(
-                        self.tr("识别任务: {} 个").format(active_count)
+                        self.globalText.TranscriptionTasks.format(active_count)
                     )
 
         return "\n".join(running_tasks) if running_tasks else None
@@ -651,17 +654,17 @@ class MainWindow(window):
     def checkUpdate(self):
         if self.versionManager.hasNewVersion():
             self.showMessageBox(
-                self.tr("检测到新版本"),
-                self.tr("新版本")
+                self.globalText.NewVersionDetected,
+                self.globalText.NewVersion
                 + f" {self.versionManager.lastestVersion} "
-                + self.tr("可用，你是否要下载新版本？"),
+                + self.globalText.ADYWTDI,
                 True,
                 lambda: QDesktopServices.openUrl(QUrl(RELEASE_URL)),
             )
         else:
             self.showMessageBox(
-                self.tr("没有新版本"),
-                self.tr("Fairy Kekkai Workshop 已是最新版本"),
+                self.globalText.NoNewVersion,
+                self.globalText.FKWIUTD,
             )
 
     def showMessageBox(
@@ -669,10 +672,10 @@ class MainWindow(window):
     ):
         """show message box"""
         w = MessageBox(title, content, self)
-        w.yesButton.setText(self.tr("确定"))
-        w.cancelButton.setText(self.tr("关闭"))
+        w.yesButton.setText(self.globalText.OK)
+        w.cancelButton.setText(self.globalText.Close)
         if not showYesButton:
-            w.cancelButton.setText(self.tr("关闭"))
+            w.cancelButton.setText(self.globalText.Close)
             w.yesButton.hide()
             w.buttonLayout.insertStretch(0, 1)
 
@@ -713,14 +716,14 @@ class MainWindow(window):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("下载完成 -{}-").format(message),
+                self.globalText.DownloadComplete.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("下载失败 -{}-").format(message),
+                self.globalText.DownloadFailed2.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
@@ -735,14 +738,14 @@ class MainWindow(window):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("视频字幕识别完成 -{}-").format(message),
+                self.globalText.SRC.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("视频字幕识别失败 -{}-").format(message),
+                self.globalText.SRF.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
@@ -757,14 +760,14 @@ class MainWindow(window):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("翻译完成 -{}-").format(message[-1]),
+                self.globalText.TranslationComplete.format(message[-1]),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("翻译失败 -{}-").format(message[0]),
+                self.globalText.TranslationFailed.format(message[0]),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
@@ -779,14 +782,14 @@ class MainWindow(window):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("下载完成 -{}-").format(message[-1]),
+                self.globalText.DownloadComplete.format(message[-1]),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("下载失败 -{}-").format(message),
+                self.globalText.DownloadFailed2.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
@@ -801,14 +804,14 @@ class MainWindow(window):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("压制完成 -{}-").format(message),
+                self.globalText.EncodingComplete.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("压制失败 -{}-").format(message),
+                self.globalText.EncodingFailed.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
@@ -823,14 +826,14 @@ class MainWindow(window):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("上传完成 -{}-").format(message),
+                self.globalText.UploadComplete.format(message),
                 QIcon(":/app/images/logo/bilibili.svg"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("上传失败 -{}-").format(message),
+                self.globalText.UploadFailed.format(message),
                 QIcon(":/app/images/logo/bilibili.svg"),
                 3000,
             )
@@ -846,14 +849,14 @@ class MainWindow(window):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("语音识别完成 -{}-").format(message),
+                self.globalText.SRC2.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                self.tr("语音识别失败 -{}-").format(message),
+                self.globalText.SRF2.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )

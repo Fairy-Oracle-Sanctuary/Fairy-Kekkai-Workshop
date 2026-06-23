@@ -5,6 +5,7 @@ from PySide6.QtCore import Signal
 from ..components.base_task_interface import BaseTaskInterface
 from ..components.task_card import OcrItemWidget
 from ..service.ocr_service import OCRProcess, OCRTask
+from ..common.text import Text
 
 
 class OcrTaskInterface(BaseTaskInterface):
@@ -13,12 +14,14 @@ class OcrTaskInterface(BaseTaskInterface):
     log_signal = Signal(str, bool, bool)
 
     def __init__(self, parent=None):
+        globalText = Text()
         super().__init__(
             object_name="ocrTaskInterface",
-            processing_text=self.tr("提取中"),
-            task_type=self.tr("提取"),
+            processing_text=globalText.Extracting,
+            task_type=globalText.Extract,
             parent=parent,
         )
+        self.globalText = globalText
 
     def createTask(self, args):
         return OCRTask(args)
@@ -73,11 +76,11 @@ class OcrTaskInterface(BaseTaskInterface):
                         progress = (current_seconds / total_seconds) * 33
                         if current_seconds == 0:
                             self.log_signal.emit(
-                                self.tr("步骤1/3: 正在处理视频帧…"), False, False
+                                self.globalText.S13PVF, False, False
                             )
                         else:
                             self.log_signal.emit(
-                                self.tr("步骤1/3: 正在处理视频帧… {}/{}").format(
+                                self.globalText.S13PVF2.format(
                                     current_time_str, total_time_str
                                 ),
                                 False,
@@ -96,7 +99,7 @@ class OcrTaskInterface(BaseTaskInterface):
                     if total > 0:
                         progress = 33 + (current / total) * 20
                         self.log_signal.emit(
-                            self.tr("步骤2/3: 正在进行文本检测 {}/{}").format(
+                            self.globalText.Step23DetectingText.format(
                                 current, total
                             ),
                             False,
@@ -113,7 +116,7 @@ class OcrTaskInterface(BaseTaskInterface):
                     if total > 0:
                         progress = 53 + ((current - 1) / total) * 13
                         self.log_signal.emit(
-                            self.tr("步骤2/3: 正在分析检测帧 {}/{}").format(
+                            self.globalText.S23ADF.format(
                                 current, total
                             ),
                             False,
@@ -145,7 +148,7 @@ class OcrTaskInterface(BaseTaskInterface):
                     if total > 0:
                         progress = 66 + (current / total) * 34
                         self.log_signal.emit(
-                            self.tr("步骤3/3: 正在对图像进行OCR识别 {}/{}").format(
+                            self.globalText.S33ROOI.format(
                                 current, total
                             ),
                             False,
@@ -155,7 +158,7 @@ class OcrTaskInterface(BaseTaskInterface):
 
             # Generating subtitles...
             elif "Generating subtitles..." in message:
-                self.log_signal.emit(self.tr("正在生成字幕文件..."), False, False)
+                self.log_signal.emit(self.globalText.GSF, False, False)
 
             # 找到PaddleOCR路径
             elif "找到PaddleOCR路径:" in message:
@@ -201,7 +204,7 @@ class OcrTaskInterface(BaseTaskInterface):
             return None
 
         except Exception as e:
-            print(self.tr("解析进度失败: {}").format(e))
+            print(self.globalText.FTPP.format(e))
             return None
 
     def addOcrTask(self, args):

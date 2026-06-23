@@ -10,6 +10,7 @@ import sys
 import traceback
 
 from .setting import CONFIG_FOLDER, VERSION
+from .text import Text
 
 
 class StartupErrorHandler:
@@ -144,10 +145,10 @@ def handle_startup_error():
                     msg_box = QMessageBox()
                     msg_box.setIcon(QMessageBox.Critical)
                     msg_box.setWindowTitle(
-                        QCoreApplication.translate("StartupHandler", "启动错误")
+                        Text().TextAuto003
                     )
                     msg_box.setText(
-                        QCoreApplication.translate("StartupHandler", "应用程序启动失败")
+                        Text().TextAuto004
                     )
                     msg_box.setInformativeText(
                         f"错误信息: {str(e)}\n\n详细日志已保存到:\n{startup_handler.startup_log_file}"
@@ -188,12 +189,10 @@ def setup_global_exception_handler():
                 msg_box = QMessageBox()
                 msg_box.setIcon(QMessageBox.Critical)
                 msg_box.setWindowTitle(
-                    QCoreApplication.translate("StartupHandler", "程序错误")
+                    Text().TextAuto001
                 )
                 msg_box.setText(
-                    QCoreApplication.translate(
-                        "StartupHandler", "程序运行时发生未处理的错误"
-                    )
+                    Text().TextAuto002
                 )
                 msg_box.setInformativeText(
                     f"错误信息: {str(exc_value)}\n\n详细日志已保存到:\n{startup_handler.startup_log_file}"

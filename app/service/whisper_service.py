@@ -9,6 +9,7 @@ from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
 from ..common.task_status import TaskStatus
+from ..common.text import Text
 
 
 def get_whisper_cli_path():
@@ -57,6 +58,7 @@ class WhisperProcess(QObject):
 
     def __init__(self, task):
         super().__init__()
+        self.globalText = Text()
         self.logger = Logger("WhisperProcess", "whisper")
         self.task = task
         self.is_cancelled = False
@@ -187,7 +189,7 @@ class WhisperProcess(QObject):
 
             if not os.path.exists(cli_path):
                 self.finished_signal.emit(
-                    False, self.tr("main.exe 不存在: {}").format(cli_path)
+                    False, self.globalText.TextAuto064.format(cli_path)
                 )
                 return
 
@@ -295,7 +297,7 @@ class WhisperProcess(QObject):
             # 检测完成标志
             if "LoadModel" in line and "RunComplete" in line:
                 self.task.progress = 100
-                self.progress_signal.emit(100, self.tr("完成"), self.tr("转录完成"))
+                self.progress_signal.emit(100, self.globalText.Finish, self.globalText.TextAuto063)
 
     def handle_stderr(self):
         """处理标准错误输出 - main.exe 使用 UseStandardError，大部分输出在此"""
@@ -325,7 +327,7 @@ class WhisperProcess(QObject):
         """进程完成处理"""
         if self.is_cancelled:
             self.task.status = TaskStatus.CANCELLED
-            self.finished_signal.emit(False, self.tr("转录已取消"))
+            self.finished_signal.emit(False, self.globalText.TextAuto062)
             self.cancelled_signal.emit()
             self.logger.info(f"转录已取消 -{self.task.input_file}-")
         elif exit_code == 0:

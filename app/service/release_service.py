@@ -8,6 +8,7 @@ from ..common.config import cfg  # noqa
 from ..common.event_bus import event_bus  # noqa
 from ..common.logger import Logger
 from ..common.task_status import TaskStatus
+from ..common.text import Text
 
 
 class ReleaseTask:
@@ -46,6 +47,7 @@ class ReleaseProcess(QObject):
 
     def __init__(self, task):
         super().__init__()
+        self.globalText = Text()
         self.logger = Logger("ReleaseProcess", "release")
         self.task: ReleaseTask = task
         self.is_cancelled = False
@@ -86,7 +88,7 @@ class ReleaseProcess(QObject):
             api_path = cfg.get(cfg.apiPath)
             if not os.path.exists(api_path):
                 self.finished_signal.emit(
-                    False, self.tr("upload-video.exe不存在: {}").format(api_path)
+                    False, self.globalText.TextAuto042.format(api_path)
                 )
                 return
 
@@ -119,7 +121,7 @@ class ReleaseProcess(QObject):
 
         except Exception as e:
             if not self.is_cancelled:
-                error_msg = self.tr("视频上传失败: {}").format(str(e))
+                error_msg = self.globalText.TextAuto043.format(str(e))
                 if self.output_lines:
                     error_msg += "\n输出日志:\n" + "\n".join(self.output_lines[-10:])
 
@@ -178,7 +180,7 @@ class ReleaseProcess(QObject):
         """处理上传完成"""
         if self.is_cancelled:
             self.task.status = TaskStatus.CANCELLED
-            self.finished_signal.emit(False, self.tr("上传已取消"))
+            self.finished_signal.emit(False, self.globalText.TextAuto033)
             self.cancelled_signal.emit()
             self.logger.info(f"上传已取消 -{self.task.input_file}-")
         elif exit_code == 0:
@@ -186,12 +188,12 @@ class ReleaseProcess(QObject):
             self.task.progress = 100
             self.logger.info(f"上传完成 -{self.task.input_file}-")
 
-            success_msg = self.tr("上传完成")
+            success_msg = self.globalText.TextAuto034
 
             self.finished_signal.emit(True, success_msg)
             event_bus.release_finished_signal.emit(True, self.task.input_file)
         else:
-            error_message = self.tr("上传失败，错误码: {}").format(exit_code)
+            error_message = self.globalText.TextAuto040.format(exit_code)
 
             # 添加最后几行输出作为调试信息
             if self.output_lines:
@@ -215,18 +217,18 @@ class ReleaseProcess(QObject):
 
             if event_type == "PREUPLOAD":
                 self.progress_signal.emit(
-                    5, self.tr("正在准备上传..."), self.tr("准备上传")
+                    5, self.globalText.TextAuto036, self.globalText.TextAuto037
                 )
                 self.task.progress = 5
 
             elif event_type == "PREUPLOAD_FAILED":
-                error_msg = data.get("error", self.tr("预上传失败"))
+                error_msg = data.get("error", self.globalText.TextAuto041)
                 self.task.error_message = error_msg
-                self.progress_signal.emit(0, self.tr("预上传失败"), error_msg)
+                self.progress_signal.emit(0, self.globalText.TextAuto041, error_msg)
 
             elif event_type == "UPLOAD_START":
                 self.progress_signal.emit(
-                    10, self.tr("开始上传视频..."), self.tr("开始上传")
+                    10, self.globalText.TextAuto044, self.globalText.TextAuto045
                 )
                 self.task.progress = 10
 
@@ -234,38 +236,38 @@ class ReleaseProcess(QObject):
                 progress = data.get("progress", 0)
                 # 将上传进度映射到 10-90% 范围
                 mapped_progress = 10 + int(progress * 0.8)
-                speed = data.get("speed", self.tr("未知"))
+                speed = data.get("speed", self.globalText.TextAuto047)
                 self.progress_signal.emit(
                     mapped_progress,
-                    self.tr("上传速度: {}").format(speed),
-                    self.tr("上传中 {}%").format(progress),
+                    self.globalText.TextAuto049.format(speed),
+                    self.globalText.TextAuto050.format(progress),
                 )
                 self.task.progress = mapped_progress
 
             elif event_type == "UPLOAD_FAILED":
-                error_msg = data.get("error", self.tr("上传失败"))
+                error_msg = data.get("error", self.globalText.TextAuto048)
                 self.task.error_message = error_msg
-                self.progress_signal.emit(0, self.tr("上传失败"), error_msg)
+                self.progress_signal.emit(0, self.globalText.TextAuto048, error_msg)
 
             elif event_type == "UPLOAD_COMPLETED":
                 self.progress_signal.emit(
-                    90, self.tr("视频上传完成"), self.tr("正在提交信息...")
+                    90, self.globalText.TextAuto051, self.globalText.TextAuto052
                 )
                 self.task.progress = 90
 
             elif event_type == "SUBMIT_START":
                 self.progress_signal.emit(
-                    95, self.tr("提交视频信息..."), self.tr("提交信息")
+                    95, self.globalText.TextAuto053, self.globalText.TextAuto054
                 )
                 self.task.progress = 95
 
             elif event_type == "SUBMIT_FAILED":
-                error_msg = data.get("error", self.tr("提交失败"))
+                error_msg = data.get("error", self.globalText.TextAuto055)
                 self.task.error_message = error_msg
-                self.progress_signal.emit(0, self.tr("提交失败"), error_msg)
+                self.progress_signal.emit(0, self.globalText.TextAuto055, error_msg)
 
             elif event_type == "SUBMIT_SUCCESS":
-                self.progress_signal.emit(100, self.tr("上传完成"), self.tr("上传成功"))
+                self.progress_signal.emit(100, self.globalText.TextAuto034, self.globalText.TextAuto056)
                 self.task.progress = 100
 
         except (json.JSONDecodeError, AttributeError):
@@ -277,20 +279,20 @@ class ReleaseProcess(QObject):
                 progress_match = re.search(r"(\d+)%", line)
                 if progress_match:
                     progress = int(progress_match.group(1))
-                    self.progress_signal.emit(progress, self.tr("上传中"), line)
+                    self.progress_signal.emit(progress, self.globalText.TextAuto046, line)
                     self.task.progress = progress
             elif "error" in line.lower() or "fail" in line.lower():
                 self.task.error_message = line
-                self.progress_signal.emit(0, self.tr("错误"), line)
+                self.progress_signal.emit(0, self.globalText.Error, line)
 
     def parse_error_info(self, error_data):
         """解析错误信息"""
         if "cookie" in error_data.lower():
-            self.task.error_message = self.tr("Cookie 配置错误或已过期")
+            self.task.error_message = self.globalText.TextAuto027
         elif "网络" in error_data or "network" in error_data.lower():
-            self.task.error_message = self.tr("网络连接错误")
+            self.task.error_message = self.globalText.TextAuto035
         elif "文件" in error_data or "file" in error_data.lower():
-            self.task.error_message = self.tr("视频文件不存在或格式错误")
+            self.task.error_message = self.globalText.TextAuto038
 
     def handle_error(self, error):
         """处理错误"""
@@ -298,15 +300,15 @@ class ReleaseProcess(QObject):
             return
 
         error_map = {
-            QProcess.ProcessError.FailedToStart: self.tr("进程启动失败"),
-            QProcess.ProcessError.Crashed: self.tr("进程崩溃"),
-            QProcess.ProcessError.Timedout: self.tr("进程超时"),
-            QProcess.ProcessError.WriteError: self.tr("写入错误"),
-            QProcess.ProcessError.ReadError: self.tr("读取错误"),
-            QProcess.ProcessError.UnknownError: self.tr("未知错误"),
+            QProcess.ProcessError.FailedToStart: self.globalText.TextAuto028,
+            QProcess.ProcessError.Crashed: self.globalText.TextAuto029,
+            QProcess.ProcessError.Timedout: self.globalText.TextAuto030,
+            QProcess.ProcessError.WriteError: self.globalText.TextAuto031,
+            QProcess.ProcessError.ReadError: self.globalText.TextAuto032,
+            QProcess.ProcessError.UnknownError: self.globalText.UnknownError,
         }
 
-        error_msg = error_map.get(error, self.tr("进程错误: {}").format(error))
+        error_msg = error_map.get(error, self.globalText.TextAuto039.format(error))
         self.finished_signal.emit(False, error_msg)
 
         print(f"上传进程错误: {error}")
@@ -315,6 +317,6 @@ class ReleaseProcess(QObject):
         """取消上传"""
         self.is_cancelled = True
         self.task.status = TaskStatus.CANCELLED
-        self.finished_signal.emit(False, self.tr("上传已取消"))
+        self.finished_signal.emit(False, self.globalText.TextAuto033)
         self.cancelled_signal.emit()
         self.logger.info(f"上传已取消 -{self.task.video_path}-")

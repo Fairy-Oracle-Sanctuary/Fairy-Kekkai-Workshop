@@ -51,6 +51,7 @@ from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import SettingCardGroup as CardGroup
 
 from ..common.config import cfg
+from ..common.text import Text
 
 
 class DictSettingCard(SettingCard):
@@ -73,11 +74,9 @@ class DictSettingCard(SettingCard):
 
         self.optionToText = options_dict or {}
         for option, text in self.optionToText.items():
-            self.comboBox.addItem(self.tr(text), userData=option)
+            self.comboBox.addItem(text, userData=option)
 
-        self.comboBox.setCurrentText(
-            self.tr(self.optionToText.get(qconfig.get(configItem), ""))
-        )
+        self.comboBox.setCurrentText(self.optionToText.get(qconfig.get(configItem), ""))
         self.comboBox.currentIndexChanged.connect(self._onCurrentIndexChanged)
         configItem.valueChanged.connect(self.setValue)
 
@@ -88,7 +87,7 @@ class DictSettingCard(SettingCard):
         if value not in self.optionToText:
             return
 
-        self.comboBox.setCurrentText(self.tr(self.optionToText[value]))
+        self.comboBox.setCurrentText(self.optionToText[value])
         qconfig.set(self.configItem, value)
 
 
@@ -103,6 +102,7 @@ class CustomModelDetectionThread(QThread):
         self, api_key: str, base_url: str, model_name: str, endpoint: str = None
     ):
         super().__init__()
+        self.globalText = Text()
         self.api_key = api_key
         self.base_url = base_url
         self.model_name = model_name
@@ -113,17 +113,17 @@ class CustomModelDetectionThread(QThread):
         try:
             # 检查基本参数
             if not self.api_key or not self.api_key.strip():
-                self.detection_finished.emit(False, "❌ " + self.tr("API密钥不能为空"))
-                return
-
-            if not self.base_url or not self.base_url.strip():
                 self.detection_finished.emit(
-                    False, "❌ " + self.tr("API基础URL不能为空")
+                    False, "❌ " + self.globalText.APIKeyCannotBeEmpty
                 )
                 return
 
+            if not self.base_url or not self.base_url.strip():
+                self.detection_finished.emit(False, "❌ " + self.globalText.ABUCBE)
+                return
+
             if not self.model_name or not self.model_name.strip():
-                self.detection_finished.emit(False, "❌ " + self.tr("模型名称不能为空"))
+                self.detection_finished.emit(False, "❌ " + self.globalText.MNCBE)
                 return
 
             # 检查URL格式
@@ -131,18 +131,14 @@ class CustomModelDetectionThread(QThread):
                 self.base_url.startswith("http://")
                 or self.base_url.startswith("https://")
             ):
-                self.detection_finished.emit(
-                    False, "❌ " + self.tr("API基础URL必须以http://或https://开头")
-                )
+                self.detection_finished.emit(False, "❌ " + self.globalText.ABUMSWHOH)
                 return
 
             # 尝试导入并使用OpenAI库
             try:
                 from openai import OpenAI
             except ImportError:
-                self.detection_finished.emit(
-                    False, "❌ " + self.tr("未安装openai库，请运行: pip install openai")
-                )
+                self.detection_finished.emit(False, "❌ " + self.globalText.OLNIPRPIO)
                 return
 
             # 规范化 base_url：若只有 host[:port] 而无 path，则自动追加 /v1
@@ -167,11 +163,11 @@ class CustomModelDetectionThread(QThread):
             # 检查响应
             if response and response.choices:
                 self.detection_finished.emit(
-                    True, "✓ " + self.tr("参数配置正确，API连接成功！"), normalized_base
+                    True, "✓ " + self.globalText.PCCACS, normalized_base
                 )
             else:
                 self.detection_finished.emit(
-                    False, "❌ " + self.tr("API响应异常"), normalized_base
+                    False, "❌ " + self.globalText.APIResponseAbnormal, normalized_base
                 )
 
         except Exception as e:
@@ -179,34 +175,33 @@ class CustomModelDetectionThread(QThread):
 
             # 根据不同的错误类型提供更友好的提示
             if "401" in error_msg or "authentication" in error_msg.lower():
-                self.detection_finished.emit(
-                    False, "❌ " + self.tr("API密钥无效或已过期"), ""
-                )
+                self.detection_finished.emit(False, "❌ " + self.globalText.AKIIOHE, "")
             elif "404" in error_msg:
                 self.detection_finished.emit(
-                    False, "❌ " + self.tr("模型不存在或API基础URL错误"), ""
+                    False, "❌ " + self.globalText.MDNEOABUII, ""
                 )
             elif "Connection" in error_msg or "connection" in error_msg.lower():
                 self.detection_finished.emit(
-                    False, "❌ " + self.tr("无法连接到API服务器，请检查网络和URL"), ""
+                    False, "❌ " + self.globalText.CCTASPCNAU, ""
                 )
             elif "timeout" in error_msg.lower():
-                self.detection_finished.emit(
-                    False, "❌ " + self.tr("请求超时，请检查网络连接"), ""
-                )
+                self.detection_finished.emit(False, "❌ " + self.globalText.RTPCNC, "")
             else:
                 self.detection_finished.emit(
-                    False, "❌ " + self.tr("检测失败") + f": {error_msg[:100]}", ""
+                    False,
+                    "❌ " + self.globalText.DetectionFailed + f": {error_msg[:100]}",
+                    "",
                 )
 
 
 class DetectionCard(QFrame):
     def __init__(self, icon, title, content, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.iconWidget = IconWidget(icon)
         self.titleLabel = BodyLabel(title, self)
         self.contentLabel = CaptionLabel(content, self)
-        self.openButton = PushButton(self.tr("检测"), self)
+        self.openButton = PushButton(self.globalText.Detect, self)
 
         self.hBoxLayout = QHBoxLayout(self)
         self.vBoxLayout = QVBoxLayout()
@@ -281,6 +276,7 @@ class PlainTextEditSettingCard(SettingCard):
         self, configItem, icon, title, content=None, placeholderText="", parent=None
     ):
         super().__init__(icon, title, content, parent)
+        self.globalText = Text()
         self.configItem = configItem
 
         self.toolButton = ToolButton(FIF.TAG)
@@ -304,10 +300,8 @@ class PlainTextEditSettingCard(SettingCard):
 
     def showFlyout(self):
         Flyout.create(
-            title=self.tr("Prompt编写帮助"),
-            content=self.tr(
-                "{origin_lang}表示原语言\n{target_lang}表示翻译后的语言\n{content}表示待翻译的文本"
-            ),
+            title=self.globalText.PromptWritingHelp,
+            content=self.globalText.OLRTSLTLRTTLCRTTTBT,
             target=self.toolButton,
             parent=self,
             isClosable=True,
@@ -396,12 +390,13 @@ class ChooseFileSettingCard(SettingCard):
         parent=None,
     ):
         super().__init__(icon, title, content, parent)
+        self.globalText = Text()
 
         self.lineEdit = LineEdit(self)
         self.lineEdit.setPlaceholderText(placeholderText)
         self.lineEdit.setReadOnly(True)
 
-        self.browseBtn = PushButton(self.tr("浏览文件"))
+        self.browseBtn = PushButton(self.globalText.BrowseFile)
 
         self.remove_stretch()
         self.hBoxLayout.addSpacing(24)
@@ -426,18 +421,19 @@ class YTDLPSettingInterface(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.globalText = Text()
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
         # setting label
-        self.settingLabel = TitleLabel(self.tr("YT-DLP 下载设置"), self)
+        self.settingLabel = TitleLabel(self.globalText.YDDS, self)
 
         # ytdlp路径
         self.ytdlpPathGroup = SettingCardGroup(
-            self.tr("YT-DLP 路径"), self.scrollWidget
+            self.globalText.YTDLPPath, self.scrollWidget
         )
         self.ytdlpPathCard = PushSettingCard(
-            self.tr("选择文件"),
+            self.globalText.SelectFile3,
             ":/app/images/logo/ytdlp.svg",
             "yt-dlp",
             cfg.get(cfg.ytdlpPath),
@@ -445,9 +441,7 @@ class YTDLPSettingInterface(ScrollArea):
         )
 
         # 下载格式与质量
-        self.formatGroup = SettingCardGroup(
-            self.tr("下载格式与质量"), self.scrollWidget
-        )
+        self.formatGroup = SettingCardGroup(self.globalText.DFQ, self.scrollWidget)
         # self.downloadFormatCard = ComboBoxSettingCard(
         #     cfg.downloadFormat,
         #     FIF.VIDEO,
@@ -465,17 +459,17 @@ class YTDLPSettingInterface(ScrollArea):
         self.downloadQualityCard = ComboBoxSettingCard(
             cfg.downloadQuality,
             FIF.CAMERA,
-            self.tr("视频质量"),
-            self.tr("选择视频分辨率"),
+            self.globalText.VideoQuality,
+            self.globalText.SVR,
             texts=[
-                self.tr("4K (2160p)"),
-                self.tr("2K (1440p)"),
-                self.tr("全高清 (1080p)"),
-                self.tr("高清 (720p)"),
-                self.tr("标清 (480p)"),
-                self.tr("流畅 (360p)"),
-                self.tr("最佳质量"),
-                self.tr("最差质量"),
+                self.globalText.Text4K2160p,
+                self.globalText.Text2K1440p,
+                self.globalText.FullHD1080p,
+                self.globalText.HD720p,
+                self.globalText.SD480p,
+                self.globalText.Smooth360p,
+                self.globalText.BestQuality,
+                self.globalText.WorstQuality,
             ],
             parent=self.formatGroup,
         )
@@ -497,139 +491,143 @@ class YTDLPSettingInterface(ScrollArea):
         # )
 
         # 代理设置
-        self.proxyGroup = SettingCardGroup(self.tr("代理设置"), self.scrollWidget)
+        self.proxyGroup = SettingCardGroup(
+            self.globalText.ProxySettings, self.scrollWidget
+        )
         self.systemProxyCard = SwitchSettingCard(
             FIF.WIFI,
-            self.tr("系统代理"),
-            self.tr("是否启用系统默认代理"),
+            self.globalText.SystemProxy,
+            self.globalText.WTUSDP,
             configItem=cfg.systemProxy,
             parent=self.proxyGroup,
         )
         self.proxyUrlCard = LineEditSettingCard(
             cfg.proxyUrl,
             FIF.GLOBE,
-            self.tr("自定义代理"),
-            self.tr("设置自定义的代理地址"),
+            self.globalText.CustomProxy,
+            self.globalText.SCPA,
             placeholderText=cfg.get(cfg.proxyUrl),
             parent=self.proxyGroup,
         )
 
         # 字幕设置
-        self.subtitleGroup = SettingCardGroup(self.tr("字幕设置"), self.scrollWidget)
+        self.subtitleGroup = SettingCardGroup(
+            self.globalText.SubtitleSettings, self.scrollWidget
+        )
         self.downloadSubtitlesCard = SwitchSettingCard(
             FIF.LANGUAGE,
-            self.tr("下载字幕"),
-            self.tr("自动下载视频字幕"),
+            self.globalText.DownloadSubtitles,
+            self.globalText.ADVS,
             configItem=cfg.downloadSubtitles,
             parent=self.subtitleGroup,
         )
         self.subtitleLanguagesCard = LineEditSettingCard(
             cfg.subtitleLanguages,
             FIF.FONT,
-            self.tr("字幕语言"),
-            self.tr("设置字幕语言，多个语言用逗号分隔"),
+            self.globalText.SubtitleLanguage,
+            self.globalText.SSLSMLWC,
             placeholderText="en,zh,ja",
             parent=self.subtitleGroup,
         )
         self.embedSubtitlesCard = SwitchSettingCard(
             FIF.CHAT,
-            self.tr("内嵌字幕"),
-            self.tr("将字幕嵌入视频文件中"),
+            self.globalText.EmbedSubtitles,
+            self.globalText.ESIVF,
             configItem=cfg.embedSubtitles,
             parent=self.subtitleGroup,
         )
 
         # 元数据与缩略图
         self.metadataGroup = SettingCardGroup(
-            self.tr("元数据与缩略图"), self.scrollWidget
+            self.globalText.MetadataThumbnails, self.scrollWidget
         )
         self.downloadThumbnailCard = SwitchSettingCard(
             FIF.PHOTO,
-            self.tr("下载缩略图"),
-            self.tr("下载视频缩略图"),
+            self.globalText.DownloadThumbnails,
+            self.globalText.DVT,
             configItem=cfg.downloadThumbnail,
             parent=self.metadataGroup,
         )
         self.embedThumbnailCard = SwitchSettingCard(
             FIF.PHOTO,
-            self.tr("内嵌缩略图"),
-            self.tr("将缩略图嵌入视频文件中"),
+            self.globalText.EmbedThumbnails,
+            self.globalText.ETIVF,
             configItem=cfg.embedThumbnail,
             parent=self.metadataGroup,
         )
         self.downloadMetadataCard = SwitchSettingCard(
             FIF.INFO,
-            self.tr("下载元数据"),
-            self.tr("下载视频元数据信息"),
+            self.globalText.DownloadMetadata,
+            self.globalText.DVMI,
             configItem=cfg.downloadMetadata,
             parent=self.metadataGroup,
         )
         self.writeDescriptionCard = SwitchSettingCard(
             FIF.DOCUMENT,
-            self.tr("写入描述"),
-            self.tr("将视频描述写入单独文件"),
+            self.globalText.WriteDescription,
+            self.globalText.WVDTSF,
             configItem=cfg.writeDescription,
             parent=self.metadataGroup,
         )
         self.writeInfoJsonCard = SwitchSettingCard(
             FIF.CODE,
-            self.tr("写入信息JSON"),
-            self.tr("将视频信息写入JSON文件"),
+            self.globalText.WriteInfoJSON,
+            self.globalText.WVITJF,
             configItem=cfg.writeInfoJson,
             parent=self.metadataGroup,
         )
         self.writeAnnotationsCard = SwitchSettingCard(
             FIF.EDIT,
-            self.tr("写入注释"),
-            self.tr("写入视频注释信息"),
+            self.globalText.WriteComments,
+            self.globalText.WVCI,
             configItem=cfg.writeAnnotations,
             parent=self.metadataGroup,
         )
 
         # 下载控制
         self.downloadControlGroup = SettingCardGroup(
-            self.tr("下载控制"), self.scrollWidget
+            self.globalText.DownloadControl, self.scrollWidget
         )
         self.concurrentDownloadsCard = RangeSettingCard(
             cfg.concurrentDownloads,
             FIF.SPEED_HIGH,
-            title=self.tr("并发下载数量"),
-            content=self.tr("同时下载的最大视频数量"),
+            title=self.globalText.ConcurrentDownloads,
+            content=self.globalText.MNOSD,
             parent=self.downloadControlGroup,
         )
         self.retryAttemptsCard = RangeSettingCard(
             cfg.retryAttempts,
             FIF.SYNC,
-            title=self.tr("重试次数"),
-            content=self.tr("下载失败时的重试次数"),
+            title=self.globalText.RetryCount,
+            content=self.globalText.NORODF,
             parent=self.downloadControlGroup,
         )
         self.downloadTimeoutCard = RangeSettingCard(
             cfg.downloadTimeout,
             FIF.ROTATE,
-            title=self.tr("下载超时(秒)"),
-            content=self.tr("下载超时时间设置"),
+            title=self.globalText.DTS,
+            content=self.globalText.SDTD,
             parent=self.downloadControlGroup,
         )
         self.limitDownloadRateCard = SwitchSettingCard(
             FIF.PAGE_LEFT,
-            self.tr("限速下载"),
-            self.tr("启用下载速率限制"),
+            self.globalText.RateLimiting,
+            self.globalText.EDRL,
             configItem=cfg.limitDownloadRate,
             parent=self.downloadControlGroup,
         )
         self.maxDownloadRateCard = LineEditSettingCard(
             cfg.maxDownloadRate,
             FIF.PAGE_RIGHT,
-            self.tr("最大下载速率"),
-            self.tr("设置最大下载速率 (如: 10M, 1K)"),
+            self.globalText.MaxDownloadRate,
+            self.globalText.SMDREG11,
             placeholderText="10M",
             parent=self.downloadControlGroup,
         )
         self.skipExistingFilesCard = SwitchSettingCard(
             FIF.ACCEPT,
-            self.tr("跳过已存在文件"),
-            self.tr("避免重复下载已存在的文件"),
+            self.globalText.SkipExistingFiles,
+            self.globalText.ARDEF,
             configItem=cfg.skipExistingFiles,
             parent=self.downloadControlGroup,
         )
@@ -668,24 +666,26 @@ class YTDLPSettingInterface(ScrollArea):
         # )
 
         # 高级设置
-        self.advancedGroup = SettingCardGroup(self.tr("高级设置"), self.scrollWidget)
+        self.advancedGroup = SettingCardGroup(
+            self.globalText.AdvancedSettings, self.scrollWidget
+        )
         self.outputTemplateCard = LineEditSettingCard(
             cfg.outputTemplate,
             FIF.SAVE,
-            self.tr("输出模板"),
-            self.tr("设置输出文件名模板"),
+            self.globalText.OutputTemplate,
+            self.globalText.SOFT,
             placeholderText="%(title)s.%(ext)s",
             parent=self.advancedGroup,
         )
         self.useCookiesCard = SwitchSettingCard(
             FIF.CERTIFICATE,
-            self.tr("使用Cookies"),
-            self.tr("使用cookies文件进行下载"),
+            self.globalText.UseCookies,
+            self.globalText.UCFFD,
             configItem=cfg.useCookies,
             parent=self.advancedGroup,
         )
         self.cookiesFileCard = PushSettingCard(
-            self.tr("选择文件"),
+            self.globalText.SelectFile3,
             FIF.DOCUMENT,
             "Cookies文件",
             cfg.get(cfg.cookiesFile),
@@ -774,7 +774,7 @@ class YTDLPSettingInterface(ScrollArea):
         self.expandLayout.addWidget(self.advancedGroup)
 
     def _onYTDLPPathCardClicked(self):
-        path, _ = QFileDialog.getOpenFileName(self, self.tr("选择ytdlp文件"))
+        path, _ = QFileDialog.getOpenFileName(self, self.globalText.SelectYtDlpFile)
 
         if not path or cfg.get(cfg.ytdlpPath) == path:
             return
@@ -785,9 +785,9 @@ class YTDLPSettingInterface(ScrollArea):
     def _onCookiesFileCardClicked(self):
         path, _ = QFileDialog.getOpenFileName(
             self,
-            self.tr("选择Cookies文件"),
+            self.globalText.SelectCookiesFile,
             "",
-            self.tr("Text Files (*.txt);;All Files (*)"),
+            self.globalText.TextFilesTxtAllFiles,
         )
 
         if not path or cfg.get(cfg.cookiesFile) == path:
@@ -812,73 +812,78 @@ class OCRSettingInterface(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.globalText = Text()
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
         # setting label
-        self.settingLabel = TitleLabel(self.tr("OCR 设置"), self)
+        self.settingLabel = TitleLabel(self.globalText.OCRSettings, self)
 
         # paddleocr路径
         self.paddleocrPathGroup = SettingCardGroup(
-            self.tr("PaddleOCR 路径"), self.scrollWidget
+            self.globalText.PaddleOCRPath, self.scrollWidget
         )
         self.paddleocrPathCard = PushSettingCard(
-            self.tr("选择文件"),
+            self.globalText.SelectFile3,
             ":/app/images/logo/Paddle.svg",
-            "请选择可执行文件paddleocr.exe",
+            self.globalText.PSPE,
             cfg.get(cfg.paddleocrPath),
             self.paddleocrPathGroup,
         )
         self.supportFilesPathCard = PushSettingCard(
-            self.tr("选择文件夹"),
+            self.globalText.SelectFolder,
             ":/app/images/logo/Paddle.svg",
-            "请选择模型文件夹OCR.model",
+            self.globalText.PleaseSelectOCRModel,
             cfg.get(cfg.supportFilesPath),
             self.paddleocrPathGroup,
         )
         self.videocrCliPathCard = PushSettingCard(
-            self.tr("选择文件"),
+            self.globalText.SelectFile3,
             ":/app/images/logo/Paddle.svg",
-            "请选择可执行文件videocr-cli.exe",
+            self.globalText.PSVCE,
             cfg.get(cfg.videocrCliPath),
             self.paddleocrPathGroup,
         )
         self.tempDirCard = PushSettingCard(
-            self.tr("选择文件夹"),
+            self.globalText.SelectFolder,
             ":/app/images/logo/Paddle.svg",
-            "请选择字幕提取临时文件夹temp",
+            self.globalText.PSSETF,
             cfg.get(cfg.tempDir),
             self.paddleocrPathGroup,
         )
 
         # 时间设置
-        self.timeGroup = SettingCardGroup(self.tr("时间设置"), self.scrollWidget)
+        self.timeGroup = SettingCardGroup(
+            self.globalText.TimeSettings, self.scrollWidget
+        )
         self.timeStartCard = LineEditSettingCard(
             cfg.timeStart,
             FIF.STOP_WATCH,
-            self.tr("开始时间"),
-            self.tr("设置视频处理的起始时间点 (例如: 0:00 或 1:23:45)"),
+            self.globalText.StartTime,
+            self.globalText.STSTFVPEG00O124,
             placeholderText="0:00",
             parent=self.timeGroup,
         )
         self.timeEndCard = LineEditSettingCard(
             cfg.timeEnd,
             FIF.STOP_WATCH,
-            self.tr("结束时间"),
-            self.tr("设置视频处理的结束时间点 (例如: 0:10 或 2:34:56)"),
+            self.globalText.EndTime,
+            self.globalText.STETFVPEG01O235,
             placeholderText="",
             parent=self.timeGroup,
         )
 
         # 阈值设置
-        self.thresholdGroup = SettingCardGroup(self.tr("阈值设置"), self.scrollWidget)
+        self.thresholdGroup = SettingCardGroup(
+            self.globalText.ThresholdSettings, self.scrollWidget
+        )
 
         # 相似度阈值 (0-100)
         self.simThresholdCard = NumberLineEditSettingCard(
             cfg.simThreshold,
             FIF.ROTATE,
-            self.tr("相似度阈值"),
-            self.tr("字幕帧之间的相似度阈值 (0-100)"),
+            self.globalText.SimilarityThreshold,
+            self.globalText.STBSF01,
             placeholderText=str(cfg.simThreshold.value),
             validator=QIntValidator(0, 100),
             parent=self.thresholdGroup,
@@ -899,22 +904,24 @@ class OCRSettingInterface(ScrollArea):
         self.ssimThresholdCard = NumberLineEditSettingCard(
             cfg.ssimThreshold,
             FIF.PALETTE,
-            self.tr("SSIM阈值"),
-            self.tr("结构相似性指数阈值，用于判断帧间变化 (0-100)"),
+            self.globalText.SSIMThreshold,
+            self.globalText.SSITFDFC01,
             placeholderText=str(cfg.ssimThreshold.value),
             validator=QIntValidator(0, 100),
             parent=self.thresholdGroup,
         )
 
         # 处理参数
-        self.processingGroup = SettingCardGroup(self.tr("处理参数"), self.scrollWidget)
+        self.processingGroup = SettingCardGroup(
+            self.globalText.ProcessingParameters, self.scrollWidget
+        )
 
         # 最大合并间隔 (0.1-10.0)
         self.maxMergeGapCard = NumberLineEditSettingCard(
             cfg.maxMergeGap,
             FIF.BACK_TO_WINDOW,
-            self.tr("最大合并间隔"),
-            self.tr("相邻字幕片段的最大合并间隔 (0.1-10.0 秒)"),
+            self.globalText.MaxMergeInterval,
+            self.globalText.MMIBSS0110,
             placeholderText=str(cfg.maxMergeGap.value),
             validator=QDoubleValidator(0.1, 10.0, 2),
             parent=self.processingGroup,
@@ -924,8 +931,8 @@ class OCRSettingInterface(ScrollArea):
         self.ocrImageMaxWidthCard = NumberLineEditSettingCard(
             cfg.ocrImageMaxWidth,
             FIF.ZOOM,
-            self.tr("最大OCR图像宽度"),
-            self.tr("OCR处理时图像的最大宽度 (100-4096 像素)"),
+            self.globalText.MaxOCRImageWidth,
+            self.globalText.MIWFOP14P,
             placeholderText=str(cfg.ocrImageMaxWidth.value),
             validator=QIntValidator(100, 4096),
             parent=self.processingGroup,
@@ -935,8 +942,8 @@ class OCRSettingInterface(ScrollArea):
         self.framesToSkipCard = NumberLineEditSettingCard(
             cfg.framesToSkip,
             FIF.MARKET,
-            self.tr("跳过的帧数"),
-            self.tr("处理时跳过的帧数，用于提高处理速度 (0-100)"),
+            self.globalText.SkipFrames,
+            self.globalText.FTSDPFS01,
             placeholderText=str(cfg.framesToSkip.value),
             validator=QIntValidator(0, 100),
             parent=self.processingGroup,
@@ -946,8 +953,8 @@ class OCRSettingInterface(ScrollArea):
         self.minSubtitleDurationCard = NumberLineEditSettingCard(
             cfg.minSubtitleDuration,
             FIF.STOP_WATCH,
-            self.tr("最小字幕持续时间"),
-            self.tr("字幕的最小持续时间，短于此时间的字幕将被过滤 (0.1-10.0 秒)"),
+            self.globalText.MinSubtitleDuration,
+            self.globalText.MSDSOF0110,
             placeholderText=str(cfg.minSubtitleDuration.value),
             validator=QDoubleValidator(0.1, 10.0, 2),
             parent=self.processingGroup,
@@ -957,19 +964,21 @@ class OCRSettingInterface(ScrollArea):
         self.confidenceThresholdCard = NumberLineEditSettingCard(
             cfg.confidenceThreshold,
             FIF.FILTER,
-            self.tr("置信度阈值"),
-            self.tr("低于此置信度的OCR结果将被过滤 (0.0-1.0, 0=不过滤)"),
+            self.globalText.TextAuto007,
+            self.globalText.TextAuto008,
             placeholderText=str(cfg.confidenceThreshold.value),
             validator=QDoubleValidator(0.0, 1.0, 2),
             parent=self.processingGroup,
         )
 
         # 功能开关
-        self.featureGroup = SettingCardGroup(self.tr("功能开关"), self.scrollWidget)
+        self.featureGroup = SettingCardGroup(
+            self.globalText.FeatureToggles, self.scrollWidget
+        )
         self.useGpuCard = SwitchSettingCard(
             FIF.DEVELOPER_TOOLS,
-            self.tr("启用GPU加速"),
-            self.tr("使用GPU进行OCR处理以提高速度"),
+            self.globalText.EGA,
+            self.globalText.UGFFOP,
             configItem=cfg.useGpu,
             parent=self.featureGroup,
         )
@@ -982,8 +991,8 @@ class OCRSettingInterface(ScrollArea):
         # )
         self.useDualZoneCard = SwitchSettingCard(
             FIF.VIEW,
-            self.tr("启用双区域OCR"),
-            self.tr("支持同时处理两个区域的字幕"),
+            self.globalText.EnableDualAreaOCR,
+            self.globalText.SSTASP,
             configItem=cfg.useDualZone,
             parent=self.featureGroup,
         )
@@ -996,15 +1005,15 @@ class OCRSettingInterface(ScrollArea):
         # )
         self.postProcessingCard = SwitchSettingCard(
             FIF.EDIT,
-            self.tr("使用后期处理"),
-            self.tr("对OCR结果进行后期处理优化"),
+            self.globalText.UsePostProcessing,
+            self.globalText.APPOTOR,
             configItem=cfg.postProcessing,
             parent=self.featureGroup,
         )
         self.useServerModelCard = SwitchSettingCard(
             FIF.CLOUD,
-            self.tr("使用高精度模型"),
-            self.tr("使用更好的模型进行OCR处理"),
+            self.globalText.UHPM,
+            self.globalText.UABMFOP,
             configItem=cfg.useServerModel,
             parent=self.featureGroup,
         )
@@ -1071,7 +1080,7 @@ class OCRSettingInterface(ScrollArea):
 
     def _onPaddleocrPathCardClicked(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, self.tr("请选择paddleocr.exe"), filter="paddleocr.exe (*.exe)"
+            self, self.globalText.PSPE, filter="paddleocr.exe (*.exe)"
         )
 
         if not path or cfg.get(cfg.paddleocrPath) == path:
@@ -1080,11 +1089,11 @@ class OCRSettingInterface(ScrollArea):
         # 检查路径中是否包含中文字符
         if re.search("[\u4e00-\u9fff\u3400-\u4dbf]", path):
             dialog = Dialog(
-                self.tr("警告"),
-                self.tr("paddleocr.exe 路径不能包含中文字符"),
+                self.globalText.Warning,
+                self.globalText.PEPMNCCC,
                 self.window(),
             )
-            dialog.yesButton.setText(self.tr("确认"))
+            dialog.yesButton.setText(self.globalText.OK2)
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -1093,7 +1102,9 @@ class OCRSettingInterface(ScrollArea):
         self.paddleocrPathCard.setContent(path)
 
     def _onSupportFilesPathCardClicked(self):
-        path = QFileDialog.getExistingDirectory(self, self.tr("请选择OCR.model"))
+        path = QFileDialog.getExistingDirectory(
+            self, self.globalText.PleaseSelectOCRModel
+        )
 
         if not path or cfg.get(cfg.supportFilesPath) == path:
             return
@@ -1102,11 +1113,11 @@ class OCRSettingInterface(ScrollArea):
         if re.search("[\u4e00-\u9fff\u3400-\u4dbf]", path):
             print(path)
             dialog = Dialog(
-                self.tr("警告"),
-                self.tr("OCR.model 路径不能包含中文字符"),
+                self.globalText.Warning,
+                self.globalText.OMPMNCCC,
                 self.window(),
             )
-            dialog.yesButton.setText(self.tr("确认"))
+            dialog.yesButton.setText(self.globalText.OK2)
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -1116,7 +1127,7 @@ class OCRSettingInterface(ScrollArea):
 
     def _onVideocrCliPathCardClicked(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, self.tr("请选择videocr-cli.exe"), filter="videocr-cli.exe (*.exe)"
+            self, self.globalText.PSVCE, filter="videocr-cli.exe (*.exe)"
         )
 
         if not path or cfg.get(cfg.videocrCliPath) == path:
@@ -1125,11 +1136,11 @@ class OCRSettingInterface(ScrollArea):
         # 检查路径中是否包含中文字符
         if re.search("[\u4e00-\u9fff\u3400-\u4dbf]", path):
             dialog = Dialog(
-                self.tr("警告"),
-                self.tr("videocr-cli.exe 路径不能包含中文字符"),
+                self.globalText.Warning,
+                self.globalText.VCEPMNCCC,
                 self.window(),
             )
-            dialog.yesButton.setText(self.tr("确认"))
+            dialog.yesButton.setText(self.globalText.OK2)
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -1138,9 +1149,7 @@ class OCRSettingInterface(ScrollArea):
         self.videocrCliPathCard.setContent(path)
 
     def _onTempDirCardClicked(self):
-        path = QFileDialog.getExistingDirectory(
-            self, self.tr("请选择字幕提取临时文件夹temp")
-        )
+        path = QFileDialog.getExistingDirectory(self, self.globalText.PSSETF)
 
         if not path or cfg.get(cfg.tempDir) == path:
             return
@@ -1148,11 +1157,11 @@ class OCRSettingInterface(ScrollArea):
         # 检查路径中是否包含中文字符
         if re.search("[\u4e00-\u9fff\u3400-\u4dbf]", path):
             dialog = Dialog(
-                self.tr("警告"),
-                self.tr("字幕提取临时文件夹temp 路径不能包含中文字符"),
+                self.globalText.Warning,
+                self.globalText.TFPMNCCC,
                 self.window(),
             )
-            dialog.yesButton.setText(self.tr("确认"))
+            dialog.yesButton.setText(self.globalText.OK2)
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -1182,19 +1191,20 @@ class TranslateSettingInterface(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.globalText = Text()
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
         # setting label
-        self.settingLabel = TitleLabel(self.tr("AI设置"), self)
+        self.settingLabel = TitleLabel(self.globalText.AISettings, self)
 
         # AI参数设置
-        self.aiGroup = SettingCardGroup(self.tr("AI参数"), self.scrollWidget)
+        self.aiGroup = SettingCardGroup(self.globalText.AIParameters, self.scrollWidget)
         self.aiTemperatureCard = NumberLineEditSettingCard(
             cfg.aiTemperature,
             FIF.SPEED_HIGH,
-            self.tr("AI温度"),
-            self.tr("调整AI生成文本的温度(0~2)"),
+            self.globalText.AITemperature,
+            self.globalText.AATGT02,
             placeholderText=str(cfg.aiTemperature.value),
             validator=QDoubleValidator(0.1, 2.0, 1),
             parent=self.aiGroup,
@@ -1203,8 +1213,8 @@ class TranslateSettingInterface(ScrollArea):
         self.promptTemplateCard = PlainTextEditSettingCard(
             cfg.promptTemplate,
             FIF.CODE,
-            self.tr("Prompt模板"),
-            self.tr("设置你的Prompt模板"),
+            self.globalText.PromptTemplate,
+            self.globalText.SYPT,
             placeholderText="",
             parent=self.aiGroup,
         )
@@ -1212,14 +1222,14 @@ class TranslateSettingInterface(ScrollArea):
 
         # Deepseek
         self.deepseekGroup = SettingCardGroup(
-            self.tr("Deepseek"),
+            self.globalText.Deepseek,
             self.scrollWidget,
         )
         self.DeepseekApiKeyCard = PasswordLineEditSettingCard(
             cfg.deepseekApiKey,
             QIcon(":/app/images/icons/deepseek.svg"),
-            self.tr("Deepseek Api Key"),
-            self.tr("设置你的Deepseek Api Key"),
+            self.globalText.DeepseekAPIKey,
+            self.globalText.SYDAK,
             placeholderText="",
             parent=self.deepseekGroup,
         )
@@ -1227,14 +1237,14 @@ class TranslateSettingInterface(ScrollArea):
 
         # GLM-4.5-FLASH
         self.glmGroup = SettingCardGroup(
-            self.tr("智谱 GLM-4.5-FLASH"),
+            self.globalText.ZhipuGLM45FLASH,
             self.scrollWidget,
         )
         self.GplApiKeyCard = PasswordLineEditSettingCard(
             cfg.glmApiKey,
             QIcon(":/app/images/icons/glm-4.5-flash.svg"),
-            self.tr("智谱 GLM-4.5-FLASH Api Key"),
-            self.tr("设置你的GLM-4.5-FLASH Api Key"),
+            self.globalText.ZG45FAK,
+            self.globalText.SYG45FAK,
             placeholderText="",
             parent=self.glmGroup,
         )
@@ -1242,37 +1252,39 @@ class TranslateSettingInterface(ScrollArea):
 
         # Spark Lite
         self.sparkGroup = SettingCardGroup(
-            self.tr("讯飞 Spark Lite"), self.scrollWidget
+            self.globalText.XunfeiSparkLite, self.scrollWidget
         )
         self.SparkApiKeyCard = PasswordLineEditSettingCard(
             cfg.sparkApiKey,
             QIcon(":/app/images/icons/spark-lite.svg"),
-            self.tr("讯飞 Spark Lite Api Password"),
-            self.tr("设置你的讯飞 Spark Lite Api Password"),
+            self.globalText.XSLAP,
+            self.globalText.SYXSLAP,
             placeholderText="",
             parent=self.sparkGroup,
         )
         self.SparkApiKeyCard.lineEdit.setFixedWidth(350)
 
         # 腾讯混元
-        self.hunyuanGroup = SettingCardGroup(self.tr("腾讯混元"), self.scrollWidget)
+        self.hunyuanGroup = SettingCardGroup(
+            self.globalText.TencentHunyuan, self.scrollWidget
+        )
         self.HunyuanApiKeyCard = PasswordLineEditSettingCard(
             cfg.hunyuanApiKey,
             QIcon(":/app/images/icons/hunyuan-turbos-latest.svg"),
-            self.tr("腾讯混元 Api Key"),
-            self.tr("设置你的腾讯混元 Api Key"),
+            self.globalText.TencentHunyuanAPIKey,
+            self.globalText.SYTHAK,
             placeholderText="",
             parent=self.hunyuanGroup,
         )
         self.HunyuanApiKeyCard.lineEdit.setFixedWidth(350)
 
         # 书生
-        self.internGroup = SettingCardGroup(self.tr("书生"), self.scrollWidget)
+        self.internGroup = SettingCardGroup(self.globalText.InternLM, self.scrollWidget)
         self.InternApiKeyCard = PasswordLineEditSettingCard(
             cfg.internApiKey,
             QIcon(":/app/images/icons/intern-latest.svg"),
-            self.tr("书生 Api Key"),
-            self.tr("设置你的书生 Api Key"),
+            self.globalText.InternLMAPIKey,
+            self.globalText.SYIAK,
             placeholderText="",
             parent=self.internGroup,
         )
@@ -1280,14 +1292,14 @@ class TranslateSettingInterface(ScrollArea):
 
         # 百度ERNIE-Speed-128K
         self.ernieSpeedGroup = SettingCardGroup(
-            self.tr("百度ERNIE-Speed-128K (不推荐使用)"),
+            self.globalText.BES1NR,
             self.scrollWidget,
         )
         self.ErnieSpeedApiKeyCard = PasswordLineEditSettingCard(
             cfg.ernieSpeedApiKey,
             QIcon(":/app/images/icons/ernie-speed-128k.svg"),
-            self.tr("百度ERNIE-Speed-128K Api Key"),
-            self.tr("设置你的百度ERNIE-Speed-128K Api Key"),
+            self.globalText.BES1AK,
+            self.globalText.SYBES1AK,
             placeholderText="",
             parent=self.ernieSpeedGroup,
         )
@@ -1295,14 +1307,14 @@ class TranslateSettingInterface(ScrollArea):
 
         # Gemini 3 Flash
         self.geminiGroup = SettingCardGroup(
-            self.tr("Gemini"),
+            self.globalText.Gemini,
             self.scrollWidget,
         )
         self.GeminiApiKeyCard = PasswordLineEditSettingCard(
             cfg.geminiApiKey,
             QIcon(":/app/images/icons/gemini-3-flash-preview.svg"),
-            self.tr("Gemini 3 Flash Api Key"),
-            self.tr("设置你的Gemini 3 Flash Api Key"),
+            self.globalText.Gemini3FlashAPIKey,
+            self.globalText.SYG3FAK,
             placeholderText="",
             parent=self.geminiGroup,
         )
@@ -1310,21 +1322,21 @@ class TranslateSettingInterface(ScrollArea):
 
         # 自定义模型
         self.customModelGroup = SettingCardGroup(
-            self.tr("自定义模型 (支持OpenAI兼容API)"),
+            self.globalText.CMOCA,
             self.scrollWidget,
         )
         self.customModelEnabledCard = SwitchSettingCard(
             FIF.SETTING,
-            self.tr("启用自定义模型"),
-            self.tr("启用自定义模型支持"),
+            self.globalText.EnableCustomModel,
+            self.globalText.ECMS,
             cfg.customModelEnabled,
             parent=self.customModelGroup,
         )
         self.customModelNameCard = LineEditSettingCard(
             cfg.customModelName,
             FIF.TAG,
-            self.tr("模型名称"),
-            self.tr("设置自定义模型名称"),
+            self.globalText.ModelName,
+            self.globalText.SetCustomModelName,
             placeholderText="例如: gpt-4o-mini",
             parent=self.customModelGroup,
         )
@@ -1332,8 +1344,8 @@ class TranslateSettingInterface(ScrollArea):
         self.customModelApiKeyCard = PasswordLineEditSettingCard(
             cfg.customModelApiKey,
             FIF.INFO,
-            self.tr("API密钥"),
-            self.tr("设置自定义模型的API密钥"),
+            self.globalText.APIKey,
+            self.globalText.SetCustomModelAPIKey,
             placeholderText="",
             parent=self.customModelGroup,
         )
@@ -1341,8 +1353,8 @@ class TranslateSettingInterface(ScrollArea):
         self.customModelBaseUrlCard = LineEditSettingCard(
             cfg.customModelBaseUrl,
             FIF.LINK,
-            self.tr("API基础URL"),
-            self.tr("设置自定义模型的API基础URL"),
+            self.globalText.APIBaseURL,
+            self.globalText.SCMABU,
             placeholderText="例如: https://api.openai.com/v1",
             parent=self.customModelGroup,
         )
@@ -1350,8 +1362,8 @@ class TranslateSettingInterface(ScrollArea):
         self.customModelEndpointCard = LineEditSettingCard(
             cfg.customModelEndpoint,
             FIF.CODE,
-            self.tr("模型端点"),
-            self.tr("设置模型端点(可选，默认使用模型名称)"),
+            self.globalText.ModelEndpoint,
+            self.globalText.SMEODTMN,
             placeholderText="",
             parent=self.customModelGroup,
         )
@@ -1499,16 +1511,19 @@ class WhisperSettingInterface(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.globalText = Text()
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
         # setting label
-        self.settingLabel = TitleLabel(self.tr("Whisper 语音识别设置"), self)
+        self.settingLabel = TitleLabel(self.globalText.WSRS, self)
 
         # 模型路径
-        self.modelPathGroup = SettingCardGroup(self.tr("模型路径"), self.scrollWidget)
+        self.modelPathGroup = SettingCardGroup(
+            self.globalText.ModelPath, self.scrollWidget
+        )
         self.modelPathCard = PushSettingCard(
-            self.tr("选择模型文件"),
+            self.globalText.SelectModelFile,
             FIF.DOCUMENT,
             "模型文件",
             cfg.get(cfg.whisperModelPath),
@@ -1516,9 +1531,11 @@ class WhisperSettingInterface(ScrollArea):
         )
 
         # CLI 程序路径
-        self.cliPathGroup = SettingCardGroup(self.tr("程序路径"), self.scrollWidget)
+        self.cliPathGroup = SettingCardGroup(
+            self.globalText.ProgramPath, self.scrollWidget
+        )
         self.cliPathCard = PushSettingCard(
-            self.tr("选择程序"),
+            self.globalText.SelectProgram,
             FIF.APPLICATION,
             "main.exe",
             cfg.get(cfg.whisperCliPath),
@@ -1557,11 +1574,13 @@ class WhisperSettingInterface(ScrollArea):
         # )
 
         # GPU 设置
-        self.gpuGroup = SettingCardGroup(self.tr("GPU 加速"), self.scrollWidget)
+        self.gpuGroup = SettingCardGroup(
+            self.globalText.GPUAcceleration, self.scrollWidget
+        )
         self.useGpuCard = SwitchSettingCard(
             FIF.GAME,
-            self.tr("启用 GPU 加速"),
-            self.tr("使用 GPU 加速语音识别"),
+            self.globalText.EGA2,
+            self.globalText.UGFSRA,
             cfg.whisperUseGpu,
             parent=self.gpuGroup,
         )
@@ -1647,7 +1666,7 @@ class WhisperSettingInterface(ScrollArea):
         """选择模型文件"""
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            self.tr("选择 Whisper 模型文件"),
+            self.globalText.SWMF,
             cfg.get(cfg.lastOpenPath)
             if cfg.get(cfg.lastOpenPath)
             else str(Path.home()),
@@ -1663,7 +1682,7 @@ class WhisperSettingInterface(ScrollArea):
         """选择 main.exe 程序"""
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            self.tr("选择 Whisper main.exe 程序"),
+            self.globalText.SWMEP,
             cfg.get(cfg.lastOpenPath)
             if cfg.get(cfg.lastOpenPath)
             else str(Path.home()),
@@ -1681,18 +1700,19 @@ class FFmpegSettingInterface(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.globalText = Text()
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
         # setting label
-        self.settingLabel = TitleLabel(self.tr("FFmpeg 视频压制设置"), self)
+        self.settingLabel = TitleLabel(self.globalText.FVES, self)
 
         # ffmpeg路径
         self.ffmpegPathGroup = SettingCardGroup(
-            self.tr("FFmpeg 路径"), self.scrollWidget
+            self.globalText.FFmpegPath, self.scrollWidget
         )
         self.ffmpegPathCard = PushSettingCard(
-            self.tr("选择文件"),
+            self.globalText.SelectFile3,
             ":/app/images/logo/FFmpeg.svg",
             "FFmpeg",
             cfg.get(cfg.ffmpegPath),
@@ -1701,239 +1721,243 @@ class FFmpegSettingInterface(ScrollArea):
 
         # 基本视频参数
         self.basicVideoGroup = SettingCardGroup(
-            self.tr("基本视频参数"), self.scrollWidget
+            self.globalText.BasicVideoParameters, self.scrollWidget
         )
         self.videoCodecCard = ComboBoxSettingCard(
             cfg.ffmpegVideoCodec,
             FIF.VIDEO,
-            self.tr("视频编码器"),
-            self.tr("选择视频编码格式"),
+            self.globalText.VideoEncoder,
+            self.globalText.SVEF,
             texts=["H.264", "H.265", "VP9", "复制原始"],
             parent=self.basicVideoGroup,
         )
         self.crfCard = RangeSettingCard(
             cfg.ffmpegCrf,
             FIF.SPEED_HIGH,
-            title=self.tr("CRF质量参数"),
-            content=self.tr("0为无损，18-28为常用范围，值越小质量越好"),
+            title=self.globalText.CRFQualityParameter,
+            content=self.globalText.Text0IL12ICRLVMBQ,
             parent=self.basicVideoGroup,
         )
         self.presetCard = ComboBoxSettingCard(
             cfg.ffmpegPreset,
             FIF.SETTING,
-            self.tr("编码速度预设"),
-            self.tr("编码速度与压缩率的平衡"),
+            self.globalText.EncodingSpeedPreset,
+            self.globalText.BBESACR,
             texts=[
-                self.tr("极快"),
-                self.tr("超快"),
-                self.tr("非常快"),
-                self.tr("较快"),
-                self.tr("快速"),
-                self.tr("中等"),
-                self.tr("慢速"),
-                self.tr("较慢"),
-                self.tr("非常慢"),
+                self.globalText.VeryFast,
+                self.globalText.SuperFast,
+                self.globalText.VeryFast2,
+                self.globalText.Faster,
+                self.globalText.Fast,
+                self.globalText.Medium,
+                self.globalText.Slow,
+                self.globalText.Slower,
+                self.globalText.VerySlow,
             ],
             parent=self.basicVideoGroup,
         )
 
         # 音频处理
-        self.audioGroup = SettingCardGroup(self.tr("音频处理"), self.scrollWidget)
+        self.audioGroup = SettingCardGroup(
+            self.globalText.AudioProcessing, self.scrollWidget
+        )
         self.audioModeCard = ComboBoxSettingCard(
             cfg.ffmpegAudioMode,
             FIF.MUSIC,
-            self.tr("音频处理模式"),
-            self.tr("选择音频处理方式"),
+            self.globalText.AudioProcessingMode,
+            self.globalText.SAPM,
             texts=[
-                self.tr("自动检测"),
-                self.tr("编码音频"),
-                self.tr("无音频"),
-                self.tr("复制原始"),
+                self.globalText.AutoDetect,
+                self.globalText.EncodeAudio,
+                self.globalText.NoAudio,
+                self.globalText.CopyOriginal,
             ],
             parent=self.audioGroup,
         )
         self.audioCodecCard = ComboBoxSettingCard(
             cfg.ffmpegAudioCodec,
             FIF.MUSIC,
-            self.tr("音频编码器"),
-            self.tr("选择音频编码格式"),
+            self.globalText.AudioEncoder,
+            self.globalText.SAEF,
             texts=["AAC", "MP3", "Opus", "复制原始"],
             parent=self.audioGroup,
         )
         self.audioBitrateCard = ComboBoxSettingCard(
             cfg.ffmpegAudioBitrate,
             FIF.VOLUME,
-            self.tr("音频码率"),
-            self.tr("设置音频编码质量"),
+            self.globalText.AudioBitrate,
+            self.globalText.SAEQ,
             texts=["64k", "96k", "128k", "192k", "256k", "320k"],
             parent=self.audioGroup,
         )
 
         # x264高级参数
-        self.advancedGroup = SettingCardGroup(
-            self.tr("x264高级参数"), self.scrollWidget
-        )
+        self.advancedGroup = SettingCardGroup(self.globalText.XAP, self.scrollWidget)
         self.useAdvancedCard = SwitchSettingCard(
             FIF.DEVELOPER_TOOLS,
-            self.tr("启用高级参数"),
-            self.tr("自定义x264编码参数"),
+            self.globalText.EAP,
+            self.globalText.CXEP,
             configItem=cfg.ffmpegUseAdvanced,
             parent=self.advancedGroup,
         )
         self.refFramesCard = RangeSettingCard(
             cfg.ffmpegRefFrames,
             FIF.LAYOUT,
-            title=self.tr("参考帧数量"),
-            content=self.tr("参考帧数量 (1-16)"),
+            title=self.globalText.ReferenceFrameCount,
+            content=self.globalText.RFC11,
             parent=self.advancedGroup,
         )
         self.bFramesCard = RangeSettingCard(
             cfg.ffmpegBFrames,
             FIF.SCROLL,
-            title=self.tr("B帧数量"),
-            content=self.tr("B帧数量 (0-16)"),
+            title=self.globalText.BFrameCount,
+            content=self.globalText.BFrameCount016,
             parent=self.advancedGroup,
         )
         self.keyintCard = RangeSettingCard(
             cfg.ffmpegKeyint,
             FIF.CALENDAR,
-            title=self.tr("关键帧间隔"),
-            content=self.tr("最大关键帧间隔 (1-1000)"),
+            title=self.globalText.KeyframeInterval,
+            content=self.globalText.MKI11,
             parent=self.advancedGroup,
         )
         self.minkeyintCard = RangeSettingCard(
             cfg.ffmpegMinkeyint,
             FIF.CALENDAR,
-            title=self.tr("最小关键帧间隔"),
-            content=self.tr("最小关键帧间隔 (1-100)"),
+            title=self.globalText.MKI,
+            content=self.globalText.MKI112,
             parent=self.advancedGroup,
         )
         self.scenecutCard = RangeSettingCard(
             cfg.ffmpegScenecut,
             FIF.CUT,
-            title=self.tr("场景切换阈值"),
-            content=self.tr("场景切换检测阈值 (0-100)"),
+            title=self.globalText.SceneChangeThreshold,
+            content=self.globalText.SCDT01,
             parent=self.advancedGroup,
         )
         self.qcompCard = RangeSettingCard(
             cfg.ffmpegQcomp,
             FIF.EDIT,
-            title=self.tr("量化器压缩因子"),
-            content=self.tr("量化器曲线压缩因子 (0.0-1.0)"),
+            title=self.globalText.QCF,
+            content=self.globalText.QCCF0010,
             parent=self.advancedGroup,
         )
         self.aqModeCard = ComboBoxSettingCard(
             cfg.ffmpegAqMode,
             FIF.ALIGNMENT,
-            self.tr("自适应量化模式"),
-            self.tr("选择自适应量化模式"),
+            self.globalText.AQM,
+            self.globalText.SAQM,
             texts=["模式0", "模式1", "模式2", "模式3"],
             parent=self.advancedGroup,
         )
         self.aqStrengthCard = RangeSettingCard(
             cfg.ffmpegAqStrength,
             FIF.ZOOM,
-            title=self.tr("自适应量化强度"),
-            content=self.tr("自适应量化强度 (0.0-2.0)"),
+            title=self.globalText.AQS,
+            content=self.globalText.AQS0020,
             parent=self.advancedGroup,
         )
 
         # 输出设置
-        self.outputGroup = SettingCardGroup(self.tr("输出设置"), self.scrollWidget)
+        self.outputGroup = SettingCardGroup(
+            self.globalText.OutputSettings, self.scrollWidget
+        )
         self.outputFormatCard = ComboBoxSettingCard(
             cfg.ffmpegOutputFormat,
             FIF.SAVE,
-            self.tr("输出文件格式"),
-            self.tr("选择输出视频格式"),
+            self.globalText.OutputFileFormat,
+            self.globalText.SOVF,
             texts=["MP4", "MKV", "AVI", "MOV", "WebM"],
             parent=self.outputGroup,
         )
         self.overwriteOutputCard = SwitchSettingCard(
             FIF.ACCEPT,
-            self.tr("覆盖输出文件"),
-            self.tr("如果输出文件已存在则覆盖"),
+            self.globalText.OverwriteOutputFile,
+            self.globalText.OIOFAE,
             configItem=cfg.ffmpegOverwriteOutput,
             parent=self.outputGroup,
         )
 
         # 视频处理
         self.videoProcessingGroup = SettingCardGroup(
-            self.tr("视频处理"), self.scrollWidget
+            self.globalText.VideoProcessing, self.scrollWidget
         )
         self.concurrentEncodesCard = RangeSettingCard(
             cfg.concurrentEncodes,
             FIF.SPEED_HIGH,
-            title=self.tr("并发压制数量"),
-            content=self.tr("同时压制多个视频时的最大并行数"),
+            title=self.globalText.CEC,
+            content=self.globalText.MPCWEMVS,
             parent=self.videoProcessingGroup,
         )
         self.scaleCard = ComboBoxSettingCard(
             cfg.ffmpegScale,
             FIF.ZOOM,
-            self.tr("视频缩放"),
-            self.tr("调整视频分辨率"),
+            self.globalText.VideoScaling,
+            self.globalText.AVR,
             texts=[
-                self.tr("保持原尺寸"),
-                self.tr("720p"),
-                self.tr("1080p"),
-                self.tr("1440p"),
-                self.tr("2160p"),
-                self.tr("自定义"),
+                self.globalText.KeepOriginalSize,
+                self.globalText.Text720p,
+                self.globalText.Text1080p,
+                self.globalText.Text1440p,
+                self.globalText.Text2160p,
+                self.globalText.Custom,
             ],
             parent=self.videoProcessingGroup,
         )
         self.customScaleCard = LineEditSettingCard(
             cfg.ffmpegCustomScale,
             FIF.EDIT,
-            self.tr("自定义尺寸"),
-            self.tr("设置自定义分辨率 (例如: 1920:1080)"),
+            self.globalText.CustomSize,
+            self.globalText.SCREG11,
             placeholderText="1920:1080",
             parent=self.videoProcessingGroup,
         )
         self.fpsCard = ComboBoxSettingCard(
             cfg.ffmpegFps,
             FIF.SPEED_HIGH,
-            self.tr("帧率设置"),
-            self.tr("设置输出视频帧率"),
+            self.globalText.FrameRateSettings,
+            self.globalText.SOVFR,
             texts=[
-                self.tr("保持原帧率"),
-                self.tr("24 fps"),
-                self.tr("25 fps"),
-                self.tr("30 fps"),
-                self.tr("50 fps"),
-                self.tr("60 fps"),
+                self.globalText.KOFR,
+                self.globalText.Text24Fps,
+                self.globalText.Text25Fps,
+                self.globalText.Text30Fps,
+                self.globalText.Text50Fps,
+                self.globalText.Text60Fps,
             ],
             parent=self.videoProcessingGroup,
         )
         self.videoBitrateCard = LineEditSettingCard(
             cfg.ffmpegVideoBitrate,
             FIF.SPEED_MEDIUM,
-            self.tr("视频码率限制"),
-            self.tr("设置视频码率限制 (例如: 2M, 空表示不使用限制)"),
+            self.globalText.VideoBitrateLimit,
+            self.globalText.SVBLEG2EMNL,
             placeholderText="",
             parent=self.videoProcessingGroup,
         )
 
         # 性能选项
-        self.performanceGroup = SettingCardGroup(self.tr("性能选项"), self.scrollWidget)
+        self.performanceGroup = SettingCardGroup(
+            self.globalText.PerformanceOptions, self.scrollWidget
+        )
         self.useHardwareAccelerationCard = SwitchSettingCard(
             FIF.DEVELOPER_TOOLS,
-            self.tr("启用硬件加速"),
-            self.tr("使用GPU硬件加速编码"),
+            self.globalText.EHA,
+            self.globalText.UGHAFE,
             configItem=cfg.ffmpegUseHardwareAcceleration,
             parent=self.performanceGroup,
         )
         self.hardwareAcceleratorCard = ComboBoxSettingCard(
             cfg.ffmpegHardwareAccelerator,
             FIF.VPN,
-            self.tr("硬件加速类型"),
-            self.tr("选择硬件加速方式"),
+            self.globalText.HAT,
+            self.globalText.SHAM,
             texts=[
-                self.tr("自动检测"),
-                self.tr("NVIDIA CUDA"),
-                self.tr("Intel QSV"),
-                self.tr("DXVA2"),
-                self.tr("VideoToolbox"),
+                self.globalText.AutoDetect,
+                self.globalText.NVIDIACUDA,
+                self.globalText.IntelQSV,
+                self.globalText.DXVA2,
+                self.globalText.VideoToolbox,
             ],
             parent=self.performanceGroup,
         )
@@ -1945,7 +1969,7 @@ class FFmpegSettingInterface(ScrollArea):
         return super().enterEvent(event)
 
     def _onFFmpegPathCardClicked(self):
-        path, _ = QFileDialog.getOpenFileName(self, self.tr("选择ffmpeg文件"))
+        path, _ = QFileDialog.getOpenFileName(self, self.globalText.SelectFfmpegFile)
 
         if not path or cfg.get(cfg.ffmpegPath) == path:
             return
@@ -2032,18 +2056,19 @@ class ReleaseSettingInterface(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
         # setting label
-        self.settingLabel = TitleLabel(self.tr("上传设置"), self)
+        self.settingLabel = TitleLabel(self.globalText.UploadSettings, self)
 
         # uoload-video路径
         self.apiPathGroup = SettingCardGroup(
-            self.tr("upload-video 路径"), self.scrollWidget
+            self.globalText.UploadVideoPath, self.scrollWidget
         )
         self.apiPathCard = PushSettingCard(
-            self.tr("选择文件"),
+            self.globalText.SelectFile3,
             ":/app/images/logo/bilibili.svg",
             "upload-video",
             cfg.get(cfg.apiPath),
@@ -2052,30 +2077,30 @@ class ReleaseSettingInterface(ScrollArea):
 
         # Cookie: SESSDATA BILI_JCT BUVID3
         self.cookieGroup = SettingCardGroup(
-            self.tr("Cookie (必填 否则无法上传)"),
+            self.globalText.CRFU,
             self.scrollWidget,
         )
         self.cookieSessCard = PasswordLineEditSettingCard(
             cfg.bilibiliSessdata,
             FIF.SEARCH_MIRROR,
-            self.tr("SESSDATA"),
-            self.tr("设置你的SESSDATA"),
+            self.globalText.SESSDATA,
+            self.globalText.SetYourSESSDATA,
             placeholderText="",
             parent=self.cookieGroup,
         )
         self.cookieJctCard = PasswordLineEditSettingCard(
             cfg.bilibiliBiliJct,
             FIF.SEARCH_MIRROR,
-            self.tr("BILI_JCT"),
-            self.tr("设置你的BILI_JCT"),
+            self.globalText.BILIJCT,
+            self.globalText.SetYourBILIJCT,
             placeholderText="",
             parent=self.cookieGroup,
         )
         self.cookieBuvid3Card = PasswordLineEditSettingCard(
             cfg.bilibiliBuvid3,
             FIF.SEARCH_MIRROR,
-            self.tr("BUVID3"),
-            self.tr("设置你的BUVID3"),
+            self.globalText.BUVID3,
+            self.globalText.SetYourBUVID3,
             placeholderText="",
             parent=self.cookieGroup,
         )
@@ -2088,7 +2113,7 @@ class ReleaseSettingInterface(ScrollArea):
         self._connectSignalToSlot()
 
     def _onApiPathCardClicked(self):
-        path, _ = QFileDialog.getOpenFileName(self, self.tr("选择upload-video文件"))
+        path, _ = QFileDialog.getOpenFileName(self, self.globalText.SUVF)
 
         if not path or cfg.get(cfg.apiPath) == path:
             return

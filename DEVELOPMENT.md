@@ -632,39 +632,88 @@ def _toggleTheme(self):
 - 深色模式：显示太阳图标（切到浅色）
 - 浅色模式：显示月亮图标（切到深色）
 
-### 10. 多语言系统（`app/resource/i18n/`）
+### 10. 多语言系统（`app/common/text.py`、`app/resource/i18n/`）
 
-应用支持中文和英文界面，使用 Qt Linguist 进行翻译管理。
+应用支持中文、英文、日语、韩语界面，使用 Qt Linguist 管理翻译资源。当前项目统一通过 `Text` 类集中维护 UI 文案，业务代码应访问 `self.globalText.<属性名>`，避免散落的 `self.tr(...)` 或 `QCoreApplication.translate(...)`。
 
-**翻译文件**：
-- `app.en_US.ts` - 英文翻译源文件
-- `app.ja_JP.ts` - 日语翻译源文件（预留）
-- `app.ko_KR.ts` - 韩语翻译源文件（预留）
+**核心文件**：
+- `app/common/text.py` - 集中定义全部可翻译 UI 文案
+- `app/resource/i18n/app.en_US.ts` - 英文翻译源文件
+- `app/resource/i18n/app.ja_JP.ts` - 日语翻译源文件
+- `app/resource/i18n/app.ko_KR.ts` - 韩语翻译源文件
+- `app/resource/i18n/*.qm` - 运行时加载的编译后翻译文件
+- `app/resource/resource.qrc` - Qt 资源清单
+- `app/resource/resource_rc.py` - Qt 资源编译后的 Python 文件
 
-**翻译流程**：
-```bash
+**Text 使用规范**：
+```python
+from ..common.text import Text
+
+class ExampleInterface(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.globalText = Text()
+        self.titleLabel = TitleLabel(self.globalText.OCRSettings, self)
+```
+
+**禁止写法**：
+```python
+self.tr("开始时间")
+QCoreApplication.translate("Example", "开始时间")
+```
+
+**新增文案流程**：
+1. 在 `app/common/text.py` 的 `Text.__init__()` 中新增属性，例如 `self.StartTime = self.tr("开始时间")`。
+2. 在界面或服务代码中通过 `self.globalText.StartTime` 使用。
+3. 运行 `lupdate` 更新 `.ts` 文件。
+4. 补全 `.ts` 中各语言 `<translation>`。
+5. 运行 `lrelease` 生成 `.qm`。
+6. 若 `.qm` 被打进 Qt 资源，重新生成 `app/resource/resource_rc.py`。
+
+**翻译构建命令**：
+```powershell
 # 提取需要翻译的字符串
 lupdate.exe Fairy-Kekkai-Workshop.pro
 
-# 生成 .qm 翻译文件
+# 生成全部 .qm 翻译文件
 lrelease.exe Fairy-Kekkai-Workshop.pro
-```
 
-**使用翻译**：
-```python
-# 在代码中使用 self.tr() 标记可翻译字符串
-self.setWindowTitle(self.tr("LOG"))
-self.addSubInterface(self.allLogInterface, FIF.HOME, self.tr("全部日志"))
+# 如果 pyside6-lrelease 包装器异常，可直接调用 PySide6 工具
+& "C:\Users\<User>\AppData\Local\Programs\Python\Python39\lib\site-packages\PySide6\lrelease.exe" app\resource\i18n\app.en_US.ts -qm app\resource\i18n\app.en_US.qm
+
+# 重新生成 Qt 资源 Python 文件
+& "C:\Users\<User>\AppData\Local\Programs\Python\Python39\lib\site-packages\PySide6\rcc.exe" app\resource\resource.qrc -o app\resource\resource_rc.py -g python
 ```
 
 **语言配置**：
 - 默认语言：中文（`Language.CHINESE_SIMPLIFIED`）
 - 配置项：`cfg.language`（在 `app/common/config.py`）
+- 运行时资源路径：`:/app/i18n/app.en_US.qm` 等
 
-**翻译注意事项**：
-- 确保类继承自 `QObject` 或其子类（如 `FluentWindow`、`ScrollArea`）
-- 对于不在 QObject 子类中的翻译，使用 `QCoreApplication.translate()`
-- 对于枚举类翻译，创建辅助 QObject 子类（参考 `app/common/task_status.py`）
+**状态文本规范**：
+- `TaskStatus` 的枚举值必须保持稳定代码值，例如 `done`、`failed`，不能改成界面显示语言。
+- 任务界面显示文本统一通过 `status_text()` 获取。
+- `status_text()` 应在调用时即时创建 `Text()`，避免在翻译器安装前缓存中文文案。
+
+**语言代码与显示文本规范**：
+- 配置项保存稳定代码值，例如 OCR 使用 `japan`，翻译语言使用 `ja` / `zh`，AI 模型使用 `deepseek`。
+- UI 下拉框显示文本使用 `self.globalText` 生成，例如 `{"ja": self.globalText.Japanese}`。
+- 传给 OCR CLI 的 `lang` 必须是 OCR 语言代码，例如 `japan`。
+- 传给 AI Prompt 的 `origin_lang` / `target_lang` 应转换为语言显示名，例如 `日语`、`中文`。
+- 传给翻译服务选择器的 `AI` 必须保持服务 key，例如 `deepseek`，不能转成 `Deepseek` 或其它显示名。
+
+**占位符要求**：
+- `.ts` 翻译中的 `{}` 数量必须与 Python `.format(...)` 参数数量一致。
+- 示例：`self.globalText.FilesAllFiles.format(self.file_extension)` 只传一个参数，所以翻译也只能有一个 `{}`。
+
+**检查命令**：
+```powershell
+# 编译全部 Python 文件，检查语法错误
+python -m compileall -q app
+
+# 检查动态翻译调用残留
+rg "self\.tr\(|QCoreApplication\.translate" app -g "*.py"
+```
 
 ### 11. 批量任务系统（`app/components/dialog.py`）
 

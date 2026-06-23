@@ -11,7 +11,7 @@ save_subtitles_to_file(
     use_gpu=True,
     # ── 时间范围 ──
     time_start="0:00",
-    time_end="3:00",
+    time_end="0:30",
     # ── 检测区域 ──
     use_fullframe=False,
     subtitle_position="any",
@@ -32,5 +32,5 @@ save_subtitles_to_file(
     supportFilesPath=r"D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model",
 )
 """
-"D:\CODE\Fairy-Kekkai-Workshop\tools\PaddleOCR\paddleocr.exe" ocr --input "D:\CODE\Fairy-Kekkai-Workshop\temp1\rec_images" --device gpu --lang japan --text_detection_model_dir "D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model\high\cjk_mobile" --text_recognition_model_dir "D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model\high\cjk_mobile" --output "D:\CODE\Fairy-Kekkai-Workshop\temp1\ocr_results.json" --progress_file "D:\CODE\Fairy-Kekkai-Workshop\temp1\ocr_progress.txt"
+"D:\CODE\Fairy-Kekkai-Workshop\tools\PaddleOCR\paddleocr.exe" ocr --input "D:\CODE\Fairy-Kekkai-Workshop\temp1\rec_images" --device gpu --lang japan --text_detection_model_dir "D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model\high\cjk_mobile" --text_recognition_model_dir "D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model\high\cjk_mobile"
 """

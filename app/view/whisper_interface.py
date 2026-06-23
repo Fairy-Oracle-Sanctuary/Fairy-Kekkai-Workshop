@@ -18,6 +18,7 @@ from ..components.base_function_interface import BaseFunctionInterface
 from ..components.base_stacked_interface import BaseStackedInterfaces
 from ..components.config_card import WhisperSettingInterface
 from ..view.whisper_task_interface import WhisperTaskInterface
+from ..common.text import Text
 
 
 class WhisperStackedInterfaces(BaseStackedInterfaces):
@@ -25,13 +26,15 @@ class WhisperStackedInterfaces(BaseStackedInterfaces):
 
     def __init__(self, parent=None):
 
+        globalText = Text()
         super().__init__(
             parent=parent,
             main_interface_class=WhisperInterface,
             task_interface_class=WhisperTaskInterface,
             setting_interface_class=WhisperSettingInterface,
-            interface_name=self.tr("语音识别"),
+            interface_name=globalText.SpeechRecognition,
         )
+        self.globalText = globalText
 
         # 连接专用信号
         self.mainInterface.addTask.connect(self.taskInterface.addWhisperTask)
@@ -42,8 +45,10 @@ class WhisperInterface(BaseFunctionInterface):
     """语音识别界面"""
 
     def __init__(self, parent=None):
+        globalText = Text()
         self.file_video = None
-        super().__init__(parent, self.tr("识别"))
+        super().__init__(parent, globalText.Recognize)
+        self.globalText = globalText
 
         self.file_extension = (
             "*.mp4;*.flv;*.mkv;*.avi;*.wmv;*.mpg;*.mov;*.wav;*.mp3;*.flac"
@@ -61,25 +66,25 @@ class WhisperInterface(BaseFunctionInterface):
         self.languageCard = ComboBoxSettingCard(
             cfg.whisperLanguage,
             FIF.LANGUAGE,
-            self.tr("识别语言"),
-            self.tr("选择要识别的语言"),
+            self.globalText.RecognitionLanguage,
+            self.globalText.SLTR,
             texts=[
-                self.tr("自动检测"),
-                self.tr("中文"),
-                self.tr("日语"),
-                self.tr("英语"),
-                self.tr("韩语"),
-                self.tr("法语"),
-                self.tr("德语"),
-                self.tr("西班牙语"),
+                self.globalText.AutoDetect,
+                self.globalText.Chinese,
+                self.globalText.Japanese,
+                self.globalText.English,
+                self.globalText.Korean,
+                self.globalText.French,
+                self.globalText.German,
+                self.globalText.Spanish,
             ],
             parent=self.settingsGroup,
         )
         self.formatCard = ComboBoxSettingCard(
             cfg.whisperOutputFormat,
             FIF.DOCUMENT,
-            self.tr("输出格式"),
-            self.tr("选择字幕输出格式"),
+            self.globalText.OutputFormat,
+            self.globalText.SSOF,
             texts=["srt", "txt", "vtt"],
             parent=self.settingsGroup,
         )
@@ -88,13 +93,7 @@ class WhisperInterface(BaseFunctionInterface):
 
         # 模型说明提示卡片
         hint_label = BodyLabel(
-            self.tr(
-                '使用此功能前需<a href="https://pan.xunlei.com/s/VOu1R3aOfz05uqcbNUBSnEFSA1?pwd=62cr#" '
-                'style="color: #0078d4;">手动下载模型</a>后设置模型路径。'
-                "<b>注意</b>: 若是超过10分钟的视频强烈建议更换medium模型，超过30分钟的视频更换large模型。"
-                "更多模型可前往<a href='https://huggingface.co/ggerganov/whisper.cpp/tree/main' style='color: #0078d4;'>https://huggingface.co/ggerganov/whisper.cpp/tree/main</a>下载，"
-                "语音设置不推荐选择自动检测。目前模型存在幻觉，可能会生成一些重复文本，剪辑时请注意。"
-            )
+            self.globalText.BeforeUsingThisFeatu
         )
         hint_label.setWordWrap(True)
         hint_label.linkActivated.connect(
@@ -115,11 +114,11 @@ class WhisperInterface(BaseFunctionInterface):
         cli_path = cfg.get(cfg.whisperCliPath)
         if not cli_path or not os.path.exists(cli_path):
             dialog = Dialog(
-                self.tr("警告"),
-                self.tr("Whisper CLI路径 {} 不存在").format(cli_path),
+                self.globalText.Warning,
+                self.globalText.WCPDNE.format(cli_path),
                 self.window(),
             )
-            dialog.yesButton.setText(self.tr("确认"))
+            dialog.yesButton.setText(self.globalText.OK2)
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -127,11 +126,11 @@ class WhisperInterface(BaseFunctionInterface):
         model_path = cfg.get(cfg.whisperModelPath)
         if not model_path or not os.path.exists(model_path):
             dialog = Dialog(
-                self.tr("警告"),
-                self.tr("Whisper模型路径 {} 不存在").format(model_path),
+                self.globalText.Warning,
+                self.globalText.WMPDNE.format(model_path),
                 self.window(),
             )
-            dialog.yesButton.setText(self.tr("确认"))
+            dialog.yesButton.setText(self.globalText.OK2)
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return

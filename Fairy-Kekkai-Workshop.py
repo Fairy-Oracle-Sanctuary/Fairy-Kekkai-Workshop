@@ -78,38 +78,20 @@ if __name__ == "__main__":
 
 """
 ## 更新日志
-- PaddleOCR 独立构建：CVUtils 源码（DBNet/CRNN/ONNX Runtime/SSIM）全部从 LunaTranslator 迁移至本项目，CMake FetchContent 自动下载 OpenCV/Clipper2/ONNX Runtime/DirectML，零手动配置
-- OCR 访问冲突崩溃保护：新增 SEH 异常捕获（catch-all + /EHa），极端场景下自动跳过问题帧而非崩溃
-- AI 翻译 SRT 多行修复：发送前将字幕内换行替换为空格，避免多行字幕导致 AI 编号错乱
-- OCR 默认参数优化：SSIM 阈值 92→90，新增置信度阈值配置（0.0-1.0，默认 0.3），支持词语级+帧级双重过滤；UI 新增参数调整指南
-- Whisper 设置界面重构：模型选择逻辑简化，自动检测可用模型
-- 项目拖拽排序与置顶功能
-- 国际化（i18n）系统全面上线：基于 Qt Linguist，支持中文、英文
-- Windows 10 暗色模式背景渲染修复
-- 语言词典重构为使用语言代码作为键值
-- 文档完善：双语 README 增加项目理念与许可说明；DEVELOPMENT.md 新增 paddleocr C++ 编译章节和 OCR 参数参考表
-- 更新 Qt 资源编译器至 6.10.2
-- 优化翻译上下文管理，分批翻译时仅保留两轮历史，极大降低 API Token 消耗与延迟（支持 Deepseek/多模型）
-- Whisper 自动语音识别（ASR）集成，支持命令行工具，核心模块切换为 Const-me/Whisper 实现，性能与兼容性提升
-- 新增新手引导功能，提升首次使用体验
-- OCR 与 Whisper 处理流程优化，支持进度追踪与批量处理
-- 批量任务功能上线，支持多集自动派发
-- 批量删除功能上线，支持一键删除项目内各个文件
-- 设置界面与翻译界面提示文本优化，提升用户体验
-- 下载流程日志细化，修复路径类型转换问题
-- UI 交互大幅优化，完善系统托盘通知与应用关闭流程
-- 重构跨平台可执行文件路径检测逻辑，提升兼容性
-- 部署脚本主函数重构，支持 macOS 工具目录自动包含
-- 新增 Whisper 示例项目与依赖，调整默认语言与提示文本
-- 构建路径与 Output 目录优化，完善 .gitignore
-- README 增加 Star History 图表与 emoji 渲染修复
-- Whisper 构建文档完善
-- 图标与界面细节更新
-- 用户可自定义窗口类型
+- 国际化系统重构：统一使用 `Text` / `globalText` 管理界面文案，减少散落的动态翻译调用
+- 英文界面完善：补全并修正英文翻译资源，重新生成运行时 `.qm` 与 Qt 资源文件
+- 修复文件选择过滤器英文翻译占位符数量不一致导致的 `IndexError`
+- 修复任务界面状态文本在英文环境下仍显示“已完成 / 失败”的问题
+- 优化 OCR 设置界面、字幕提取界面与翻译界面的语言显示和设置项文案
+- 修复 OCR 参数中 `lang` 被错误转换为显示文本的问题，确保 CLI 接收稳定语言代码
+- 修复翻译任务参数映射：AI Prompt 使用语言显示名，翻译服务选择器保持模型 key
+- 优化字幕提取和翻译语言选择框，使用 `globalText` 生成本地化选项
+- 完善 `DEVELOPMENT.md` 多语言开发规范，补充翻译构建、资源生成和占位符检查流程
+- 保留 PaddleOCR 独立构建、Whisper 语音识别、批量任务、项目拖拽排序、AI 多模型翻译等能力
 
 ## 下载提示
-- [Fairy-Kekkai-Workshop-v2.0.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0/Fairy-Kekkai-Workshop-v2.0.0-Windows-x86_64-Setup.exe)(windows10/11)
-- [Fairy-Kekkai-Workshop-v2.0.0-macos-arm64](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0/Fairy-Kekkai-Workshop-v2.0.0-macos-arm64.dmg)(macos arm64)
+- [Fairy-Kekkai-Workshop-v2.1.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.1.0/Fairy-Kekkai-Workshop-v2.1.0-Windows-x86_64-Setup.exe)(windows10/11)
+- [Fairy-Kekkai-Workshop-v2.1.0-macos-arm64](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.1.0/Fairy-Kekkai-Workshop-v2.1.0-macos-arm64.dmg)(macos arm64)
 - 迅雷链接：https://pan.xunlei.com/s/VOl2n0KP6LH3zXUqcYX1iYUAA1?pwd=yzim#
 
 # Fairy Kekkai Workshop

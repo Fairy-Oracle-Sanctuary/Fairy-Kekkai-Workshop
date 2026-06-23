@@ -28,7 +28,7 @@
   </a>
 
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/Version-2.0.0-purple" alt="Version 2.0.0"/>
+    <img src="https://img.shields.io/badge/Version-2.1.0-purple" alt="Version 2.1.0"/>
   </a>
 
   <a style="text-decoration:none">

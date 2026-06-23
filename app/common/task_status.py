@@ -9,6 +9,8 @@ from enum import Enum
 
 from PySide6.QtCore import QObject
 
+from .text import Text
+
 
 class TaskStatus(Enum):
     """任务状态（内部稳定标识，不随语言变化）"""
@@ -24,26 +26,27 @@ class TaskStatus(Enum):
 class _TaskStatusTranslator(QObject):
     """用于 lupdate 提取翻译字符串的辅助类"""
 
+    def __init__(self):
+        super().__init__()
+        self.globalText = Text()
+
     def tr_waiting(self):
-        return self.tr("等待中")
+        return self.globalText.Waiting
 
     def tr_processing(self):
-        return self.tr("处理中")
+        return self.globalText.Processing
 
     def tr_done(self):
-        return self.tr("已完成")
+        return self.globalText.TextAuto005
 
     def tr_failed(self):
-        return self.tr("失败")
+        return self.globalText.Failed3
 
     def tr_cancelling(self):
-        return self.tr("正在取消...")
+        return self.globalText.Cancelling
 
     def tr_cancelled(self):
-        return self.tr("已取消")
-
-
-_translator = _TaskStatusTranslator()
+        return self.globalText.Cancelled
 
 
 def status_text(status, processing_text=None):
@@ -54,16 +57,17 @@ def status_text(status, processing_text=None):
         processing_text: PROCESSING 状态使用的已翻译显示文本
             （如"下载中"/"提取中"）。为空时使用通用"处理中"。
     """
+    translator = _TaskStatusTranslator()
     if status == TaskStatus.WAITING:
-        return _translator.tr_waiting()
+        return translator.tr_waiting()
     if status == TaskStatus.PROCESSING:
-        return processing_text or _translator.tr_processing()
+        return processing_text or translator.tr_processing()
     if status == TaskStatus.DONE:
-        return _translator.tr_done()
+        return translator.tr_done()
     if status == TaskStatus.FAILED:
-        return _translator.tr_failed()
+        return translator.tr_failed()
     if status == TaskStatus.CANCELLING:
-        return _translator.tr_cancelling()
+        return translator.tr_cancelling()
     if status == TaskStatus.CANCELLED:
-        return _translator.tr_cancelled()
+        return translator.tr_cancelled()
     return str(status)

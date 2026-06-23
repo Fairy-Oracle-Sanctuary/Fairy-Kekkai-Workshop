@@ -19,6 +19,7 @@ from qfluentwidgets import (
 
 from ..common.event_bus import event_bus
 from ..service.project_service import project
+from ..common.text import Text
 
 
 class BaseInputDialog(MessageBoxBase):
@@ -26,12 +27,13 @@ class BaseInputDialog(MessageBoxBase):
 
     def __init__(self, title, min_width=400, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.titleLabel = SubtitleLabel(title)
         self.viewLayout.addWidget(self.titleLabel)
 
         # 设置按钮文本
-        self.yesButton.setText(self.tr("确定"))
-        self.cancelButton.setText(self.tr("取消"))
+        self.yesButton.setText(self.globalText.OK)
+        self.cancelButton.setText(self.globalText.Cancel)
 
         # 设置最小宽度
         self.widget.setMinimumWidth(min_width)
@@ -55,7 +57,9 @@ class AddProject(BaseInputDialog):
     """添加新项目"""
 
     def __init__(self, parent=None):
-        super().__init__(self.tr("添加新项目"), min_width=450, parent=parent)
+        globalText = Text()
+        super().__init__(globalText.AddNewProject, min_width=450, parent=parent)
+        self.globalText = globalText
         self.setup_ui()
 
     def setup_ui(self):
@@ -63,18 +67,18 @@ class AddProject(BaseInputDialog):
         self.viewLayout.addLayout(grid_layout)
 
         self.nameInput = LineEdit(self)
-        self.nameInput.setPlaceholderText(self.tr("输入项目的名字"))
+        self.nameInput.setPlaceholderText(self.globalText.EnterProjectName)
 
         self.numInput = LineEdit(self)
-        self.numInput.setPlaceholderText(self.tr("输入这个系列一共几集"))
+        self.numInput.setPlaceholderText(self.globalText.ETNOEITS)
 
         self.titleInput = LineEdit(self)
-        self.titleInput.setPlaceholderText(self.tr("输入这个系列的原标题"))
+        self.titleInput.setPlaceholderText(self.globalText.EOTOTS)
 
         fields = [
-            (self.tr("项目名称:"), self.nameInput),
-            (self.tr("总集数:"), self.numInput),
-            (self.tr("原标题:"), self.titleInput),
+            (self.globalText.ProjectName, self.nameInput),
+            (self.globalText.TotalEpisodes, self.numInput),
+            (self.globalText.OriginalTitle, self.titleInput),
         ]
 
         for row, (label_text, widget) in enumerate(fields):
@@ -94,26 +98,26 @@ class AddProject(BaseInputDialog):
 
         # 验证非空字段
         non_empty_checks = [
-            (self.tr("项目名称"), project_name, self.tr("请输入项目名称")),
-            (self.tr("总集数"), subfolder_count, self.tr("请输入总集数")),
-            (self.tr("原标题"), title, self.tr("请输入原标题")),
+            (self.globalText.ProjectName2, project_name, self.globalText.PEPN),
+            (self.globalText.TotalEpisodes2, subfolder_count, self.globalText.PETNOE),
+            (self.globalText.OriginalTitle2, title, self.globalText.PEOT),
         ]
         errors.extend(self.validate_non_empty(non_empty_checks))
 
         # 检查项目是否已存在
         if project_name.strip() and os.path.exists(base_path + project_name):
-            errors.append(self.tr("错误：'{}' 文件夹已存在！").format(project_name))
+            errors.append(self.globalText.EFAE.format(project_name))
 
         # 验证集数格式
         if subfolder_count.strip():
             try:
                 subfolder_count_int = int(subfolder_count)
                 if subfolder_count_int <= 0:
-                    errors.append(self.tr("总集数必须大于0"))
+                    errors.append(self.globalText.TEMBGT0)
                 elif subfolder_count_int >= 128:
-                    errors.append(self.tr("总集数必须小于128"))
+                    errors.append(self.globalText.TEMBLT1)
             except ValueError:
-                errors.append(self.tr("总集数必须是有效的数字"))
+                errors.append(self.globalText.TEMBAVN)
 
         return errors
 
@@ -122,9 +126,11 @@ class AddProjectFromPlaylist(BaseInputDialog):
     """添加新项目"""
 
     def __init__(self, parent=None):
+        globalText = Text()
         super().__init__(
-            self.tr("根据播放列表添加新项目"), min_width=450, parent=parent
+            globalText.ANPFP, min_width=450, parent=parent
         )
+        self.globalText = globalText
         self.setup_ui()
 
     def setup_ui(self):
@@ -132,18 +138,18 @@ class AddProjectFromPlaylist(BaseInputDialog):
         self.viewLayout.addLayout(grid_layout)
 
         self.urlInput = LineEdit(self)
-        self.urlInput.setPlaceholderText(self.tr("输入播放列表url"))
+        self.urlInput.setPlaceholderText(self.globalText.EnterPlaylistURL)
 
         self.nameInput = LineEdit(self)
-        self.nameInput.setPlaceholderText(self.tr("输入项目的名字"))
+        self.nameInput.setPlaceholderText(self.globalText.EnterProjectName)
 
         self.titleInput = LineEdit(self)
-        self.titleInput.setPlaceholderText(self.tr("输入这个系列的原标题"))
+        self.titleInput.setPlaceholderText(self.globalText.EOTOTS)
 
         fields = [
-            (self.tr("视频列表url:"), self.urlInput),
-            (self.tr("项目名称:"), self.nameInput),
-            (self.tr("原标题:"), self.titleInput),
+            (self.globalText.VideoListURL, self.urlInput),
+            (self.globalText.ProjectName, self.nameInput),
+            (self.globalText.OriginalTitle, self.titleInput),
         ]
 
         for row, (label_text, widget) in enumerate(fields):
@@ -163,15 +169,15 @@ class AddProjectFromPlaylist(BaseInputDialog):
 
         # 验证非空字段
         non_empty_checks = [
-            (self.tr("视频列表url"), list_url, self.tr("请输入播放列表url")),
-            (self.tr("项目名称"), project_name, self.tr("请输入项目名称")),
-            (self.tr("原标题"), title, self.tr("请输入原标题")),
+            (self.globalText.VideoListURL2, list_url, self.globalText.PEPU),
+            (self.globalText.ProjectName2, project_name, self.globalText.PEPN),
+            (self.globalText.OriginalTitle2, title, self.globalText.PEOT),
         ]
         errors.extend(self.validate_non_empty(non_empty_checks))
 
         # 检查项目是否已存在
         if project_name.strip() and os.path.exists(base_path + project_name):
-            errors.append(self.tr("错误：'{}' 文件夹已存在！").format(project_name))
+            errors.append(self.globalText.EFAE.format(project_name))
 
         return errors
 
@@ -181,6 +187,7 @@ class CustomMessageBox(BaseInputDialog):
 
     def __init__(self, title, text, min_width=350, parent=None):
         super().__init__(title, min_width, parent)
+        self.globalText = Text()
 
         self.LineEdit = LineEdit()
         self.LineEdit.setPlaceholderText(text)
@@ -193,9 +200,9 @@ class CustomMessageBox(BaseInputDialog):
         return self.validate_non_empty(
             [
                 (
-                    self.tr("输入内容"),
+                    self.globalText.InputContent,
                     self.LineEdit.text().strip(),
-                    self.tr("请输入内容"),
+                    self.globalText.PleaseEnterContent,
                 )
             ]
         )
@@ -217,6 +224,7 @@ class CustomDoubleMessageBox(BaseInputDialog):
         parent=None,
     ):
         super().__init__(title, min_width, parent)
+        self.globalText = Text()
         self.error1 = error1
         self.error2 = error2
         self.setup_ui(input1, input2, text1, text2)
@@ -252,8 +260,8 @@ class CustomDoubleMessageBox(BaseInputDialog):
     def validateInput(self):
         return self.validate_non_empty(
             [
-                (self.tr("第一个输入"), self.LineEdit_1.text().strip(), self.error1),
-                (self.tr("第二个输入"), self.LineEdit_2.text().strip(), self.error2),
+                (self.globalText.FirstInput, self.LineEdit_1.text().strip(), self.error1),
+                (self.globalText.SecondInput, self.LineEdit_2.text().strip(), self.error2),
             ]
         )
 
@@ -334,7 +342,9 @@ class EditProjectDialog(BaseInputDialog):
     """编辑项目对话框（包含图标选择）"""
 
     def __init__(self, current_name, current_title, current_icon, parent=None):
-        super().__init__(self.tr("修改项目"), min_width=500, parent=parent)
+        globalText = Text()
+        super().__init__(globalText.EditProject, min_width=500, parent=parent)
+        self.globalText = globalText
         self.current_name = current_name
         self.current_title = current_title
         self.current_icon = current_icon
@@ -345,19 +355,19 @@ class EditProjectDialog(BaseInputDialog):
         self.viewLayout.addLayout(grid_layout)
 
         # 文件夹名
-        self.nameLabel = StrongBodyLabel(self.tr("文件夹名:"), self)
+        self.nameLabel = StrongBodyLabel(self.globalText.FolderName, self)
         self.nameInput = LineEdit(self)
         self.nameInput.setText(self.current_name)
         self.nameInput.setClearButtonEnabled(True)
 
         # 原标题
-        self.titleLabel = StrongBodyLabel(self.tr("原标题:"), self)
+        self.titleLabel = StrongBodyLabel(self.globalText.OriginalTitle, self)
         self.titleInput = LineEdit(self)
         self.titleInput.setText(self.current_title)
         self.titleInput.setClearButtonEnabled(True)
 
         # 图标选择
-        self.iconLabel = StrongBodyLabel(self.tr("图标:"), self)
+        self.iconLabel = StrongBodyLabel(self.globalText.Icon, self)
         self.iconComboBox = ComboBox(self)
 
         # 添加图标选项
@@ -393,9 +403,9 @@ class EditProjectDialog(BaseInputDialog):
     def validateInput(self):
         errors = []
         if not self.nameInput.text().strip():
-            errors.append(self.tr("请输入文件夹名"))
+            errors.append(self.globalText.PEFN)
         if not self.titleInput.text().strip():
-            errors.append(self.tr("请输入原标题"))
+            errors.append(self.globalText.PEOT)
         return errors
 
     def get_selected_icon(self):
@@ -417,12 +427,13 @@ class ProjectProgressDialog(MessageBoxBase):
 
     def __init__(self, progress, title, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.progress = progress
         self.title = title
         self.setup_ui()
 
     def setup_ui(self):
-        self.yesButton.setText(self.tr("我知道了"))
+        self.yesButton.setText(self.globalText.GotIt)
         self.cancelButton.setVisible(False)
 
         progress_all = sum(self.progress) / 5
@@ -448,11 +459,11 @@ class ProjectProgressDialog(MessageBoxBase):
         self.ring_subtitle = ProgressRing(self)
         self.ring_translated_subtitle = ProgressRing(self)
 
-        self.label_cover = StrongBodyLabel(self.tr("封面"), self)
-        self.label_video = StrongBodyLabel(self.tr("原视频"), self)
-        self.label_translated_video = StrongBodyLabel(self.tr("翻译后的视频"), self)
-        self.label_subtitle = StrongBodyLabel(self.tr("原字幕"), self)
-        self.label_translated_subtitle = StrongBodyLabel(self.tr("翻译后的字幕"), self)
+        self.label_cover = StrongBodyLabel(self.globalText.Cover, self)
+        self.label_video = StrongBodyLabel(self.globalText.OriginalVideo, self)
+        self.label_translated_video = StrongBodyLabel(self.globalText.TranslatedVideo, self)
+        self.label_subtitle = StrongBodyLabel(self.globalText.OriginalSubtitle, self)
+        self.label_translated_subtitle = StrongBodyLabel(self.globalText.TranslatedSubtitle, self)
 
         rings = [
             self.ring_cover,
@@ -503,6 +514,7 @@ class TranslateProgressDialog(MessageBoxBase):
 
     def __init__(self, task=None, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.task = task
         self.current_content = ""  # 存储当前翻译内容
         self.setup_ui()
@@ -521,15 +533,15 @@ class TranslateProgressDialog(MessageBoxBase):
                     print(f"读取翻译文件失败: {e}")
 
     def setup_ui(self):
-        self.titleLabel = SubtitleLabel(self.tr("翻译进度"))
+        self.titleLabel = SubtitleLabel(self.globalText.TranslationProgress)
         self.viewLayout.addWidget(self.titleLabel)
 
         self.textEdit = PlainTextEdit(self)
         self.textEdit.setReadOnly(True)
-        self.textEdit.setPlaceholderText(self.tr("翻译文本将在这里显示..."))
+        self.textEdit.setPlaceholderText(self.globalText.TTWBDH)
         self.viewLayout.addWidget(self.textEdit)
 
-        self.yesButton.setText(self.tr("关闭"))
+        self.yesButton.setText(self.globalText.Close)
         self.cancelButton.setVisible(False)
 
         # 设置对话框大小
@@ -560,6 +572,7 @@ class FFmpegProgressDialog(MessageBoxBase):
 
     def __init__(self, task=None, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.task = task
         self.current_content = ""  # 存储当前输出内容
         self.setup_ui()
@@ -571,15 +584,15 @@ class FFmpegProgressDialog(MessageBoxBase):
             self.connect_signals()
 
     def setup_ui(self):
-        self.titleLabel = SubtitleLabel(self.tr("压制视频进度"))
+        self.titleLabel = SubtitleLabel(self.globalText.VEP)
         self.viewLayout.addWidget(self.titleLabel)
 
         self.textEdit = PlainTextEdit(self)
         self.textEdit.setReadOnly(True)
-        self.textEdit.setPlaceholderText(self.tr("输出将在这里显示..."))
+        self.textEdit.setPlaceholderText(self.globalText.OWBDH)
         self.viewLayout.addWidget(self.textEdit)
 
-        self.yesButton.setText(self.tr("关闭"))
+        self.yesButton.setText(self.globalText.Close)
         self.cancelButton.setVisible(False)
 
         # 设置对话框大小
@@ -610,6 +623,7 @@ class ReleaseProgressDialog(MessageBoxBase):
 
     def __init__(self, task=None, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.task = task
         self.current_content = ""  # 存储当前输出内容
         self.setup_ui()
@@ -621,15 +635,15 @@ class ReleaseProgressDialog(MessageBoxBase):
             self.connect_signals()
 
     def setup_ui(self):
-        self.titleLabel = SubtitleLabel(self.tr("上传视频进度"))
+        self.titleLabel = SubtitleLabel(self.globalText.VideoUploadProgress)
         self.viewLayout.addWidget(self.titleLabel)
 
         self.textEdit = PlainTextEdit(self)
         self.textEdit.setReadOnly(True)
-        self.textEdit.setPlaceholderText(self.tr("输出将在这里显示..."))
+        self.textEdit.setPlaceholderText(self.globalText.OWBDH)
         self.viewLayout.addWidget(self.textEdit)
 
-        self.yesButton.setText(self.tr("关闭"))
+        self.yesButton.setText(self.globalText.Close)
         self.cancelButton.setVisible(False)
 
         # 设置对话框大小
@@ -660,6 +674,7 @@ class WhisperProgressDialog(MessageBoxBase):
 
     def __init__(self, task=None, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.task = task
         self.current_content = ""
         self.setup_ui()
@@ -671,15 +686,15 @@ class WhisperProgressDialog(MessageBoxBase):
             self.connect_signals()
 
     def setup_ui(self):
-        self.titleLabel = SubtitleLabel(self.tr("语音识别进度"))
+        self.titleLabel = SubtitleLabel(self.globalText.SRP)
         self.viewLayout.addWidget(self.titleLabel)
 
         self.textEdit = PlainTextEdit(self)
         self.textEdit.setReadOnly(True)
-        self.textEdit.setPlaceholderText(self.tr("输出将在这里显示..."))
+        self.textEdit.setPlaceholderText(self.globalText.OWBDH)
         self.viewLayout.addWidget(self.textEdit)
 
-        self.yesButton.setText(self.tr("关闭"))
+        self.yesButton.setText(self.globalText.Close)
         self.cancelButton.setVisible(False)
 
         # 设置对话框大小
@@ -712,11 +727,12 @@ class BatchTaskDialog(MessageBoxBase):
 
     def __init__(self, card_id, subfolders, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.card_id = card_id
         self.subfolders = subfolders  # [(folder_num, folder_path), ...]
         self._checkboxes = []  # [(checkbox, folder_num, folder_path)]
 
-        self.titleLabel = SubtitleLabel(self.tr("批量添加任务"))
+        self.titleLabel = SubtitleLabel(self.globalText.BatchAddTasks)
         self.viewLayout.addWidget(self.titleLabel)
 
         self.widget.setMinimumWidth(520)
@@ -729,9 +745,9 @@ class BatchTaskDialog(MessageBoxBase):
 
         # 全选 / 取消全选
         select_layout = QHBoxLayout()
-        select_all_btn = PushButton(self.tr("全选"))
+        select_all_btn = PushButton(self.globalText.SelectAll)
         select_all_btn.clicked.connect(self._select_all)
-        deselect_all_btn = PushButton(self.tr("取消全选"))
+        deselect_all_btn = PushButton(self.globalText.DeselectAll)
         deselect_all_btn.clicked.connect(self._deselect_all)
         select_layout.addWidget(select_all_btn)
         select_layout.addWidget(deselect_all_btn)
@@ -756,9 +772,9 @@ class BatchTaskDialog(MessageBoxBase):
         # 初始化列表
         self._on_task_type_changed(self.taskTypeCombo.currentText())
 
-        self.yesButton.setText(self.tr("添加任务"))
+        self.yesButton.setText(self.globalText.AddTask)
         self.yesButton.setEnabled(False)
-        self.cancelButton.setText(self.tr("取消"))
+        self.cancelButton.setText(self.globalText.Cancel)
 
     def _on_task_type_changed(self, task_type):
         """切换任务类型时刷新剧集列表"""
@@ -793,7 +809,7 @@ class BatchTaskDialog(MessageBoxBase):
         raw = str(folder_path)
         idx = folder_num - 1
         sub_title = project.project_subtitle[self.card_id][idx]
-        label = self.tr("第 {} 集 - {}").format(folder_num, sub_title)
+        label = self.globalText.Episode.format(folder_num, sub_title)
 
         if task_type == "下载":
             video_url = project.project_video_url[self.card_id][idx]
@@ -870,11 +886,12 @@ class BatchDeleteFileDialog(MessageBoxBase):
 
     def __init__(self, card_id, subfolders, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.card_id = card_id
         self.subfolders = subfolders
         self._checkboxes = []  # [(checkbox, folder_num, folder_path)]
 
-        self.titleLabel = SubtitleLabel(self.tr("批量删除文件"))
+        self.titleLabel = SubtitleLabel(self.globalText.BatchDeleteFiles)
         self.viewLayout.addWidget(self.titleLabel)
 
         self.widget.setMinimumWidth(520)
@@ -885,9 +902,9 @@ class BatchDeleteFileDialog(MessageBoxBase):
         self.viewLayout.addWidget(self.fileTypeCombo)
 
         select_layout = QHBoxLayout()
-        select_all_btn = PushButton(self.tr("全选"))
+        select_all_btn = PushButton(self.globalText.SelectAll)
         select_all_btn.clicked.connect(self._select_all)
-        deselect_all_btn = PushButton(self.tr("取消全选"))
+        deselect_all_btn = PushButton(self.globalText.DeselectAll)
         deselect_all_btn.clicked.connect(self._deselect_all)
         select_layout.addWidget(select_all_btn)
         select_layout.addWidget(deselect_all_btn)
@@ -909,9 +926,9 @@ class BatchDeleteFileDialog(MessageBoxBase):
 
         self._on_file_type_changed(self.fileTypeCombo.currentText())
 
-        self.yesButton.setText(self.tr("删除文件"))
+        self.yesButton.setText(self.globalText.DeleteFiles)
         self.yesButton.setEnabled(False)
-        self.cancelButton.setText(self.tr("取消"))
+        self.cancelButton.setText(self.globalText.Cancel)
 
     def _on_file_type_changed(self, file_type):
         self._clear_checkboxes()
@@ -922,7 +939,7 @@ class BatchDeleteFileDialog(MessageBoxBase):
             sub_title = project.project_subtitle[self.card_id][idx]
             file_path = os.path.join(str(folder_path), target_name)
             if os.path.exists(file_path):
-                label = self.tr("第 {} 集 - {}").format(folder_num, sub_title)
+                label = self.globalText.Episode.format(folder_num, sub_title)
                 cb = CheckBox(label)
                 cb.stateChanged.connect(self._on_check_state_changed)
                 self.episodeLayout.addWidget(cb)

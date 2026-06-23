@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import ScrollArea, SegmentedWidget
 
 from ..common.task_status import TaskStatus, status_text
+from ..common.text import Text
 
 
 class BaseTaskInterface(ScrollArea):
@@ -21,6 +22,7 @@ class BaseTaskInterface(ScrollArea):
         parent=None,
     ):
         super().__init__(parent)
+        self.globalText = Text()
         self.view = QWidget(self)
         self.vBoxLayout = QVBoxLayout(self.view)
 
@@ -51,7 +53,7 @@ class BaseTaskInterface(ScrollArea):
         self.failedTab = QWidget()
 
         self.segmentedWidget.addItem(
-            self.allTab, self.tr("全部"), lambda: self.filterTasks("all")
+            self.allTab, self.globalText.All, lambda: self.filterTasks("all")
         )
         self.segmentedWidget.addItem(
             self.processingTab,
@@ -99,11 +101,11 @@ class BaseTaskInterface(ScrollArea):
 
     def getSuccessMessage(self, task_path):
         """获取成功消息"""
-        return self.tr("-{}- {}完成").format(task_path, self.task_type)
+        return self.globalText.Completed.format(task_path, self.task_type)
 
     def getFailureMessage(self, task_path, message):
         """获取失败消息"""
-        return self.tr("-{}- 失败: {}").format(task_path, message)
+        return self.globalText.Failed.format(task_path, message)
 
     def _updateMaxConcurrentTasks(self, value):
         """更新最大并发任务数"""
@@ -245,14 +247,14 @@ class BaseTaskInterface(ScrollArea):
                 if success:
                     task.status = TaskStatus.DONE
                     event_bus.notification_service.show_success(
-                        self.tr("{}完成").format(self.task_type),
+                        self.globalText.TextAuto006.format(self.task_type),
                         self.getSuccessMessage(task_path),
                     )
                 else:
                     task.status = TaskStatus.FAILED
                     if "取消" not in message:
                         event_bus.notification_service.show_error(
-                            self.tr("{}失败").format(self.task_type), message.strip()
+                            self.globalText.Failed2.format(self.task_type), message.strip()
                         )
 
                 # 移除活跃线程
