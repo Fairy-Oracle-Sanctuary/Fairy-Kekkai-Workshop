@@ -26,9 +26,7 @@ from qfluentwidgets import FluentIcon as FIF
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
-from ..common.setting import (
-    videocr_languages_dict,
-)
+from ..common.text import Text
 from ..components.base_function_interface import BaseFunctionInterface
 from ..components.base_stacked_interface import BaseStackedInterfaces
 from ..components.config_card import DictSettingCard, OCRSettingInterface
@@ -40,13 +38,15 @@ class VideocrStackedInterfaces(BaseStackedInterfaces):
     """视频OCR堆叠界面"""
 
     def __init__(self, parent=None):
+        globalText = Text()
         super().__init__(
             parent=parent,
             main_interface_class=VideocrInterface,
             task_interface_class=OcrTaskInterface,
             setting_interface_class=OCRSettingInterface,
-            interface_name=self.tr("字幕提取"),
+            interface_name=globalText.SubtitleExtraction,
         )
+        self.globalText = globalText
 
         # 连接专用信号
         self.mainInterface.addTask.connect(self.taskInterface.addOcrTask)
@@ -70,13 +70,15 @@ class VideocrInterface(BaseFunctionInterface):
     """视频OCR字幕提取界面"""
 
     def __init__(self, parent=None):
+        globalText = Text()
         self.video_capture = None
         self.current_frame = 0
         self.total_frames = 0
         self.fps = 0
         self.video_preview = None
 
-        super().__init__(parent, self.tr("提取字幕"))
+        super().__init__(parent, globalText.ExtractSubtitles)
+        self.globalText = globalText
 
         self.file_extension = "*.mp4;*.flv;*.mkv;*.avi;*.wmv;*.m2ts;*.ts;*.mov;*.webm"
         self.default_output_suffix = ""
@@ -102,9 +104,9 @@ class VideocrInterface(BaseFunctionInterface):
         self.languageCard = DictSettingCard(
             configItem=cfg.ocr_lang,
             icon=FIF.LANGUAGE,
-            title=self.tr("识别语言"),
-            content=self.tr("选择字幕文本的语言"),
-            options_dict=videocr_languages_dict,
+            title=self.globalText.RecognitionLanguage,
+            content=self.globalText.SSTL,
+            options_dict=self._get_ocr_language_options(),
         )
         self.settingsGroup.addSettingCard(self.languageCard)
 
@@ -118,6 +120,123 @@ class VideocrInterface(BaseFunctionInterface):
         # )
         # self.settingsGroup.addSettingCard(self.positionCard)
 
+    def _get_ocr_language_options(self):
+        return {
+            "ch": self.globalText.ChineseEnglish,
+            "chinese_cht": self.globalText.TraditionalChinese,
+            "en": self.globalText.English,
+            "japan": self.globalText.Japanese,
+            "korean": self.globalText.Korean,
+            "fr": self.globalText.French,
+            "german": self.globalText.German,
+            "es": self.globalText.Spanish,
+            "pt": self.globalText.Portuguese,
+            "it": self.globalText.Italian,
+            "ru": self.globalText.Russian,
+            "ar": self.globalText.Arabic,
+            "nl": self.globalText.Dutch,
+            "el": self.globalText.Greek,
+            "sv": self.globalText.Swedish,
+            "no": self.globalText.Norwegian,
+            "da": self.globalText.Danish,
+            "fi": self.globalText.Finnish,
+            "pl": self.globalText.Polish,
+            "cs": self.globalText.Czech,
+            "hu": self.globalText.Hungarian,
+            "ro": self.globalText.Romanian,
+            "bg": self.globalText.Bulgarian,
+            "rs_cyrillic": self.globalText.SerbianCyrillic,
+            "rs_latin": self.globalText.SerbianLatin,
+            "hr": self.globalText.Croatian,
+            "sk": self.globalText.Slovak,
+            "sl": self.globalText.Slovenian,
+            "uk": self.globalText.Ukrainian,
+            "be": self.globalText.Belarusian,
+            "sq": self.globalText.Albanian,
+            "et": self.globalText.Estonian,
+            "lv": self.globalText.Latvian,
+            "lt": self.globalText.Lithuanian,
+            "is": self.globalText.Icelandic,
+            "ga": self.globalText.Irish,
+            "cy": self.globalText.Welsh,
+            "mt": self.globalText.Maltese,
+            "hi": self.globalText.Hindi,
+            "ur": self.globalText.Urdu,
+            "bh": self.globalText.Bengali,
+            "ta": self.globalText.Tamil,
+            "te": self.globalText.Telugu,
+            "mr": self.globalText.Marathi,
+            "th": self.globalText.Thai,
+            "vi": self.globalText.Vietnamese,
+            "id": self.globalText.Indonesian,
+            "ms": self.globalText.Malay,
+            "tl": self.globalText.Filipino,
+            "fa": self.globalText.Persian,
+            "tr": self.globalText.Turkish,
+            "he": self.globalText.Hebrew,
+            "ne": self.globalText.Nepali,
+            "si": self.globalText.Sinhala,
+            "my": self.globalText.Burmese,
+            "km": self.globalText.Khmer,
+            "lo": self.globalText.Lao,
+            "mn": self.globalText.Mongolian,
+            "ug": self.globalText.Uyghur,
+            "uz": self.globalText.Uzbek,
+            "sw": self.globalText.Swahili,
+            "af": self.globalText.Afrikaans,
+            "la": self.globalText.Latin,
+            "sa": self.globalText.Sanskrit,
+            "mi": self.globalText.Maori,
+            "abq": self.globalText.Abaza,
+            "ady": self.globalText.Adyghe,
+            "ang": self.globalText.Angika,
+            "ava": self.globalText.Avar,
+            "az": self.globalText.Azerbaijani,
+            "bho": self.globalText.Bhojpuri,
+            "bs": self.globalText.Bosnian,
+            "che": self.globalText.Chechen,
+            "dar": self.globalText.Dargwa,
+            "gom": self.globalText.GoanKonkani,
+            "bgc": self.globalText.Haryanvi,
+            "inh": self.globalText.Ingush,
+            "kbd": self.globalText.Kabardian,
+            "ku": self.globalText.Kurdish,
+            "lbe": self.globalText.Lak,
+            "lez": self.globalText.Lezgi,
+            "mah": self.globalText.Magahi,
+            "mai": self.globalText.Maithili,
+            "sck": self.globalText.Nagpuri,
+            "new": self.globalText.Newar,
+            "oc": self.globalText.Occitan,
+            "pi": self.globalText.Pali,
+            "tab": self.globalText.Tabassaran,
+            "bal": self.globalText.Balochi,
+            "ba": self.globalText.Bashkir,
+            "eu": self.globalText.Basque,
+            "bua": self.globalText.Buryat,
+            "ca": self.globalText.Catalan,
+            "gl": self.globalText.Galician,
+            "ka": self.globalText.Georgian,
+            "xal": self.globalText.Kalmyk,
+            "kaa": self.globalText.Karakalpak,
+            "kk": self.globalText.Kazakh,
+            "kv": self.globalText.Komi,
+            "ky": self.globalText.Kyrgyz,
+            "lb": self.globalText.Luxembourgish,
+            "mk": self.globalText.Macedonian,
+            "mhr": self.globalText.MeadowMari,
+            "mo": self.globalText.Moldovan,
+            "os": self.globalText.Ossetic,
+            "qu": self.globalText.Quechua,
+            "rm": self.globalText.Romansh,
+            "sd": self.globalText.Sindhi,
+            "tg": self.globalText.Tajik,
+            "tt": self.globalText.Tatar,
+            "tyv": self.globalText.Tuva,
+            "udm": self.globalText.Udmurt,
+            "sah": self.globalText.SakhaYakut,
+        }
+
     def create_preview_card(self):
         """创建视频预览卡片"""
         card = SimpleCardWidget()
@@ -125,7 +244,7 @@ class VideocrInterface(BaseFunctionInterface):
 
         # 标题
         title_layout = QHBoxLayout()
-        title_label = StrongBodyLabel(self.tr("视频预览"))
+        title_label = StrongBodyLabel(self.globalText.VideoPreview)
         title_layout.addWidget(title_label)
         title_layout.addStretch()
         layout.addLayout(title_layout)
@@ -139,8 +258,8 @@ class VideocrInterface(BaseFunctionInterface):
         self.progress_slider = Slider(Qt.Horizontal)
         self.progress_slider.setEnabled(False)
 
-        self.frame_label = CaptionLabel(self.tr("帧: -/-"))
-        self.time_label = CaptionLabel(self.tr("时间: -/-"))
+        self.frame_label = CaptionLabel(self.globalText.Frame)
+        self.time_label = CaptionLabel(self.globalText.Time)
 
         control_layout.addWidget(self.progress_slider, 4)
         control_layout.addWidget(self.frame_label, 1)
@@ -149,17 +268,9 @@ class VideocrInterface(BaseFunctionInterface):
         self.log_text = TextEdit()
         self.log_text.setMinimumHeight(200)
         self.log_text.setReadOnly(True)
-        self.log_text.setPlaceholderText(self.tr("处理日志将显示在这里..."))
+        self.log_text.setPlaceholderText(self.globalText.PLWBDH)
 
-        hint_label = BodyLabel(
-            self.tr(
-                "参数调整建议：\n"
-                "• 漏句 → 降低「跳过的帧数」，提高「SSIM阈值」，降低「最大图像宽度」至 720\n"
-                "• 误识别多 → 提高「置信度阈值」至 0.5~0.7，过滤低质量识别结果\n"
-                "• 字幕断句多 → 提高「相似度阈值」至 75~85，增大「最大合并间隔」至 0.2~0.5\n"
-                "以上参数均在「高级设置」中调整"
-            )
-        )
+        hint_label = BodyLabel(self.globalText.ParameterAdjustmentT)
         hint_label.setWordWrap(True)
 
         layout.addLayout(control_layout)
@@ -184,7 +295,7 @@ class VideocrInterface(BaseFunctionInterface):
         super()._create_button_layout(main_layout)
 
         # 为OCR界面添加清空日志按钮
-        self.clear_btn = PushButton(FIF.DELETE, self.tr("清空日志"))
+        self.clear_btn = PushButton(FIF.DELETE, self.globalText.ClearLogs)
         main_layout.itemAt(main_layout.count() - 1).layout().addWidget(self.clear_btn)
         self.clear_btn.clicked.connect(self._clear_log)
 
@@ -228,13 +339,15 @@ class VideocrInterface(BaseFunctionInterface):
             self.video_preview.refresh_select_btn()
             self.refresh_start_btn()
 
-            self._log_message(self.tr("成功加载视频: {}").format(video_path))
+            self._log_message(self.globalText.VLS.format(video_path))
             self._log_message(
-                self.tr("总帧数: {}, FPS: {:.2f}").format(self.total_frames, self.fps)
+                self.globalText.TotalFramesFPS2f.format(self.total_frames, self.fps)
             )
 
         except Exception as e:
-            self._log_message(self.tr("加载视频失败: {}").format(str(e)), is_error=True)
+            self._log_message(
+                self.globalText.FailedToLoadVideo.format(str(e)), is_error=True
+            )
 
     def _update_video_frame(self, frame_number):
         """更新视频帧显示"""
@@ -248,13 +361,13 @@ class VideocrInterface(BaseFunctionInterface):
 
                 # 更新帧和时间信息
                 self.frame_label.setText(
-                    self.tr("帧: {}/{}").format(frame_number + 1, self.total_frames)
+                    self.globalText.Frame2.format(frame_number + 1, self.total_frames)
                 )
                 if self.fps > 0:
                     current_time = frame_number / self.fps
                     total_time = self.total_frames / self.fps
                     self.time_label.setText(
-                        self.tr("时间: {}/{}").format(
+                        self.globalText.Time2.format(
                             self._format_time(current_time),
                             self._format_time(total_time),
                         )
@@ -282,20 +395,18 @@ class VideocrInterface(BaseFunctionInterface):
         paddleocr_path = cfg.get(cfg.paddleocrPath)
         if not os.path.exists(paddleocr_path):
             self.show_error_message(
-                self.tr("paddleocr.exe不存在: {}").format(paddleocr_path)
+                self.globalText.PaddleocrExeNotFound.format(paddleocr_path)
             )
             return
 
         # 检测paddleocr路径内是否有中文
         if re.search("[\u4e00-\u9fff\u3400-\u4dbf]", cfg.get(cfg.paddleocrPath)):
             dialog = Dialog(
-                self.tr("警告"),
-                self.tr("PaddleOCR路径 {} 不能包含中文字符").format(
-                    cfg.get(cfg.paddleocrPath)
-                ),
+                self.globalText.Warning,
+                self.globalText.PPMNCCC.format(cfg.get(cfg.paddleocrPath)),
                 self.window(),
             )
-            dialog.yesButton.setText(self.tr("确认"))
+            dialog.yesButton.setText(self.globalText.OK2)
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -303,13 +414,11 @@ class VideocrInterface(BaseFunctionInterface):
         # 检测supportFiles路径是否有中文
         if re.search("[\u4e00-\u9fff\u3400-\u4dbf]", cfg.get(cfg.supportFilesPath)):
             dialog = Dialog(
-                self.tr("警告"),
-                self.tr("支持文件夹路径 {} 不能包含中文字符").format(
-                    cfg.get(cfg.supportFilesPath)
-                ),
+                self.globalText.Warning,
+                self.globalText.SFPMNCCC.format(cfg.get(cfg.supportFilesPath)),
                 self.window(),
             )
-            dialog.yesButton.setText(self.tr("确认"))
+            dialog.yesButton.setText(self.globalText.OK2)
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
@@ -318,43 +427,41 @@ class VideocrInterface(BaseFunctionInterface):
         temp_path = cfg.get(cfg.tempDir)
         if re.search("[\u4e00-\u9fff\u3400-\u4dbf]", temp_path):
             dialog = Dialog(
-                self.tr("警告"),
-                self.tr("临时文件夹路径 {} 不能包含中文字符").format(temp_path),
+                self.globalText.Warning,
+                self.globalText.TFPMNCCC2.format(temp_path),
                 self.window(),
             )
-            dialog.yesButton.setText(self.tr("确认"))
+            dialog.yesButton.setText(self.globalText.OK2)
             dialog.cancelButton.setVisible(False)
             dialog.exec()
             return
 
         if not os.path.exists(cfg.get(cfg.paddleocrPath)):
             self.show_error_message(
-                self.tr("PaddleOCR路径不存在: {}").format(cfg.get(cfg.paddleocrPath))
+                self.globalText.PPDNE.format(cfg.get(cfg.paddleocrPath))
             )
             return
 
         if not os.path.exists(cfg.get(cfg.supportFilesPath)):
             self.show_error_message(
-                self.tr("支持文件夹路径不存在: {}").format(
-                    cfg.get(cfg.supportFilesPath)
-                )
+                self.globalText.SFPDNE.format(cfg.get(cfg.supportFilesPath))
             )
             return
 
         if not self.file_path:
-            self.show_error_message(self.tr("请先选择视频文件"))
+            self.show_error_message(self.globalText.PSAVFF)
             return
 
         if not self.outputFileCard.lineEdit.text():
-            self.show_error_message(self.tr("请设置输出文件路径"))
+            self.show_error_message(self.globalText.PSTOFP)
             return
 
         selection_rect = self.video_preview.get_selection_rect()
         if not selection_rect:
-            self.show_error_message(self.tr("请先框选字幕区域"))
+            self.show_error_message(self.globalText.PSSAF)
             return
         self._log_message(
-            self.tr("使用自定义区域: {}, {}, {}x{}").format(
+            self.globalText.UsingCustomAreaX.format(
                 selection_rect.x(),
                 selection_rect.y(),
                 selection_rect.width(),
@@ -375,7 +482,7 @@ class VideocrInterface(BaseFunctionInterface):
         args["video_path"] = self.inputFileCard.lineEdit.text()
         args["file_path"] = self.outputFileCard.lineEdit.text()
         args["temp_dir"] = cfg.get(cfg.tempDir)
-        args["lang"] = videocr_languages_dict.get(cfg.get(cfg.ocr_lang), "japan")
+        args["lang"] = cfg.get(cfg.ocr_lang)
         args["time_start"] = cfg.get(cfg.timeStart)
         args["time_end"] = cfg.get(cfg.timeEnd)
         args["sim_threshold"] = cfg.get(cfg.simThreshold)

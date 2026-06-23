@@ -32,6 +32,7 @@ from ..common.config import cfg, get_default_exe_path
 from ..common.event_bus import event_bus
 from ..common.setting import COPYLEFT, TEAM, VERSION, YEAR
 from ..components.config_card import DetectionCard
+from ..common.text import Text
 
 
 class ExeDetectThread(QThread):
@@ -69,136 +70,137 @@ class SettingInterface(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.globalText = Text()
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
         # setting label
-        self.settingLabel = TitleLabel(self.tr("设置"), self)
+        self.settingLabel = TitleLabel(self.globalText.Settings, self)
 
         # 个性化
-        self.personalGroup = SettingCardGroup(self.tr("个性化"), self.scrollWidget)
+        self.personalGroup = SettingCardGroup(self.globalText.Personalization, self.scrollWidget)
         self.themeCard = ComboBoxSettingCard(
             cfg.themeMode,
             FIF.BRUSH,
-            self.tr("应用主题"),
-            self.tr("调整应用的外观"),
-            texts=[self.tr("浅色"), self.tr("深色"), self.tr("跟随系统设置")],
+            self.globalText.ApplicationTheme,
+            self.globalText.AAA,
+            texts=[self.globalText.Light, self.globalText.Dark, self.globalText.FollowSystem],
             parent=self.personalGroup,
         )
         self.accentColorCard = ComboBoxSettingCard(
             cfg.accentColor,
             FIF.PALETTE,
-            self.tr("主题色"),
-            self.tr("调整应用的主题颜色"),
-            texts=[self.tr("海沫绿"), self.tr("跟随系统设置")],
+            self.globalText.ThemeColor,
+            self.globalText.AdjustThemeColor,
+            texts=[self.globalText.SeafoamGreen, self.globalText.FollowSystem],
             parent=self.personalGroup,
         )
         self.windowClassCard = ComboBoxSettingCard(
             cfg.windowClass,
             FIF.EMBED,
-            self.tr("窗口类型"),
-            self.tr("调整应用的窗口类型"),
+            self.globalText.WindowStyle,
+            self.globalText.AdjustWindowStyle,
             texts=[
-                self.tr("MSFluentWindow"),
-                self.tr("FluentWindow"),
-                self.tr("SplitFluentWindow"),
+                self.globalText.MSFluentWindow,
+                self.globalText.FluentWindow,
+                self.globalText.SplitFluentWindow,
             ],
             parent=self.personalGroup,
         )
         self.zoomCard = ComboBoxSettingCard(
             cfg.dpiScale,
             FIF.ZOOM,
-            self.tr("界面缩放"),
-            self.tr("调整组件和字体的大小"),
-            texts=["100%", "125%", "150%", "175%", "200%", self.tr("跟随系统设置")],
+            self.globalText.InterfaceScaling,
+            self.globalText.ACAFS,
+            texts=["100%", "125%", "150%", "175%", "200%", self.globalText.FollowSystem],
             parent=self.personalGroup,
         )
         self.languageCard = ComboBoxSettingCard(
             cfg.language,
             FIF.LANGUAGE,
-            self.tr("语言"),
-            self.tr("设置界面语言"),
-            texts=["简体中文", "English", self.tr("跟随系统设置")],
+            self.globalText.Language,
+            self.globalText.SetInterfaceLanguage,
+            texts=["简体中文", "English", self.globalText.FollowSystem],
             parent=self.personalGroup,
         )
         self.closeDirectlyCard = SwitchSettingCard(
             FIF.CLOSE,
-            self.tr("直接关闭"),
-            self.tr("启用或禁用直接关闭应用"),
+            self.globalText.CloseDirectly,
+            self.globalText.EODDC,
             configItem=cfg.closeDirectly,
             parent=self.personalGroup,
         )
         if sys.platform == "win32":
             self.showBackgroundCard = SwitchSettingCard(
                 FIF.BACKGROUND_FILL,
-                self.tr("背景图片"),
-                self.tr("启用或禁用应用背景图片"),
+                self.globalText.BackgroundImage,
+                self.globalText.EODBI,
                 configItem=cfg.showBackground,
                 parent=self.personalGroup,
             )
             self.backgroundPathCard = PushSettingCard(
-                self.tr("选择文件"),
+                self.globalText.SelectFile3,
                 FIF.PHOTO,
-                self.tr("选择背景图片"),
+                self.globalText.SBI,
                 cfg.get(cfg.backgroundPath),
                 self.personalGroup,
             )
             self.backgroundRectCard = RangeSettingCard(
                 cfg.backgroundRect,
                 FIF.TRANSPARENT,
-                title=self.tr("背景透明度"),
-                content=self.tr("调整背景图片的透明度"),
+                title=self.globalText.BackgroundOpacity,
+                content=self.globalText.ABO,
             )
 
         # project
-        self.projectGroup = SettingCardGroup(self.tr("项目"), self.scrollWidget)
+        self.projectGroup = SettingCardGroup(self.globalText.Project, self.scrollWidget)
         self.detailProjectItemNumCard = RangeSettingCard(
             cfg.detailProjectItemNum,
             FIF.DOCUMENT,
-            title=self.tr("项目详情页数量"),
-            content=self.tr("调整项目详情页项目数量"),
+            title=self.globalText.IPPIPD,
+            content=self.globalText.AdjustItemsPerPage,
             parent=self.projectGroup,
         )
 
         # download
-        self.downloadGroup = SettingCardGroup(self.tr("下载"), self.scrollWidget)
+        self.downloadGroup = SettingCardGroup(self.globalText.Download, self.scrollWidget)
         self.ytdlpPathCard = PushSettingCard(
-            self.tr("选择文件"),
+            self.globalText.SelectFile3,
             ":/app/images/logo/ytdlp.svg",
             "yt-dlp",
             cfg.get(cfg.ytdlpPath),
             self.downloadGroup,
         )
         self.ffmpegPathCard = PushSettingCard(
-            self.tr("选择文件"),
+            self.globalText.SelectFile3,
             ":/app/images/logo/FFmpeg.svg",
             "FFmpeg",
             cfg.get(cfg.ffmpegPath),
             self.downloadGroup,
         )
         self.detectionCard = DetectionCard(
-            FIF.SEARCH, self.tr("检测程序"), self.tr("自动检测并更新程序路径")
+            FIF.SEARCH, self.globalText.DetectPrograms, self.globalText.ADAUPP
         )
 
         # 关于
-        self.aboutGroup = SettingCardGroup(self.tr("关于"), self.scrollWidget)
+        self.aboutGroup = SettingCardGroup(self.globalText.About, self.scrollWidget)
         self.aboutCard = PrimaryPushSettingCard(
-            self.tr("检查更新"),
+            self.globalText.CheckForUpdates,
             ":/app/images/logo.png",
-            self.tr("关于"),
+            self.globalText.About,
             COPYLEFT
-            + self.tr("Copyleft")
+            + self.globalText.Copyleft
             + f" {YEAR}, {TEAM}. "
-            + self.tr("当前版本")
+            + self.globalText.CurrentVersion
             + " v"
             + VERSION,
             self.aboutGroup,
         )
         self.teachingTipCard = PushSettingCard(
-            self.tr("查看新手引导"),
+            self.globalText.ViewTutorial,
             FIF.BOOK_SHELF,
-            self.tr("新手引导"),
-            self.tr("重新查看软件使用教程"),
+            self.globalText.Tutorial,
+            self.globalText.ReplayTheTutorial,
             self.aboutGroup,
         )
 
@@ -258,11 +260,11 @@ class SettingInterface(ScrollArea):
     def _showRestartTooltip(self):
         """show restart tooltip"""
         event_bus.notification_service.show_success(
-            self.tr("更新成功"), self.tr("配置在重启软件后生效")
+            self.globalText.UpdateSuccessful, self.globalText.STEAR
         )
 
     def _backgroundPathCardClicked(self):
-        path, _ = QFileDialog.getOpenFileName(self, self.tr("选择背景图片"))
+        path, _ = QFileDialog.getOpenFileName(self, self.globalText.SBI)
 
         if not path or cfg.get(cfg.backgroundPath) == path:
             return
@@ -271,7 +273,7 @@ class SettingInterface(ScrollArea):
         self.backgroundPathCard.setContent(path)
 
     def _onYTDLPPathCardClicked(self):
-        path, _ = QFileDialog.getOpenFileName(self, self.tr("选择ytdlp文件"))
+        path, _ = QFileDialog.getOpenFileName(self, self.globalText.SelectYtDlpFile)
 
         if not path or cfg.get(cfg.ytdlpPath) == path:
             return
@@ -280,7 +282,7 @@ class SettingInterface(ScrollArea):
         self.ytdlpPathCard.setContent(path)
 
     def _onFFmpegPathCardClicked(self):
-        path, _ = QFileDialog.getOpenFileName(self, self.tr("选择ffmpeg文件"))
+        path, _ = QFileDialog.getOpenFileName(self, self.globalText.SelectFfmpegFile)
 
         if not path or cfg.get(cfg.ffmpegPath) == path:
             return
@@ -320,18 +322,18 @@ class SettingInterface(ScrollArea):
             if exe_path is not None:
                 cfg.set(cfg_item, str(exe_path))
                 event_bus.notification_service.show_success(
-                    self.tr("检测成功"),
-                    self.tr("{}路径已设置为{}").format(exe_name, str(exe_path)),
+                    self.globalText.DetectionSuccessful,
+                    self.globalText.PathSetTo.format(exe_name, str(exe_path)),
                 )
                 path_card.setContent(str(exe_path))
             else:
                 dialog = Dialog(
-                    self.tr("检测失败"),
-                    self.tr("未检测到{}程序，是否要下载").format(exe_name),
+                    self.globalText.DetectionFailed,
+                    self.globalText.NotFoundDownloadIt.format(exe_name),
                     self,
                 )
-                dialog.yesButton.setText(self.tr("前往下载"))
-                dialog.cancelButton.setText(self.tr("取消"))
+                dialog.yesButton.setText(self.globalText.GoToDownload)
+                dialog.cancelButton.setText(self.globalText.Cancel)
                 if dialog.exec():
                     QDesktopServices.openUrl(QUrl(url))
 
@@ -344,30 +346,30 @@ class SettingInterface(ScrollArea):
         if success:
             cfg.set(info["cfg_item"], exe_path)
             event_bus.notification_service.show_success(
-                self.tr("检测成功"),
-                self.tr("{}路径已设置为{}").format(info["name"], exe_path),
+                self.globalText.DetectionSuccessful,
+                self.globalText.PathSetTo.format(info["name"], exe_path),
             )
             info["path_card"].setContent(exe_path)
         else:
             dialog = Dialog(
-                self.tr("检测失败"),
-                self.tr("未检测到{}程序，是否要下载").format(info["name"]),
+                self.globalText.DetectionFailed,
+                self.globalText.NotFoundDownloadIt.format(info["name"]),
                 self,
             )
-            dialog.yesButton.setText(self.tr("前往下载"))
-            dialog.cancelButton.setText(self.tr("取消"))
+            dialog.yesButton.setText(self.globalText.GoToDownload)
+            dialog.cancelButton.setText(self.globalText.Cancel)
             if dialog.exec():
                 QDesktopServices.openUrl(QUrl(info["url"]))
 
         # 所有检测完成后恢复按钮
         if not getattr(self, "_pending_detects", {}):
             self.detectionCard.openButton.setEnabled(True)
-            self.detectionCard.openButton.setText(self.tr("检测"))
+            self.detectionCard.openButton.setText(self.globalText.Detect)
 
     def _onDectectionCardClicked(self):
         self.detectionCard.openButton.setEnabled(False)
         if sys.platform == "darwin":
-            self.detectionCard.openButton.setText(self.tr("检测中..."))
+            self.detectionCard.openButton.setText(self.globalText.Detecting)
 
         # ytdlp
         self._detectExe(

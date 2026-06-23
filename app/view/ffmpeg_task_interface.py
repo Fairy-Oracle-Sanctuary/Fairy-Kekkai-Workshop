@@ -6,6 +6,7 @@ from ..common.config import cfg
 from ..components.base_task_interface import BaseTaskInterface
 from ..components.task_card import FFmpegItemWidget
 from ..service.ffmpeg_service import FFmpegProcess, FFmpegTask
+from ..common.text import Text
 
 
 class FFmpegTaskInterface(BaseTaskInterface):
@@ -14,13 +15,15 @@ class FFmpegTaskInterface(BaseTaskInterface):
     log_signal = Signal(str, bool, bool)
 
     def __init__(self, parent=None):
+        globalText = Text()
         super().__init__(
             object_name="ocrTaskInterface",
-            processing_text=self.tr("压制中"),
-            task_type=self.tr("压制"),
+            processing_text=globalText.TextAuto066,
+            task_type=globalText.Encode,
             max_concurrent_tasks=3,
             parent=parent,
         )
+        self.globalText = globalText
         # 监听配置变化，更新最大并发数
         cfg.concurrentEncodes.valueChanged.connect(self._updateMaxConcurrentTasks)
 

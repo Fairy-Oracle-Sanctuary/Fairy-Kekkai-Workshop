@@ -16,6 +16,7 @@ from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..components.config_card import ChooseFileSettingCard
 from ..service.project_service import Project
+from ..common.text import Text
 
 
 class BaseFunctionInterface(ScrollArea):
@@ -25,6 +26,7 @@ class BaseFunctionInterface(ScrollArea):
 
     def __init__(self, parent=None, function_type="function"):
         super().__init__(parent)
+        self.globalText = Text()
         self.view = QWidget(self)
         self.file_path = ""
         self.tasks = []
@@ -51,13 +53,13 @@ class BaseFunctionInterface(ScrollArea):
         self.main_layout = QVBoxLayout(self.view)
 
         # 文件选择卡片组
-        self.fileSelectionGroup = SettingCardGroup(self.tr("文件选择"), self.view)
+        self.fileSelectionGroup = SettingCardGroup(self.globalText.FileSelection, self.view)
         self._create_file_selection_cards()
         self.main_layout.addWidget(self.fileSelectionGroup)
 
         # 设置卡片组
         self.settingsGroup = SettingCardGroup(
-            str(self.function_type) + self.tr("设置"), self.view
+            str(self.function_type) + self.globalText.Settings, self.view
         )
         self._create_settings_cards()
         self.main_layout.addWidget(self.settingsGroup)
@@ -76,9 +78,9 @@ class BaseFunctionInterface(ScrollArea):
         # 输入文件卡片
         self.inputFileCard = ChooseFileSettingCard(
             self.get_input_icon(),
-            self.tr("{}文件").format(self.function_type),
-            self.tr("选择要{}的文件").format(self.function_type),
-            self.tr("选择文件..."),
+            self.globalText.File.format(self.function_type),
+            self.globalText.SelectFileTo.format(self.function_type),
+            self.globalText.SelectFile,
             self.fileSelectionGroup,
         )
         self.fileSelectionGroup.addSettingCard(self.inputFileCard)
@@ -86,9 +88,9 @@ class BaseFunctionInterface(ScrollArea):
         # 输出文件选择卡片
         self.outputFileCard = ChooseFileSettingCard(
             FIF.SAVE,
-            self.tr("输出文件"),
-            self.tr("设置{}后的文件保存路径").format(self.function_type),
-            self.tr("输出文件路径..."),
+            self.globalText.OutputFile,
+            self.globalText.SetSavePathForFile.format(self.function_type),
+            self.globalText.OutputFilePath,
             self.fileSelectionGroup,
         )
         self.fileSelectionGroup.addSettingCard(self.outputFileCard)
@@ -105,13 +107,13 @@ class BaseFunctionInterface(ScrollArea):
         """创建操作按钮区域"""
         button_layout = QHBoxLayout()
 
-        self.start_btn = PrimaryPushButton(FIF.PLAY, self.tr("添加任务"))
+        self.start_btn = PrimaryPushButton(FIF.PLAY, self.globalText.AddTask)
         self.start_btn.setEnabled(False)
 
-        self.previous_btn = PushButton(FIF.UP, self.tr("上一个"))
+        self.previous_btn = PushButton(FIF.UP, self.globalText.Previous)
         self.previous_btn.setEnabled(False)
 
-        self.next_btn = PushButton(FIF.DOWN, self.tr("下一个"))
+        self.next_btn = PushButton(FIF.DOWN, self.globalText.Next)
         self.next_btn.setEnabled(False)
 
         button_layout.addWidget(self.start_btn)
@@ -143,14 +145,14 @@ class BaseFunctionInterface(ScrollArea):
 
             # 检查文件数量
             if len(urls) > 1:
-                self.show_error_message(self.tr("只支持单个文件"))
+                self.show_error_message(self.globalText.OSFIS)
                 event.ignore()
                 return
 
             # 获取第一个文件的本地路径
             file_url = urls[0]
             if not file_url.isLocalFile():
-                self.show_error_message(self.tr("不支持网络文件"))
+                self.show_error_message(self.globalText.NFANS)
                 event.ignore()
                 return
 
@@ -158,7 +160,7 @@ class BaseFunctionInterface(ScrollArea):
 
             # 检查是否为文件夹
             if file_path.is_dir():
-                self.show_error_message(self.tr("不支持文件夹"))
+                self.show_error_message(self.globalText.FANS)
                 event.ignore()
                 return
 
@@ -171,7 +173,7 @@ class BaseFunctionInterface(ScrollArea):
 
             # 检查扩展名是否在允许列表中
             if file_extension not in allow_extensions:
-                self.show_error_message(self.tr("不支持{}文件").format(file_extension))
+                self.show_error_message(self.globalText.FilesAreNotSupported.format(file_extension))
                 event.ignore()
                 return
 
@@ -190,11 +192,11 @@ class BaseFunctionInterface(ScrollArea):
         """浏览输入文件"""
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            self.tr("选择{}文件").format(self.function_type),
+            self.globalText.SelectFile2.format(self.function_type),
             cfg.get(cfg.lastOpenPath)
             if Path(cfg.get(cfg.lastOpenPath)).exists()
             else str(Path.home()),
-            self.tr("文件 ({});;所有文件 (*.*)").format(self.file_extension),
+            self.globalText.FilesAllFiles.format(self.file_extension),
         )
 
         if file_path:
@@ -231,15 +233,15 @@ class BaseFunctionInterface(ScrollArea):
         """浏览输出文件"""
         if not self.file_path:
             self.show_error_message(
-                self.tr("请先选择原{}文件").format(self.file_extension)
+                self.globalText.PSTOFF.format(self.file_extension)
             )
             return
 
         file_path, _ = QFileDialog.getSaveFileName(
             self,
-            self.tr("保存文件"),
+            self.globalText.SaveFile,
             self.outputFileCard.lineEdit.text(),
-            self.tr("文件 ({});;所有文件 (*.*)").format(self.file_extension),
+            self.globalText.FilesAllFiles.format(self.file_extension),
         )
 
         if file_path:
@@ -318,19 +320,19 @@ class BaseFunctionInterface(ScrollArea):
     def updateTask(self, isRepeat, tasks, isMessage):
         """更新任务状态"""
         if isRepeat and isMessage:
-            self.show_error_message(self.tr("重复的任务"))
+            self.show_error_message(self.globalText.DuplicateTask)
         elif not isRepeat and isMessage:
-            self.show_success_message(self.tr("任务-{}-添加成功！").format(tasks[-1]))
+            self.show_success_message(self.globalText.TAS.format(tasks[-1]))
         self.tasks = tasks
 
     def show_success_message(self, message):
         """显示成功消息"""
-        event_bus.notification_service.show_success(self.tr("成功"), message)
+        event_bus.notification_service.show_success(self.globalText.Success, message)
 
     def show_error_message(self, message):
         """显示错误消息"""
-        event_bus.notification_service.show_error(self.tr("错误"), message)
+        event_bus.notification_service.show_error(self.globalText.Error, message)
 
     def show_warning_message(self, message):
         """显示警告消息"""
-        event_bus.notification_service.show_warning(self.tr("警告"), message)
+        event_bus.notification_service.show_warning(self.globalText.Warning, message)

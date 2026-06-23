@@ -9,6 +9,7 @@ from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
 from ..common.task_status import TaskStatus
+from ..common.text import Text
 
 
 class FFmpegTask:
@@ -40,6 +41,7 @@ class FFmpegProcess(QObject):
 
     def __init__(self, task):
         super().__init__()
+        self.globalText = Text()
         self.logger = Logger("FFmpegProcess", "ffmpeg")
         self.task = task
         self.is_cancelled = False
@@ -228,7 +230,7 @@ class FFmpegProcess(QObject):
             ffmpeg_path = cfg.get(cfg.ffmpegPath)
             if not os.path.exists(ffmpeg_path):
                 self.finished_signal.emit(
-                    False, self.tr("ffmpeg.exe不存在: {}").format(ffmpeg_path)
+                    False, self.globalText.TextAuto018.format(ffmpeg_path)
                 )
                 return
 
@@ -387,7 +389,7 @@ class FFmpegProcess(QObject):
         """进程完成处理"""
         if self.is_cancelled:
             self.task.status = TaskStatus.CANCELLED
-            self.finished_signal.emit(False, self.tr("压制已取消"))
+            self.finished_signal.emit(False, self.globalText.TextAuto017)
             self.cancelled_signal.emit()
             self.logger.info(f"压制已取消 -{self.task.input_file}-")
         elif exit_code == 0:

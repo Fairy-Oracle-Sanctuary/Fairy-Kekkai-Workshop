@@ -6,6 +6,7 @@ from PySide6.QtCore import QCoreApplication, QThread, Signal
 from ..common.event_bus import event_bus
 from ..common.events import EventBuilder
 from .project_service import project
+from ..common.text import Text
 
 
 class DownloadListThread(QThread):
@@ -15,6 +16,7 @@ class DownloadListThread(QThread):
 
     def __init__(self, url, project_name, project_title):
         super().__init__()
+        self.globalText = Text()
         self.url = url
         self.project_name = project_name
         self.project_title = project_title
@@ -43,7 +45,7 @@ class DownloadListThread(QThread):
         except requests.exceptions.Timeout:
             self.finished_signal.emit(
                 False,
-                QCoreApplication.translate("DownloadListThread", "请求超时"),
+                self.globalText.TextAuto013,
                 True,
             )
             return
@@ -55,7 +57,7 @@ class DownloadListThread(QThread):
         if not name:
             self.finished_signal.emit(
                 False,
-                QCoreApplication.translate("DownloadListThread", "网址错误"),
+                self.globalText.TextAuto012,
                 True,
             )
             return
@@ -89,9 +91,7 @@ class DownloadListThread(QThread):
 
         self.finished_signal.emit(
             True,
-            QCoreApplication.translate(
-                "DownloadListThread", "已创建项目文件夹,正在下载封面"
-            ),
+            self.globalText.TextAuto009,
             False,
         )
 
@@ -103,9 +103,7 @@ class DownloadListThread(QThread):
 
         self.finished_signal.emit(
             True,
-            QCoreApplication.translate(
-                "DownloadListThread", "封面下载完成,开始添加下载视频任务"
-            ),
+            self.globalText.TextAuto010,
             False,
         )
 
@@ -122,7 +120,7 @@ class DownloadListThread(QThread):
 
         self.finished_signal.emit(
             True,
-            QCoreApplication.translate("DownloadListThread", "已完成项目初始化！"),
+            self.globalText.TextAuto011,
             True,
         )
 
@@ -147,17 +145,13 @@ class DownloadListThread(QThread):
 
             self.finished_signal.emit(
                 True,
-                QCoreApplication.translate(
-                    "DownloadListThread", "图片成功下载并保存到: {}"
-                ).format(save_path),
+                self.globalText.TextAuto014.format(save_path),
                 False,
             )
 
         except requests.exceptions.RequestException as e:
             self.finished_signal.emit(
                 False,
-                QCoreApplication.translate(
-                    "DownloadListThread", "下载图片时出错: {}"
-                ).format(e),
+                self.globalText.TextAuto015.format(e),
                 False,
             )

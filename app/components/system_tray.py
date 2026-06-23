@@ -4,11 +4,13 @@ from PySide6.QtWidgets import QSystemTrayIcon
 from qfluentwidgets import Action, SystemTrayMenu
 
 from ..resource import resource_rc  # noqa: F401
+from ..common.text import Text
 
 
 class SystemTray(QSystemTrayIcon):
     def __init__(self, main_window, parent=None):
         super().__init__(parent=parent)
+        self.globalText = Text()
         self.main_window = main_window
         self.setup_tray()
 
@@ -24,10 +26,10 @@ class SystemTray(QSystemTrayIcon):
         self.menu.addActions(
             [
                 Action(
-                    self.tr("显示/隐藏界面"), triggered=lambda: self.on_tray_activated()
+                    self.globalText.ShowHideWindow, triggered=lambda: self.on_tray_activated()
                 ),
                 Action(
-                    self.tr("退出"),
+                    self.globalText.Exit,
                     triggered=self.quit_application,
                 ),
             ]
@@ -56,7 +58,7 @@ class SystemTray(QSystemTrayIcon):
         self.main_window.hide()
         self.showMessage(
             "Fairy-Kekkai-Workshop",
-            self.tr("程序已最小化到系统托盘"),
+            self.globalText.MTST,
             QIcon(":/app/images/logo.png"),
             1500,
         )

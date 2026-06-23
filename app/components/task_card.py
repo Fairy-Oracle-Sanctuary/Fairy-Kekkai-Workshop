@@ -1,6 +1,7 @@
 from PySide6.QtGui import QIcon
 
 from .base_task_card import BaseItemWidget
+from ..common.text import Text
 from .dialog import (
     FFmpegProgressDialog,
     ReleaseProgressDialog,
@@ -13,7 +14,9 @@ class OcrItemWidget(BaseItemWidget):
     """OCR任务项组件"""
 
     def __init__(self, task, progressBar_type="common", task_type=None, parent=None):
-        super().__init__(task, progressBar_type, task_type or self.tr("提取"), parent)
+        globalText = Text()
+        super().__init__(task, progressBar_type, task_type or globalText.Extract, parent)
+        self.globalText = globalText
 
 
 class TranslateItemWidget(BaseItemWidget):
@@ -27,7 +30,9 @@ class TranslateItemWidget(BaseItemWidget):
         ai_model=None,
         parent=None,
     ):
-        super().__init__(task, progressBar_type, task_type or self.tr("翻译"), parent)
+        globalText = Text()
+        super().__init__(task, progressBar_type, task_type or globalText.Translate, parent)
+        self.globalText = globalText
         self.ai_model = ai_model
         self.setImage(ai_model)
         self.clicked.connect(self.handleClick)
@@ -48,7 +53,9 @@ class FFmpegItemWidget(BaseItemWidget):
     """压制任务项组件"""
 
     def __init__(self, task, progressBar_type="common", task_type=None, parent=None):
-        super().__init__(task, progressBar_type, task_type or self.tr("压制"), parent)
+        globalText = Text()
+        super().__init__(task, progressBar_type, task_type or globalText.Encode, parent)
+        self.globalText = globalText
         self.clicked.connect(self.handleClick)
 
     def handleClick(self):
@@ -61,7 +68,9 @@ class ReleaseItemWidget(BaseItemWidget):
     """B站上传任务项组件"""
 
     def __init__(self, task, progressBar_type="common", task_type=None, parent=None):
-        super().__init__(task, progressBar_type, task_type or self.tr("上传"), parent)
+        globalText = Text()
+        super().__init__(task, progressBar_type, task_type or globalText.Upload, parent)
+        self.globalText = globalText
         self.setImage()
         self.clicked.connect(self.handleClick)
 
@@ -79,7 +88,9 @@ class WhisperItemWidget(BaseItemWidget):
     """语音识别任务项组件"""
 
     def __init__(self, task, progressBar_type="common", task_type=None, parent=None):
-        super().__init__(task, progressBar_type, task_type or self.tr("识别"), parent)
+        globalText = Text()
+        super().__init__(task, progressBar_type, task_type or globalText.Recognize, parent)
+        self.globalText = globalText
         self.clicked.connect(self.handleClick)
 
     def handleClick(self):

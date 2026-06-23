@@ -9,6 +9,7 @@ from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
 from ..common.task_status import TaskStatus
+from ..common.text import Text
 
 
 class DownloadTask:
@@ -52,6 +53,7 @@ class DownloadProcess(QObject):
 
     def __init__(self, task: DownloadTask):
         super().__init__()
+        self.globalText = Text()
         self.logger = Logger("DownloadProcess", "download")
         self.task = task
         self.is_cancelled = False
@@ -195,7 +197,7 @@ class DownloadProcess(QObject):
             if not os.path.exists(ytdlp_path):
                 self.logger.error(f"[DownloadProcess] yt-dlp 不存在: {ytdlp_path}")
                 self.finished_signal.emit(
-                    False, self.tr("yt-dlp不存在: {}").format(ytdlp_path)
+                    False, self.globalText.TextAuto016.format(ytdlp_path)
                 )
                 return
 
@@ -311,14 +313,14 @@ class DownloadProcess(QObject):
         """进程完成处理"""
         if self.is_cancelled:
             self.task.status = TaskStatus.CANCELLED
-            self.finished_signal.emit(False, self.tr("下载已取消"))
+            self.finished_signal.emit(False, self.globalText.DownloadCancelled)
             self.cancelled_signal.emit()  # 发送取消完成信号
             self.logger.info(f"下载任务已取消: {self.task.url}")
         elif exit_code == 0:
             self.task.status = TaskStatus.DONE
             self.task.progress = 100
             self.task.end_time = datetime.now()
-            self.finished_signal.emit(True, self.tr("下载完成"))
+            self.finished_signal.emit(True, self.globalText.DownloadCompleted)
             event_bus.download_finished_signal.emit(True, str(self.task.download_path))
             self.logger.info(
                 f"下载任务已完成: {self.task.url} - {self.task.download_path}"
@@ -401,7 +403,7 @@ class DownloadProcess(QObject):
                     base_name = os.path.basename(filename)
                     self.task.filename = base_name
                     self.progress_signal.emit(
-                        0, self.tr("开始下载"), self.task.filename
+                        0, self.globalText.StartDownload, self.task.filename
                     )
                     return True
         return False

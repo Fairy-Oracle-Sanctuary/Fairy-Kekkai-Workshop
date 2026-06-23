@@ -17,6 +17,7 @@ from qfluentwidgets import (
 )
 
 from ..common.config import cfg
+from ..common.text import Text
 
 
 class VideoPreview(SimpleCardWidget):
@@ -26,6 +27,7 @@ class VideoPreview(SimpleCardWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
 
         self.vBoxLayout = QVBoxLayout(self)
         self.previewLabel = BodyLabel()
@@ -34,7 +36,7 @@ class VideoPreview(SimpleCardWidget):
         self.previewLabel.setSizePolicy(
             QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         )
-        self.previewLabel.setText(self.tr("视频预览区域\n\n点击浏览按钮选择视频文件"))
+        self.previewLabel.setText(self.globalText.VPACBBTSVF)
 
         # 框选相关变量
         self.crop_boxes = []  # 存储框选区域
@@ -51,9 +53,9 @@ class VideoPreview(SimpleCardWidget):
 
         # 框选控制按钮
         self.control_layout = QHBoxLayout()
-        self.select_btn = PushButton(FluentIcon.MOVE, self.tr("框选区域"))
+        self.select_btn = PushButton(FluentIcon.MOVE, self.globalText.SelectArea)
         self.select_btn.setEnabled(False)
-        self.clear_selection_btn = PushButton(FluentIcon.CANCEL, self.tr("清除框选"))
+        self.clear_selection_btn = PushButton(FluentIcon.CANCEL, self.globalText.ClearSelection)
         self.clear_selection_btn.setEnabled(False)
 
         self.control_layout.addWidget(self.select_btn)
@@ -62,7 +64,7 @@ class VideoPreview(SimpleCardWidget):
 
         # 框选坐标显示和编辑区域
         self.coords_layout = QHBoxLayout()
-        self.coords_label = CaptionLabel(self.tr("框选区域坐标: 未选择"))
+        self.coords_label = CaptionLabel(self.globalText.SCNS)
         self.coords_layout.addWidget(self.coords_label)
         self.coords_layout.addStretch()
 
@@ -110,7 +112,7 @@ class VideoPreview(SimpleCardWidget):
             self.previewLabel.setText("")
 
         # 更新坐标显示
-        self.coords_label.setText(self.tr("框选区域坐标: 正在选择..."))
+        self.coords_label.setText(self.globalText.SCS)
 
     def reset_selection_state(self):
         """重置框选状态"""
@@ -494,14 +496,14 @@ class VideoPreview(SimpleCardWidget):
                 self.current_frame = None
                 self.current_pixmap = None
                 self.previewLabel.clear()
-                self.previewLabel.setText(self.tr("无法加载视频帧"))
+                self.previewLabel.setText(self.globalText.FTLVF)
         else:
             self.current_frame = None
             self.current_pixmap = None
             self.original_frame_size = None
             self.reset_selection_state()
             self.previewLabel.clear()
-            self.previewLabel.setText(self.tr("无法加载视频帧"))
+            self.previewLabel.setText(self.globalText.FTLVF)
 
     def get_selection_rect(self):
         """获取第一个框选区域（相对于原始图像的坐标）"""
@@ -562,7 +564,7 @@ class VideoPreview(SimpleCardWidget):
 
         # 标题
         title_layout = QHBoxLayout()
-        title_label = CaptionLabel(self.tr("区域 {} 坐标").format(zone_index + 1))
+        title_label = CaptionLabel(self.globalText.AreaCoordinates.format(zone_index + 1))
         title_layout.addWidget(title_label)
         title_layout.addStretch()
 
@@ -586,9 +588,9 @@ class VideoPreview(SimpleCardWidget):
 
         x_widget, x_input = _make_spin_group("X:")
         y_widget, y_input = _make_spin_group("Y:")
-        w_widget, w_input = _make_spin_group(self.tr("宽度:"))
+        w_widget, w_input = _make_spin_group(self.globalText.Width)
         w_input.setMinimum(1)
-        h_widget, h_input = _make_spin_group(self.tr("高度:"))
+        h_widget, h_input = _make_spin_group(self.globalText.Height)
         h_input.setMinimum(1)
 
         coords_flow_layout.addWidget(x_widget)
@@ -597,7 +599,7 @@ class VideoPreview(SimpleCardWidget):
         coords_flow_layout.addWidget(h_widget)
 
         # 应用按钮
-        apply_btn = PushButton(FluentIcon.ACCEPT, self.tr("应用"))
+        apply_btn = PushButton(FluentIcon.ACCEPT, self.globalText.Apply)
         coords_flow_layout.addWidget(apply_btn)
 
         layout.addLayout(title_layout)
@@ -626,7 +628,7 @@ class VideoPreview(SimpleCardWidget):
     def _update_coords_display(self):
         """更新坐标显示"""
         if not self.crop_boxes:
-            self.coords_label.setText(self.tr("框选区域坐标: 未选择"))
+            self.coords_label.setText(self.globalText.SCNS)
             # 清除所有坐标编辑组件
             for widget in self.coord_edit_widgets:
                 widget.setParent(None)
@@ -639,7 +641,7 @@ class VideoPreview(SimpleCardWidget):
         for i, box in enumerate(self.crop_boxes):
             coords = box["coords"]
             coords_texts.append(
-                self.tr("区域{}: x={}, y={}, w={}, h={}").format(
+                self.globalText.AreaXYWH.format(
                     i + 1,
                     coords["crop_x"],
                     coords["crop_y"],

@@ -5,6 +5,7 @@ from PySide6.QtCore import Signal
 from ..components.base_task_interface import BaseTaskInterface
 from ..components.task_card import WhisperItemWidget
 from ..service.whisper_service import WhisperProcess, WhisperTask
+from ..common.text import Text
 
 
 class WhisperTaskInterface(BaseTaskInterface):
@@ -13,13 +14,15 @@ class WhisperTaskInterface(BaseTaskInterface):
     log_signal = Signal(str, bool, bool)
 
     def __init__(self, parent=None):
+        globalText = Text()
         super().__init__(
             object_name="whisperTaskInterface",
-            processing_text=self.tr("识别中"),
-            task_type=self.tr("识别"),
+            processing_text=globalText.Recognizing,
+            task_type=globalText.Recognize,
             max_concurrent_tasks=1,
             parent=parent,
         )
+        self.globalText = globalText
 
     def createTask(self, args):
         return WhisperTask(args)

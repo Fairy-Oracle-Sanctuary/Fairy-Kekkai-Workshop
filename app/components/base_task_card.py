@@ -20,6 +20,7 @@ from qfluentwidgets import (
 
 from ..common.event_bus import event_bus
 from ..common.task_status import TaskStatus, status_text
+from ..common.text import Text
 
 
 class BaseItemWidget(CardWidget):
@@ -37,10 +38,11 @@ class BaseItemWidget(CardWidget):
         parent=None,
     ):
         super().__init__(parent)
+        self.globalText = Text()
         self.task = task
         self.task_thread = None
         self.progressBar_type = progressBar_type
-        self.task_type = task_type or self.tr("默认")
+        self.task_type = task_type or self.globalText.Default
 
         self._initUI()
 
@@ -66,16 +68,16 @@ class BaseItemWidget(CardWidget):
             self.progressBar = ProgressBar()
 
         self.statusLabel = CaptionLabel(
-            status_text(self.task.status, self.tr("{}中").format(self.task_type))
+            status_text(self.task.status, self.globalText.InProgress.format(self.task_type))
         )
 
         self.openFolderBtn = TransparentToolButton(FluentIcon.FOLDER, self)
-        self.openFolderBtn.setToolTip(self.tr("打开文件夹"))
+        self.openFolderBtn.setToolTip(self.globalText.OpenFolder)
         self.openFolderBtn.setVisible(self.task.status == TaskStatus.DONE)
         self.openFolderBtn.clicked.connect(self.openFolder)
 
         self.cancelBtn = TransparentToolButton(FluentIcon.CLOSE, self)
-        self.cancelBtn.setToolTip(self.tr("取消") + str(self.task_type))
+        self.cancelBtn.setToolTip(self.globalText.Cancel + str(self.task_type))
         self.cancelBtn.setVisible(
             self.task.status == TaskStatus.PROCESSING
             or self.task.status == TaskStatus.WAITING
@@ -83,12 +85,12 @@ class BaseItemWidget(CardWidget):
         self.cancelBtn.clicked.connect(self.cancelTranslate)
 
         self.retryBtn = TransparentToolButton(FluentIcon.SYNC, self)
-        self.retryBtn.setToolTip(self.tr("重新") + str(self.task_type))
+        self.retryBtn.setToolTip(self.globalText.Retry + str(self.task_type))
         self.retryBtn.setVisible(self.task.status == TaskStatus.FAILED)
         self.retryBtn.clicked.connect(self.retryTranslate)
 
         self.removeBtn = TransparentToolButton(FluentIcon.DELETE, self)
-        self.removeBtn.setToolTip(self.tr("移除任务"))
+        self.removeBtn.setToolTip(self.globalText.RemoveTask)
         self.removeBtn.setDisabled(True)
         self.removeBtn.clicked.connect(self.removeTask)
 
@@ -129,7 +131,7 @@ class BaseItemWidget(CardWidget):
         if not success:
             self.task.error_message = error_message
         self.statusLabel.setText(
-            status_text(status, self.tr("{}中").format(self.task_type))
+            status_text(status, self.globalText.InProgress.format(self.task_type))
         )
 
         # 显示/隐藏按钮
@@ -160,7 +162,7 @@ class BaseItemWidget(CardWidget):
 
         # 更新状态标签
         self.statusLabel.setText(
-            status_text(self.task.status, self.tr("{}中").format(self.task_type))
+            status_text(self.task.status, self.globalText.InProgress.format(self.task_type))
         )
 
     def openFolder(self):
@@ -188,12 +190,12 @@ class BaseItemWidget(CardWidget):
         """取消下载 - 异步版本"""
         # 添加确认对话框
         box = MessageBox(
-            self.tr("确认取消"),
-            self.tr("确定要取消这个") + str(self.task_type) + self.tr("任务吗？"),
+            self.globalText.ConfirmCancellation,
+            self.globalText.AYSYWTCT + str(self.task_type) + self.globalText.Task,
             self.window(),
         )
-        box.yesButton.setText(self.tr("确定"))
-        box.cancelButton.setText(self.tr("取消"))
+        box.yesButton.setText(self.globalText.OK)
+        box.cancelButton.setText(self.globalText.Cancel)
         if box.exec():
             # 如果任务正在提取，找到对应的提取线程并取消
             if self.task_thread:
@@ -244,8 +246,8 @@ class BaseItemWidget(CardWidget):
 
         # 显示取消提示
         event_bus.notification_service.show_info(
-            str(self.task_type) + self.tr("已取消"),
-            self.tr("任务") + f" '{self.task.input_file}' " + self.tr("已被取消"),
+            str(self.task_type) + self.globalText.Cancelled,
+            self.globalText.Task2 + f" '{self.task.input_file}' " + self.globalText.HasBeenCancelled,
         )
 
     def retryTranslate(self):

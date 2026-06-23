@@ -15,7 +15,8 @@ from qfluentwidgets import FluentIcon as FIF
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
-from ..common.setting import AI_model_dict, translate_language_dict
+from ..common.setting import translate_language_dict
+from ..common.text import Text
 from ..components.base_function_interface import BaseFunctionInterface
 from ..components.base_stacked_interface import BaseStackedInterfaces
 from ..components.config_card import DictSettingCard, TranslateSettingInterface
@@ -26,6 +27,7 @@ class TranslateStackedInterfaces(BaseStackedInterfaces):
     """翻译堆叠界面"""
 
     def __init__(self, parent=None):
+        globalText = Text()
         from ..view.translate_task_interface import TranslateTaskInterface
 
         super().__init__(
@@ -33,8 +35,9 @@ class TranslateStackedInterfaces(BaseStackedInterfaces):
             main_interface_class=TranslationInterface,
             task_interface_class=TranslateTaskInterface,
             setting_interface_class=TranslateSettingInterface,
-            interface_name=self.tr("翻译字幕"),
+            interface_name=globalText.TranslateSubtitles,
         )
+        self.globalText = globalText
 
         # 连接专用信号
         self.mainInterface.addTask.connect(self.taskInterface.addTranslateTask)
@@ -45,8 +48,10 @@ class TranslationInterface(BaseFunctionInterface):
     """SRT文件翻译界面"""
 
     def __init__(self, parent=None):
+        globalText = Text()
         self.file_srt = None
-        super().__init__(parent, self.tr("翻译"))
+        super().__init__(parent, globalText.Translate)
+        self.globalText = globalText
 
         self.file_extension = "*.srt"
         self.default_output_suffix = "_translated.srt"
@@ -63,9 +68,9 @@ class TranslationInterface(BaseFunctionInterface):
         self.origin_languageCard = DictSettingCard(
             configItem=cfg.origin_lang,
             icon=FIF.GLOBE,
-            title=self.tr("原文语言"),
-            content=self.tr("选择字幕文本的语言"),
-            options_dict=translate_language_dict,
+            title=self.globalText.SourceLanguage,
+            content=self.globalText.SSTL,
+            options_dict=self._get_translate_language_options(),
         )
         self.settingsGroup.addSettingCard(self.origin_languageCard)
 
@@ -73,26 +78,26 @@ class TranslationInterface(BaseFunctionInterface):
         self.target_languageCard = DictSettingCard(
             configItem=cfg.target_lang,
             icon=FIF.LANGUAGE,
-            title=self.tr("翻译语言"),
-            content=self.tr("选择翻译后的语言"),
-            options_dict=translate_language_dict,
+            title=self.globalText.TargetLanguage,
+            content=self.globalText.SelectTargetLanguage,
+            options_dict=self._get_translate_language_options(),
         )
         self.settingsGroup.addSettingCard(self.target_languageCard)
 
         self.AI_modelCard = DictSettingCard(
             configItem=cfg.ai_model,
             icon=FIF.BOOK_SHELF,
-            title=self.tr("AI模型"),
-            content=self.tr("选择AI模型"),
-            options_dict=AI_model_dict,
+            title=self.globalText.AIModel,
+            content=self.globalText.SelectAIModel,
+            options_dict=self._get_ai_model_options(),
         )
         self.settingsGroup.addSettingCard(self.AI_modelCard)
 
         # 上下文关联开关
         self.useTranslateContextCard = SwitchSettingCard(
             FIF.UNIT,
-            self.tr("启用上下文关联"),
-            self.tr("开启后AI翻译将参考前后字幕，关闭则每批独立翻译"),
+            self.globalText.EnableContext,
+            self.globalText.WEATRSSWDEBTI,
             configItem=cfg.useTranslateContext,
         )
         self.settingsGroup.addSettingCard(self.useTranslateContextCard)
@@ -101,8 +106,8 @@ class TranslationInterface(BaseFunctionInterface):
         self.deepseekModelCard = ComboBoxSettingCard(
             configItem=cfg.deepseekModel,
             icon=FIF.ROBOT,
-            title=self.tr("Deepseek模型"),
-            content=self.tr("选择Deepseek模型版本"),
+            title=self.globalText.DeepseekModel,
+            content=self.globalText.SDMV,
             texts=["deepseek-v4-flash", "deepseek-v4-pro"],
         )
         self.settingsGroup.addSettingCard(self.deepseekModelCard)
@@ -110,14 +115,59 @@ class TranslationInterface(BaseFunctionInterface):
         # Deepseek 专属设置 - 深度思考模式
         self.deepseekReasoningCard = SwitchSettingCard(
             icon=FIF.IOT,
-            title=self.tr("深度思考"),
-            content=self.tr("启用Deepseek深度思考模式"),
+            title=self.globalText.DeepThinking,
+            content=self.globalText.EDDTM,
             configItem=cfg.deepseekReasoning,
         )
         self.settingsGroup.addSettingCard(self.deepseekReasoningCard)
 
         cfg.ai_model.valueChanged.connect(self._onAIModelChanged)
         self._onAIModelChanged(cfg.get(cfg.ai_model))
+
+    def _get_translate_language_options(self):
+        return {
+            "en": self.globalText.English,
+            "zh": self.globalText.Chinese,
+            "ja": self.globalText.Japanese,
+            "ko": self.globalText.Korean,
+            "fr": self.globalText.French,
+            "de": self.globalText.German,
+            "es": self.globalText.Spanish,
+            "pt": self.globalText.Portuguese,
+            "ru": self.globalText.Russian,
+            "ar": self.globalText.Arabic,
+            "it": self.globalText.Italian,
+            "nl": self.globalText.Dutch,
+            "hi": self.globalText.Hindi,
+            "tr": self.globalText.Turkish,
+            "vi": self.globalText.Vietnamese,
+            "th": self.globalText.Thai,
+            "id": self.globalText.Indonesian2,
+            "sv": self.globalText.Swedish,
+            "pl": self.globalText.Polish,
+            "el": self.globalText.Greek,
+            "cs": self.globalText.Czech,
+            "da": self.globalText.Danish,
+            "fi": self.globalText.Finnish,
+            "no": self.globalText.Norwegian,
+            "hu": self.globalText.Hungarian,
+            "ro": self.globalText.Romanian,
+            "uk": self.globalText.Ukrainian,
+            "fa": self.globalText.Persian,
+            "he": self.globalText.Hebrew,
+        }
+
+    def _get_ai_model_options(self):
+        return {
+            "hunyuan-turbos-latest": self.globalText.TencentHunyuan,
+            "deepseek": self.globalText.Deepseek,
+            "gemini-3-flash-preview": self.globalText.Gemini3Flash,
+            "intern-latest": self.globalText.InternLM,
+            "glm-4.5-flash": self.globalText.GLM45FLASH,
+            "spark-lite": self.globalText.SparkLite,
+            "ernie-speed-128k": self.globalText.BaiduERNIESpeed128K,
+            "custom-model": self.globalText.CustomModel,
+        }
 
     def _onAIModelChanged(self, model_name: str):
         """根据选择的AI模型动态显示/隐藏专属设置"""
@@ -136,10 +186,10 @@ class TranslationInterface(BaseFunctionInterface):
         # 标题和统计信息
         preview_header = QHBoxLayout()
 
-        title = BodyLabel(self.tr("SRT 内容预览"))
+        title = BodyLabel(self.globalText.SRTContentPreview)
         title.setStyleSheet("font-weight: bold; font-size: 14px;")
 
-        self.stats_label = BodyLabel(self.tr("共 0 条字幕"))
+        self.stats_label = BodyLabel(self.globalText.Text0SubtitlesTotal)
         self.stats_label.setStyleSheet("color: #666;")
 
         preview_header.addWidget(title)
@@ -152,7 +202,7 @@ class TranslationInterface(BaseFunctionInterface):
         self.preview_table = TableWidget()
         self.preview_table.setColumnCount(3)
         self.preview_table.setHorizontalHeaderLabels(
-            [self.tr("序号"), self.tr("时间轴"), self.tr("内容")]
+            [self.globalText.No, self.globalText.Timeline, self.globalText.Content]
         )
         self.preview_table.horizontalHeader().setStretchLastSection(True)
         self.preview_table.setEditTriggers(TableWidget.NoEditTriggers)
@@ -176,55 +226,55 @@ class TranslationInterface(BaseFunctionInterface):
     def _start_processing(self):
         """开始翻译"""
         if cfg.get(cfg.ai_model) == "deepseek" and not cfg.get(cfg.deepseekApiKey):
-            self.show_error_message(self.tr("请先填写您的DeepSeek API Key"))
+            self.show_error_message(self.globalText.PFIYDAKF)
             return
 
         elif cfg.get(cfg.ai_model) == "glm-4.5-flash" and not cfg.get(cfg.glmApiKey):
-            self.show_error_message(self.tr("请先填写您的GLM-4.5-FLASH API Key"))
+            self.show_error_message(self.globalText.PFIYG45FAKF)
             return
 
         elif cfg.get(cfg.ai_model) == "spark-lite" and not cfg.get(cfg.sparkApiKey):
-            self.show_error_message(self.tr("请先填写您的Spark-Lite API Key"))
+            self.show_error_message(self.globalText.PFIYSLAKF)
             return
 
         elif cfg.get(cfg.ai_model) == "hunyuan-turbos-latest" and not cfg.get(
             cfg.hunyuanApiKey
         ):
-            self.show_error_message(self.tr("请先填写您的腾讯混元 API Key"))
+            self.show_error_message(self.globalText.PFIYTHAKF)
             return
 
         elif cfg.get(cfg.ai_model) == "intern-latest" and not cfg.get(cfg.internApiKey):
-            self.show_error_message(self.tr("请先填写您的书生 API Key"))
+            self.show_error_message(self.globalText.PFIYIAKF)
             return
 
         elif cfg.get(cfg.ai_model) == "ernie-speed-128k" and not cfg.get(
             cfg.ernieSpeedApiKey
         ):
-            self.show_error_message(self.tr("请先填写您的百度ERNIE-Speed-128K API Key"))
+            self.show_error_message(self.globalText.PFIYBES1AKF)
             return
 
         elif cfg.get(cfg.ai_model) == "gemini-3-flash-preview" and not cfg.get(
             cfg.geminiApiKey
         ):
-            self.show_error_message(self.tr("请先填写您的Gemini 3 Flash API Key"))
+            self.show_error_message(self.globalText.PFIYG3FAKF)
             return
 
         elif cfg.get(cfg.ai_model) == "custom-model":
             if not cfg.get(cfg.customModelEnabled):
-                self.show_error_message(self.tr("请先在设置中启用自定义模型"))
+                self.show_error_message(self.globalText.PECMISF)
                 return
             if not cfg.get(cfg.customModelApiKey):
-                self.show_error_message(self.tr("请先填写您的自定义模型API密钥"))
+                self.show_error_message(self.globalText.PFIYCMAKF)
                 return
             if not cfg.get(cfg.customModelBaseUrl):
-                self.show_error_message(self.tr("请先填写您的自定义模型API基础URL"))
+                self.show_error_message(self.globalText.PFIYCMABUF)
                 return
             if not cfg.get(cfg.customModelName):
-                self.show_error_message(self.tr("请先填写您的自定义模型名称"))
+                self.show_error_message(self.globalText.PFIYCMNF)
                 return
 
         if cfg.get(cfg.origin_lang) == cfg.get(cfg.target_lang):
-            self.show_error_message(self.tr("原语言和目标语言相同"))
+            self.show_error_message(self.globalText.SATLATS)
             return
 
         args = self._get_args()
@@ -238,8 +288,10 @@ class TranslationInterface(BaseFunctionInterface):
         args = {}
         args["srt_path"] = str(self.file_srt.file_path)
         args["output_path"] = self.outputFileCard.lineEdit.text()
-        args["origin_lang"] = cfg.get(cfg.origin_lang)
-        args["target_lang"] = cfg.get(cfg.target_lang)
+        origin_lang = cfg.get(cfg.origin_lang)
+        target_lang = cfg.get(cfg.target_lang)
+        args["origin_lang"] = translate_language_dict.get(origin_lang, origin_lang)
+        args["target_lang"] = translate_language_dict.get(target_lang, target_lang)
         args["raw_content"] = self.file_srt.raw_content
         args["AI"] = cfg.get(cfg.ai_model)
         args["temperature"] = float(cfg.get(cfg.aiTemperature))
@@ -265,7 +317,9 @@ class TranslationInterface(BaseFunctionInterface):
 
         # 调整列宽
         self.preview_table.resizeColumnsToContents()
-        self.stats_label.setText(self.tr("共 {} 条字幕").format(len(subtitles_data)))
+        self.stats_label.setText(
+            self.globalText.SubtitlesTotal.format(len(subtitles_data))
+        )
 
     def addTranslateFromProject(self, file_path, output_path):
         """从项目界面添加翻译任务"""
@@ -275,10 +329,11 @@ class TranslationInterface(BaseFunctionInterface):
         args = {}
         args["srt_path"] = file_path
         args["output_path"] = output_path
-        args["origin_lang"] = cfg.get(cfg.origin_lang)
-        args["target_lang"] = cfg.get(cfg.target_lang)
+        origin_lang = cfg.get(cfg.origin_lang)
+        target_lang = cfg.get(cfg.target_lang)
+        args["origin_lang"] = translate_language_dict.get(origin_lang, origin_lang)
+        args["target_lang"] = translate_language_dict.get(target_lang, target_lang)
         args["raw_content"] = srt_file.raw_content
-        ai_model_display = cfg.get(cfg.ai_model)
-        args["AI"] = AI_model_dict.get(ai_model_display, ai_model_display)
+        args["AI"] = cfg.get(cfg.ai_model)
 
         self.addTask.emit(args)
