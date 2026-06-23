@@ -92,6 +92,44 @@ static std::vector<OcrResult> run_ocr_on_image(void *ocr, const cv::Mat &rgb) {
 // ---------------------------------------------------------------------------
 // Format polygon for JSON output
 // ---------------------------------------------------------------------------
+static std::string json_escape(const std::string &s) {
+  std::ostringstream oss;
+  for (unsigned char c : s) {
+    switch (c) {
+    case '"':
+      oss << "\\\"";
+      break;
+    case '\\':
+      oss << "\\\\";
+      break;
+    case '\b':
+      oss << "\\b";
+      break;
+    case '\f':
+      oss << "\\f";
+      break;
+    case '\n':
+      oss << "\\n";
+      break;
+    case '\r':
+      oss << "\\r";
+      break;
+    case '\t':
+      oss << "\\t";
+      break;
+    default:
+      if (c < 0x20) {
+        const char *hex = "0123456789abcdef";
+        oss << "\\u00" << hex[(c >> 4) & 0x0f] << hex[c & 0x0f];
+      } else {
+        oss << static_cast<char>(c);
+      }
+      break;
+    }
+  }
+  return oss.str();
+}
+
 static std::string format_poly_json(const std::array<cv::Point2f, 4> &box) {
   std::ostringstream oss;
   oss << "[[" << box[0].x << "," << box[0].y << "],[" << box[1].x << ","
@@ -184,7 +222,7 @@ static int cmd_text_detection(const std::map<std::string, std::string> &args) {
     try {
       results = run_ocr_on_image(ocr, rgb);
     } catch (...) {
-      std::cerr << "Error on image " << img_path.filename() << ": skipped" << std::endl;
+      std::cerr << "Error on image index " << (processed + 1) << ": skipped" << std::endl;
       ++processed;
       continue;
     }
@@ -192,7 +230,7 @@ static int cmd_text_detection(const std::map<std::string, std::string> &args) {
     std::ostringstream json;
     std::string path_str = img_path.string();
     std::replace(path_str.begin(), path_str.end(), '\\', '/');
-    json << "{\"input_path\":\"" << path_str << "\",";
+    json << "{\"input_path\":\"" << json_escape(path_str) << "\",";
     json << "\"dt_polys\":[";
     for (size_t i = 0; i < results.size(); ++i) {
       if (i)
@@ -315,19 +353,19 @@ static int cmd_ocr(const std::map<std::string, std::string> &args) {
     try {
       results = run_ocr_on_image(ocr, rgb);
     } catch (...) {
-      std::cerr << "Error on image " << img_path.filename() << ": skipped" << std::endl;
+      std::cerr << "Error on image index " << (processed + 1) << ": skipped" << std::endl;
       ++processed;
       continue;
     }
 
     if (out_json.is_open()) {
-      out_json << "{\"image\":\"" << img_path.filename().string()
+      out_json << "{\"image\":\"" << json_escape(img_path.filename().string())
                << "\",\"results\":[";
       for (size_t i = 0; i < results.size(); ++i) {
         if (i)
           out_json << ",";
         out_json << "{\"box\":" << format_poly_json(results[i].box)
-                 << ",\"text\":\"" << results[i].text << "\",\"score\":" << results[i].confidence << "}";
+                 << ",\"text\":\"" << json_escape(results[i].text) << "\",\"score\":" << results[i].confidence << "}";
       }
       out_json << "]}" << std::endl;
     } else {
