@@ -282,7 +282,12 @@ def perform_hardware_check(paddleocr_path: str, use_gpu: bool) -> None:
                 "--format=csv,noheader",
             ]
             result = subprocess.run(
-                command, capture_output=True, text=True, check=True, encoding="utf-8"
+                command,
+                capture_output=True,
+                text=True,
+                check=True,
+                encoding="utf-8",
+                errors="replace",
             )
 
             first_gpu_info = result.stdout.strip().split("\n")[0]
@@ -348,6 +353,8 @@ def is_process_running(pid: int) -> bool:
                 ["tasklist", "/FI", f"PID eq {pid}", "/NH"],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=5,
             )
             return str(pid) in result.stdout
@@ -543,6 +550,7 @@ def stream_cli_process(args: list[str], log_name: str) -> Iterator[str]:
         stderr=subprocess.STDOUT,
         text=True,
         encoding="utf-8",
+        errors="replace",
         env=cli_env,
         bufsize=1,
     )
