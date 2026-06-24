@@ -8,6 +8,8 @@ from PySide6.QtCore import QObject, QProcess, QTimer, Signal
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
+from ..common.task_status import TaskStatus
+from ..common.text import Text
 
 
 def get_whisper_cli_path():
@@ -37,7 +39,7 @@ class WhisperTask:
         self.language = args.get("language", "")
         self.format = args.get("format", "srt")
         self.gpu = args.get("gpu", "")
-        self.status = "等待中"  # 等待中, 转录中, 已完成, 失败
+        self.status = TaskStatus.WAITING
         self.progress = 0
         self.error_message = ""
         self.output_history = ""  # 存储完整输出历史
@@ -56,6 +58,7 @@ class WhisperProcess(QObject):
 
     def __init__(self, task):
         super().__init__()
+        self.globalText = Text()
         self.logger = Logger("WhisperProcess", "whisper")
         self.task = task
         self.is_cancelled = False
@@ -70,12 +73,27 @@ class WhisperProcess(QObject):
             self.process.waitForFinished(1000)
 
     @staticmethod
-    def _activate_as_current(output_file: str):
+    def _activate_as_current(output_file: str, input_file: str = None):
         """将提取结果复制为 原文.srt（作为当前活动原文）"""
         import shutil
 
         parent_dir = os.path.dirname(output_file)
         current_file = os.path.join(parent_dir, "原文.srt")
+
+        # 如果输出文件已经是 原文.srt，则直接返回
+        if os.path.abspath(output_file) == os.path.abspath(current_file):
+            return
+
+        # 只有当视频名为 生肉.mp4 且 原文.srt 不存在时才复制
+        if input_file:
+            input_filename = os.path.basename(input_file)
+            if input_filename != "生肉.mp4":
+                return
+
+        # 如果 原文.srt 已存在，则不复制
+        if os.path.exists(current_file):
+            return
+
         try:
             if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
                 shutil.copy2(output_file, current_file)
@@ -163,14 +181,16 @@ class WhisperProcess(QObject):
         return 0
 
     def start(self):
-        self.task.status = "识别中"
+        self.task.status = TaskStatus.PROCESSING
         self.task.start_time = datetime.now()
 
         try:
             cli_path = get_whisper_cli_path()
 
             if not os.path.exists(cli_path):
-                self.finished_signal.emit(False, f"main.exe 不存在: {cli_path}")
+                self.finished_signal.emit(
+                    False, self.globalText.TextAuto064.format(cli_path)
+                )
                 return
 
             if self.task.model_file and not os.path.exists(self.task.model_file):
@@ -215,7 +235,7 @@ class WhisperProcess(QObject):
                 if self.output_lines:
                     error_msg += "\n输出日志:\n" + "\n".join(self.output_lines[-10:])
 
-                self.task.status = "失败"
+                self.task.status = TaskStatus.FAILED
                 self.task.error_message = error_msg
                 self.task.end_time = datetime.now()
                 self.finished_signal.emit(False, error_msg)
@@ -277,7 +297,7 @@ class WhisperProcess(QObject):
             # 检测完成标志
             if "LoadModel" in line and "RunComplete" in line:
                 self.task.progress = 100
-                self.progress_signal.emit(100, "完成", "转录完成")
+                self.progress_signal.emit(100, self.globalText.Finish, self.globalText.TextAuto063)
 
     def handle_stderr(self):
         """处理标准错误输出 - main.exe 使用 UseStandardError，大部分输出在此"""
@@ -306,12 +326,12 @@ class WhisperProcess(QObject):
     def handle_finished(self, exit_code, exit_status):
         """进程完成处理"""
         if self.is_cancelled:
-            self.task.status = "已取消"
-            self.finished_signal.emit(False, "转录已取消")
+            self.task.status = TaskStatus.CANCELLED
+            self.finished_signal.emit(False, self.globalText.TextAuto062)
             self.cancelled_signal.emit()
             self.logger.info(f"转录已取消 -{self.task.input_file}-")
         elif exit_code == 0:
-            self.task.status = "已完成"
+            self.task.status = TaskStatus.DONE
             self.task.progress = 100
             self.task.end_time = datetime.now()
             self.logger.info(f"转录完成 -{self.task.input_file}-")
@@ -338,9 +358,12 @@ class WhisperProcess(QObject):
             else:
                 success_msg = "转录完成"
 
-            self.finished_signal.emit(True, success_msg)
             # 自动复制到 原文.srt（设为当前活动原文）
-            WhisperProcess._activate_as_current(self.task.output_file)
+            WhisperProcess._activate_as_current(
+                self.task.output_file, self.task.input_file
+            )
+
+            self.finished_signal.emit(True, success_msg)
             event_bus.whisper_finished_signal.emit(True, str(self.task.output_file))
         else:
             error_message = f"转录失败，错误码: {exit_code}"
@@ -350,7 +373,7 @@ class WhisperProcess(QObject):
                 last_lines = "\n".join(self.output_lines[-5:])
                 error_message += f"\n最后输出:\n{last_lines}"
 
-            self.task.status = "失败"
+            self.task.status = TaskStatus.FAILED
             self.task.error_message = error_message
             self.task.end_time = datetime.now()
             self.finished_signal.emit(False, error_message)

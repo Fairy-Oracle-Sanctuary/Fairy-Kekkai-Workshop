@@ -24,6 +24,7 @@ from ..common.setting import CONFIG_FILE, GITHUB_URL, UPDATE_TIME, VERSION
 from ..resource import resource_rc  # noqa: F401
 from ..view.log_interface import LogWindow
 from .statistic_widget import StatisticsWidget
+from ..common.text import Text
 
 
 class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
@@ -31,24 +32,25 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.setBorderRadius(8)
         self.iconLabel = ImageLabel(
             QIcon(":/app/images/logo.png").pixmap(120, 120), self
         )
 
-        self.nameLabel = TitleLabel(self.tr("Fairy Kekkai Workshop"), self)
-        self.updateButton = PrimaryPushButton(self.tr("更新"), self)
+        self.nameLabel = TitleLabel(self.globalText.FairyKekkaiWorkshop, self)
+        self.updateButton = PrimaryPushButton(self.globalText.Update, self)
         self.companyLabel = HyperlinkLabel(
             QUrl("https://space.bilibili.com/499929312"),
             "Baby2016",
             self,
         )
 
-        self.versionWidget = StatisticsWidget(self.tr("版本"), f"v{VERSION}", self)
-        self.updateTimeWidget = StatisticsWidget(self.tr("更新时间"), UPDATE_TIME, self)
+        self.versionWidget = StatisticsWidget(self.globalText.Version, f"v{VERSION}", self)
+        self.updateTimeWidget = StatisticsWidget(self.globalText.UpdateTime, UPDATE_TIME, self)
 
         self.descriptionLabel = BodyLabel(
-            self.tr("仙 · 结界工坊"),
+            self.globalText.FairyKekkaiWorkshop2,
             self,
         )
 
@@ -57,11 +59,11 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
             lambda: QDesktopServices.openUrl(QUrl(GITHUB_URL))
         )
 
-        self.logButton = PrimaryPushButton(FluentIcon.BOOK_SHELF, self.tr("Log"))
+        self.logButton = PrimaryPushButton(FluentIcon.BOOK_SHELF, self.globalText.Log)
         self.clearLogButton = TransparentToolButton(FluentIcon.DELETE, self)
-        self.clearLogButton.setToolTip(self.tr("清空所有日志"))
+        self.clearLogButton.setToolTip(self.globalText.ClearAllLogs)
         self.resetButton = TransparentToolButton(FluentIcon.SYNC, self)
-        self.resetButton.setToolTip(self.tr("重置所有设置并重启"))
+        self.resetButton.setToolTip(self.globalText.RASAR)
 
         self.hBoxLayout = QHBoxLayout(self)
         self.vBoxLayout = QVBoxLayout()
@@ -177,12 +179,12 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
     def __onClearLogClicked(self):
         """清空所有日志"""
         box = MessageBox(
-            self.tr("清空所有日志"),
-            self.tr("确定要清空所有日志文件吗？此操作不可恢复。"),
+            self.globalText.ClearAllLogs,
+            self.globalText.AYSYWTCALFTACBU,
             self.window(),
         )
-        box.yesButton.setText(self.tr("确定"))
-        box.cancelButton.setText(self.tr("取消"))
+        box.yesButton.setText(self.globalText.OK)
+        box.cancelButton.setText(self.globalText.Cancel)
         if not box.exec():
             return
 
@@ -205,18 +207,18 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
             pass
 
         event_bus.notification_service.show_success(
-            self.tr("清空成功"), self.tr(f"已清空 {deleted} 个日志文件")
+            self.globalText.ClearSuccessful, self.globalText.ClearedLogFiles.format(deleted)
         )
 
     def __onResetClicked(self):
         """重置所有设置并重启"""
         box = MessageBox(
-            self.tr("重置所有设置"),
-            self.tr("确定要重置软件所有设置吗？软件将会重启，此操作不可恢复。"),
+            self.globalText.ResetAllSettings,
+            self.globalText.AYSYWTRASTAWRATACBU,
             self.window(),
         )
-        box.yesButton.setText(self.tr("确定"))
-        box.cancelButton.setText(self.tr("取消"))
+        box.yesButton.setText(self.globalText.OK)
+        box.cancelButton.setText(self.globalText.Cancel)
         if not box.exec():
             return
 
@@ -225,7 +227,7 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
             if CONFIG_FILE.exists():
                 CONFIG_FILE.unlink()
         except Exception as e:
-            event_bus.notification_service.show_error(self.tr("重置失败"), str(e))
+            event_bus.notification_service.show_error(self.globalText.ResetFailed, str(e))
             return
 
         self.__restartApplication()

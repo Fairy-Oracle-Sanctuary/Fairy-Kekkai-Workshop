@@ -5,6 +5,7 @@ from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import FluentWindow, PlainTextEdit, ScrollArea
 
 from ..common.event_bus import event_bus
+from ..common.text import Text
 
 
 class LogWindow(FluentWindow):
@@ -12,13 +13,14 @@ class LogWindow(FluentWindow):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self._initWindow()
 
         self._initNavigation()
 
     def _initWindow(self):
         """初始化窗口"""
-        self.setWindowTitle(self.tr("LOG"))
+        self.setWindowTitle(self.globalText.LOG)
         self.setWindowIcon(QIcon(":/app/images/logo.png"))
         self.resize(700, 400)
         self.setMinimumSize(400, 250)
@@ -33,13 +35,21 @@ class LogWindow(FluentWindow):
         self.aiLogInterface = LogInterface("aiLog", self)
         self.ffmpegLogInterface = LogInterface("ffmpegLog", self)
 
-        self.addSubInterface(self.allLogInterface, FIF.HOME, "全部日志")
-        self.addSubInterface(self.projectLogInterface, FIF.FOLDER, "项目日志")
-        self.addSubInterface(self.downloadLogInterface, FIF.DOWNLOAD, "下载日志")
-        self.addSubInterface(self.videocrLogInterface, FIF.VIDEO, "字幕提取日志")
-        self.addSubInterface(self.whisperLogInterface, FIF.MICROPHONE, "语音识别日志")
-        self.addSubInterface(self.aiLogInterface, FIF.MESSAGE, "AI翻译日志")
-        self.addSubInterface(self.ffmpegLogInterface, FIF.ZIP_FOLDER, "FFmpeg压制日志")
+        self.addSubInterface(self.allLogInterface, FIF.HOME, self.globalText.AllLogs)
+        self.addSubInterface(self.projectLogInterface, FIF.FOLDER, self.globalText.ProjectLogs)
+        self.addSubInterface(
+            self.downloadLogInterface, FIF.DOWNLOAD, self.globalText.DownloadLogs
+        )
+        self.addSubInterface(
+            self.videocrLogInterface, FIF.VIDEO, self.globalText.SEL
+        )
+        self.addSubInterface(
+            self.whisperLogInterface, FIF.MICROPHONE, self.globalText.SRL
+        )
+        self.addSubInterface(self.aiLogInterface, FIF.MESSAGE, self.globalText.AITranslationLogs)
+        self.addSubInterface(
+            self.ffmpegLogInterface, FIF.ZIP_FOLDER, self.globalText.FFmpegEncodingLogs
+        )
 
     def setLog(
         self,
@@ -70,6 +80,7 @@ class LogInterface(ScrollArea):
 
     def __init__(self, text, parent=None):
         super().__init__(parent)
+        self.globalText = Text()
         self.view = QWidget(self)
         self.text = text
 
@@ -89,7 +100,7 @@ class LogInterface(ScrollArea):
 
         self.logTextEdit = PlainTextEdit(self.view)
         self.logTextEdit.setReadOnly(True)
-        self.logTextEdit.setPlaceholderText(self.tr("日志将显示在这里"))
+        self.logTextEdit.setPlaceholderText(self.globalText.LWBDH)
 
         self.vBoxLayout.addWidget(self.logTextEdit)
 

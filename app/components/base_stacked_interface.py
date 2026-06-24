@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import Pivot
+from ..common.text import Text
 
 
 class BaseStackedInterfaces(QWidget):
@@ -15,6 +16,7 @@ class BaseStackedInterfaces(QWidget):
         interface_name=None,
     ):
         super().__init__(parent)
+        self.globalText = Text()
         self.main_interface_class = main_interface_class
         self.task_interface_class = task_interface_class
         self.setting_interface_class = setting_interface_class
@@ -44,13 +46,17 @@ class BaseStackedInterfaces(QWidget):
         if self.task_interface_class:
             self.taskInterface = self.task_interface_class()
             self.addSubInterface(
-                self.taskInterface, "taskInterface", f"{self.interface_name}任务"
+                self.taskInterface,
+                "taskInterface",
+                str(self.interface_name) + self.globalText.Task2,
             )
 
         # 只有当设置界面类存在时才创建并添加
         if self.setting_interface_class:
             self.settingInterface = self.setting_interface_class()
-            self.addSubInterface(self.settingInterface, "settingInterface", "高级设置")
+            self.addSubInterface(
+                self.settingInterface, "settingInterface", self.globalText.AdvancedSettings
+            )
 
     def _setup_layout(self):
         """设置布局"""

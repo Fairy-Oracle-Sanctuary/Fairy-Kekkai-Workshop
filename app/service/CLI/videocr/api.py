@@ -31,6 +31,7 @@ def save_subtitles_to_file(
     post_processing: bool = False,
     min_subtitle_duration_sec: float = 0.2,
     subtitle_alignments: list[str | None] | None = None,
+    confidence_threshold: float = 0.0,
 ) -> None:
 
     if crop_zones is None:
@@ -85,6 +86,7 @@ def save_subtitles_to_file(
             frames_to_skip,
             crop_zones,
             ocr_image_max_width,
+            confidence_threshold,
         )
     except Exception as e:
         print(f"Error: {e}", flush=True)

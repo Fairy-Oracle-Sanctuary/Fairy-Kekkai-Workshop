@@ -7,6 +7,8 @@ from PySide6.QtCore import QObject, QProcess, Signal
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
+from ..common.task_status import TaskStatus
+from ..common.text import Text
 
 
 class OCRTask:
@@ -16,7 +18,7 @@ class OCRTask:
 
     def __init__(self, args):
         self.args = args
-        self.status = "等待中"  # 等待中, 处理中, 已完成, 失败
+        self.status = TaskStatus.WAITING
         self.progress = 0
         self.error_message = ""
         self.input_file = args.get("video_path")
@@ -38,6 +40,7 @@ class OCRProcess(QObject):
 
     def __init__(self, task: OCRTask):
         super().__init__()
+        self.globalText = Text()
         self.logger = Logger("OCRProcess", "videocr")
         self.task = task
         self.is_cancelled = False
@@ -52,12 +55,27 @@ class OCRProcess(QObject):
             self.process.waitForFinished(1000)
 
     @staticmethod
-    def _activate_as_current(output_file: str):
+    def _activate_as_current(output_file: str, input_file: str = None):
         """将提取结果复制为 原文.srt（作为当前活动原文）"""
         import shutil
 
         parent_dir = os.path.dirname(output_file)
         current_file = os.path.join(parent_dir, "原文.srt")
+
+        # 如果输出文件已经是 原文.srt，则直接返回
+        if os.path.abspath(output_file) == os.path.abspath(current_file):
+            return
+
+        # 只有当视频名为 生肉.mp4 且 原文.srt 不存在时才复制
+        if input_file:
+            input_filename = os.path.basename(input_file)
+            if input_filename != "生肉.mp4":
+                return
+
+        # 如果 原文.srt 已存在，则不复制
+        if os.path.exists(current_file):
+            return
+
         try:
             if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
                 shutil.copy2(output_file, current_file)
@@ -95,6 +113,9 @@ class OCRProcess(QObject):
         cmd_args.extend(
             ["--min_subtitle_duration", str(args["min_subtitle_duration_sec"])]
         )
+        cmd_args.extend(
+            ["--confidence_threshold", str(args["confidence_threshold"])]
+        )
 
         # 处理paddleocr_path参数
         if "paddleocr_path" in args and args["paddleocr_path"]:
@@ -123,7 +144,7 @@ class OCRProcess(QObject):
 
     def start(self):
         """启动OCR处理进程"""
-        self.task.status = "提取中"
+        self.task.status = TaskStatus.PROCESSING
 
         try:
             # 清理临时目录
@@ -133,17 +154,21 @@ class OCRProcess(QObject):
                 try:
                     shutil.rmtree(self.task.temp_dir)
                     self.log_signal.emit(
-                        f"已清理临时目录: {self.task.temp_dir}\n", False, False
+                        self.globalText.TextAuto024.format(self.task.temp_dir),
+                        False,
+                        False,
                     )
                 except Exception as e:
-                    self.log_signal.emit(f"清理临时目录失败: {str(e)}\n", True, False)
+                    self.log_signal.emit(
+                        self.globalText.TextAuto026.format(str(e)), True, False
+                    )
 
             # 获取videocr-cli.exe路径
             cmd_path, cmd_args = self.build_ocr_command()
 
             if not os.path.exists(cmd_path):
                 error_msg = f"videocr-cli.exe不存在: {cmd_path}"
-                self.task.status = "失败"
+                self.task.status = TaskStatus.FAILED
                 self.task.error_message = error_msg
                 self.finished_signal.emit(False, error_msg)
                 event_bus.ocr_finished_signal.emit(False, error_msg)
@@ -178,7 +203,7 @@ class OCRProcess(QObject):
             if not self.is_cancelled:
                 error_msg = f"OCR处理失败: {str(e)}"
                 print(error_msg)
-                self.task.status = "失败"
+                self.task.status = TaskStatus.FAILED
                 self.task.error_message = error_msg
                 self.finished_signal.emit(False, error_msg)
                 event_bus.ocr_finished_signal.emit(False, error_msg)
@@ -237,12 +262,12 @@ class OCRProcess(QObject):
     def handle_finished(self, exit_code, exit_status):
         """进程完成处理"""
         if self.is_cancelled:
-            self.task.status = "已取消"
-            self.finished_signal.emit(False, "OCR处理已取消")
+            self.task.status = TaskStatus.CANCELLED
+            self.finished_signal.emit(False, self.globalText.TextAuto020)
             self.cancelled_signal.emit()
             self.logger.info(f"OCR处理已取消: -{self.task.input_file}-")
         elif exit_code == 0:
-            self.task.status = "已完成"
+            self.task.status = TaskStatus.DONE
             self.task.progress = 100
 
             # 检查输出文件是否存在
@@ -253,10 +278,10 @@ class OCRProcess(QObject):
                 success_msg = "OCR处理完成"
 
             # 自动复制到 原文.srt（设为当前活动原文）
-            self._activate_as_current(self.task.output_file)
+            self._activate_as_current(self.task.output_file, self.task.input_file)
 
             self.finished_signal.emit(True, success_msg)
-            self.log_signal.emit("OCR处理完成\n", False, False)
+            self.log_signal.emit(self.globalText.TextAuto021, False, False)
             event_bus.ocr_finished_signal.emit(True, str(self.task.output_file))
             self.logger.info(
                 f"OCR处理完成: -{self.task.input_file}- 输出文件: {self.task.output_file}"
@@ -269,10 +294,12 @@ class OCRProcess(QObject):
                 last_lines = "\n".join(self.output_lines[-5:])
                 error_message += f"\n最后输出:\n{last_lines}"
 
-            self.task.status = "失败"
+            self.task.status = TaskStatus.FAILED
             self.task.error_message = error_message
             self.finished_signal.emit(False, error_message)
-            self.log_signal.emit(f"OCR处理失败:\n{error_message}\n", False, False)
+            self.log_signal.emit(
+                self.globalText.TextAuto023.format(error_message), False, False
+            )
             event_bus.ocr_finished_signal.emit(False, error_message)
             self.logger.error(
                 f"OCR处理失败: -{self.task.input_file}- 错误信息: {error_message}"
@@ -303,7 +330,7 @@ class OCRProcess(QObject):
         self.is_cancelled = True
 
         # 立即发送取消日志，不等待进程结束
-        self.log_signal.emit("正在取消OCR处理...\n", False, False)
+        self.log_signal.emit(self.globalText.TextAuto019, False, False)
 
         if self.process and self.process.state() == QProcess.Running:
             # 获取进程ID
@@ -318,9 +345,13 @@ class OCRProcess(QObject):
                     capture_output=True,
                     timeout=2,
                 )
-                self.log_signal.emit("已强制终止OCR进程及其子进程", False, False)
+                self.log_signal.emit(
+                    self.globalText.TextAuto022, False, False
+                )
             except Exception as e:
-                self.log_signal.emit(f"终止进程失败: {str(e)}", True, False)
+                self.log_signal.emit(
+                    self.globalText.TextAuto025.format(str(e)), True, False
+                )
                 # 如果taskkill失败，尝试使用QProcess的kill
                 self.process.kill()
 

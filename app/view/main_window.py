@@ -9,7 +9,6 @@ from qfluentwidgets import (
     BodyLabel,
     InfoBarPosition,
     MessageBox,
-    MSFluentWindow,
     NavigationItemPosition,
     ProgressBar,
     SplashScreen,
@@ -23,6 +22,7 @@ from qfluentwidgets import FluentIcon as FIF
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.setting import GITHUB_URL, RELEASE_URL
+from ..common.task_status import TaskStatus
 from ..components.infobar import NotificationService
 from ..components.system_tray import SystemTray
 from ..service.version_service import VersionService
@@ -35,6 +35,7 @@ from .project_interface import ProjectStackedInterface
 from .setting_interface import SettingInterface
 from .translate_interface import TranslateStackedInterfaces
 from .whisper_interface import WhisperStackedInterfaces
+from ..common.text import Text
 
 if sys.platform == "win32":
     from .videocr_interface import VideocrStackedInterfaces
@@ -45,6 +46,7 @@ class LoadingSplashScreen(SplashScreen):
 
     def __init__(self, icon, parent=None):
         super().__init__(icon, parent)
+        self.globalText = Text()
 
         # 进度条（禁用动画，使同步初始化期间能即时显示进度）
         self.progressBar = ProgressBar(self, useAni=False)
@@ -52,7 +54,7 @@ class LoadingSplashScreen(SplashScreen):
         self.progressBar.setValue(0)
 
         # 状态文字
-        self.statusLabel = BodyLabel("正在启动...", self)
+        self.statusLabel = BodyLabel(self.globalText.Starting, self)
         self.statusLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self._repositionExtras()
@@ -83,9 +85,19 @@ class LoadingSplashScreen(SplashScreen):
         self._repositionExtras()
 
 
-class MainWindow(MSFluentWindow):
+window_class = cfg.get(cfg.windowClass)
+if window_class == "MSFluentWindow":
+    from qfluentwidgets import MSFluentWindow as window
+elif window_class == "FluentWindow":
+    from qfluentwidgets import FluentWindow as window
+else:
+    from qfluentwidgets import MSFluentWindow as window
+
+
+class MainWindow(window):
     def __init__(self):
         super().__init__()
+        self.globalText = Text()
         # 提前初始化背景标志，避免 paintEvent 在显示时访问未定义属性而崩溃
         self.isShowBackground = False
 
@@ -100,7 +112,7 @@ class MainWindow(MSFluentWindow):
         # 显示主窗口，使作为其子控件的启动页可见，并立即绘制
         self.show()
         QApplication.processEvents()
-        self.splashScreen.setProgress(10, "正在初始化服务...")
+        self.splashScreen.setProgress(10, self.globalText.InitializingServices)
 
         # 初始化版本服务
         self.versionManager = VersionService()
@@ -112,7 +124,7 @@ class MainWindow(MSFluentWindow):
         self.notification_service.set_default_duration(3000)
         self.notification_service.set_position(InfoBarPosition.BOTTOM_RIGHT)
         event_bus.notification_service = self.notification_service
-        self.splashScreen.setProgress(30, "正在读取设置...")
+        self.splashScreen.setProgress(30, self.globalText.LoadingSettings)
 
         # 读取设置
         self.settings = QSettings("Fairy-Kekkai-Workshop", "Settings")
@@ -124,12 +136,12 @@ class MainWindow(MSFluentWindow):
                 self.backgroundPixmap = QPixmap(cfg.get(cfg.backgroundPath))
             else:
                 event_bus.notification_service.show_error(
-                    "背景图片错误", "请检查图片是否存在"
+                    self.globalText.BackgroundImageError, self.globalText.PCITIE
                 )
 
-        self.splashScreen.setProgress(50, "正在加载界面...")
+        self.splashScreen.setProgress(50, self.globalText.LoadingInterface)
         self._initNavigation()
-        self.splashScreen.setProgress(80, "正在初始化系统托盘...")
+        self.splashScreen.setProgress(80, self.globalText.IST)
 
         # 初始化系统托盘
         self.system_tray = SystemTray(self)
@@ -140,7 +152,7 @@ class MainWindow(MSFluentWindow):
         self._connectSignalToSlot()
         if sys.platform == "win32":
             self._initThemeButton()
-        self.splashScreen.setProgress(100, "启动完成")
+        self.splashScreen.setProgress(100, self.globalText.StartupComplete)
 
         # 检查是否首次运行，显示新手引导
         if cfg.get(cfg.isFirstRun):
@@ -202,12 +214,11 @@ class MainWindow(MSFluentWindow):
                 if self.titleBar.isVisible():
                     title_bar_rect = self.titleBar.geometry()
 
-                    # 获取最小化、最大化、关闭按钮的位置
+                    # 获取最小化、最大化、关闭、主题按钮的位置
                     # 这些按钮通常在标题栏的右侧
                     button_width = 46  # 标准按钮宽度
                     button_height = title_bar_rect.height() - 15
 
-                    # 计算按钮区域
                     close_button_rect = QRect(
                         title_bar_rect.right() - button_width,
                         title_bar_rect.top(),
@@ -229,12 +240,23 @@ class MainWindow(MSFluentWindow):
                         button_height,
                     )
 
+                    theme_button_rect = QRect(
+                        minimize_button_rect.left() - button_width,
+                        title_bar_rect.top(),
+                        button_width,
+                        button_height,
+                    )
+
                     # 绘制不透明背景
                     button_color = QColor(45, 45, 45)  # 深灰色背景
+                    painter.fillRect(theme_button_rect, button_color)
                     painter.fillRect(minimize_button_rect, button_color)
                     painter.fillRect(maximize_button_rect, button_color)
                     painter.fillRect(close_button_rect, button_color)
             # 调用父类的绘制事件，确保其他内容正常显示
+            super().paintEvent(event)
+        else:
+            # 没有背景图片时，也要调用父类的绘制事件，确保 Windows 10 暗色模式背景正常
             super().paintEvent(event)
 
     def setBackgroundImage(self, imagePath):
@@ -260,9 +282,10 @@ class MainWindow(MSFluentWindow):
         self._updateThemeButtonIcon()
         self.themeButton.clicked.connect(self._toggleTheme)
         # 插入到最小化按钮左侧（buttonLayout: minBtn, maxBtn, closeBtn）
-        self.titleBar.buttonLayout.insertWidget(
-            0, self.themeButton, 0, Qt.AlignmentFlag.AlignTop
-        )
+        if window_class != "SplitFluentWindow":
+            self.titleBar.buttonLayout.insertWidget(
+                0, self.themeButton, 0, Qt.AlignmentFlag.AlignTop
+            )
 
     def _updateThemeButtonIcon(self):
         """根据当前主题更新按钮图标"""
@@ -285,7 +308,8 @@ class MainWindow(MSFluentWindow):
             self.videoCRInterface = VideocrStackedInterfaces(self)
         self.translateInterface = TranslateStackedInterfaces(self)
         self.ffmpegInterface = FFmpegStackedInterfaces(self)
-        self.whisperInterface = WhisperStackedInterfaces(self)
+        if sys.platform == "win32":
+            self.whisperInterface = WhisperStackedInterfaces(self)
         # self.releaseInterface = ReleaseStackedInterfaces(self)
         self.settingInterface = SettingInterface(self)
 
@@ -312,14 +336,14 @@ class MainWindow(MSFluentWindow):
                 self.settingInterface,
             ]
 
-        self.addSubInterface(self.homeInterface, FIF.HOME, "主页")
-        self.addSubInterface(self.projectInterface, FIF.FOLDER, "项目")
-        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, "下载")
+        self.addSubInterface(self.homeInterface, FIF.HOME, self.globalText.Home)
+        self.addSubInterface(self.projectInterface, FIF.FOLDER, self.globalText.Project)
+        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, self.globalText.Download)
         if sys.platform == "win32":
-            self.addSubInterface(self.videoCRInterface, FIF.VIDEO, "字幕")
-            self.addSubInterface(self.whisperInterface, FIF.MICROPHONE, "识别")
-        self.addSubInterface(self.translateInterface, FIF.MESSAGE, "翻译")
-        self.addSubInterface(self.ffmpegInterface, FIF.ZIP_FOLDER, "压制")
+            self.addSubInterface(self.videoCRInterface, FIF.VIDEO, self.globalText.Subtitles)
+            self.addSubInterface(self.whisperInterface, FIF.MICROPHONE, self.globalText.Voice)
+        self.addSubInterface(self.translateInterface, FIF.MESSAGE, self.globalText.Translate)
+        self.addSubInterface(self.ffmpegInterface, FIF.ZIP_FOLDER, self.globalText.Encode)
 
         # self.addSubInterface(self.releaseInterface, FIF.IMAGE_EXPORT, "发布")
 
@@ -327,18 +351,26 @@ class MainWindow(MSFluentWindow):
         self.navigationInterface.addItem(
             routeKey="Help",
             icon=FIF.HELP,
-            text="帮助",
+            text=self.globalText.Help,
             onClick=self.showHelpBox,
             selectable=False,
             position=NavigationItemPosition.BOTTOM,
         )
-        self.addSubInterface(
-            self.settingInterface,
-            FIF.SETTING,
-            "设置",
-            FIF.SETTING,
-            NavigationItemPosition.BOTTOM,
-        )
+        if window_class == "MSFluentWindow":
+            self.addSubInterface(
+                self.settingInterface,
+                FIF.SETTING,
+                self.globalText.Settings,
+                FIF.SETTING,
+                NavigationItemPosition.BOTTOM,
+            )
+        else:
+            self.addSubInterface(
+                self.settingInterface,
+                FIF.SETTING,
+                self.globalText.Settings,
+                NavigationItemPosition.BOTTOM,
+            )
 
     def _connectSignalToSlot(self):
         """连接信号到槽"""
@@ -370,12 +402,12 @@ class MainWindow(MSFluentWindow):
 
     def showHelpBox(self):
         w = MessageBox(
-            self.tr("支持项目"),
-            self.tr("现在团队人手紧缺，如果感兴趣的话请加入我们"),
+            self.globalText.SupportProject,
+            self.globalText.WNMTMJUII,
             self,
         )
-        w.yesButton.setText(self.tr("访问仓库"))
-        w.cancelButton.setText(self.tr("下次一定"))
+        w.yesButton.setText(self.globalText.VisitRepository)
+        w.cancelButton.setText(self.globalText.MaybeLater)
 
         if w.exec():
             QDesktopServices.openUrl(QUrl(GITHUB_URL))
@@ -416,10 +448,12 @@ class MainWindow(MSFluentWindow):
             # 显示确认对话框
             from qfluentwidgets import MessageBox
 
-            message = f"有以下任务正在运行，确定要关闭吗？\n\n{running_tasks}"
-            dialog = MessageBox("确认关闭", message, self)
-            dialog.yesButton.setText("关闭")
-            dialog.cancelButton.setText("取消")
+            message = self.globalText.TFTASRCA.format(
+                running_tasks
+            )
+            dialog = MessageBox(self.globalText.ConfirmClose, message, self)
+            dialog.yesButton.setText(self.globalText.Close)
+            dialog.cancelButton.setText(self.globalText.Cancel)
 
             if dialog.exec():
                 # 用户确认关闭，先停止所有运行中的任务
@@ -458,7 +492,7 @@ class MainWindow(MSFluentWindow):
                         thread.cancel()
                     # 标记任务为已取消
                     if hasattr(thread, "task"):
-                        thread.task.status = "已取消"
+                        thread.task.status = TaskStatus.CANCELLED
                 # 强制终止残留进程
                 if download_interface and hasattr(download_interface, "cleanup"):
                     download_interface.cleanup()
@@ -480,7 +514,7 @@ class MainWindow(MSFluentWindow):
                         thread._is_running = False
                     # 标记任务为已取消
                     if hasattr(thread, "task"):
-                        thread.task.status = "已取消"
+                        thread.task.status = TaskStatus.CANCELLED
                     if hasattr(thread, "wait"):
                         thread.wait(1000)
 
@@ -501,7 +535,7 @@ class MainWindow(MSFluentWindow):
                         thread._is_running = False
                     # 标记任务为已取消
                     if hasattr(thread, "task"):
-                        thread.task.status = "已取消"
+                        thread.task.status = TaskStatus.CANCELLED
                     if hasattr(thread, "process") and thread.process:
                         if thread.process.state() == QProcess.ProcessState.Running:
                             thread.process.kill()
@@ -526,7 +560,7 @@ class MainWindow(MSFluentWindow):
                         thread._is_running = False
                     # 标记任务为已取消
                     if hasattr(thread, "task"):
-                        thread.task.status = "已取消"
+                        thread.task.status = TaskStatus.CANCELLED
                     if hasattr(thread, "process") and thread.process:
                         if thread.process.state() == QProcess.ProcessState.Running:
                             thread.process.kill()
@@ -535,7 +569,7 @@ class MainWindow(MSFluentWindow):
                         thread.wait(1000)
 
         # 停止Whisper任务
-        if hasattr(self, "whisperInterface"):
+        if sys.platform == "win32" and hasattr(self, "whisperInterface"):
             whisper_interface = getattr(self.whisperInterface, "taskInterface", None)
             if whisper_interface and hasattr(whisper_interface, "active_threads"):
                 from PySide6.QtCore import QProcess
@@ -551,7 +585,7 @@ class MainWindow(MSFluentWindow):
                         thread._is_running = False
                     # 标记任务为已取消
                     if hasattr(thread, "task"):
-                        thread.task.status = "已取消"
+                        thread.task.status = TaskStatus.CANCELLED
                     if hasattr(thread, "process") and thread.process:
                         if thread.process.state() == QProcess.ProcessState.Running:
                             thread.process.kill()
@@ -571,7 +605,9 @@ class MainWindow(MSFluentWindow):
             if download_interface and hasattr(download_interface, "active_downloads"):
                 active_count = len(download_interface.active_downloads)
                 if active_count > 0:
-                    running_tasks.append(f"下载任务: {active_count} 个")
+                    running_tasks.append(
+                        self.globalText.DownloadTasks.format(active_count)
+                    )
 
         # 检查翻译任务
         if hasattr(self, "translateInterface"):
@@ -581,7 +617,9 @@ class MainWindow(MSFluentWindow):
             if translate_interface and hasattr(translate_interface, "active_threads"):
                 active_count = len(translate_interface.active_threads)
                 if active_count > 0:
-                    running_tasks.append(f"翻译任务: {active_count} 个")
+                    running_tasks.append(
+                        self.globalText.TranslationTasks.format(active_count)
+                    )
 
         # 检查OCR任务
         if hasattr(self, "videoCRInterface"):
@@ -589,7 +627,7 @@ class MainWindow(MSFluentWindow):
             if ocr_interface and hasattr(ocr_interface, "active_threads"):
                 active_count = len(ocr_interface.active_threads)
                 if active_count > 0:
-                    running_tasks.append(f"OCR任务: {active_count} 个")
+                    running_tasks.append(self.globalText.OCRTasks.format(active_count))
 
         # 检查FFmpeg任务
         if hasattr(self, "ffmpegInterface"):
@@ -597,32 +635,36 @@ class MainWindow(MSFluentWindow):
             if ffmpeg_interface and hasattr(ffmpeg_interface, "active_threads"):
                 active_count = len(ffmpeg_interface.active_threads)
                 if active_count > 0:
-                    running_tasks.append(f"压制任务: {active_count} 个")
+                    running_tasks.append(
+                        self.globalText.EncodingTasks.format(active_count)
+                    )
 
         # 检查Whisper任务
-        if hasattr(self, "whisperInterface"):
+        if sys.platform == "win32" and hasattr(self, "whisperInterface"):
             whisper_interface = getattr(self.whisperInterface, "taskInterface", None)
             if whisper_interface and hasattr(whisper_interface, "active_threads"):
                 active_count = len(whisper_interface.active_threads)
                 if active_count > 0:
-                    running_tasks.append(f"识别任务: {active_count} 个")
+                    running_tasks.append(
+                        self.globalText.TranscriptionTasks.format(active_count)
+                    )
 
         return "\n".join(running_tasks) if running_tasks else None
 
     def checkUpdate(self):
         if self.versionManager.hasNewVersion():
             self.showMessageBox(
-                self.tr("检测到新版本"),
-                self.tr("新版本")
+                self.globalText.NewVersionDetected,
+                self.globalText.NewVersion
                 + f" {self.versionManager.lastestVersion} "
-                + self.tr("可用，你是否要下载新版本？"),
+                + self.globalText.ADYWTDI,
                 True,
                 lambda: QDesktopServices.openUrl(QUrl(RELEASE_URL)),
             )
         else:
             self.showMessageBox(
-                self.tr("没有新版本"),
-                self.tr("Fairy Kekkai Workshop 已是最新版本"),
+                self.globalText.NoNewVersion,
+                self.globalText.FKWIUTD,
             )
 
     def showMessageBox(
@@ -630,10 +672,10 @@ class MainWindow(MSFluentWindow):
     ):
         """show message box"""
         w = MessageBox(title, content, self)
-        w.yesButton.setText(self.tr("确定"))
-        w.cancelButton.setText(self.tr("关闭"))
+        w.yesButton.setText(self.globalText.OK)
+        w.cancelButton.setText(self.globalText.Close)
         if not showYesButton:
-            w.cancelButton.setText(self.tr("关闭"))
+            w.cancelButton.setText(self.globalText.Close)
             w.yesButton.hide()
             w.buttonLayout.insertStretch(0, 1)
 
@@ -674,14 +716,14 @@ class MainWindow(MSFluentWindow):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"下载完成 -{message}-",
+                self.globalText.DownloadComplete.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"下载失败 -{message}-",
+                self.globalText.DownloadFailed2.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
@@ -696,14 +738,14 @@ class MainWindow(MSFluentWindow):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"视频字幕识别完成 -{message}-",
+                self.globalText.SRC.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"视频字幕识别失败 -{message}-",
+                self.globalText.SRF.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
@@ -718,14 +760,14 @@ class MainWindow(MSFluentWindow):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"翻译完成 -{message[-1]}-",
+                self.globalText.TranslationComplete.format(message[-1]),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"翻译失败 -{message[0]}-",
+                self.globalText.TranslationFailed.format(message[0]),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
@@ -740,14 +782,14 @@ class MainWindow(MSFluentWindow):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"下载完成 -{message[-1]}-",
+                self.globalText.DownloadComplete.format(message[-1]),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"下载失败 -{message}-",
+                self.globalText.DownloadFailed2.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
@@ -762,14 +804,14 @@ class MainWindow(MSFluentWindow):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"压制完成 -{message}-",
+                self.globalText.EncodingComplete.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"压制失败 -{message}-",
+                self.globalText.EncodingFailed.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
@@ -784,14 +826,14 @@ class MainWindow(MSFluentWindow):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"上传完成 -{message}-",
+                self.globalText.UploadComplete.format(message),
                 QIcon(":/app/images/logo/bilibili.svg"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"上传失败 -{message}-",
+                self.globalText.UploadFailed.format(message),
                 QIcon(":/app/images/logo/bilibili.svg"),
                 3000,
             )
@@ -807,14 +849,14 @@ class MainWindow(MSFluentWindow):
         if success:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"语音识别完成 -{message}-",
+                self.globalText.SRC2.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )
         else:
             self.system_tray.showMessage(
                 "Fairy-Kekkai-Workshop",
-                f"语音识别失败 -{message}-",
+                self.globalText.SRF2.format(message),
                 QIcon(":/app/images/logo.png"),
                 3000,
             )

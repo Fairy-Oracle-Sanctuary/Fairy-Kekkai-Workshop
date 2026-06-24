@@ -1,8 +1,8 @@
 #pragma once
 #include <cstdint>
 
-// Minimal forward declarations for CVUtils.dll C API
-// Link against CVUtils.lib (import library)
+// CVUtils C API declarations (standalone build - no dllimport)
+// The CVUtils source is compiled directly into paddleocr.exe
 
 namespace cv { class Mat; }
 
@@ -14,8 +14,8 @@ enum class Directional
 };
 
 extern "C" {
-    __declspec(dllimport) bool OcrLoadRuntime();
-    __declspec(dllimport) void* OcrInit(
+    bool OcrLoadRuntime();
+    void* OcrInit(
         const wchar_t* szDetModel,
         const wchar_t* szRecModel,
         const wchar_t* szKeyPath,
@@ -25,12 +25,12 @@ extern "C" {
         const char* device_type,
         void (*cb2)(const char*)
     );
-    __declspec(dllimport) void OcrDetect(
+    void OcrDetect(
         void* pOcrObj,
         const cv::Mat* mat,
         Directional mode,
-        void (*cb)(float, float, float, float, float, float, float, float, const char*),
+        void (*cb)(float, float, float, float, float, float, float, float, float, const char*),
         void (*cb2)(const char*)
     );
-    __declspec(dllimport) void OcrDestroy(void* pOcrObj);
+    void OcrDestroy(void* pOcrObj);
 }

@@ -236,3 +236,9 @@ x64/
 .VSCodeCounter/
 Output/
 .vscode/
+
+.DS_Store
+
+obj/
+temp/
+temp1/

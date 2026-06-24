@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 import os
 import queue
+import re
 import shutil
+import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, cast
@@ -82,10 +84,12 @@ class Video:
         frames_to_skip: int,
         crop_zones: list[dict[str, int]],
         ocr_image_max_width: int,
+        confidence_threshold: float = 0.0,
     ) -> None:
         ssim_threshold_ratio = ssim_threshold / 100
         self.lang = lang
         self.use_fullframe = use_fullframe
+        self.confidence_threshold = confidence_threshold
         self.validated_zones = []
         self.pred_frames_zone1 = []
         self.pred_frames_zone2 = []
@@ -662,10 +666,6 @@ class Video:
                 flush=True,
             )
 
-            det_res_dir = os.path.join(temp_dir, "det_results")
-            os.makedirs(det_res_dir, exist_ok=True)
-            det_progress_file = os.path.join(temp_dir, "det_progress.txt")
-
             args = [
                 self.paddleocr_path,
                 "text_detection",
@@ -675,93 +675,67 @@ class Video:
                 self.det_model_dir,
                 "--model_name",
                 os.path.basename(self.det_model_dir),
-                "--save_path",
-                det_res_dir,
                 "--device",
                 "gpu" if use_gpu else "cpu",
-                "--progress_file",
-                det_progress_file,
             ]
 
             print("Starting PaddleOCR...", flush=True)
 
-            _det_stop = [False]
-            _det_last = [0]
-
-            def _poll_det():
-                while not _det_stop[0]:
-                    try:
-                        if os.path.exists(det_progress_file):
-                            with open(det_progress_file, "r") as pf:
-                                content = pf.read().strip()
-                            if "/" in content:
-                                cur, tot = content.split("/", 1)
-                                cur_i = int(cur)
-                                if cur_i != _det_last[0]:
-                                    _det_last[0] = cur_i
-                                    print(
-                                        f"\rStep 2/3: Performing Text-Detection on image {cur_i} of {tot}",
-                                        end="",
-                                        flush=True,
-                                    )
-                    except Exception:
-                        pass
-                    import time
-
-                    time.sleep(0.25)
-
-            det_poll_t = threading.Thread(target=_poll_det, daemon=True)
-            det_poll_t.start()
-            try:
-                for line in utils.stream_cli_process(args, "paddleocr_error.log"):
-                    pass
-            finally:
-                _det_stop[0] = True
-                det_poll_t.join(timeout=1)
-            print(flush=True)
-
-            # Parse JSON Outputs and unstitch coordinates
             parsed_detections: dict[int, list[Any]] = {0: [], 1: []}
 
-            for json_file in os.listdir(det_res_dir):
-                if not json_file.endswith(".json"):
+            for line in utils.stream_cli_process(args, "paddleocr_error.log"):
+                line = line.strip()
+                if line.startswith("{"):
+                    try:
+                        data = json.loads(line)
+                        stitched_filename = os.path.basename(data["input_path"])
+                        if stitched_filename not in det_stitch_map:
+                            continue
+
+                        mapping = det_stitch_map[stitched_filename]
+                        zone_idx = mapping[0]["zone_idx"]
+
+                        temp_polys_dict: dict[int, list[Any]] = {
+                            m["frame_idx"]: [] for m in mapping
+                        }
+
+                        dt_polys = data["dt_polys"]
+                        dt_scores = data["dt_scores"]
+
+                        for poly, score in zip(dt_polys, dt_scores):
+                            for adjusted_poly, m in utils.unstitch_polygon(
+                                poly, mapping
+                            ):
+                                temp_polys_dict[m["frame_idx"]].append(
+                                    {"poly": adjusted_poly, "score": score}
+                                )
+
+                        for m in mapping:
+                            polys_data = temp_polys_dict[m["frame_idx"]]
+                            frame_score = (
+                                sum(p["score"] for p in polys_data) / len(polys_data)
+                                if polys_data
+                                else 0.0
+                            )
+                            extracted_polygons = [p["poly"] for p in polys_data]
+
+                            parsed_detections[zone_idx].append(
+                                (m["frame_idx"], extracted_polygons, frame_score, m)
+                            )
+                    except Exception:
+                        pass
                     continue
 
-                with open(os.path.join(det_res_dir, json_file), encoding="utf-8") as f:
-                    data = json.load(f)
-
-                stitched_filename = os.path.basename(data["input_path"])
-                if stitched_filename not in det_stitch_map:
-                    continue
-
-                mapping = det_stitch_map[stitched_filename]
-                zone_idx = mapping[0]["zone_idx"]
-
-                temp_polys_dict: dict[int, list[Any]] = {
-                    m["frame_idx"]: [] for m in mapping
-                }
-
-                dt_polys = data["dt_polys"]
-                dt_scores = data["dt_scores"]
-
-                for poly, score in zip(dt_polys, dt_scores):
-                    for adjusted_poly, m in utils.unstitch_polygon(poly, mapping):
-                        temp_polys_dict[m["frame_idx"]].append(
-                            {"poly": adjusted_poly, "score": score}
-                        )
-
-                for m in mapping:
-                    polys_data = temp_polys_dict[m["frame_idx"]]
-                    frame_score = (
-                        sum(p["score"] for p in polys_data) / len(polys_data)
-                        if polys_data
-                        else 0.0
+                match = re.search(r"Processed item\s+(\d+)(?:/(\d+))?", line)
+                if match:
+                    current_item = match.group(1)
+                    total_item = match.group(2) or str(det_counter)
+                    print(
+                        f"\rStep 2/3: Performing Text-Detection on image {current_item} of {total_item}",
+                        end="",
+                        flush=True,
                     )
-                    extracted_polygons = [p["poly"] for p in polys_data]
-
-                    parsed_detections[zone_idx].append(
-                        (m["frame_idx"], extracted_polygons, frame_score, m)
-                    )
+            print(flush=True)
 
             for z_idx in parsed_detections:
                 parsed_detections[z_idx].sort(key=lambda x: x[0])
@@ -1034,8 +1008,6 @@ class Video:
                 print()
 
             elif ocr_engine == "paddleocr":
-                ocr_output_json = os.path.join(temp_dir, "ocr_results.json")
-                ocr_progress_file = os.path.join(temp_dir, "ocr_progress.txt")
                 args = [
                     self.paddleocr_path,
                     "ocr",
@@ -1049,10 +1021,6 @@ class Video:
                     self.det_model_dir,
                     "--text_recognition_model_dir",
                     self.rec_model_dir,
-                    "--output",
-                    ocr_output_json,
-                    "--progress_file",
-                    ocr_progress_file,
                 ]
 
                 total_images = len(rec_image_map)
@@ -1061,37 +1029,6 @@ class Video:
                 )
 
                 processed_count = 0
-
-                def parse_existing_json():
-                    """解析已存在的JSON结果文件并返回已处理的数量"""
-                    local_count = 0
-                    if os.path.isfile(ocr_output_json):
-                        try:
-                            with open(ocr_output_json, "r", encoding="utf-8") as f:
-                                for json_line in f:
-                                    json_line = json_line.strip()
-                                    if not json_line:
-                                        continue
-                                    try:
-                                        data = json.loads(json_line)
-                                        image_name = data["image"]
-                                        if image_name not in rec_ocr_outputs:
-                                            rec_ocr_outputs[image_name] = []
-                                            for item in data["results"]:
-                                                box = item["box"]
-                                                text = item["text"]
-                                                score = item["score"]
-                                                rec_ocr_outputs[image_name].append(
-                                                    [box, (text, score)]
-                                                )
-                                            local_count += 1
-                                    except Exception:
-                                        pass
-                        except Exception:
-                            pass
-                    return local_count
-
-                import sys
 
                 def safe_print(msg: str) -> None:
                     """安全打印，避免Windows cp932编码错误"""
@@ -1102,49 +1039,35 @@ class Video:
                         sys.stdout.buffer.write(encoded)
                         sys.stdout.buffer.flush()
 
-                # Background thread polls progress file for real-time updates
-                _ocr_stop = [False]
-                _ocr_last = [0]
-
-                def _poll_ocr():
-                    while not _ocr_stop[0]:
+                for line in utils.stream_cli_process(args, "paddleocr_error.log"):
+                    line = line.strip()
+                    if line.startswith("{"):
                         try:
-                            if os.path.exists(ocr_progress_file):
-                                with open(ocr_progress_file, "r") as pf:
-                                    content = pf.read().strip()
-                                if "/" in content:
-                                    cur, tot = content.split("/", 1)
-                                    cur_i = int(cur)
-                                    if cur_i != _ocr_last[0]:
-                                        _ocr_last[0] = cur_i
-                                        safe_print(
-                                            f"Step 3/3: Performing OCR on image {cur_i} of {tot}"
-                                        )
+                            data = json.loads(line)
+                            image_name = data["image"]
+                            if image_name not in rec_ocr_outputs:
+                                rec_ocr_outputs[image_name] = []
+                                for item in data["results"]:
+                                    box = item["box"]
+                                    text = item["text"]
+                                    score = item["score"]
+                                    rec_ocr_outputs[image_name].append(
+                                        [box, (text, score)]
+                                    )
                         except Exception:
                             pass
-                        import time
+                        continue
 
-                        time.sleep(0.25)
-
-                ocr_poll_t = threading.Thread(target=_poll_ocr, daemon=True)
-                ocr_poll_t.start()
-                try:
-                    for line in utils.stream_cli_process(args, "paddleocr_error.log"):
-                        pass  # progress read from file
-                finally:
-                    _ocr_stop[0] = True
-                    ocr_poll_t.join(timeout=1)
-
-                # Final JSON parse for results
-                final_count = parse_existing_json()
-                if final_count > processed_count:
-                    processed_count = final_count
-                    safe_print(
-                        f"Step 3/3: Performing OCR on image {processed_count} of {total_images}"
-                    )
+                    match = re.search(r"Processed item\s+(\d+)(?:/(\d+))?", line)
+                    if match:
+                        processed_count = int(match.group(1))
+                        total_item = match.group(2) or str(total_images)
+                        safe_print(
+                            f"Step 3/3: Performing OCR on image {processed_count} of {total_item}"
+                        )
 
                 if not rec_ocr_outputs:
-                    safe_print(f"OCR output file not found or empty: {ocr_output_json}")
+                    safe_print("OCR stdout did not contain any result JSON")
                 print()
 
             # Map 2D coordinates
@@ -1180,6 +1103,7 @@ class Video:
                     pred_data,
                     zone_index,
                     lang,
+                    self.confidence_threshold,
                 )
                 frame_predictions_dict[zone_index][frame_index] = predicted_frame
 
@@ -1260,6 +1184,7 @@ class Video:
             lang,
             post_processing,
             min_subtitle_duration_sec,
+            self.confidence_threshold,
         )
         subs_zone2 = self._process_single_zone(
             self.pred_frames_zone2,
@@ -1268,6 +1193,7 @@ class Video:
             lang,
             post_processing,
             min_subtitle_duration_sec,
+            self.confidence_threshold,
         )
 
         if subs_zone1 and not subs_zone2:
@@ -1292,6 +1218,7 @@ class Video:
         lang: str,
         post_processing: bool,
         min_subtitle_duration_sec: float,
+        confidence_threshold: float = 0.0,
     ) -> list[PredictedSubtitle]:
         if not pred_frames:
             return []
@@ -1315,7 +1242,12 @@ class Video:
         subs: list[PredictedSubtitle] = []
         for frame in sorted(pred_frames, key=lambda f: f.start_index):
             new_sub = PredictedSubtitle(
-                [frame], frame.zone_index, sim_threshold, lang, language_model
+                [frame],
+                frame.zone_index,
+                sim_threshold,
+                lang,
+                language_model,
+                confidence_threshold,
             )
             if not new_sub.text:
                 continue

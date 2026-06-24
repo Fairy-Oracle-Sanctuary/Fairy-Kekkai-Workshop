@@ -1,21 +1,24 @@
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QObject, Qt, QTimer
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 from qfluentwidgets import (
     BodyLabel,
     PillPushButton,
-    PopupTeachingTip,
     SimpleCardWidget,
     StrongBodyLabel,
+    TeachingTip,
     TransparentPushButton,
 )
 
 from ..common.config import cfg
+from ..common.text import Text
 
 
-class TeachingTipManager:
+class TeachingTipManager(QObject):
     """新手引导管理器"""
 
     def __init__(self, parent=None):
+        super().__init__(parent)
+        self.globalText = Text()
         self.parent = parent
         self.current_step = 0
         self.teaching_tip = None
@@ -35,18 +38,18 @@ class TeachingTipManager:
 
         self.tips_data = [
             {
-                "title": "欢迎使用 Fairy Kekkai Workshop",
-                "content": "这是一个专为东方Project视频翻译设计的工具，支持视频下载、OCR识别、语音识别、AI翻译、视频压制等功能。主页的「关于」卡片中还可以查看日志、一键清空日志或重置所有设置。",
+                "title": self.globalText.WTFKW,
+                "content": self.globalText.AToolDesignedForTouh,
                 "interface_index": 0,  # 主页
             },
             {
-                "title": "项目管理",
-                "content": "点击「新建项目」创建新的翻译项目，或点击「导入项目」导入已有项目。每个项目对应一个视频系列。",
+                "title": self.globalText.ProjectManagement,
+                "content": self.globalText.ClickNewProjectToCre,
                 "interface_index": 1,  # 项目界面
             },
             {
-                "title": "下载视频",
-                "content": "在下载界面输入视频URL，支持YouTube、Bilibili等平台。可选择清晰度和下载格式。",
+                "title": self.globalText.DownloadVideo,
+                "content": self.globalText.EnterTheVideoURLInTh,
                 "interface_index": 2,  # 下载界面
             },
         ]
@@ -55,15 +58,15 @@ class TeachingTipManager:
         if is_win:
             self.tips_data.append(
                 {
-                    "title": "OCR识别",
-                    "content": "在字幕界面选择视频文件，点击「开始OCR」进行字幕识别。需要配置PaddleOCR模型路径。",
+                    "title": self.globalText.OCRRecognition,
+                    "content": self.globalText.SAVFITSICSOFSRRCPMP,
                     "interface_index": 3,  # 字幕界面（仅Windows）
                 }
             )
             self.tips_data.append(
                 {
-                    "title": "语音识别",
-                    "content": "在识别界面选择视频或音频文件，使用 Whisper 模型将语音转写为字幕。可在设置中选择模型、语言、输出格式与 GPU 加速。",
+                    "title": self.globalText.SpeechRecognition,
+                    "content": self.globalText.SelectAVideoOrAudioF,
                     "interface_index": 4,  # 识别界面（仅Windows）
                 }
             )
@@ -71,8 +74,8 @@ class TeachingTipManager:
         # 翻译界面：Windows 为索引5，macOS 为索引3
         self.tips_data.append(
             {
-                "title": "AI翻译",
-                "content": "在翻译界面选择SRT文件，配置AI模型和API Key，点击「开始翻译」进行翻译。支持多轮对话保持上下文。",
+                "title": self.globalText.AITranslation,
+                "content": self.globalText.SelectAnSRTFileInThe,
                 "interface_index": 5 if is_win else 3,  # 翻译界面
             }
         )
@@ -80,16 +83,16 @@ class TeachingTipManager:
         # 压制界面：Windows 为索引6，macOS 为索引4
         self.tips_data.append(
             {
-                "title": "视频压制",
-                "content": "在压制界面选择视频文件，将字幕烤制进视频并压制输出。可在设置中调整编码器、CRF、分辨率等参数。",
+                "title": self.globalText.VideoEncoding,
+                "content": self.globalText.SelectAVideoFileInTh,
                 "interface_index": 6 if is_win else 4,  # 压制界面
             }
         )
 
         self.tips_data.append(
             {
-                "title": "设置配置",
-                "content": "在设置界面配置各种API Key、模型路径、下载参数等。首次使用请先完成基础配置。",
+                "title": self.globalText.SC,
+                "content": self.globalText.CAKMPDPEISPCBCBFU,
                 "interface_index": -1,  # 设置界面（最后一个）
             }
         )
@@ -151,31 +154,33 @@ class TeachingTipManager:
 
         # 上一步按钮
         if self.current_step > 0:
-            previous_button = TransparentPushButton("上一步", view)
+            previous_button = TransparentPushButton(self.globalText.Previous2, view)
             previous_button.clicked.connect(self.previous_step)
             button_layout.addWidget(previous_button)
 
         # 跳过按钮
-        skip_button = TransparentPushButton("跳过", view)
+        skip_button = TransparentPushButton(self.globalText.Skip, view)
         skip_button.clicked.connect(self.finish_tour)
         button_layout.addWidget(skip_button)
 
         # 下一步/完成按钮
         if self.current_step < len(self.tips_data) - 1:
-            next_button = PillPushButton("下一步", view)
+            next_button = PillPushButton(self.globalText.Next2, view)
             next_button.clicked.connect(self.next_step)
         else:
-            next_button = PillPushButton("完成", view)
+            next_button = PillPushButton(self.globalText.Finish, view)
             next_button.clicked.connect(self.finish_tour)
         button_layout.addWidget(next_button)
 
         layout.addLayout(button_layout)
 
-        self.teaching_tip = PopupTeachingTip(
+        self.teaching_tip = TeachingTip(
             view=view,
             target=self.parent,
             duration=-1,  # 不自动关闭
         )
+        # 设为应用级模态：显示期间阻断与软件其他部分交互，但点击空白不会关闭
+        self.teaching_tip.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.teaching_tip.show()
 
     def next_step(self):

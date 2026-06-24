@@ -2,11 +2,14 @@
 import json
 import shutil
 import sys
+from enum import Enum
 from pathlib import Path
 
+from PySide6.QtCore import QLocale
 from qfluentwidgets import (
     BoolValidator,
     ConfigItem,
+    ConfigSerializer,
     OptionsConfigItem,
     OptionsValidator,
     QConfig,
@@ -22,10 +25,27 @@ from .setting import (
     EXE_SUFFIX,
     PIC_SUFFIX,
     AI_model_dict,
-    subtitle_positions_list,
     translate_language_dict,
     videocr_languages_dict,
 )
+
+
+class Language(Enum):
+    """Language enumeration"""
+
+    CHINESE_SIMPLIFIED = QLocale(QLocale.Chinese, QLocale.China)
+    ENGLISH = QLocale(QLocale.English)
+    AUTO = QLocale()
+
+
+class LanguageSerializer(ConfigSerializer):
+    """Language serializer"""
+
+    def serialize(self, language):
+        return language.value.name() if language != Language.AUTO else "Auto"
+
+    def deserialize(self, value: str):
+        return Language(QLocale(value)) if value != "Auto" else Language.AUTO
 
 
 def get_default_exe_path(exe_name: str) -> str:
@@ -34,15 +54,17 @@ def get_default_exe_path(exe_name: str) -> str:
     if sys.platform == "win32":
         return str(Path(f"tools/{exe_name}{EXE_SUFFIX}").absolute())
 
-    # macOS: 优先检测 Homebrew 安装路径
+    # macOS: 优先使用打包后的app目录下的tools目录
     if sys.platform == "darwin":
-        brew_paths = [
-            f"/opt/homebrew/bin/{exe_name}",  # Apple Silicon
-            f"/usr/local/bin/{exe_name}",  # Intel Mac
-        ]
-        for path in brew_paths:
-            if Path(path).exists():
-                return path
+        # 检测是否在app bundle中运行
+        if ".app" in sys.executable:
+            # 在app bundle中，tools目录在Contents/MacOS下
+            bundle_path = Path(sys.executable)
+            resources_dir = bundle_path.parent.parent / "MacOS"
+            return str((resources_dir / "tools" / exe_name).absolute())
+        else:
+            # 开发环境，使用本地tools目录
+            return str(Path(f"tools/{exe_name}").absolute())
 
     # Linux: 优先使用系统包管理器安装的路径
     if sys.platform == "linux":
@@ -106,6 +128,17 @@ class ProjectConfig:
             del self.config[key]
             self.save()
 
+    def get_project_order(self):
+        """获取项目排序列表，返回路径字符串列表"""
+        order = self.get("project_order", [])
+        if not isinstance(order, list):
+            return []
+        return order
+
+    def set_project_order(self, order: list):
+        """设置项目排序列表"""
+        self.set("project_order", order)
+
     def get_all(self):
         """获取所有配置"""
         return self.config.copy()
@@ -123,8 +156,23 @@ class Config(QConfig):
         OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]),
         restart=True,
     )
+    language = OptionsConfigItem(
+        "MainWindow",
+        "Language",
+        Language.CHINESE_SIMPLIFIED,
+        OptionsValidator(Language),
+        LanguageSerializer(),
+        restart=True,
+    )
     accentColor = OptionsConfigItem(
         "MainWindow", "AccentColor", "#009faa", OptionsValidator(["#009faa", "Auto"])
+    )
+    windowClass = OptionsConfigItem(
+        "MainWindow",
+        "WindowClass",
+        "MSFluentWindow",
+        OptionsValidator(["MSFluentWindow", "FluentWindow"]),
+        restart=True,
     )
     closeDirectly = ConfigItem(
         "MainWindow", "CloseDirectly", False, BoolValidator(), restart=False
@@ -367,20 +415,20 @@ class Config(QConfig):
     ocr_lang = OptionsConfigItem(
         "OCR",
         "Lang",
-        "中文与英文",
+        "japan",
         OptionsValidator(list(videocr_languages_dict.keys())),
         restart=False,
     )
 
     # 字幕位置
     # 命令行使用：--subtitle_position
-    ocr_position = OptionsConfigItem(
-        "OCR",
-        "Position",
-        "任意",
-        OptionsValidator(list(subtitle_positions_list.keys())),
-        restart=False,
-    )
+    # ocr_position = OptionsConfigItem(
+    #     "OCR",
+    #     "Position",
+    #     "任意",
+    #     OptionsValidator(list(subtitle_positions_list.keys())),
+    #     restart=False,
+    # )
 
     # 相似度阈值 (0-100)
     # 命令行使用：--sim_threshold
@@ -403,7 +451,7 @@ class Config(QConfig):
     # SSIM阈值 (0-100)
     # 命令行使用：--ssim_threshold
     ssimThreshold = RangeConfigItem(
-        "OCR", "SsimThreshold", 92, RangeValidator(0, 100), restart=False
+        "OCR", "SsimThreshold", 90, RangeValidator(0, 100), restart=False
     )
 
     # 最大OCR图像宽度（像素）
@@ -415,13 +463,19 @@ class Config(QConfig):
     # 跳过的帧数
     # 命令行使用：--frames_to_skip
     framesToSkip = RangeConfigItem(
-        "OCR", "FramesToSkip", 3, RangeValidator(0, 100), restart=False
+        "OCR", "FramesToSkip", 2, RangeValidator(0, 100), restart=False
     )
 
     # 最小字幕持续时间（秒）
     # 命令行使用：--min_subtitle_duration
     minSubtitleDuration = RangeConfigItem(
         "OCR", "MinSubtitleDuration", 0.2, RangeValidator(0.1, 10.0), restart=False
+    )
+
+    # 置信度阈值 (0.0-1.0)
+    # 命令行使用：--confidence_threshold
+    confidenceThreshold = RangeConfigItem(
+        "OCR", "ConfidenceThreshold", 0.3, RangeValidator(0.0, 1.0), restart=False
     )
 
     # 是否启用GPU使用
@@ -463,7 +517,7 @@ class Config(QConfig):
     origin_lang = OptionsConfigItem(
         "Translate",
         "OriginLang",
-        "日语",
+        "ja",
         OptionsValidator(list(translate_language_dict.keys())),
         restart=False,
     )
@@ -472,7 +526,7 @@ class Config(QConfig):
     target_lang = OptionsConfigItem(
         "Translate",
         "TargetLang",
-        "中文",
+        "zh",
         OptionsValidator(list(translate_language_dict.keys())),
         restart=False,
     )
@@ -485,11 +539,16 @@ class Config(QConfig):
         restart=False,
     )
 
+    # 是否启用AI翻译上下文（多轮对话）
+    useTranslateContext = ConfigItem(
+        "Translate", "UseTranslateContext", True, BoolValidator(), restart=False
+    )
+
     # AI模型选择
     ai_model = OptionsConfigItem(
         "Translate",
         "AiModel",
-        "腾讯混元",
+        "deepseek",
         OptionsValidator(list(AI_model_dict.keys())),
         restart=False,
     )

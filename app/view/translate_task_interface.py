@@ -4,9 +4,11 @@
 from PySide6.QtCore import Signal
 
 from ..common.event_bus import event_bus
+from ..common.task_status import TaskStatus
 from ..components.base_task_interface import BaseTaskInterface
 from ..components.task_card import TranslateItemWidget
 from ..service.translate_service import TranslateTask, TranslateThread
+from ..common.text import Text
 
 
 class TranslateTaskInterface(BaseTaskInterface):
@@ -17,12 +19,14 @@ class TranslateTaskInterface(BaseTaskInterface):
     )  # 是否重复的任务 任务路径列表 是否发送消息
 
     def __init__(self, parent=None):
+        globalText = Text()
         super().__init__(
             object_name="translateTaskInterface",
-            processing_text="翻译中",
-            task_type="翻译",
+            processing_text=globalText.Translating,
+            task_type=globalText.Translate,
             parent=parent,
         )
+        self.globalText = globalText
 
         self.translate_paths = []  # 所有待翻译文件路径
 
@@ -55,14 +59,15 @@ class TranslateTaskInterface(BaseTaskInterface):
         for task in self.tasks:
             if task.id == task_id:
                 if success:
-                    task.status = "已完成"
+                    task.status = TaskStatus.DONE
                     event_bus.notification_service.show_success(
-                        "翻译完成", f"-{task.input_file}- 翻译完成"
+                        self.globalText.TranslationComplete2,
+                        self.globalText.TranslationComplete3.format(task.input_file),
                     )
                 else:
-                    task.status = "失败"
+                    task.status = TaskStatus.FAILED
                     event_bus.notification_service.show_error(
-                        "翻译失败", message.strip()
+                        self.globalText.TranslationFailed2, message.strip()
                     )
 
                 # 从活动线程列表中移除对应线程引用

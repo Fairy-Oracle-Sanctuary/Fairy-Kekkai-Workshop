@@ -5,12 +5,14 @@ from ..common.logger import Logger
 from ..components.base_function_interface import BaseFunctionInterface
 from ..components.base_stacked_interface import BaseStackedInterfaces
 from ..components.config_card import FFmpegSettingInterface
+from ..common.text import Text
 
 
 class FFmpegStackedInterfaces(BaseStackedInterfaces):
     """翻译堆叠界面"""
 
     def __init__(self, parent=None):
+        globalText = Text()
         from ..view.ffmpeg_task_interface import FFmpegTaskInterface
 
         super().__init__(
@@ -18,8 +20,9 @@ class FFmpegStackedInterfaces(BaseStackedInterfaces):
             main_interface_class=FFmpegInterface,
             task_interface_class=FFmpegTaskInterface,
             setting_interface_class=FFmpegSettingInterface,
-            interface_name="视频压制",
+            interface_name=globalText.VideoEncoding,
         )
+        self.globalText = globalText
 
         # 连接专用信号
         self.mainInterface.addTask.connect(self.taskInterface.addFFmpegTask)
@@ -30,8 +33,10 @@ class FFmpegInterface(BaseFunctionInterface):
     """视频压制界面"""
 
     def __init__(self, parent=None):
+        globalText = Text()
         self.file_video = None
-        super().__init__(parent, "压制")
+        super().__init__(parent, globalText.Encode)
+        self.globalText = globalText
 
         self.file_extension = "*.mp4;*.flv;*.mkv;*.avi;*.wmv;*.mpg;*.avs;*.mov"
         self.default_output_suffix = "_compressed.mp4"

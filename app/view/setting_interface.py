@@ -2,10 +2,11 @@
 # from ..common.signal_bus import signalBus
 # from ..common.icon import Logo
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QUrl
+from PySide6.QtCore import Qt, QThread, QUrl
 from PySide6.QtGui import QDesktopServices, QFont
 from PySide6.QtWidgets import QFileDialog, QWidget
 from qfluentwidgets import (
@@ -16,6 +17,7 @@ from qfluentwidgets import (
     PushSettingCard,
     RangeSettingCard,
     ScrollArea,
+    Signal,
     SwitchSettingCard,
     TitleLabel,
     setFont,
@@ -26,10 +28,35 @@ from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import SettingCardGroup as CardGroup
 from qframelesswindow.utils import getSystemAccentColor
 
-from ..common.config import cfg
+from ..common.config import cfg, get_default_exe_path
 from ..common.event_bus import event_bus
-from ..common.setting import COPYLEFT, EXE_SUFFIX, TEAM, VERSION, YEAR
+from ..common.setting import COPYLEFT, TEAM, VERSION, YEAR
 from ..components.config_card import DetectionCard
+from ..common.text import Text
+
+
+class ExeDetectThread(QThread):
+    """通过执行 version 命令检测可执行文件是否可用（macOS app bundle 内的文件无法用 exists 判断）"""
+
+    detected = Signal(str, bool)  # exe_path, success
+
+    def __init__(self, exe_path: str, version_flag: str = "-version"):
+        super().__init__()
+        self.exe_path = exe_path
+        self.version_flag = version_flag
+
+    def run(self):
+        try:
+            result = subprocess.run(
+                [self.exe_path, self.version_flag],
+                capture_output=True,
+                timeout=10,
+            )
+            print(result.stdout.decode("utf-8"))
+            print(result.stderr.decode("utf-8"))
+            self.detected.emit(self.exe_path, result.returncode == 0)
+        except (FileNotFoundError, subprocess.TimeoutExpired, TimeoutError, OSError):
+            self.detected.emit(self.exe_path, False)
 
 
 class SettingCardGroup(CardGroup):
@@ -43,116 +70,137 @@ class SettingInterface(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.globalText = Text()
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
         # setting label
-        self.settingLabel = TitleLabel(self.tr("设置"), self)
+        self.settingLabel = TitleLabel(self.globalText.Settings, self)
 
         # 个性化
-        self.personalGroup = SettingCardGroup(self.tr("个性化"), self.scrollWidget)
+        self.personalGroup = SettingCardGroup(self.globalText.Personalization, self.scrollWidget)
         self.themeCard = ComboBoxSettingCard(
             cfg.themeMode,
             FIF.BRUSH,
-            self.tr("应用主题"),
-            self.tr("调整应用的外观"),
-            texts=[self.tr("浅色"), self.tr("深色"), self.tr("跟随系统设置")],
+            self.globalText.ApplicationTheme,
+            self.globalText.AAA,
+            texts=[self.globalText.Light, self.globalText.Dark, self.globalText.FollowSystem],
             parent=self.personalGroup,
         )
         self.accentColorCard = ComboBoxSettingCard(
             cfg.accentColor,
             FIF.PALETTE,
-            self.tr("主题色"),
-            self.tr("调整应用的主题颜色"),
-            texts=[self.tr("海沫绿"), self.tr("跟随系统设置")],
+            self.globalText.ThemeColor,
+            self.globalText.AdjustThemeColor,
+            texts=[self.globalText.SeafoamGreen, self.globalText.FollowSystem],
+            parent=self.personalGroup,
+        )
+        self.windowClassCard = ComboBoxSettingCard(
+            cfg.windowClass,
+            FIF.EMBED,
+            self.globalText.WindowStyle,
+            self.globalText.AdjustWindowStyle,
+            texts=[
+                self.globalText.MSFluentWindow,
+                self.globalText.FluentWindow,
+                self.globalText.SplitFluentWindow,
+            ],
             parent=self.personalGroup,
         )
         self.zoomCard = ComboBoxSettingCard(
             cfg.dpiScale,
             FIF.ZOOM,
-            self.tr("界面缩放"),
-            self.tr("调整组件和字体的大小"),
-            texts=["100%", "125%", "150%", "175%", "200%", self.tr("跟随系统设置")],
+            self.globalText.InterfaceScaling,
+            self.globalText.ACAFS,
+            texts=["100%", "125%", "150%", "175%", "200%", self.globalText.FollowSystem],
+            parent=self.personalGroup,
+        )
+        self.languageCard = ComboBoxSettingCard(
+            cfg.language,
+            FIF.LANGUAGE,
+            self.globalText.Language,
+            self.globalText.SetInterfaceLanguage,
+            texts=["简体中文", "English", self.globalText.FollowSystem],
             parent=self.personalGroup,
         )
         self.closeDirectlyCard = SwitchSettingCard(
             FIF.CLOSE,
-            self.tr("直接关闭"),
-            self.tr("启用或禁用直接关闭应用"),
+            self.globalText.CloseDirectly,
+            self.globalText.EODDC,
             configItem=cfg.closeDirectly,
             parent=self.personalGroup,
         )
         if sys.platform == "win32":
             self.showBackgroundCard = SwitchSettingCard(
                 FIF.BACKGROUND_FILL,
-                self.tr("背景图片"),
-                self.tr("启用或禁用应用背景图片"),
+                self.globalText.BackgroundImage,
+                self.globalText.EODBI,
                 configItem=cfg.showBackground,
                 parent=self.personalGroup,
             )
             self.backgroundPathCard = PushSettingCard(
-                self.tr("选择文件"),
+                self.globalText.SelectFile3,
                 FIF.PHOTO,
-                "选择背景图片",
+                self.globalText.SBI,
                 cfg.get(cfg.backgroundPath),
                 self.personalGroup,
             )
             self.backgroundRectCard = RangeSettingCard(
                 cfg.backgroundRect,
                 FIF.TRANSPARENT,
-                title="背景透明度",
-                content="调整背景图片的透明度",
+                title=self.globalText.BackgroundOpacity,
+                content=self.globalText.ABO,
             )
 
         # project
-        self.projectGroup = SettingCardGroup(self.tr("项目"), self.scrollWidget)
+        self.projectGroup = SettingCardGroup(self.globalText.Project, self.scrollWidget)
         self.detailProjectItemNumCard = RangeSettingCard(
             cfg.detailProjectItemNum,
             FIF.DOCUMENT,
-            title=self.tr("项目详情页数量"),
-            content=self.tr("调整项目详情页项目数量"),
+            title=self.globalText.IPPIPD,
+            content=self.globalText.AdjustItemsPerPage,
             parent=self.projectGroup,
         )
 
         # download
-        self.downloadGroup = SettingCardGroup(self.tr("下载"), self.scrollWidget)
+        self.downloadGroup = SettingCardGroup(self.globalText.Download, self.scrollWidget)
         self.ytdlpPathCard = PushSettingCard(
-            self.tr("选择文件"),
+            self.globalText.SelectFile3,
             ":/app/images/logo/ytdlp.svg",
             "yt-dlp",
             cfg.get(cfg.ytdlpPath),
             self.downloadGroup,
         )
         self.ffmpegPathCard = PushSettingCard(
-            self.tr("选择文件"),
+            self.globalText.SelectFile3,
             ":/app/images/logo/FFmpeg.svg",
             "FFmpeg",
             cfg.get(cfg.ffmpegPath),
             self.downloadGroup,
         )
         self.detectionCard = DetectionCard(
-            FIF.SEARCH, "检测程序", "自动检测并更新程序路径"
+            FIF.SEARCH, self.globalText.DetectPrograms, self.globalText.ADAUPP
         )
 
         # 关于
-        self.aboutGroup = SettingCardGroup(self.tr("关于"), self.scrollWidget)
+        self.aboutGroup = SettingCardGroup(self.globalText.About, self.scrollWidget)
         self.aboutCard = PrimaryPushSettingCard(
-            self.tr("检查更新"),
+            self.globalText.CheckForUpdates,
             ":/app/images/logo.png",
-            self.tr("关于"),
+            self.globalText.About,
             COPYLEFT
-            + self.tr("Copyleft")
+            + self.globalText.Copyleft
             + f" {YEAR}, {TEAM}. "
-            + self.tr("当前版本")
+            + self.globalText.CurrentVersion
             + " v"
             + VERSION,
             self.aboutGroup,
         )
         self.teachingTipCard = PushSettingCard(
-            self.tr("查看新手引导"),
+            self.globalText.ViewTutorial,
             FIF.BOOK_SHELF,
-            self.tr("新手引导"),
-            self.tr("重新查看软件使用教程"),
+            self.globalText.Tutorial,
+            self.globalText.ReplayTheTutorial,
             self.aboutGroup,
         )
 
@@ -179,7 +227,9 @@ class SettingInterface(ScrollArea):
 
         self.personalGroup.addSettingCard(self.themeCard)
         self.personalGroup.addSettingCard(self.zoomCard)
+        self.personalGroup.addSettingCard(self.languageCard)
         self.personalGroup.addSettingCard(self.accentColorCard)
+        self.personalGroup.addSettingCard(self.windowClassCard)
         self.personalGroup.addSettingCard(self.closeDirectlyCard)
         if sys.platform == "win32":
             self.personalGroup.addSettingCard(self.showBackgroundCard)
@@ -209,10 +259,12 @@ class SettingInterface(ScrollArea):
 
     def _showRestartTooltip(self):
         """show restart tooltip"""
-        event_bus.notification_service.show_success("更新成功", "配置在重启软件后生效")
+        event_bus.notification_service.show_success(
+            self.globalText.UpdateSuccessful, self.globalText.STEAR
+        )
 
     def _backgroundPathCardClicked(self):
-        path, _ = QFileDialog.getOpenFileName(self, self.tr("选择背景图片"))
+        path, _ = QFileDialog.getOpenFileName(self, self.globalText.SBI)
 
         if not path or cfg.get(cfg.backgroundPath) == path:
             return
@@ -221,7 +273,7 @@ class SettingInterface(ScrollArea):
         self.backgroundPathCard.setContent(path)
 
     def _onYTDLPPathCardClicked(self):
-        path, _ = QFileDialog.getOpenFileName(self, self.tr("选择ytdlp文件"))
+        path, _ = QFileDialog.getOpenFileName(self, self.globalText.SelectYtDlpFile)
 
         if not path or cfg.get(cfg.ytdlpPath) == path:
             return
@@ -230,7 +282,7 @@ class SettingInterface(ScrollArea):
         self.ytdlpPathCard.setContent(path)
 
     def _onFFmpegPathCardClicked(self):
-        path, _ = QFileDialog.getOpenFileName(self, self.tr("选择ffmpeg文件"))
+        path, _ = QFileDialog.getOpenFileName(self, self.globalText.SelectFfmpegFile)
 
         if not path or cfg.get(cfg.ffmpegPath) == path:
             return
@@ -238,75 +290,96 @@ class SettingInterface(ScrollArea):
         cfg.set(cfg.ffmpegPath, path)
         self.ffmpegPathCard.setContent(path)
 
-    def _detectExe(self, exe_name, url, cfg_item, path_card):
-        exe_path = None
+    def _detectExe(self, exe_name, url, cfg_item, path_card, version_flag="-version"):
+        exe_path_str = get_default_exe_path(exe_name)
+        exe_path = Path(exe_path_str)
 
-        if sys.platform == "linux":
-            # Linux: 优先使用系统包管理器安装的路径
-            system_paths = [
-                f"/usr/bin/{exe_name}",
-                f"/usr/local/bin/{exe_name}",
-            ]
-            exe_path = None
-            for path in system_paths:
-                if Path(path).exists():
-                    exe_path = Path(path)
-                    break
-            if exe_path is None:
-                exe_path_str = shutil.which(exe_name)
-                if exe_path_str:
-                    exe_path = Path(exe_path_str)
-        elif sys.platform == "win32":
-            exe_path = Path(f"tools/{exe_name}{EXE_SUFFIX}").absolute()
-            if not exe_path.exists():
+        if sys.platform == "darwin":
+            # macOS: app bundle 内的文件无法用 exists判断，通过 version 命令检测
+            exe_path_str = str(exe_path)
+            if not hasattr(self, "_pending_detects"):
+                self._pending_detects = {}
+                self._detect_threads = []
+            self._pending_detects[exe_path_str] = {
+                "name": exe_name,
+                "url": url,
+                "cfg_item": cfg_item,
+                "path_card": path_card,
+            }
+            thread = ExeDetectThread(exe_path_str, version_flag)
+            thread.detected.connect(self._onExeDetected)
+            self._detect_threads.append(thread)
+            thread.start()
+        else:
+            # Windows / Linux: 使用 exists + which 回退
+            if not exe_path.exists() and sys.platform == "win32":
                 exe_path_str = shutil.which(exe_name)
                 if exe_path_str:
                     exe_path = Path(exe_path_str)
                 else:
                     exe_path = None
-        elif sys.platform == "darwin":
-            exe_path = Path(f"tools/{exe_name}{EXE_SUFFIX}").absolute()
-            if not exe_path.exists():
-                exe_path = None
-            # macOS: check Homebrew paths
-            brew_paths = [
-                f"/opt/homebrew/bin/{exe_name}",  # Apple Silicon
-                f"/usr/local/bin/{exe_name}",  # Intel Mac
-            ]
-            for path in brew_paths:
-                if Path(path).exists():
-                    exe_path = path
-                    break
 
-        if exe_path is not None:
-            cfg.set(cfg_item, str(exe_path))
-            event_bus.notification_service.show_success(
-                "检测成功", f"{exe_name}路径已设置为" + str(exe_path)
-            )
-            path_card.setContent(str(exe_path))
-        else:
-            if sys.platform == "linux":
-                install_hint = {
-                    "ffmpeg": "请执行: sudo apt install ffmpeg",
-                    "yt-dlp": "请执行: pip install yt-dlp",
-                }.get(exe_name, "")
+            if exe_path is not None:
+                cfg.set(cfg_item, str(exe_path))
+                event_bus.notification_service.show_success(
+                    self.globalText.DetectionSuccessful,
+                    self.globalText.PathSetTo.format(exe_name, str(exe_path)),
+                )
+                path_card.setContent(str(exe_path))
+            else:
                 dialog = Dialog(
-                    "检测失败",
-                    f"未检测到{exe_name}程序\n{install_hint}",
+                    self.globalText.DetectionFailed,
+                    self.globalText.NotFoundDownloadIt.format(exe_name),
                     self,
                 )
-                dialog.cancelButton.setText("确定")
-                dialog.yesButton.setVisible(False)
-                if dialog.exec():
-                    pass
-            else:
-                dialog = Dialog("检测失败", f"未检测到{exe_name}程序，是否要下载", self)
-                dialog.yesButton.setText("前往下载")
-                dialog.cancelButton.setText("取消")
+                dialog.yesButton.setText(self.globalText.GoToDownload)
+                dialog.cancelButton.setText(self.globalText.Cancel)
                 if dialog.exec():
                     QDesktopServices.openUrl(QUrl(url))
 
+    def _onExeDetected(self, exe_path: str, success: bool):
+        """macOS ExeDetectThread 检测完成回调"""
+        info = getattr(self, "_pending_detects", {}).pop(exe_path, None)
+        if info is None:
+            return
+
+        if success:
+            cfg.set(info["cfg_item"], exe_path)
+            event_bus.notification_service.show_success(
+                self.globalText.DetectionSuccessful,
+                self.globalText.PathSetTo.format(info["name"], exe_path),
+            )
+            info["path_card"].setContent(exe_path)
+        else:
+            dialog = Dialog(
+                self.globalText.DetectionFailed,
+                self.globalText.NotFoundDownloadIt.format(info["name"]),
+                self,
+            )
+            dialog.yesButton.setText(self.globalText.GoToDownload)
+            dialog.cancelButton.setText(self.globalText.Cancel)
+            if dialog.exec():
+                QDesktopServices.openUrl(QUrl(info["url"]))
+
+        # 所有检测完成后恢复按钮
+        if not getattr(self, "_pending_detects", {}):
+            self.detectionCard.openButton.setEnabled(True)
+            self.detectionCard.openButton.setText(self.globalText.Detect)
+
     def _onDectectionCardClicked(self):
+        self.detectionCard.openButton.setEnabled(False)
+        if sys.platform == "darwin":
+            self.detectionCard.openButton.setText(self.globalText.Detecting)
+
+        # ytdlp
+        self._detectExe(
+            "yt-dlp",
+            "https://github.com/yt-dlp/yt-dlp/releases",
+            cfg.ytdlpPath,
+            self.ytdlpPathCard,
+            version_flag="--version",
+        )
+
         # ffmpeg
         self._detectExe(
             "ffmpeg",
@@ -315,13 +388,9 @@ class SettingInterface(ScrollArea):
             self.ffmpegPathCard,
         )
 
-        # ytdlp
-        self._detectExe(
-            "yt-dlp",
-            "https://github.com/yt-dlp/yt-dlp/releases",
-            cfg.ytdlpPath,
-            self.ytdlpPathCard,
-        )
+        # Windows/Linux 同步检测，直接恢复按钮；macOS 由 _onExeDetected 回调恢复
+        if sys.platform != "darwin":
+            self.detectionCard.openButton.setEnabled(True)
 
     def _onAccentColorChanged(self):
         color = cfg.get(cfg.accentColor)

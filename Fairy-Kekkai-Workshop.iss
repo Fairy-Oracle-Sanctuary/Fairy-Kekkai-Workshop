@@ -2,9 +2,9 @@
 ; 有关创建 Inno Setup 脚本文件的详细信息，请参阅帮助文档！
 
 #define MyAppName "Fairy Kekkai Workshop"
-#define MyAppVersion "1.18.0"
+#define MyAppVersion "2.1.0"
 #define MyAppPublisher "Fairy Oracle Sanctuary"
-#define MyAppURL "https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate"
+#define MyAppURL "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop"
 #define MyAppExeName "Fairy-Kekkai-Workshop.exe"
 #define MyAppAssocName MyAppName + "文件"
 #define MyAppAssocExt ".myp"
@@ -33,12 +33,13 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
-LicenseFile=D:\Touhou-project\projects\LICENSE.txt
+LicenseFile=D:\CODE\Fairy-Kekkai-Workshop\LICENSE
 ; 取消注释以下行以在非管理员安装模式下运行 (仅为当前用户安装)。
 PrivilegesRequired=admin
-OutputBaseFilename=mysetup
+OutputBaseFilename=Fairy-Kekkai-Workshop
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile=D:\CODE\Fairy-Kekkai-Workshop\app\resource\images\logo.ico
 
 [Languages]
 Name: "chinesesimp"; MessagesFile: "compiler:Default.isl"
@@ -46,9 +47,9 @@ Name: "chinesesimp"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
-[InstallDelete]
+;[InstallDelete]
 ; 安装前删除旧版本的所有文件和子目录
-Type: filesandordirs; Name: "{app}\*"
+;Type: filesandordirs; Name: "{app}\*"
 
 [Files]
 Source: "C:\Users\ZHANGBaoHang\Desktop\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion

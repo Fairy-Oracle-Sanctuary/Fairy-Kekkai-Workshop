@@ -13,6 +13,7 @@
 - 💾 **项目管理**：完整的项目文件系统管理，支持导入/链接外部项目
 - 🎨 **主题切换**：标题栏快捷主题切换按钮，支持深色/浅色模式
 - 🚀 **启动页**：带进度条和状态文字的启动页面
+- 🌍 **多语言支持**：支持中文、英文界面
 
 ---
 
@@ -70,8 +71,23 @@ Fairy-Kekkai-Workshop/
 │   │       │   ├── Utils/          # 工具函数
 │   │       │   ├── Whisper.vcxproj # Visual Studio 项目文件
 │   │       │   └── ...             # 其他源文件
-│   │       └── paddleocr/         # paddleocr 源码
-│   │           └── main.cpp       # C++ CLI 实现
+│   │       └── paddleocr/         # paddleocr C++ 源码（自包含）
+│   │           ├── CMakeLists.txt  # CMake 构建（FetchContent 自动下载依赖）
+│   │           ├── main.cpp       # CLI 入口（text_detection / ocr 命令）
+│   │           ├── dbcrnn.cpp     # DBNet 文字检测 + CRNN 文字识别
+│   │           ├── dbcrnn.hpp
+│   │           ├── ortwrapper.cpp # ONNX Runtime 封装
+│   │           ├── ortwrapper.hpp
+│   │           ├── localocr.cpp   # CVUtils C API 实现
+│   │           ├── similarity.cpp # SSIM 相似度计算
+│   │           ├── shared.cpp     # 文件版本查询（独立构建桩）
+│   │           ├── shared.hpp
+│   │           ├── deviceinfo.hpp # 设备信息（DML/OpenVINO/CPU）
+│   │           ├── format.hpp     # cv::Mat 内存构造
+│   │           ├── cvutils_api.h  # C API 声明
+│   │           ├── cvutils_compat.h # PCH 替代兼容头
+│   │           ├── libonnxruntime.cmake # ONNX Runtime + DirectML 下载
+│   │           └── .clangd        # clangd 配置
 │   │
 │   ├── view/                      # UI 视图层
 │   │   ├── main_window.py         # 主窗口（含启动页、主题切换按钮）
@@ -132,20 +148,21 @@ Fairy-Kekkai-Workshop/
    cd Touhou-translate/Fairy-Kekkai-Workshop
    ```
 
-2. **创建虚拟环境**（推荐使用 uv）
+2. **创建虚拟环境**（推荐使用 venv）
    ```bash
-   uv venv
+   python -m venv .venv
    source .venv/bin/activate  # Unix/macOS
    .venv\Scripts\activate     # Windows
    ```
 
 3. **安装依赖**
    ```bash
-   uv pip install -r requirements.txt
+   pip install -r requirements.txt
    ```
 
 4. **准备 OCR 工具**
-   - 下载 paddleocr 放到 `tools/PaddleOCR/` 目录
+   - 编译 paddleocr C++ 可执行文件（见下文 [paddleocr 编译](#paddleocr-c-编译)）
+   - 编译完成后将产物复制到 `tools/PaddleOCR/`
    - 下载 OCR 模型文件放到 `tools/OCR.model/` 目录
    - 编译 videocr CLI: `cd app/service/CLI && python deploy.py`
 
@@ -157,7 +174,7 @@ Fairy-Kekkai-Workshop/
      - 从 `app/service/CLI/whisper/x64/Release/` 复制 Whisper.dll 及其依赖
      - 从 WhisperNet CLI 发布文件夹复制 WhisperNetCLI.exe、WhisperNet.dll、ComLight.dll 等
 
-5. **运行应用**
+6. **运行应用**
    ```bash
    python Fairy-Kekkai-Workshop.py
    ```
@@ -179,7 +196,8 @@ Fairy-Kekkai-Workshop/
 **外部工具**（需手动准备）：
 ```bash
 # paddleocr（字幕提取）
-# 下载 paddleocr.exe 放到 tools/PaddleOCR/ 目录
+# 编译 paddleocr C++ 可执行文件：cmake + MSBuild（见下方章节）
+# 将 paddleocr.exe, onnxruntime.dll, DirectML.dll 复制到 tools/PaddleOCR/
 # 下载 OCR 模型文件放到 tools/OCR.model/ 目录
 
 # FFmpeg（视频压制）
@@ -190,6 +208,71 @@ Fairy-Kekkai-Workshop/
 # yt-dlp（视频下载）
 uv pip install yt-dlp
 ```
+
+### paddleocr C++ 编译
+
+paddleocr 是自包含的 C++ 项目，通过 CMake FetchContent 自动下载所有依赖（OpenCV、Clipper2、ONNX Runtime、DirectML），无需手动配置。
+
+**前置要求**：
+- Visual Studio 2022（含 C++ 桌面开发工作负载）
+- CMake 3.20+
+- Git（Clipper2 通过 Git 获取）
+
+**编译步骤**：
+```bash
+# 在 paddleocr 目录外创建 build 目录
+cd app/service/CLI/paddleocr
+mkdir build && cd build
+
+# 配置 CMake（自动下载 OpenCV、Clipper2、ONNX Runtime、DirectML）
+cmake .. -G "Visual Studio 17 2022" -A x64
+
+# 编译 Release
+cmake --build . --config Release -j 4
+```
+
+**产物位置**：`build/Release/`
+- `paddleocr.exe` - OCR CLI 可执行文件
+- `onnxruntime.dll` - ONNX Runtime（含 DML GPU 支持）
+- `DirectML.dll` - DirectML GPU 加速
+
+**部署到生产环境**：
+```bash
+copy build/Release/paddleocr.exe tools/PaddleOCR/
+copy build/Release/onnxruntime.dll tools/PaddleOCR/
+copy build/Release/DirectML.dll tools/PaddleOCR/
+```
+
+**测试**：
+```bash
+# 无参数运行（显示帮助）
+tools/PaddleOCR/paddleocr.exe
+
+# CPU OCR 测试
+tools/PaddleOCR/paddleocr.exe ocr ^
+  --input path/to/images ^
+  --device cpu ^
+  --text_detection_model_dir tools/OCR.model/high/cjk_mobile ^
+  --text_recognition_model_dir tools/OCR.model/high/cjk_mobile
+```
+
+**源码结构**：
+| 文件 | 来源 | 说明 |
+|------|------|------|
+| `main.cpp` | 本项目 | CLI 入口，支持 `text_detection` 和 `ocr` 命令 |
+| `dbcrnn.cpp/.hpp` | LunaTranslator CVUtils | DBNet 文字检测 + CRNN 文字识别核心算法 |
+| `ortwrapper.cpp/.hpp` | LunaTranslator CVUtils | ONNX Runtime 会话封装（DML/CPU/OpenVINO） |
+| `localocr.cpp` | LunaTranslator CVUtils | C API 实现（`OcrInit` / `OcrDetect` / `OcrDestroy`） |
+| `similarity.cpp` | LunaTranslator CVUtils | SSIM 图像相似度计算 |
+| `shared.cpp/.hpp` | 独立实现 | 文件版本查询 + DLL 路径搜索（构建桩） |
+| `deviceinfo.hpp` | LunaTranslator CVUtils | GPU 设备信息（DML/OpenVINO/CPU） |
+| `format.hpp` | LunaTranslator CVUtils | 从内存构造 `cv::Mat` |
+| `cvutils_api.h` | 本项目 | C API 声明（独立构建，无 dllimport） |
+| `cvutils_compat.h` | 本项目 | PCH 替代品，提供 Windows SDK / ATL 头文件 |
+| `libonnxruntime.cmake` | LunaTranslator CVUtils | ONNX Runtime + DirectML NuGet 包下载 |
+| `.clangd` | 本项目 | IDE clangd 智能提示配置 |
+
+**clangd 配置**：项目 `.clangd` 文件包含构建目录下的依赖头文件路径和 Windows SDK 路径，用于 IDE 的代码补全和静态分析。首次 CMake 配置后 clangd 即可正常工作。
 
 ---
 
@@ -221,6 +304,11 @@ cfg.set(cfg.dpiScale, 1.5)
 - `deepseekModel`：Deepseek 模型选择（deepseek-v4-flash/deepseek-v4-pro）
 - `deepseekReasoning`：Deepseek 深度思考模式开关
 - `concurrentDownloads`：最大并发下载数
+- `confidenceThreshold`：OCR 置信度阈值（0.0-1.0，默认 0.3）
+- `ssimThreshold`：SSIM 去重阈值（0-100，默认 90）
+- `simThreshold`：字幕合并相似度阈值（0-100，默认 65）
+- `framesToSkip`：跳帧数（0-100，默认 3）
+- `useTranslateContext`：是否启用 AI 翻译多轮对话上下文
 
 ### 2. 事件总线（`app/common/event_bus.py`）
 
@@ -383,9 +471,17 @@ thread.start()
 - 模型选择：`deepseek-v4-flash`（快速）或 `deepseek-v4-pro`（高质量）
 - 深度思考模式：启用后模型会进行更深入的推理
 
+**多轮对话上下文**：
+- 启用时，系统将最近 2 轮对话历史附加到当前请求中，帮助 AI 保持术语一致性
+- 禁用时，每次请求独立，适合短字幕或不同话题的字幕
+
+**SRT 多行处理**：
+- 发送给 AI 前，字幕内的换行符被替换为空格，确保一行一条
+- 避免多行字幕导致 AI 编号错乱（旧 bug：AI 将第二行当成独立条目）
+
 ### 5. OCR 服务（`app/service/ocr_service.py`）
 
-基于 paddleocr 的字幕提取服务。
+基于 paddleocr 的字幕提取服务，支持 GPU 加速和多参数调节。
 
 ```python
 from app.service.ocr_service import OCRProcess, OCRTask
@@ -398,6 +494,12 @@ task = OCRTask(args={
     "lang": "ja",
     "paddleocr_path": "tools/PaddleOCR/paddleocr.exe",
     "supportFilesPath": "tools/OCR.model",
+    "confidence_threshold": 0.3,  # 置信度阈值 (0.0-1.0)
+    "ssim_threshold": 90,         # SSIM 去重阈值 (0-100)
+    "sim_threshold": 65,          # 字幕合并相似度 (0-100)
+    "frames_to_skip": 3,          # 跳过的帧数
+    "ocr_image_max_width": 1280,  # OCR 图像最大宽度
+    "use_gpu": True,              # 是否使用 GPU
 })
 
 # 执行 OCR
@@ -407,10 +509,29 @@ process.start()
 ```
 
 **OCR 流程**：
-1. 视频帧提取和 SSIM 过滤
+1. 视频帧提取和 SSIM 去重过滤
 2. 文本检测（Text-Detection-Only pass）
-3. 文本识别（OCR）
-4. 字幕生成和合并
+3. 文本识别（OCR + 置信度评分）
+4. 置信度过滤（丢弃低质量识别结果）
+5. 字幕生成和合并
+
+**OCR 高级参数说明**：
+
+| 参数 | 默认值 | 范围 | 说明 |
+|------|--------|------|------|
+| `ssim_threshold` | 90 | 0-100 | SSIM 阈值，越高越保守（不去重），越低越激进（多去重） |
+| `sim_threshold` | 65 | 0-100 | 字幕合并相似度阈值，越高越不易合并 |
+| `frames_to_skip` | 3 | 0-100 | 每 N 帧取一帧，0=每帧都取（最慢但最全） |
+| `ocr_image_max_width` | 1280 | 100-4096 | OCR 输入图像最大宽度（像素） |
+| `confidence_threshold` | 0.3 | 0.0-1.0 | 置信度过滤阈值，低于此值的识别结果被丢弃 |
+| `brightness_threshold` | 0 | 0-255 | 亮度阈值，用于过滤暗色背景噪点（0=禁用） |
+| `max_merge_gap` | 0.1 | 0.1-10.0 | 最大合并间隔（秒），增大可合并更多断句 |
+| `min_subtitle_duration` | 0.2 | 0.1-10.0 | 最小字幕持续时间（秒） |
+
+**参数调整建议**：
+- **漏句** → 降低 `frames_to_skip`，提高 `ssim_threshold`，降低 `ocr_image_max_width`
+- **误识别多** → 提高 `confidence_threshold` 至 0.5~0.7
+- **字幕断句多** → 提高 `sim_threshold` 至 75~85，增大 `max_merge_gap` 至 0.2~0.5
 
 ### 6. Whisper 语音识别服务（`app/service/whisper_service.py`）
 
@@ -511,7 +632,90 @@ def _toggleTheme(self):
 - 深色模式：显示太阳图标（切到浅色）
 - 浅色模式：显示月亮图标（切到深色）
 
-### 10. 批量任务系统（`app/components/dialog.py`）
+### 10. 多语言系统（`app/common/text.py`、`app/resource/i18n/`）
+
+应用支持中文、英文、日语、韩语界面，使用 Qt Linguist 管理翻译资源。当前项目统一通过 `Text` 类集中维护 UI 文案，业务代码应访问 `self.globalText.<属性名>`，避免散落的 `self.tr(...)` 或 `QCoreApplication.translate(...)`。
+
+**核心文件**：
+- `app/common/text.py` - 集中定义全部可翻译 UI 文案
+- `app/resource/i18n/app.en_US.ts` - 英文翻译源文件
+- `app/resource/i18n/app.ja_JP.ts` - 日语翻译源文件
+- `app/resource/i18n/app.ko_KR.ts` - 韩语翻译源文件
+- `app/resource/i18n/*.qm` - 运行时加载的编译后翻译文件
+- `app/resource/resource.qrc` - Qt 资源清单
+- `app/resource/resource_rc.py` - Qt 资源编译后的 Python 文件
+
+**Text 使用规范**：
+```python
+from ..common.text import Text
+
+class ExampleInterface(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.globalText = Text()
+        self.titleLabel = TitleLabel(self.globalText.OCRSettings, self)
+```
+
+**禁止写法**：
+```python
+self.tr("开始时间")
+QCoreApplication.translate("Example", "开始时间")
+```
+
+**新增文案流程**：
+1. 在 `app/common/text.py` 的 `Text.__init__()` 中新增属性，例如 `self.StartTime = self.tr("开始时间")`。
+2. 在界面或服务代码中通过 `self.globalText.StartTime` 使用。
+3. 运行 `lupdate` 更新 `.ts` 文件。
+4. 补全 `.ts` 中各语言 `<translation>`。
+5. 运行 `lrelease` 生成 `.qm`。
+6. 若 `.qm` 被打进 Qt 资源，重新生成 `app/resource/resource_rc.py`。
+
+**翻译构建命令**：
+```powershell
+# 提取需要翻译的字符串
+lupdate.exe Fairy-Kekkai-Workshop.pro
+
+# 生成全部 .qm 翻译文件
+lrelease.exe Fairy-Kekkai-Workshop.pro
+
+# 如果 pyside6-lrelease 包装器异常，可直接调用 PySide6 工具
+& "C:\Users\<User>\AppData\Local\Programs\Python\Python39\lib\site-packages\PySide6\lrelease.exe" app\resource\i18n\app.en_US.ts -qm app\resource\i18n\app.en_US.qm
+
+# 重新生成 Qt 资源 Python 文件
+& "C:\Users\<User>\AppData\Local\Programs\Python\Python39\lib\site-packages\PySide6\rcc.exe" app\resource\resource.qrc -o app\resource\resource_rc.py -g python
+```
+
+**语言配置**：
+- 默认语言：中文（`Language.CHINESE_SIMPLIFIED`）
+- 配置项：`cfg.language`（在 `app/common/config.py`）
+- 运行时资源路径：`:/app/i18n/app.en_US.qm` 等
+
+**状态文本规范**：
+- `TaskStatus` 的枚举值必须保持稳定代码值，例如 `done`、`failed`，不能改成界面显示语言。
+- 任务界面显示文本统一通过 `status_text()` 获取。
+- `status_text()` 应在调用时即时创建 `Text()`，避免在翻译器安装前缓存中文文案。
+
+**语言代码与显示文本规范**：
+- 配置项保存稳定代码值，例如 OCR 使用 `japan`，翻译语言使用 `ja` / `zh`，AI 模型使用 `deepseek`。
+- UI 下拉框显示文本使用 `self.globalText` 生成，例如 `{"ja": self.globalText.Japanese}`。
+- 传给 OCR CLI 的 `lang` 必须是 OCR 语言代码，例如 `japan`。
+- 传给 AI Prompt 的 `origin_lang` / `target_lang` 应转换为语言显示名，例如 `日语`、`中文`。
+- 传给翻译服务选择器的 `AI` 必须保持服务 key，例如 `deepseek`，不能转成 `Deepseek` 或其它显示名。
+
+**占位符要求**：
+- `.ts` 翻译中的 `{}` 数量必须与 Python `.format(...)` 参数数量一致。
+- 示例：`self.globalText.FilesAllFiles.format(self.file_extension)` 只传一个参数，所以翻译也只能有一个 `{}`。
+
+**检查命令**：
+```powershell
+# 编译全部 Python 文件，检查语法错误
+python -m compileall -q app
+
+# 检查动态翻译调用残留
+rg "self\.tr\(|QCoreApplication\.translate" app -g "*.py"
+```
+
+### 11. 批量任务系统（`app/components/dialog.py`）
 
 批量任务对话框支持一次性为多集添加相同类型的任务。
 

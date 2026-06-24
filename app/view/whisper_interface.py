@@ -1,10 +1,13 @@
 # coding:utf-8
 
+import os
+
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QDesktopServices
 from qfluentwidgets import (
     BodyLabel,
     ComboBoxSettingCard,
+    Dialog,
 )
 from qfluentwidgets import FluentIcon as FIF
 
@@ -15,6 +18,7 @@ from ..components.base_function_interface import BaseFunctionInterface
 from ..components.base_stacked_interface import BaseStackedInterfaces
 from ..components.config_card import WhisperSettingInterface
 from ..view.whisper_task_interface import WhisperTaskInterface
+from ..common.text import Text
 
 
 class WhisperStackedInterfaces(BaseStackedInterfaces):
@@ -22,13 +26,15 @@ class WhisperStackedInterfaces(BaseStackedInterfaces):
 
     def __init__(self, parent=None):
 
+        globalText = Text()
         super().__init__(
             parent=parent,
             main_interface_class=WhisperInterface,
             task_interface_class=WhisperTaskInterface,
             setting_interface_class=WhisperSettingInterface,
-            interface_name="语音识别",
+            interface_name=globalText.SpeechRecognition,
         )
+        self.globalText = globalText
 
         # 连接专用信号
         self.mainInterface.addTask.connect(self.taskInterface.addWhisperTask)
@@ -39,8 +45,10 @@ class WhisperInterface(BaseFunctionInterface):
     """语音识别界面"""
 
     def __init__(self, parent=None):
+        globalText = Text()
         self.file_video = None
-        super().__init__(parent, "识别")
+        super().__init__(parent, globalText.Recognize)
+        self.globalText = globalText
 
         self.file_extension = (
             "*.mp4;*.flv;*.mkv;*.avi;*.wmv;*.mpg;*.mov;*.wav;*.mp3;*.flac"
@@ -58,25 +66,25 @@ class WhisperInterface(BaseFunctionInterface):
         self.languageCard = ComboBoxSettingCard(
             cfg.whisperLanguage,
             FIF.LANGUAGE,
-            "识别语言",
-            "选择要识别的语言",
+            self.globalText.RecognitionLanguage,
+            self.globalText.SLTR,
             texts=[
-                "自动检测",
-                "中文",
-                "日语",
-                "英语",
-                "韩语",
-                "法语",
-                "德语",
-                "西班牙语",
+                self.globalText.AutoDetect,
+                self.globalText.Chinese,
+                self.globalText.Japanese,
+                self.globalText.English,
+                self.globalText.Korean,
+                self.globalText.French,
+                self.globalText.German,
+                self.globalText.Spanish,
             ],
             parent=self.settingsGroup,
         )
         self.formatCard = ComboBoxSettingCard(
             cfg.whisperOutputFormat,
             FIF.DOCUMENT,
-            "输出格式",
-            "选择字幕输出格式",
+            self.globalText.OutputFormat,
+            self.globalText.SSOF,
             texts=["srt", "txt", "vtt"],
             parent=self.settingsGroup,
         )
@@ -85,9 +93,7 @@ class WhisperInterface(BaseFunctionInterface):
 
         # 模型说明提示卡片
         hint_label = BodyLabel(
-            "内置 <b>Small</b> 模型对油库里语音已够用。"
-            '需更高精度可<a href="https://pan.xunlei.com/s/VOu1R3aOfz05uqcbNUBSnEFSA1?pwd=62cr#" '
-            'style="color: #0078d4;">手动下载更大模型</a>后替换。语音设置不推荐选择自动检测。',
+            self.globalText.BeforeUsingThisFeatu
         )
         hint_label.setWordWrap(True)
         hint_label.linkActivated.connect(
@@ -105,6 +111,30 @@ class WhisperInterface(BaseFunctionInterface):
 
     def _start_processing(self):
         """开始识别"""
+        cli_path = cfg.get(cfg.whisperCliPath)
+        if not cli_path or not os.path.exists(cli_path):
+            dialog = Dialog(
+                self.globalText.Warning,
+                self.globalText.WCPDNE.format(cli_path),
+                self.window(),
+            )
+            dialog.yesButton.setText(self.globalText.OK2)
+            dialog.cancelButton.setVisible(False)
+            dialog.exec()
+            return
+
+        model_path = cfg.get(cfg.whisperModelPath)
+        if not model_path or not os.path.exists(model_path):
+            dialog = Dialog(
+                self.globalText.Warning,
+                self.globalText.WMPDNE.format(model_path),
+                self.window(),
+            )
+            dialog.yesButton.setText(self.globalText.OK2)
+            dialog.cancelButton.setVisible(False)
+            dialog.exec()
+            return
+
         args = self._get_args()
         self.addTask.emit(args)
         self.logger.info(

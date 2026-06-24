@@ -60,6 +60,7 @@ static cv::Mat load_image_rgb(const fs::path &path) {
 struct OcrResult {
   std::array<cv::Point2f, 4> box;
   std::string text;
+  float confidence;
 };
 
 static std::vector<OcrResult> run_ocr_on_image(void *ocr, const cv::Mat &rgb) {
@@ -75,11 +76,12 @@ static std::vector<OcrResult> run_ocr_on_image(void *ocr, const cv::Mat &rgb) {
   g_results = &results;
 
   auto callback = [](float x1, float y1, float x2, float y2, float x3, float y3,
-                     float x4, float y4, const char *text) {
+                     float x4, float y4, float conf, const char *text) {
     OcrResult r;
     r.box = {cv::Point2f(x1, y1), cv::Point2f(x2, y2), cv::Point2f(x3, y3),
              cv::Point2f(x4, y4)};
     r.text = text ? text : "";
+    r.confidence = conf;
     g_results->push_back(r);
   };
 
@@ -90,6 +92,44 @@ static std::vector<OcrResult> run_ocr_on_image(void *ocr, const cv::Mat &rgb) {
 // ---------------------------------------------------------------------------
 // Format polygon for JSON output
 // ---------------------------------------------------------------------------
+static std::string json_escape(const std::string &s) {
+  std::ostringstream oss;
+  for (unsigned char c : s) {
+    switch (c) {
+    case '"':
+      oss << "\\\"";
+      break;
+    case '\\':
+      oss << "\\\\";
+      break;
+    case '\b':
+      oss << "\\b";
+      break;
+    case '\f':
+      oss << "\\f";
+      break;
+    case '\n':
+      oss << "\\n";
+      break;
+    case '\r':
+      oss << "\\r";
+      break;
+    case '\t':
+      oss << "\\t";
+      break;
+    default:
+      if (c < 0x20) {
+        const char *hex = "0123456789abcdef";
+        oss << "\\u00" << hex[(c >> 4) & 0x0f] << hex[c & 0x0f];
+      } else {
+        oss << static_cast<char>(c);
+      }
+      break;
+    }
+  }
+  return oss.str();
+}
+
 static std::string format_poly_json(const std::array<cv::Point2f, 4> &box) {
   std::ostringstream oss;
   oss << "[[" << box[0].x << "," << box[0].y << "],[" << box[1].x << ","
@@ -99,40 +139,24 @@ static std::string format_poly_json(const std::array<cv::Point2f, 4> &box) {
 }
 
 // ---------------------------------------------------------------------------
-// Progress file writer
-// ---------------------------------------------------------------------------
-static void write_progress(const std::string &file_path, int current, int total) {
-  if (file_path.empty())
-    return;
-  std::ofstream ofs(file_path, std::ios::trunc);
-  if (ofs.is_open()) {
-    ofs << current << "/" << total;
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Command: text_detection
 //   paddleocr.exe text_detection
 //      --input <dir>
 //      --model_dir <dir>
 //      --model_name <name>
-//      --save_path <dir>
 //      [--device cpu|gpu]
-//      [--progress_file <path>]
 // ---------------------------------------------------------------------------
 static int cmd_text_detection(const std::map<std::string, std::string> &args) {
   fs::path input_dir = args.count("--input") ? args.at("--input") : "";
   fs::path model_dir = args.count("--model_dir") ? args.at("--model_dir") : "";
-  fs::path save_path = args.count("--save_path") ? args.at("--save_path") : "";
   std::string device = args.count("--device") ? args.at("--device") : "cpu";
-  std::string progress_file = args.count("--progress_file") ? args.at("--progress_file") : "";
   bool use_gpu = (device == "gpu");
   // Map CLI device flag to ONNX Runtime provider name
   std::string provider = use_gpu ? "DML" : "CPU";
 
-  if (input_dir.empty() || model_dir.empty() || save_path.empty()) {
+  if (input_dir.empty() || model_dir.empty()) {
     std::cerr << "Usage: text_detection --input <dir> --model_dir <dir> "
-                 "--model_name <name> --save_path <dir> [--device cpu|gpu]"
+                 "--model_name <name> [--device cpu|gpu]"
               << std::endl;
     return 1;
   }
@@ -159,8 +183,6 @@ static int cmd_text_detection(const std::map<std::string, std::string> &args) {
     return 1;
   }
 
-  fs::create_directories(save_path);
-
   std::vector<fs::path> images;
   for (const auto &entry : fs::directory_iterator(input_dir)) {
     if (entry.is_regular_file()) {
@@ -178,12 +200,19 @@ static int cmd_text_detection(const std::map<std::string, std::string> &args) {
     if (rgb.empty())
       continue;
 
-    auto results = run_ocr_on_image(ocr, rgb);
+    std::vector<OcrResult> results;
+    try {
+      results = run_ocr_on_image(ocr, rgb);
+    } catch (...) {
+      std::cerr << "Error on image index " << (processed + 1) << ": skipped" << std::endl;
+      ++processed;
+      continue;
+    }
 
     std::ostringstream json;
     std::string path_str = img_path.string();
     std::replace(path_str.begin(), path_str.end(), '\\', '/');
-    json << "{\"input_path\":\"" << path_str << "\",";
+    json << "{\"input_path\":\"" << json_escape(path_str) << "\",";
     json << "\"dt_polys\":[";
     for (size_t i = 0; i < results.size(); ++i) {
       if (i)
@@ -194,18 +223,15 @@ static int cmd_text_detection(const std::map<std::string, std::string> &args) {
     for (size_t i = 0; i < results.size(); ++i) {
       if (i)
         json << ",";
-      json << "1.0"; // Luna does not expose per-box confidence
+      json << results[i].confidence;
     }
     json << "]}";
 
-    fs::path out_file = save_path / (img_path.stem().string() + "_det.json");
-    std::ofstream ofs(out_file, std::ios::out);
-    ofs << json.str();
+    std::cout << json.str() << std::endl;
 
     ++processed;
     std::cout << "ppocr INFO: Processed item " << processed << "/"
               << images.size() << std::endl;
-    write_progress(progress_file, processed, (int)images.size());
   }
 
   OcrDestroy(ocr);
@@ -223,7 +249,6 @@ static int cmd_text_detection(const std::map<std::string, std::string> &args) {
 //      --text_recognition_model_dir <dir>
 //      [--textline_orientation_model_dir <dir>]
 //      [--output <file>]
-//      [--progress_file <path>]
 // ---------------------------------------------------------------------------
 static int cmd_ocr(const std::map<std::string, std::string> &args) {
   fs::path input_dir = args.count("--input") ? args.at("--input") : "";
@@ -256,7 +281,6 @@ static int cmd_ocr(const std::map<std::string, std::string> &args) {
     use_gpu = (args.at("--device") == "gpu");
 
   std::string provider = use_gpu ? "DML" : "CPU";
-  std::string progress_file = args.count("--progress_file") ? args.at("--progress_file") : "";
 
   if (!OcrLoadRuntime()) {
     std::cerr << "Failed to load ONNX Runtime" << std::endl;
@@ -302,38 +326,35 @@ static int cmd_ocr(const std::map<std::string, std::string> &args) {
     if (rgb.empty())
       continue;
 
-    auto results = run_ocr_on_image(ocr, rgb);
+    std::vector<OcrResult> results;
+    try {
+      results = run_ocr_on_image(ocr, rgb);
+    } catch (...) {
+      std::cerr << "Error on image index " << (processed + 1) << ": skipped" << std::endl;
+      ++processed;
+      continue;
+    }
+
+    std::ostringstream result_json;
+    result_json << "{\"image\":\"" << json_escape(img_path.filename().string())
+                << "\",\"results\":[";
+    for (size_t i = 0; i < results.size(); ++i) {
+      if (i)
+        result_json << ",";
+      result_json << "{\"box\":" << format_poly_json(results[i].box)
+                  << ",\"text\":\"" << json_escape(results[i].text) << "\",\"score\":" << results[i].confidence << "}";
+    }
+    result_json << "]}";
 
     if (out_json.is_open()) {
-      out_json << "{\"image\":\"" << img_path.filename().string()
-               << "\",\"results\":[";
-      for (size_t i = 0; i < results.size(); ++i) {
-        if (i)
-          out_json << ",";
-        out_json << "{\"box\":" << format_poly_json(results[i].box)
-                 << ",\"text\":\"" << results[i].text << "\",\"score\":100.0}";
-      }
-      out_json << "]}" << std::endl;
+      out_json << result_json.str() << std::endl;
     } else {
-      printf("ppocr INFO: **********%s**********\n",
-             img_path.filename().string().c_str());
-      fflush(stdout);
-
-      printf("ppocr INFO: [");
-      for (size_t i = 0; i < results.size(); ++i) {
-        if (i)
-          printf(",");
-        printf("[%s,(\"%s\",100.0)]", format_poly_json(results[i].box).c_str(),
-               results[i].text.c_str());
-      }
-      printf("]\n");
-      fflush(stdout);
+      std::cout << result_json.str() << std::endl;
     }
 
     ++processed;
     std::cout << "ppocr INFO: Processed item " << processed << "/"
               << images.size() << std::endl;
-    write_progress(progress_file, processed, (int)images.size());
   }
 
   if (out_json.is_open())

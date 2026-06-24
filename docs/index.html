@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fairy Kekkai Workshop | 仙·结界工坊</title>
+  <meta name="description" content="一站式烤肉自由软件：项目管理、视频下载、PaddleOCR 字幕提取、Whisper 语音识别、AI 翻译、FFmpeg 视频压制。">
+  <link rel="icon" type="image/png" sizes="128x128" href="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/logo_eqwl0k.png">
+  <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/logo_eqwl0k.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <div class="nav-logo">
+            <img src="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/logo_eqwl0k.png" alt="Fairy Kekkai Workshop Logo">
+          </div>
+          <span class="nav-title"></span>
+        </div>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+          <div class="nav-links">
+            <a href="index.html#features" class="nav-link" data-i18n="nav.features">功能特性</a>
+            <a href="docs.html" class="nav-link" data-i18n="nav.docs">文档</a>
+            <a href="download.html" class="nav-link" data-i18n="nav.download">下载</a>
+          </div>
+          <div class="nav-actions">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+              <svg class="icon sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"/>
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+              </svg>
+              <svg class="icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </button>
+            <div class="language-switcher">
+              <button class="lang-btn" id="langBtn">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+                <span id="currentLang">简体中文</span>
+              </button>
+              <div class="lang-dropdown" id="langDropdown">
+                <button class="lang-option active" data-lang="zh">简体中文</button>
+                <button class="lang-option" data-lang="en">English</button>
+              </div>
+            </div>
+            <div class="nav-social">
+              <a href="https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop" target="_blank" class="nav-link" aria-label="GitHub">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div id="hero-particles" class="particles-container"></div>
+      <div class="hero-container">
+        <div class="hero-content">
+          <div class="hero-badge" data-i18n="hero.badge">开源 · 自由 · 一站式</div>
+          <h1 class="hero-title" data-i18n="hero.title">
+            一站式<span class="accent underline">烤肉</span>自由软件
+          </h1>
+          <p class="hero-description" data-i18n="hero.description">
+            从下载、字幕提取、语音识别、AI 翻译到视频压制，完整的视频字幕处理工作流。基于 PySide6 与 QFluentWidgets 打造的现代化桌面应用。
+          </p>
+          <div class="hero-actions">
+            <a href="download.html" class="btn btn-primary">
+              <span data-i18n="hero.downloadButton">立即下载</span>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </a>
+            <a href="https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop" target="_blank" class="btn btn-secondary">
+              <span data-i18n="hero.githubButton">查看源码</span>
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="hero-showcase">
+          <img id="showcase-light" src="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/thumbnail_full_qs4gz6.png" alt="Fairy Kekkai Workshop 界面预览" class="showcase-img showcase-img-light">
+          <img id="showcase-dark" src="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682613/thumbnail_full_black_hcrbkt.png" alt="Fairy Kekkai Workshop 界面预览" class="showcase-img showcase-img-dark">
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title" data-i18n="features.title">核心功能</h2>
+          <p class="section-subtitle" data-i18n="features.subtitle">覆盖烤肉全流程的强大工具集</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="features.project.title">项目管理</h3>
+            <p class="feature-description" data-i18n="features.project.description">完整的项目文件系统管理，自动追踪封面、原视频、熟肉、字幕进度，支持从 YouTube 播放列表一键创建项目与批量任务派发。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="features.download.title">视频下载</h3>
+            <p class="feature-description" data-i18n="features.download.description">基于 yt-dlp，支持 1800+ 视频网站与播放列表批量下载，自动获取封面，可配置并发数、视频质量与格式。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <path d="M3 9h18M9 21V9"/>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="features.ocr.title">字幕提取 OCR</h3>
+            <p class="feature-description" data-i18n="features.ocr.description">集成 PaddleOCR，提供可视化字幕区域选择，支持上下双区域 OCR 与 GPU 加速，实时输出日志。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="features.whisper.title">语音识别</h3>
+            <p class="feature-description" data-i18n="features.whisper.description">基于 Const-me/Whisper，支持中、日、英、韩等多语种语音转字幕，带实时进度，支持 SRT / TXT / VTT 输出与 GPU 加速。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="features.translate.title">智能翻译</h3>
+            <p class="feature-description" data-i18n="features.translate.description">对接 Deepseek、腾讯混元、ERNIE、Gemini 等多个 AI 模型，可自定义提示词模板，支持深度思考模式与流式输出。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="23 7 16 12 23 17 23 7"/>
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="features.ffmpeg.title">视频压制</h3>
+            <p class="feature-description" data-i18n="features.ffmpeg.description">基于 FFmpeg，自定义编码参数，支持 CUDA / VideoToolbox 硬件加速，自动嵌入字幕，实时输出日志。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/logo_eqwl0k.png" alt="Fairy Kekkai Workshop Logo">
+        </div>
+        <p class="footer-quote" data-i18n="footer.quote">“连接世界，连接每一个相信自由与善意的人。”</p>
+        <div class="footer-links">
+          <a href="https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop" target="_blank" data-i18n="footer.github">GitHub</a>
+          <a href="https://discord.gg/TfuNYPsjmQ" target="_blank" data-i18n="footer.discord">Discord</a>
+        </div>
+        <p class="footer-copyright" id="copyright">🄯 2026 天机阁 Fairy Oracle Sanctuary</p>
+      </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="18 15 12 9 6 15"/>
+      </svg>
+    </button>
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

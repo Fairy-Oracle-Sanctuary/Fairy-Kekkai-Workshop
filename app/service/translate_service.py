@@ -11,6 +11,8 @@ from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
 from ..common.setting import AI_ERROR_MAP
+from ..common.task_status import TaskStatus
+from ..common.text import Text
 
 
 def parse_srt(srt_content: str) -> list[dict]:
@@ -60,7 +62,7 @@ def remove_thinking_content(text: str) -> str:
 class TranslateTask:
     args: dict
     id: int = 0
-    status: str = "等待中"
+    status: str = TaskStatus.WAITING
     progress: int = 0
     error_message: str = ""
     output_history: str = ""  # 存储完整输出历史
@@ -316,6 +318,7 @@ class TranslateThread(QThread):
 
     def __init__(self, task: TranslateTask):
         super().__init__()
+        self.globalText = Text()
         self.logger = Logger("TranslateProcess", "translate")
         self.task = task
         self._is_running = True
@@ -325,7 +328,7 @@ class TranslateThread(QThread):
             service_cls = self.SERVICES.get(self.task.AI)
             if not service_cls:
                 event_bus.translate_finished_signal.emit(
-                    False, f"不支持的AI模型: {self.task.AI}"
+                    False, self.globalText.TextAuto059.format(self.task.AI)
                 )
                 self.logger.error(f"不支持的AI模型: {self.task.AI}")
                 return
@@ -357,12 +360,20 @@ class TranslateThread(QThread):
 
                 batch = srt_items[i : i + batch_size]
                 batch_texts = [
-                    f"{j + 1}. {item['text']}" for j, item in enumerate(batch)
+                    f"{j + 1}. {item['text'].replace(chr(10), ' ')}"
+                    for j, item in enumerate(batch)
                 ]
                 user_content = f"请翻译以下{len(batch)}句：\n" + "\n".join(batch_texts)
 
-                # 添加用户消息
-                messages.append({"role": "user", "content": user_content})
+                if cfg.get(cfg.useTranslateContext):
+                    # 限制上下文：只保留最近两轮历史对话（1轮为 1对 user+assistant，共4条消息）
+                    if len(messages) > 5:
+                        messages = [messages[0]] + messages[-4:]
+                    # 添加用户消息
+                    messages.append({"role": "user", "content": user_content})
+                else:
+                    # 只发 system prompt 和当前 user
+                    messages = [messages[0], {"role": "user", "content": user_content}]
 
                 # 调用翻译
                 full_response = ""
@@ -391,7 +402,7 @@ class TranslateThread(QThread):
 
                 # 更新进度
                 progress = int((i + batch_size) / len(srt_items) * 100)
-                progress_msg = f"翻译进度: {min(progress, 100)}%"
+                progress_msg = self.globalText.TextAuto058.format(min(progress, 100))
                 self.task.output_history += progress_msg + "\n"
                 event_bus.translate_update_signal.emit(str(self.task.id), progress_msg)
 
@@ -406,18 +417,19 @@ class TranslateThread(QThread):
             if not self._is_running:
                 # 如果是因为取消而停止，发送取消信号
                 self.cancelled_signal.emit()
+                self.finished_signal.emit(False, self.globalText.TextAuto057)
                 self.logger.info(f"翻译任务已取消: {self.task.input_file}")
             else:
                 # 翻译完成后进行后处理：去除思考内容
                 try:
                     self._post_process_translation()
-                    self.finished_signal.emit(True, "翻译完成")
+                    self.finished_signal.emit(True, self.globalText.TranslationComplete2)
                     event_bus.translate_finished_signal.emit(
                         True, ["", self.task.output_file]
                     )
                     self.logger.info(f"翻译任务已完成: {self.task.input_file}")
                 except Exception as e:
-                    error_msg = f"后处理失败: {str(e)}"
+                    error_msg = self.globalText.TextAuto061.format(str(e))
                     self.finished_signal.emit(False, error_msg)
                     event_bus.translate_finished_signal.emit(False, [error_msg])
                     self.logger.error(
@@ -427,7 +439,7 @@ class TranslateThread(QThread):
         except Exception as e:
             # 如果是报错导致的线程停止，不再发取消信号，只发错误信号
             error_msg = BaseTranslateService.analysis_error(str(e))
-            self.finished_signal.emit(False, f"翻译失败: {error_msg}")
+            self.finished_signal.emit(False, self.globalText.TextAuto060.format(error_msg))
             event_bus.translate_finished_signal.emit(False, [error_msg])
             self.logger.error(f"翻译任务失败: {self.task.input_file} - {error_msg}")
 
@@ -490,4 +502,4 @@ class TranslateThread(QThread):
 
     def cancel(self):
         self._is_running = False
-        self.task.status = "已取消"
+        self.task.status = TaskStatus.CANCELLED

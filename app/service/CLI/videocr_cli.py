@@ -205,6 +205,12 @@ def main():
         help="Minimum subtitle duration in seconds (default: 0.2)",
     )
     parser.add_argument(
+        "--confidence_threshold",
+        type=restricted_float(min_val=0.0, max_val=1.0),
+        default=0.0,
+        help="Minimum confidence threshold for OCR results (0.0-1.0, default: 0.0)",
+    )
+    parser.add_argument(
         "--ocr_image_max_width",
         type=restricted_int(min_val=1),
         default=1280,
@@ -337,6 +343,7 @@ def main():
                 post_processing=args.post_processing,
                 min_subtitle_duration_sec=args.min_subtitle_duration,
                 ocr_image_max_width=args.ocr_image_max_width,
+                confidence_threshold=args.confidence_threshold,
             )
     except ValueError as e:
         print(f"Error: {e}")

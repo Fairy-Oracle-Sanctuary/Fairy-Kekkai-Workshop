@@ -1,9 +1,23 @@
-PySide6-Fluent-Widgets[full]
-opencv-python
-openai
-numpy
-Pillow
-requests
-spark_ai_python
-srt
-imageio
+# GUI Framework
+PySide6>=6.6.0
+PySide6-Fluent-Widgets>=1.6.0
+
+# Image/Video Processing
+opencv-python>=4.8.0
+Pillow>=10.0.0
+av>=12.0.0
+fast_ssim>=0.2.0
+
+# Numerical Computing
+numpy>=1.24.0
+
+# HTTP Requests
+requests>=2.31.0
+
+# AI/Translation
+openai>=1.0.0
+
+srt>=3.5.3
+
+nuitka>=4.1.2
+ImageIO>=2.37.2

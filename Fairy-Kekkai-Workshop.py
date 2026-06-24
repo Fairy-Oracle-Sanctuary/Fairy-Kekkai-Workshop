@@ -11,11 +11,13 @@ Fairy-Kekkai-Workshop/deploy.py
 import os
 import sys
 
+from PySide6.QtCore import QSharedMemory, QTranslator
+from PySide6.QtWidgets import QApplication
+from qfluentwidgets import FluentTranslator
+
 from app.common.config import cfg
 from app.common.setting import TEAM, VERSION
 from app.view.main_window import MainWindow
-from PySide6.QtCore import QSharedMemory
-from PySide6.QtWidgets import QApplication
 
 
 def is_app_running():
@@ -51,6 +53,15 @@ def main():
     app.setApplicationVersion(VERSION)
     app.setOrganizationName(TEAM)
 
+    # 安装翻译器
+    locale = cfg.get(cfg.language).value
+    translator = FluentTranslator(locale)
+    galleryTranslator = QTranslator()
+    galleryTranslator.load(locale, "app", ".", ":/app/i18n")
+
+    app.installTranslator(translator)
+    app.installTranslator(galleryTranslator)
+
     # 创建并显示主窗口
     window = MainWindow()
     window.show()
@@ -67,15 +78,101 @@ if __name__ == "__main__":
 
 """
 ## 更新日志
-- 对于deepseek更新了切换模型功能（deepseek-v4-flash和deepseek-v4-pro）以及是否开启深度思考功能
-
+- 国际化系统重构：统一使用 `Text` / `globalText` 管理界面文案，减少散落的动态翻译调用
+- 英文界面完善：补全并修正英文翻译资源，重新生成运行时 `.qm` 与 Qt 资源文件
+- 修复文件选择过滤器英文翻译占位符数量不一致导致的 `IndexError`
+- 修复任务界面状态文本在英文环境下仍显示“已完成 / 失败”的问题
+- 优化 OCR 设置界面、字幕提取界面与翻译界面的语言显示和设置项文案
+- 修复 OCR 参数中 `lang` 被错误转换为显示文本的问题，确保 CLI 接收稳定语言代码
+- 修复翻译任务参数映射：AI Prompt 使用语言显示名，翻译服务选择器保持模型 key
+- 优化字幕提取和翻译语言选择框，使用 `globalText` 生成本地化选项
+- 完善 `DEVELOPMENT.md` 多语言开发规范，补充翻译构建、资源生成和占位符检查流程
+- 保留 PaddleOCR 独立构建、Whisper 语音识别、批量任务、项目拖拽排序、AI 多模型翻译等能力
 
 ## 下载提示
-- [Fairy-Kekkai-Workshop-v1.17.1-PaddleOCR-None-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate/releases/download/v1.17.1/Fairy-Kekkai-Workshop-v1.17.1-PaddleOCR-None-Windows-x86_64-Setup.exe) (无OCR版本/可自由配置OCR)
-- [Fairy-Kekkai-Workshop-v1.17.1-CPU-v1.4.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate/releases/download/v1.17.1/Fairy-Kekkai-Workshop-v1.17.1-CPU-v1.4.0-Windows-x86_64-Setup.exe) (CPU版本)
-- [Fairy-Kekkai-Workshop-v1.17.1-GPU-v1.4.0-CUDA-11.8-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate/releases/download/v1.17.1/Fairy-Kekkai-Workshop-v1.17.1-GPU-v1.4.0-CUDA-11.8-Windows-x86_64-Setup.exe) (Nvidia 10 系列显卡)
-- [Fairy-Kekkai-Workshop-v1.17.1-GPU-v1.4.0-CUDA-12.9-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate/releases/download/v1.17.1/Fairy-Kekkai-Workshop-v1.17.1-GPU-v1.4.0-CUDA-12.9-Windows-x86_64-Setup.exe) (Nvidia 16 - 50 系列显卡)
-- [Fairy-Kekkai-Workshop-v1.17.1-macos-arm64](https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate/releases/download/v1.17.1/Fairy-Kekkai-Workshop-v1.17.1-macos-arm64.dmg)(macos arm64)
+- [Fairy-Kekkai-Workshop-v2.1.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.1.0/Fairy-Kekkai-Workshop-v2.1.0-Windows-x86_64-Setup.exe)(windows10/11)
+- [Fairy-Kekkai-Workshop-v2.1.0-macos-arm64](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.1.0/Fairy-Kekkai-Workshop-v2.1.0-macos-arm64.dmg)(macos arm64)
 - 迅雷链接：https://pan.xunlei.com/s/VOl2n0KP6LH3zXUqcYX1iYUAA1?pwd=yzim#
 
+# Fairy Kekkai Workshop
+
+---
+
+## 中文简介
+
+Fairy Kekkai Workshop（仙·结界工坊）是一款自由软件字幕制作平台，旨在为字幕组、内容创作者、本地化团队以及个人用户提供完整的一站式字幕制作解决方案。
+
+软件集项目管理、OCR 字幕识别、语音转文字、AI 辅助翻译、视频处理与压制等功能于一体，并整合 PaddleOCR、Whisper、FFmpeg 等优秀自由软件与开源项目，帮助用户高效完成从素材处理到成品发布的整个工作流程。
+
+Fairy Kekkai Workshop 尊重用户自由。用户可以自由运行、研究、修改和再分发本软件。本项目致力于构建开放、透明、可持续发展的字幕制作生态，而非将用户锁定在封闭的平台和服务之中。
+
+### 主要功能
+
+* 项目管理与任务组织
+* OCR 字幕提取
+* Whisper 语音识别
+* AI 辅助翻译
+* 字幕编辑与校对
+* FFmpeg 视频编码与压制
+* GPU 加速支持
+* 多格式字幕导出
+
+项目地址：https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop
+
+---
+
+## English Description
+
+Fairy Kekkai Workshop is a free software platform designed for subtitle production, localization, and media processing workflows.
+The application integrates project management, OCR subtitle extraction, speech recognition, AI-assisted translation, subtitle editing, and video encoding into a unified environment. By leveraging powerful free and open-source technologies such as PaddleOCR, Whisper, and FFmpeg, Fairy Kekkai Workshop helps users efficiently complete the entire workflow from source processing to final release.
+Fairy Kekkai Workshop respects user freedom. Users are free to run, study, modify, and redistribute the software. The project is committed to building an open, transparent, and sustainable ecosystem for subtitle creation rather than locking users into proprietary platforms or services.
+
+### Key Features
+
+* Project management and workflow organization
+* OCR-based subtitle extraction
+* Whisper speech recognition
+* AI-assisted subtitle translation
+* Subtitle editing and review
+* FFmpeg-powered video encoding
+* GPU acceleration support
+* Multiple subtitle export formats
+
+### Philosophy
+
+Fairy Kekkai Workshop is developed under the spirit of free software. We believe users should control their tools, not the other way around. Transparency, freedom, collaboration, and community-driven development are fundamental values of this project.
+
+Project page: https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop
+
+
+---
+
+✨一站式字幕制作平台 • 📁项目管理 • 🔤OCR提取 • 🎙️语音识别 • 🌐AI翻译 • 🎬视频压制 • ⚡GPU加速 • 🔓自由软件
+
+✨All-in-One Fansub Platform • 📁Project Management • 🔤OCR Extraction • 🎙️Speech Recognition • 🌐AI Translation • 🎬Video Encoding • ⚡GPU Acceleration • 🔓Free Software
+
+---
+
+Copyleft 🄯 2025 天机阁(Fairy-Oracle-Sanctuary)
+Copyleft 🄯 2025 Fairy Oracle Sanctuary
+
+---
+
+本软件为自由软件。
+
+软件源代码采用 GNU General Public License v3.0（GPL-3.0）许可协议发布；项目图标及相关美术资源采用 Creative Commons Attribution-ShareAlike 4.0 International（CC BY-SA 4.0）许可协议发布。
+
+用户有权根据相应许可证条款自由运行、研究、修改和再分发本软件。
+
+This software is free software.
+
+The source code is licensed under the GNU General Public License v3.0 (GPL-3.0). Project icons and artwork are licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).
+
+Users are free to run, study, modify, and redistribute the software in accordance with the applicable license terms.
+
+---
+
+The application requires runFullTrust for project file operations and executing external tools (FFmpeg, Whisper, PaddleOCR, yt-dlp) for media processing. This capability is used solely for core desktop application functions.
+
+Our application is a desktop software installer that requires elevation during installation to write to Program Files directory and register file associations in the system registry. The installed application itself runs without elevation. This is standard practice for desktop software distribution on Windows.
 """
