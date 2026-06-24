@@ -158,8 +158,9 @@ class DownloadInterface(ScrollArea):
 
         # 设置布局
         self.vBoxLayout.addWidget(addDownloadBtn)
-        self.vBoxLayout.addWidget(self.updateBtn)
-        self.updateBtn.clicked.connect(self.updateYtDlp)
+        if sys.platform == "win32":
+            self.vBoxLayout.addWidget(self.updateBtn)
+            self.updateBtn.clicked.connect(self.updateYtDlp)
         self.vBoxLayout.addWidget(self.segmentedWidget)
         self.vBoxLayout.addWidget(self.taskListContainer)
 
