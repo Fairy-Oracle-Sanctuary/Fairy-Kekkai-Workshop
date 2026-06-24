@@ -1,0 +1,16 @@
+Package: fairy-kekkai-workshop
+Version: 2.0.0
+Section: graphics
+Priority: optional
+Architecture: amd64
+Depends: python3 (>= 3.10), python3-pip, ffmpeg, python3-pyqt6, python3-pyqt6.qtsvg
+Recommends: yt-dlp
+Suggests: python3-opencv
+Maintainer: baby2016 <baby2016@example.com>
+Description: Fairy Kekkai Workshop - 视频字幕处理和管理工具
+ A feature-rich video subtitle processing and management tool.
+ Supports video downloading, subtitle extraction, multi-language
+ translation, video encoding, and Bilibili live content uploading.
+ Built with PySide6 and QFluentWidgets.
+Homepage: https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate
+Installed-Size: 5564

@@ -1,6 +1,7 @@
 # coding:utf-8
 import os
 import re
+import sys
 from datetime import datetime
 
 from PySide6.QtCore import QObject, QProcess, QTimer, Signal
@@ -226,13 +227,22 @@ class FFmpegProcess(QObject):
         self.task.start_time = datetime.now()
 
         try:
-            # 获取ffmpeg.exe路径
+            # 获取 ffmpeg 路径
             ffmpeg_path = cfg.get(cfg.ffmpegPath)
             if not os.path.exists(ffmpeg_path):
-                self.finished_signal.emit(
-                    False, self.globalText.TextAuto018.format(ffmpeg_path)
-                )
-                return
+                # Linux: 尝试通过 PATH 查找
+                if sys.platform == "linux":
+                    import shutil
+                    which_path = shutil.which("ffmpeg")
+                    if which_path:
+                        ffmpeg_path = which_path
+                        cfg.set(cfg.ffmpegPath, ffmpeg_path)
+                    else:
+                        self.finished_signal.emit(False, f"ffmpeg 不存在: {ffmpeg_path}\n请执行: sudo apt install ffmpeg")
+                        return
+                else:
+                    self.finished_signal.emit(False, f"ffmpeg 不存在: {ffmpeg_path}")
+                    return
 
             # 确保输出目录存在
             output_dir = os.path.dirname(self.task.output_file)
