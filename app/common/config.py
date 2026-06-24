@@ -1,5 +1,6 @@
 # coding:utf-8
 import json
+import shutil
 import sys
 from enum import Enum
 from pathlib import Path
@@ -65,7 +66,22 @@ def get_default_exe_path(exe_name: str) -> str:
             # 开发环境，使用本地tools目录
             return str(Path(f"tools/{exe_name}").absolute())
 
-    # Linux 或其他: 使用 tools 目录
+    # Linux: 优先使用系统包管理器安装的路径
+    if sys.platform == "linux":
+        # 优先检查标准系统路径，避免被 IDE 等第三方工具的 PATH 干扰
+        system_paths = [
+            f"/usr/bin/{exe_name}",
+            f"/usr/local/bin/{exe_name}",
+        ]
+        for path in system_paths:
+            if Path(path).exists():
+                return path
+        # 兜底: 从 PATH 中查找
+        which_path = shutil.which(exe_name)
+        if which_path:
+            return which_path
+
+    # 回退到使用 tools 目录
     return str(Path(f"tools/{exe_name}").absolute())
 
 

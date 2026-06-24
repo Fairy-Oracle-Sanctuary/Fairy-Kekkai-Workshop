@@ -1,0 +1,70 @@
+# Maintainer: baby2016 <baby2016@example.com>
+# Contributor: baby2016
+
+pkgname=fairy-kekkai-workshop
+pkgver=2.0.0
+pkgrel=1
+pkgdesc="幻想结界工坊 - 视频字幕处理和管理工具 (Video subtitle processing & management tool)"
+arch=('x86_64')
+url="https://github.com/Fairy-Oracle-Sanctuary/Touhou-translate"
+license=('custom:MIT')
+depends=(
+    'ffmpeg'
+    'yt-dlp'
+    'python'
+    'python-pip'
+    'python-numpy'
+    'python-pillow'
+    'python-requests'
+    'python-av'
+    'python-imageio'
+    'python-opencv'
+    'python-srt'
+)
+install="${pkgname}.install"
+source=("${pkgname}::git+file:///home/k/Fairy-Kekkai-Workshop")
+sha256sums=('SKIP')
+
+package() {
+    cd "${srcdir}/${pkgname}"
+
+    # 安装目录
+    local instdir="${pkgdir}/opt/${pkgname}"
+
+    # 复制应用文件
+    mkdir -p "${instdir}"
+    cp -r app Fairy-Kekkai-Workshop.py deploy.py requirements.txt "${instdir}/"
+
+    # 清理 __pycache__
+    find "${instdir}" -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
+
+    # 创建启动脚本
+    mkdir -p "${pkgdir}/usr/bin"
+    cat > "${pkgdir}/usr/bin/${pkgname}" << 'LAUNCHER'
+#!/bin/bash
+exec python3 /opt/fairy-kekkai-workshop/Fairy-Kekkai-Workshop.py "$@"
+LAUNCHER
+    chmod 755 "${pkgdir}/usr/bin/${pkgname}"
+
+    # 创建桌面入口
+    mkdir -p "${pkgdir}/usr/share/applications"
+    cat > "${pkgdir}/usr/share/applications/${pkgname}.desktop" << DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Fairy Kekkai Workshop
+Name[zh_CN]=幻想结界工坊
+Comment=Video subtitle processing and management tool
+Comment[zh_CN]=视频字幕处理和管理工具
+Exec=/usr/bin/fairy-kekkai-workshop
+Icon=fairy-kekkai-workshop
+Categories=AudioVideo;Video;Graphics;
+Terminal=false
+StartupNotify=true
+MimeType=video/mp4;video/webm;video/x-matroska;
+DESKTOP
+
+    # 安装图标
+    mkdir -p "${pkgdir}/usr/share/icons/hicolor/256x256/apps"
+    cp app/resource/images/logo.png \
+       "${pkgdir}/usr/share/icons/hicolor/256x256/apps/${pkgname}.png"
+}

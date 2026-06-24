@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+echo "正在安装 Fairy-Kekkai-Workshop Python 依赖..."
+
+# 使用 pip 安装 requirements.txt 中的依赖
+# 排除 opencv-python（通过 apt 安装 python3-opencv 替代）
+pip3 install --break-system-packages --no-deps \
+    PySide6-Fluent-Widgets \
+    openai \
+    numpy \
+    Pillow \
+    requests \
+    spark_ai_python \
+    srt \
+    imageio \
+    av \
+    fast_ssim 2>/dev/null || \
+pip3 install --no-deps \
+    PySide6-Fluent-Widgets \
+    openai \
+    numpy \
+    Pillow \
+    requests \
+    spark_ai_python \
+    srt \
+    imageio \
+    av \
+    fast_ssim
+
+# 安装 yt-dlp（如果 apt 没有安装）
+if ! command -v yt-dlp &> /dev/null; then
+    echo "通过 pip 安装 yt-dlp..."
+    pip3 install yt-dlp 2>/dev/null || pip3 install --break-system-packages yt-dlp
+fi
+
+echo "Fairy-Kekkai-Workshop 安装完成！"
+exit 0

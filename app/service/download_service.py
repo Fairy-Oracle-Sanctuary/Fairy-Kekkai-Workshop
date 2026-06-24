@@ -1,7 +1,9 @@
 # coding:utf-8
 import os
 import re
+import sys
 from datetime import datetime
+from pathlib import Path
 
 from PySide6.QtCore import QObject, QProcess, QTimer, Signal
 
@@ -146,8 +148,23 @@ class DownloadProcess(QObject):
         #     cmd.extend(["--audio-codec", cfg.audioCodec.value])
 
         # ffmpeg 路径
-        if cfg.ffmpegPath.value:
-            cmd.extend(["--ffmpeg-location", cfg.ffmpegPath.value])
+        ffmpeg_path = cfg.ffmpegPath.value
+        if ffmpeg_path:
+            # Linux 下优先使用系统 ffmpeg，避免 IDE 自带的 ffmpeg
+            if sys.platform == "linux":
+                import shutil
+                # 检查当前路径是否为非系统路径（如 IDE 自带）
+                if not ffmpeg_path.startswith(("/usr/bin/", "/usr/local/bin/")):
+                    # 尝试查找系统 ffmpeg
+                    for system_path in ["/usr/bin/ffmpeg", "/usr/local/bin/ffmpeg"]:
+                        if Path(system_path).exists():
+                            ffmpeg_path = system_path
+                            break
+                    else:
+                        which_path = shutil.which("ffmpeg")
+                        if which_path and which_path.startswith(("/usr/bin/", "/usr/local/bin/")):
+                            ffmpeg_path = which_path
+            cmd.extend(["--ffmpeg-location", ffmpeg_path])
 
         # 添加通用参数
         cmd.extend(
