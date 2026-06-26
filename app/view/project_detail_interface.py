@@ -6,7 +6,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import requests
 from PySide6.QtCore import Qt, QThread, QTimer, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
@@ -40,6 +39,7 @@ from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.events import EventBuilder
 from ..common.logger import Logger
+from ..common.text import Text
 from ..components.dialog import (
     BatchDeleteFileDialog,
     BatchTaskDialog,
@@ -49,7 +49,6 @@ from ..components.dialog import (
 )
 from ..components.pager import Pager
 from ..service.project_service import project
-from ..common.text import Text
 
 
 class FileOperationWorker(QThread):
@@ -254,16 +253,13 @@ class ProjectDetailInterface(ScrollArea):
         if status and hasattr(self, "loading_status") and self.loading_status:
             self.loading_status.setText(status)
 
-    def downloadPicture(self, pic_url, save_path):
-        # https://i.ytimg.com/vi/4r2guMZPVJw/maxresdefault.jpg
-        self.download_image(
-            f"https://i.ytimg.com/vi/{pic_url}/maxresdefault.jpg", save_path
-        )
+    def downloadPicture(self, video_url, save_path):
+        self.download_image(video_url, save_path)
 
-    def download_image(self, image_url, save_path):
+    def download_image(self, video_url, save_path):
         """使用多线程下载图片"""
         # 创建并启动下载线程
-        self.download_thread = ImageDownloadThread(image_url, save_path)
+        self.download_thread = ImageDownloadThread(video_url, save_path)
         self.download_thread.downloadFinished.connect(self.on_image_download_finished)
         self.download_thread.start()
 
@@ -276,12 +272,11 @@ class ProjectDetailInterface(ScrollArea):
         """图片下载完成回调"""
         if success:
             event_bus.notification_service.show_success(
-                self.globalText.Success, self.globalText.ImageDownloadedTo.format(save_path)
+                self.globalText.Success,
+                self.globalText.ImageDownloadedTo.format(save_path),
             )
             # 刷新项目详情页面
-            self.loadProject(
-                self.current_project_path, self.card_id, project, isMessage=False
-            )
+            self.loadProject(self.current_project_path, self.card_id, isMessage=False)
         else:
             event_bus.notification_service.show_error(self.globalText.Error, message)
 
@@ -353,7 +348,8 @@ class ProjectDetailInterface(ScrollArea):
             self._clearLayout(self.vBoxLayout)
         except Exception as e:
             event_bus.notification_service.show_error(
-                self.globalText.Error, self.globalText.ErrorRefreshing.format(str(e).strip())
+                self.globalText.Error,
+                self.globalText.ErrorRefreshing.format(str(e).strip()),
             )
             self.backToProjectListSignal.emit()
             return
@@ -533,9 +529,7 @@ class ProjectDetailInterface(ScrollArea):
         file_name = selected[0][2]
         confirm = MessageBox(
             self.globalText.ConfirmBatchDelete,
-            self.globalText.AYSYWTDTCBU.format(
-                len(selected), file_name
-            ),
+            self.globalText.AYSYWTDTCBU.format(len(selected), file_name),
             self.window(),
         )
         confirm.yesButton.setText(self.globalText.OK)
@@ -566,7 +560,8 @@ class ProjectDetailInterface(ScrollArea):
                 )
             else:
                 event_bus.notification_service.show_error(
-                    self.globalText.Error, self.globalText.BatchDeleteFailed.format(message)
+                    self.globalText.Error,
+                    self.globalText.BatchDeleteFailed.format(message),
                 )
 
         FileOperationWorker.run_async(
@@ -792,7 +787,8 @@ class ProjectDetailInterface(ScrollArea):
                         )
                     else:
                         event_bus.notification_service.show_error(
-                            self.globalText.Error, data[-1] if data else self.globalText.UnknownError
+                            self.globalText.Error,
+                            data[-1] if data else self.globalText.UnknownError,
                         )
                 else:
                     event_bus.notification_service.show_error(
@@ -817,7 +813,8 @@ class ProjectDetailInterface(ScrollArea):
         dialog.cancelButton.setText(self.globalText.Cancel)
         if dialog.exec():
             event_bus.notification_service.show_info(
-                self.globalText.Processing, self.globalText.DeletingEpisode.format(folder_num)
+                self.globalText.Processing,
+                self.globalText.DeletingEpisode.format(folder_num),
             )
 
             def _do_delete():
@@ -836,11 +833,13 @@ class ProjectDetailInterface(ScrollArea):
                         )
                     else:
                         event_bus.notification_service.show_error(
-                            self.globalText.Error, data[-1] if data else self.globalText.UnknownError
+                            self.globalText.Error,
+                            data[-1] if data else self.globalText.UnknownError,
                         )
                 else:
                     event_bus.notification_service.show_error(
-                        self.globalText.Error, self.globalText.DeleteFailed.format(message)
+                        self.globalText.Error,
+                        self.globalText.DeleteFailed.format(message),
                     )
 
             FileOperationWorker.run_async(self, "delete_episode", _do_delete, _on_done)
@@ -907,7 +906,8 @@ class ProjectDetailInterface(ScrollArea):
                 )
             else:
                 event_bus.notification_service.show_error(
-                    self.globalText.Error, self.globalText.FileUploadFailed.format(message)
+                    self.globalText.Error,
+                    self.globalText.FileUploadFailed.format(message),
                 )
 
         FileOperationWorker.run_async(self, "copy_file", _do_copy, _on_done)
@@ -929,29 +929,52 @@ class ImageDownloadThread(QThread):
     # 定义信号
     downloadFinished = Signal(bool, str, str)  # 成功/失败, 消息, 保存路径
 
-    def __init__(self, image_url, save_path, parent=None):
+    def __init__(self, video_url, save_path, parent=None):
         super().__init__(parent)
-        self.image_url = image_url
+        self.video_url = video_url
         self.save_path = save_path
 
     def run(self):
         """执行下载任务"""
         try:
-            # 发送GET请求
-            response = requests.get(self.image_url)
-            response.raise_for_status()  # 如果请求失败会抛出异常
+            ytdlp_path = cfg.get(cfg.ytdlpPath)
+            if not ytdlp_path or not os.path.exists(ytdlp_path):
+                self.downloadFinished.emit(False, "yt-dlp路径不存在", self.save_path)
+                return
 
-            # 以二进制写入模式打开文件
-            with open(self.save_path, "wb") as f:
-                # 将响应的二进制内容写入文件
-                f.write(response.content)
+            output_dir = os.path.dirname(self.save_path)
+            output_template = os.path.join(output_dir, "封面.%(ext)s")
+            command = [
+                ytdlp_path,
+                "--skip-download",
+                "--write-thumbnail",
+                "--convert-thumbnails",
+                "jpg",
+                "-o",
+                output_template,
+                self.video_url,
+            ]
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=120,
+                check=False,
+            )
+            if result.returncode != 0:
+                self.downloadFinished.emit(
+                    False,
+                    f"下载图片时出错: {result.stderr.strip()}",
+                    self.save_path,
+                )
+                return
 
             self.downloadFinished.emit(
                 True, f"图片成功下载并保存到: {self.save_path}", self.save_path
             )
 
-        except requests.exceptions.RequestException as e:
-            self.downloadFinished.emit(False, f"下载图片时出错: {e}", self.save_path)
         except Exception as e:
             self.downloadFinished.emit(False, f"发生未知错误: {e}", self.save_path)
 
@@ -1159,11 +1182,13 @@ class FileItemWidget(CardWidget):
                             break
                         p = p.parent()
                     event_bus.notification_service.show_success(
-                        self.globalText.Success, self.globalText.FileDeleted.format(file_name)
+                        self.globalText.Success,
+                        self.globalText.FileDeleted.format(file_name),
                     )
                 else:
                     event_bus.notification_service.show_error(
-                        self.globalText.Error, self.globalText.ErrorDeletingFile.format(message)
+                        self.globalText.Error,
+                        self.globalText.ErrorDeletingFile.format(message),
                     )
 
             FileOperationWorker.run_async(
@@ -1187,7 +1212,7 @@ class FileItemWidget(CardWidget):
 
         dialog = CustomMessageBox(
             title=self.globalText.DCFE.format(self.folder_num),
-            text="请输入视频ID: https://www.youtube.com/watch?v=",
+            text=self.globalText.TextAuto067,
             parent=self.window(),
             min_width=450,
         )
@@ -1213,7 +1238,7 @@ class FileItemWidget(CardWidget):
 
         dialog = CustomMessageBox(
             title=self.globalText.DRVFE.format(self.folder_num),
-            text="请输入视频url: https://www.youtube.com/watch?v=",
+            text=self.globalText.TextAuto067,
             parent=self.window(),
             min_width=450,
         )
@@ -1432,7 +1457,8 @@ class FileListWidget(QWidget):
                                 break
                             p = p.parent()
                         event_bus.notification_service.show_success(
-                            self.globalText.Success, self.globalText.FileUploaded.format(dest_name)
+                            self.globalText.Success,
+                            self.globalText.FileUploaded.format(dest_name),
                         )
                     else:
                         event_bus.notification_service.show_error(
