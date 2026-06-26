@@ -1,12 +1,15 @@
-import re
+import json
+import os
+import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-import requests
-from PySide6.QtCore import QCoreApplication, QThread, Signal
+from PySide6.QtCore import QThread, Signal
 
+from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.events import EventBuilder
-from .project_service import project
 from ..common.text import Text
+from .project_service import project
 
 
 class DownloadListThread(QThread):
@@ -24,37 +27,9 @@ class DownloadListThread(QThread):
     def run(self):
         """下载整个视频列表"""
         url_list = []
-        headers = {
-            "sec-ch-ua": '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
-            "sec-ch-ua-arch": "x86",
-            "sec-ch-ua-bitness": "64",
-            "sec-ch-ua-form-factors": "Desktop",
-            "sec-ch-ua-full-version": "140.0.7339.81",
-            "sec-ch-ua-full-version-list": '"Chromium";v="140.0.7339.81", "Not=A?Brand";v="24.0.0.0", "Google Chrome";v="140.0.7339.81"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-model": "",
-            "sec-ch-ua-platform": "Windows",
-            "sec-ch-ua-platform-version": "19.0.0",
-            "sec-ch-ua-wow64": "?0",
-            "upgrade-insecure-requests": "1",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
-        }
+        ytdlp_path = cfg.get(cfg.ytdlpPath)
 
-        try:
-            resp = requests.get(url=self.url, headers=headers, timeout=3)
-        except requests.exceptions.Timeout:
-            self.finished_signal.emit(
-                False,
-                self.globalText.TextAuto013,
-                True,
-            )
-            return
-
-        pattern = r'\[\{"url":"(.*?)","width":\d*,"height":\d*\}\]\},"title":\{"runs":\[\{"text":"(.*?)"\}\]'
-
-        name = re.findall(pattern, resp.text)
-
-        if not name:
+        if not ytdlp_path or not os.path.exists(ytdlp_path):
             self.finished_signal.emit(
                 False,
                 self.globalText.TextAuto012,
@@ -62,19 +37,78 @@ class DownloadListThread(QThread):
             )
             return
 
-        for i in name[:-1]:
-            video = [
-                i[-1],
-                re.findall(r'\{"url":"(.*?)"', i[-2])[0].replace(
-                    "hqdefault", "maxresdefault"
-                ),
-                "https://www.youtube.com/watch?v="
-                + re.findall(r"vi/(.*)/", re.findall(r'\{"url":"(.*?)"', i[-2])[0])[0],
-            ]
-            for j in video:
-                print(j)
+        command = [ytdlp_path, "-j", "--flat-playlist", self.url]
 
-            url_list.append(video)
+        try:
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=60,
+                check=False,
+            )
+        except subprocess.TimeoutExpired:
+            self.finished_signal.emit(
+                False,
+                self.globalText.TextAuto013,
+                True,
+            )
+            return
+        except OSError:
+            self.finished_signal.emit(
+                False,
+                self.globalText.TextAuto012,
+                True,
+            )
+            return
+
+        if result.returncode != 0 and not result.stdout.strip():
+            self.finished_signal.emit(
+                False,
+                result.stderr.strip() or self.globalText.TextAuto012,
+                True,
+            )
+            return
+
+        for line in result.stdout.splitlines():
+            line = line.strip()
+            if not line.startswith("{"):
+                continue
+
+            try:
+                item = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            title = item.get("title")
+            if title is None:
+                continue
+
+            title = str(title).strip()
+            if not title:
+                continue
+
+            video_url = item.get("webpage_url") or item.get("url")
+            video_id = item.get("id")
+            if video_url and not str(video_url).startswith("http") and video_id:
+                video_url = f"https://www.youtube.com/watch?v={video_id}"
+            elif not video_url and video_id:
+                video_url = f"https://www.youtube.com/watch?v={video_id}"
+
+            if not video_url:
+                continue
+
+            url_list.append([title, video_url])
+
+        if not url_list:
+            self.finished_signal.emit(
+                False,
+                self.globalText.TextAuto012,
+                True,
+            )
+            return
 
         project.creat_files(self.project_name, len(url_list), self.project_title)
 
@@ -95,18 +129,6 @@ class DownloadListThread(QThread):
             False,
         )
 
-        cover_num = len(url_list)
-        for i in range(1, cover_num + 1):
-            self.download_image(
-                url_list[i - 1][1], self.project_name + "/" + str(i) + "/封面.jpg"
-            )
-
-        self.finished_signal.emit(
-            True,
-            self.globalText.TextAuto010,
-            False,
-        )
-
         video_list = []
         for i in url_list:
             video_list.append(i[-1])
@@ -118,40 +140,93 @@ class DownloadListThread(QThread):
                 )
             )
 
+        cover_tasks = []
+        max_workers = min(4, max(1, len(url_list)))
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            for i, video_url in enumerate(video_list, start=1):
+                cover_tasks.append(
+                    executor.submit(
+                        self.download_image,
+                        video_url,
+                        self.project_name + "/" + str(i) + "/封面.jpg",
+                    )
+                )
+            for task in as_completed(cover_tasks):
+                task.result()
+
+        self.finished_signal.emit(
+            True,
+            self.globalText.TextAuto010,
+            False,
+        )
+
         self.finished_signal.emit(
             True,
             self.globalText.TextAuto011,
             True,
         )
 
-    def download_image(self, image_url, save_path):
-        """
-        一个简单的图片下载函数
-        :param image_url: 图片的URL地址
-        :param save_path: 图片要保存的本地路径和文件名
-        """
-        try:
-            # 1. 发送GET请求
-            # stream=True 是一个好习惯，特别是对于大文件，但我们先看最简单的写法
-            response = requests.get(image_url)
+    def download_image(self, video_url, save_path):
+        if not video_url:
+            return
 
-            # 检查请求是否成功 (状态码 200)
-            response.raise_for_status()  # 如果请求失败 (如404, 500), 会抛出异常
-
-            # 2. 以二进制写入模式打开文件
-            with open(save_path, "wb") as f:
-                # 3. 将响应的二进制内容写入文件
-                f.write(response.content)
-
+        ytdlp_path = cfg.get(cfg.ytdlpPath)
+        if not ytdlp_path or not os.path.exists(ytdlp_path):
             self.finished_signal.emit(
-                True,
-                self.globalText.TextAuto014.format(save_path),
+                False,
+                self.globalText.TextAuto012,
                 False,
             )
+            return
 
-        except requests.exceptions.RequestException as e:
+        output_dir = os.path.dirname(save_path)
+        output_template = os.path.join(output_dir, "封面.%(ext)s")
+        command = [
+            ytdlp_path,
+            "--skip-download",
+            "--write-thumbnail",
+            "--convert-thumbnails",
+            "jpg",
+            "-o",
+            output_template,
+            video_url,
+        ]
+
+        try:
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=120,
+                check=False,
+            )
+        except subprocess.TimeoutExpired as e:
             self.finished_signal.emit(
                 False,
                 self.globalText.TextAuto015.format(e),
                 False,
             )
+            return
+        except OSError as e:
+            self.finished_signal.emit(
+                False,
+                self.globalText.TextAuto015.format(e),
+                False,
+            )
+            return
+
+        if result.returncode != 0:
+            self.finished_signal.emit(
+                False,
+                self.globalText.TextAuto015.format(result.stderr.strip()),
+                False,
+            )
+            return
+
+        self.finished_signal.emit(
+            True,
+            self.globalText.TextAuto014.format(save_path),
+            False,
+        )

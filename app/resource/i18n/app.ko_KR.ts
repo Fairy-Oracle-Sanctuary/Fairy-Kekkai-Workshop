@@ -1054,7 +1054,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="225"/>
+        <location filename="../../common/text.py" line="977"/>
         <source>请输入视频URL:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4703,6 +4703,11 @@
     <message>
         <location filename="../../common/text.py" line="975"/>
         <source>压制中</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="976"/>
+        <source>丹麦语</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

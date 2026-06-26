@@ -78,20 +78,14 @@ if __name__ == "__main__":
 
 """
 ## 更新日志
-- 国际化系统重构：统一使用 `Text` / `globalText` 管理界面文案，减少散落的动态翻译调用
-- 英文界面完善：补全并修正英文翻译资源，重新生成运行时 `.qm` 与 Qt 资源文件
-- 修复文件选择过滤器英文翻译占位符数量不一致导致的 `IndexError`
-- 修复任务界面状态文本在英文环境下仍显示“已完成 / 失败”的问题
-- 优化 OCR 设置界面、字幕提取界面与翻译界面的语言显示和设置项文案
-- 修复 OCR 参数中 `lang` 被错误转换为显示文本的问题，确保 CLI 接收稳定语言代码
-- 修复翻译任务参数映射：AI Prompt 使用语言显示名，翻译服务选择器保持模型 key
-- 优化字幕提取和翻译语言选择框，使用 `globalText` 生成本地化选项
-- 完善 `DEVELOPMENT.md` 多语言开发规范，补充翻译构建、资源生成和占位符检查流程
-- 保留 PaddleOCR 独立构建、Whisper 语音识别、批量任务、项目拖拽排序、AI 多模型翻译等能力
+- 播放列表创建改用 yt-dlp：移除直接爬 YouTube 页面的反爬风险，支持 yt-dlp 支持的所有平台
+- 播放列表封面下载优化：改用 yt-dlp 下载封面，支持并发（最多 4 个），视频下载任务先派发不再等待封面
+- 项目详情页封面下载移除 YouTube 限制：改为输入完整视频 URL，通过 yt-dlp 下载任意平台封面
+- 修复封面下载完成后刷新项目的参数错误
 
 ## 下载提示
-- [Fairy-Kekkai-Workshop-v2.1.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.1.0/Fairy-Kekkai-Workshop-v2.1.0-Windows-x86_64-Setup.exe)(windows10/11)
-- [Fairy-Kekkai-Workshop-v2.1.0-macos-arm64](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.1.0/Fairy-Kekkai-Workshop-v2.1.0-macos-arm64.dmg)(macos arm64)
+- [Fairy-Kekkai-Workshop-v2.2.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.2.0/Fairy-Kekkai-Workshop-v2.2.0-Windows-x86_64-Setup.exe)(windows10/11)
+- [Fairy-Kekkai-Workshop-v2.2.0-macos-arm64](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.2.0/Fairy-Kekkai-Workshop-v2.2.0-macos-arm64.dmg)(macos arm64)
 - 迅雷链接：https://pan.xunlei.com/s/VOl2n0KP6LH3zXUqcYX1iYUAA1?pwd=yzim#
 
 # Fairy Kekkai Workshop
