@@ -325,7 +325,7 @@ class MainWindow(window):
                 # self.releaseInterface,
                 self.settingInterface,
             ]
-        elif sys.platform == "darwin":
+        elif sys.platform == "darwin" or sys.platform == "linux":
             self.interface = [
                 self.homeInterface,
                 self.projectInterface,

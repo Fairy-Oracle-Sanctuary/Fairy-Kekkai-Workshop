@@ -86,14 +86,14 @@ class HomeInterface(ScrollArea):
             title=self.globalText.TranslateSubtitles,
             content=self.globalText.TESF,
             routeKey="TranslationStackedInterface",
-            index=5 if sys.platform != "darwin" else 3,
+            index=5 if sys.platform == "win32" else 3,
         )
         basicInputView.addSampleCard(
             icon=QIcon(":/app/images/controls/video.svg"),
             title=self.globalText.VideoEncoding,
             content=self.globalText.ETV,
             routeKey="FFmpegStackedInterface",
-            index=6 if sys.platform != "darwin" else 4,
+            index=6 if sys.platform == "win32" else 4,
         )
         basicInputView.addSampleCard(
             icon=QIcon(":/app/images/controls/setting.svg"),
