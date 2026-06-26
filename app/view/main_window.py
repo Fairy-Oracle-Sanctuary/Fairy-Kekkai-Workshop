@@ -23,6 +23,7 @@ from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.setting import GITHUB_URL, RELEASE_URL
 from ..common.task_status import TaskStatus
+from ..common.text import Text
 from ..components.infobar import NotificationService
 from ..components.system_tray import SystemTray
 from ..service.version_service import VersionService
@@ -35,7 +36,6 @@ from .project_interface import ProjectStackedInterface
 from .setting_interface import SettingInterface
 from .translate_interface import TranslateStackedInterfaces
 from .whisper_interface import WhisperStackedInterfaces
-from ..common.text import Text
 
 if sys.platform == "win32":
     from .videocr_interface import VideocrStackedInterfaces
@@ -338,12 +338,22 @@ class MainWindow(window):
 
         self.addSubInterface(self.homeInterface, FIF.HOME, self.globalText.Home)
         self.addSubInterface(self.projectInterface, FIF.FOLDER, self.globalText.Project)
-        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, self.globalText.Download)
+        self.addSubInterface(
+            self.downloadInterface, FIF.DOWNLOAD, self.globalText.Download
+        )
         if sys.platform == "win32":
-            self.addSubInterface(self.videoCRInterface, FIF.VIDEO, self.globalText.Subtitles)
-            self.addSubInterface(self.whisperInterface, FIF.MICROPHONE, self.globalText.Voice)
-        self.addSubInterface(self.translateInterface, FIF.MESSAGE, self.globalText.Translate)
-        self.addSubInterface(self.ffmpegInterface, FIF.ZIP_FOLDER, self.globalText.Encode)
+            self.addSubInterface(
+                self.videoCRInterface, FIF.VIDEO, self.globalText.Subtitles
+            )
+            self.addSubInterface(
+                self.whisperInterface, FIF.MICROPHONE, self.globalText.Voice
+            )
+        self.addSubInterface(
+            self.translateInterface, FIF.MESSAGE, self.globalText.Translate
+        )
+        self.addSubInterface(
+            self.ffmpegInterface, FIF.ZIP_FOLDER, self.globalText.Encode
+        )
 
         # self.addSubInterface(self.releaseInterface, FIF.IMAGE_EXPORT, "发布")
 
@@ -439,6 +449,13 @@ class MainWindow(window):
             event_bus.is_shutting_down = False
             event.ignore()
             self.hide()
+            if hasattr(self, "system_tray"):
+                self.system_tray.showMessage(
+                    "Fairy-Kekkai-Workshop",
+                    self.globalText.MTST,
+                    QIcon(":/app/images/logo.png"),
+                    1500,
+                )
             return
 
         # 直接关闭模式：检查是否有运行中的任务
@@ -448,9 +465,7 @@ class MainWindow(window):
             # 显示确认对话框
             from qfluentwidgets import MessageBox
 
-            message = self.globalText.TFTASRCA.format(
-                running_tasks
-            )
+            message = self.globalText.TFTASRCA.format(running_tasks)
             dialog = MessageBox(self.globalText.ConfirmClose, message, self)
             dialog.yesButton.setText(self.globalText.Close)
             dialog.cancelButton.setText(self.globalText.Cancel)
