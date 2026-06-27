@@ -2,10 +2,10 @@
 
 from PySide6.QtCore import Signal
 
+from ..common.text import Text
 from ..components.base_task_interface import BaseTaskInterface
 from ..components.task_card import OcrItemWidget
 from ..service.ocr_service import OCRProcess, OCRTask
-from ..common.text import Text
 
 
 class OcrTaskInterface(BaseTaskInterface):
@@ -22,6 +22,7 @@ class OcrTaskInterface(BaseTaskInterface):
             parent=parent,
         )
         self.globalText = globalText
+        self._last_step1_seconds = {}
 
     def createTask(self, args):
         return OCRTask(args)
@@ -73,11 +74,14 @@ class OcrTaskInterface(BaseTaskInterface):
                     total_seconds = time_to_seconds(total_time_str)
 
                     if total_seconds > 0:
+                        last_seconds = self._last_step1_seconds.get(task_id)
+                        if last_seconds == current_seconds:
+                            return None
+                        self._last_step1_seconds[task_id] = current_seconds
+
                         progress = (current_seconds / total_seconds) * 33
                         if current_seconds == 0:
-                            self.log_signal.emit(
-                                self.globalText.S13PVF, False, False
-                            )
+                            self.log_signal.emit(self.globalText.S13PVF, False, False)
                         else:
                             self.log_signal.emit(
                                 self.globalText.S13PVF2.format(
@@ -99,9 +103,7 @@ class OcrTaskInterface(BaseTaskInterface):
                     if total > 0:
                         progress = 33 + (current / total) * 20
                         self.log_signal.emit(
-                            self.globalText.Step23DetectingText.format(
-                                current, total
-                            ),
+                            self.globalText.Step23DetectingText.format(current, total),
                             False,
                             True,
                         )
@@ -116,9 +118,7 @@ class OcrTaskInterface(BaseTaskInterface):
                     if total > 0:
                         progress = 53 + ((current - 1) / total) * 13
                         self.log_signal.emit(
-                            self.globalText.S23ADF.format(
-                                current, total
-                            ),
+                            self.globalText.S23ADF.format(current, total),
                             False,
                             True,
                         )
@@ -148,9 +148,7 @@ class OcrTaskInterface(BaseTaskInterface):
                     if total > 0:
                         progress = 66 + (current / total) * 34
                         self.log_signal.emit(
-                            self.globalText.S33ROOI.format(
-                                current, total
-                            ),
+                            self.globalText.S33ROOI.format(current, total),
                             False,
                             True,
                         )

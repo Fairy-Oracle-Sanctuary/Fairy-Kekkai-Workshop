@@ -1,6 +1,7 @@
 # ocr_service.py
 
 import os
+import subprocess
 
 from PySide6.QtCore import QObject, QProcess, Signal
 
@@ -9,6 +10,8 @@ from ..common.event_bus import event_bus
 from ..common.logger import Logger
 from ..common.task_status import TaskStatus
 from ..common.text import Text
+
+CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
 
 
 class OCRTask:
@@ -47,6 +50,7 @@ class OCRProcess(QObject):
         self.process = None
         self.output_lines = []  # 存储输出用于错误诊断
         self._cancellation_timer = None
+        self._last_step1_progress = None
 
     def __del__(self):
         """析构时确保子进程被终止"""
@@ -113,9 +117,7 @@ class OCRProcess(QObject):
         cmd_args.extend(
             ["--min_subtitle_duration", str(args["min_subtitle_duration_sec"])]
         )
-        cmd_args.extend(
-            ["--confidence_threshold", str(args["confidence_threshold"])]
-        )
+        cmd_args.extend(["--confidence_threshold", str(args["confidence_threshold"])])
 
         # 处理paddleocr_path参数
         if "paddleocr_path" in args and args["paddleocr_path"]:
@@ -211,6 +213,14 @@ class OCRProcess(QObject):
                     f"OCR处理失败: -{self.task.input_file}- 错误信息: {str(e)}"
                 )
 
+    def _should_emit_line(self, line):
+        if "Step 1/3" in line and "Current:" in line:
+            current_part = line.split("Current:", 1)[-1].split("/", 1)[0].strip()
+            if current_part == self._last_step1_progress:
+                return False
+            self._last_step1_progress = current_part
+        return True
+
     def handle_stdout(self):
         """处理标准输出"""
         if not self.process:
@@ -230,6 +240,9 @@ class OCRProcess(QObject):
 
             # 如果已取消，不再发送print信号
             if self.is_cancelled:
+                continue
+
+            if not self._should_emit_line(line):
                 continue
 
             # 发射print信号，由videocr_task_interface.py中的onPrintOutput处理
@@ -254,6 +267,9 @@ class OCRProcess(QObject):
 
             # 如果已取消，不再发送print信号
             if self.is_cancelled:
+                continue
+
+            if not self._should_emit_line(line):
                 continue
 
             # 发射print信号，由videocr_task_interface.py中的onPrintOutput处理
@@ -337,17 +353,14 @@ class OCRProcess(QObject):
             pid = self.process.processId()
 
             # 使用taskkill强制终止进程树（包括子进程）
-            import subprocess
-
             try:
                 subprocess.run(
                     ["taskkill", "/F", "/T", "/PID", str(pid)],
                     capture_output=True,
                     timeout=2,
+                    creationflags=CREATE_NO_WINDOW,
                 )
-                self.log_signal.emit(
-                    self.globalText.TextAuto022, False, False
-                )
+                self.log_signal.emit(self.globalText.TextAuto022, False, False)
             except Exception as e:
                 self.log_signal.emit(
                     self.globalText.TextAuto025.format(str(e)), True, False
