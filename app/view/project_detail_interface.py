@@ -50,6 +50,8 @@ from ..components.dialog import (
 from ..components.pager import Pager
 from ..service.project_service import project
 
+CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+
 
 class FileOperationWorker(QThread):
     """通用文件操作异步线程，避免阻塞 UI"""
@@ -962,6 +964,7 @@ class ImageDownloadThread(QThread):
                 errors="replace",
                 timeout=120,
                 check=False,
+                creationflags=CREATE_NO_WINDOW,
             )
             if result.returncode != 0:
                 self.downloadFinished.emit(

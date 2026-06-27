@@ -11,6 +11,8 @@ from ..common.events import EventBuilder
 from ..common.text import Text
 from .project_service import project
 
+CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+
 
 class DownloadListThread(QThread):
     """下载线程 - 使用QProcess版本"""
@@ -48,6 +50,7 @@ class DownloadListThread(QThread):
                 errors="replace",
                 timeout=60,
                 check=False,
+                creationflags=CREATE_NO_WINDOW,
             )
         except subprocess.TimeoutExpired:
             self.finished_signal.emit(
@@ -201,6 +204,7 @@ class DownloadListThread(QThread):
                 errors="replace",
                 timeout=120,
                 check=False,
+                creationflags=CREATE_NO_WINDOW,
             )
         except subprocess.TimeoutExpired as e:
             self.finished_signal.emit(
