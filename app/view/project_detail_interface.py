@@ -50,7 +50,9 @@ from ..components.dialog import (
 from ..components.pager import Pager
 from ..service.project_service import project
 
-CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+NO_WINDOW_KWARGS = (
+    {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
+)
 
 
 class FileOperationWorker(QThread):
@@ -964,7 +966,7 @@ class ImageDownloadThread(QThread):
                 errors="replace",
                 timeout=120,
                 check=False,
-                creationflags=CREATE_NO_WINDOW,
+                **NO_WINDOW_KWARGS,
             )
             if result.returncode != 0:
                 self.downloadFinished.emit(
@@ -1128,17 +1130,11 @@ class FileItemWidget(CardWidget):
                     creationflags=subprocess.CREATE_NO_WINDOW,
                 )
             elif platform.system() == "Darwin":
-                subprocess.Popen(
-                    ["open", "-R", self.file_path],
-                    creationflags=subprocess.CREATE_NO_WINDOW,
-                )
+                subprocess.Popen(["open", "-R", self.file_path])
             else:
                 # Linux系统
                 folder_path = os.path.dirname(self.file_path)
-                subprocess.Popen(
-                    ["xdg-open", folder_path],
-                    creationflags=subprocess.CREATE_NO_WINDOW,
-                )
+                subprocess.Popen(["xdg-open", folder_path])
         else:
             # 如果文件不存在，只打开文件夹
             folder_path = os.path.dirname(self.file_path)

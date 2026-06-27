@@ -30,11 +30,15 @@ from app.common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
 from ..common.task_status import TaskStatus, status_text
+from ..common.text import Text
 from ..components.config_card import YTDLPSettingInterface
 from ..components.dialog import CustomMessageBox
 from ..components.download_card import DownloadItemWidget
 from ..service.download_service import DownloadProcess, DownloadTask
-from ..common.text import Text
+
+NO_WINDOW_KWARGS = (
+    {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
+)
 
 
 class DownloadStackedInterface(QWidget):
@@ -54,7 +58,9 @@ class DownloadStackedInterface(QWidget):
         self.addSubInterface(
             self.downloadInterface, "downloadInterface", self.globalText.Download
         )
-        self.addSubInterface(self.settingInterface, "settingInterface", self.globalText.Settings)
+        self.addSubInterface(
+            self.settingInterface, "settingInterface", self.globalText.Settings
+        )
 
         # 连接信号并初始化当前标签页
         self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
@@ -286,9 +292,7 @@ class DownloadInterface(ScrollArea):
             self.logger.error(f"[开始下载] yt-dlp 路径不存在: {ytdlp_path}")
             event_bus.notification_service.show_error(
                 self.globalText.ConfigurationError,
-                self.globalText.YDPDNEPCTCPIS.format(
-                    ytdlp_path
-                ),
+                self.globalText.YDPDNEPCTCPIS.format(ytdlp_path),
             )
             task.status = TaskStatus.FAILED
             self.updateTaskUI(task.id)
@@ -503,10 +507,14 @@ class DownloadInterface(ScrollArea):
         self.setUpdateBoxEnabled(True)
         self.updateBtn.setText("下载/更新yt-dlp")
         if success:
-            event_bus.notification_service.show_success(self.globalText.UpdateSuccessful, message)
+            event_bus.notification_service.show_success(
+                self.globalText.UpdateSuccessful, message
+            )
             self.logger.info(f"yt-dlp update success: {message}")
         else:
-            event_bus.notification_service.show_error(self.globalText.UpdateFailed, message)
+            event_bus.notification_service.show_error(
+                self.globalText.UpdateFailed, message
+            )
             self.logger.error(f"yt-dlp update failed: {message}")
 
 
@@ -611,6 +619,7 @@ class UpdateYtDlpThread(QThread):
                 capture_output=True,
                 text=True,
                 timeout=10,
+                **NO_WINDOW_KWARGS,
             )
             if result.returncode == 0:
                 return result.stdout.strip()
@@ -661,6 +670,7 @@ class LinuxUpdateYtDlpThread(QThread):
                 capture_output=True,
                 text=True,
                 timeout=120,
+                **NO_WINDOW_KWARGS,
             )
 
             if self._is_cancelled:
@@ -690,6 +700,7 @@ class LinuxUpdateYtDlpThread(QThread):
                 capture_output=True,
                 text=True,
                 timeout=10,
+                **NO_WINDOW_KWARGS,
             )
             if result.returncode == 0:
                 return result.stdout.strip()

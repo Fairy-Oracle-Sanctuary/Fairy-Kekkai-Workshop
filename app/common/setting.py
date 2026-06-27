@@ -179,7 +179,7 @@ translate_language_dict = {
 AI_model_dict = {
     "hunyuan-turbos-latest": "腾讯混元",
     "deepseek": "Deepseek",
-    "gemini-3-flash-preview": "Gemini 3 Flash",
+    "gemini-3.5-flash": "Gemini 3.5 Flash",
     "intern-latest": "书生",
     "glm-4.5-flash": "GLM-4.5-FLASH",
     "spark-lite": "Spark-Lite",

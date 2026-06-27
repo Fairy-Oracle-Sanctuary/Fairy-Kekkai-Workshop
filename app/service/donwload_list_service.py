@@ -11,7 +11,9 @@ from ..common.events import EventBuilder
 from ..common.text import Text
 from .project_service import project
 
-CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+NO_WINDOW_KWARGS = (
+    {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
+)
 
 
 class DownloadListThread(QThread):
@@ -50,7 +52,7 @@ class DownloadListThread(QThread):
                 errors="replace",
                 timeout=60,
                 check=False,
-                creationflags=CREATE_NO_WINDOW,
+                **NO_WINDOW_KWARGS,
             )
         except subprocess.TimeoutExpired:
             self.finished_signal.emit(
@@ -204,7 +206,7 @@ class DownloadListThread(QThread):
                 errors="replace",
                 timeout=120,
                 check=False,
-                creationflags=CREATE_NO_WINDOW,
+                **NO_WINDOW_KWARGS,
             )
         except subprocess.TimeoutExpired as e:
             self.finished_signal.emit(

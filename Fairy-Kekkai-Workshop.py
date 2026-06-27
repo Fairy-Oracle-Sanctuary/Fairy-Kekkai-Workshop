@@ -82,6 +82,7 @@ if __name__ == "__main__":
 - 播放列表封面下载优化：改用 yt-dlp 下载封面，支持并发（最多 4 个），视频下载任务先派发不再等待封面
 - 项目详情页封面下载移除 YouTube 限制：改为输入完整视频 URL，通过 yt-dlp 下载任意平台封面
 - 修复封面下载完成后刷新项目的参数错误
+- 更新gemini模型到Gemini 3.5 Flash
 
 ## 下载提示
 - [Fairy-Kekkai-Workshop-v2.2.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.2.0/Fairy-Kekkai-Workshop-v2.2.0-Windows-x86_64-Setup.exe)(windows10/11)

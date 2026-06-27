@@ -577,7 +577,7 @@ class Config(QConfig):
     internApiKey = ConfigItem("Translate", "InternApiKey", "", restart=False)
     # 百度ERNIE-Speed-128K API Key (免费)
     ernieSpeedApiKey = ConfigItem("Translate", "ErnieSpeedApiKey", "", restart=False)
-    # Gemini 3 Flash API Key (免费)
+    # Gemini 3.5 Flash API Key (免费)
     geminiApiKey = ConfigItem("Translate", "GeminiApiKey", "", restart=False)
 
     # 自定义模型配置

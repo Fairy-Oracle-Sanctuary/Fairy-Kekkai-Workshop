@@ -255,7 +255,7 @@ class GeminiService(BaseTranslateService):
         )
 
     def get_model_name(self):
-        return "gemini-3-flash-preview"
+        return "gemini-3.5-flash"
 
 
 class CustomModelService(BaseTranslateService):
@@ -312,7 +312,7 @@ class TranslateThread(QThread):
         "hunyuan-turbos-latest": HunyuanService,
         "intern-latest": InternService,
         "ernie-speed-128k": ErnieSpeedService,
-        "gemini-3-flash-preview": GeminiService,
+        "gemini-3.5-flash": GeminiService,
         "custom-model": CustomModelService,
     }
 
@@ -423,7 +423,9 @@ class TranslateThread(QThread):
                 # 翻译完成后进行后处理：去除思考内容
                 try:
                     self._post_process_translation()
-                    self.finished_signal.emit(True, self.globalText.TranslationComplete2)
+                    self.finished_signal.emit(
+                        True, self.globalText.TranslationComplete2
+                    )
                     event_bus.translate_finished_signal.emit(
                         True, ["", self.task.output_file]
                     )
@@ -439,7 +441,9 @@ class TranslateThread(QThread):
         except Exception as e:
             # 如果是报错导致的线程停止，不再发取消信号，只发错误信号
             error_msg = BaseTranslateService.analysis_error(str(e))
-            self.finished_signal.emit(False, self.globalText.TextAuto060.format(error_msg))
+            self.finished_signal.emit(
+                False, self.globalText.TextAuto060.format(error_msg)
+            )
             event_bus.translate_finished_signal.emit(False, [error_msg])
             self.logger.error(f"翻译任务失败: {self.task.input_file} - {error_msg}")
 

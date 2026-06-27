@@ -8,9 +8,9 @@ from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import ScrollArea
 
 from ..common.event_bus import event_bus
+from ..common.text import Text
 from ..components.info_card import FairyKekkaiWorkshopInfoCard
 from ..components.sample_card import SampleCardView
-from ..common.text import Text
 
 
 class HomeInterface(ScrollArea):
@@ -162,7 +162,7 @@ class HomeInterface(ScrollArea):
             url="https://platform.deepseek.com/",
         )
         apiSamepleView.addOpenUrlCard(
-            icon=QIcon(":/app/images/icons/gemini-3-flash-preview.svg"),
+            icon=QIcon(":/app/images/icons/gemini-3.5-flash.svg"),
             title="Google Gemini",
             content=self.globalText.GeminiAPIService,
             url="https://aistudio.google.com/app/api-keys",

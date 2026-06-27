@@ -1312,7 +1312,7 @@ class TranslateSettingInterface(ScrollArea):
         )
         self.GeminiApiKeyCard = PasswordLineEditSettingCard(
             cfg.geminiApiKey,
-            QIcon(":/app/images/icons/gemini-3-flash-preview.svg"),
+            QIcon(":/app/images/icons/gemini-3.5-flash.svg"),
             self.globalText.Gemini3FlashAPIKey,
             self.globalText.SYG3FAK,
             placeholderText="",
