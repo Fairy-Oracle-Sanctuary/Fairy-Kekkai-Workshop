@@ -480,8 +480,8 @@
     </message>
     <message>
         <location filename="../../common/text.py" line="102"/>
-        <source>Gemini 3 Flash</source>
-        <translation>Gemini 3 Flash</translation>
+        <source>Gemini 3.5 Flash</source>
+        <translation>Gemini 3.5 Flash</translation>
     </message>
     <message>
         <location filename="../../common/text.py" line="103"/>
@@ -3570,13 +3570,13 @@ Please configure the correct path in settings</translation>
     </message>
     <message>
         <location filename="../../common/text.py" line="746"/>
-        <source>Gemini 3 Flash Api Key</source>
-        <translation>Gemini 3 Flash API Key</translation>
+        <source>Gemini 3.5 Flash Api Key</source>
+        <translation>Gemini 3.5 Flash API Key</translation>
     </message>
     <message>
         <location filename="../../common/text.py" line="747"/>
-        <source>设置你的Gemini 3 Flash Api Key</source>
-        <translation>Set your Gemini 3 Flash API Key</translation>
+        <source>设置你的Gemini 3.5 Flash Api Key</source>
+        <translation>Set your Gemini 3.5 Flash API Key</translation>
     </message>
     <message>
         <location filename="../../common/text.py" line="748"/>
@@ -3770,8 +3770,8 @@ Please configure the correct path in settings</translation>
     </message>
     <message>
         <location filename="../../common/text.py" line="786"/>
-        <source>请先填写您的Gemini 3 Flash API Key</source>
-        <translation>Please fill in your Gemini 3 Flash API Key first</translation>
+        <source>请先填写您的Gemini 3.5 Flash API Key</source>
+        <translation>Please fill in your Gemini 3.5 Flash API Key first</translation>
     </message>
     <message>
         <location filename="../../common/text.py" line="787"/>

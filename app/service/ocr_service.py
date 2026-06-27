@@ -11,7 +11,9 @@ from ..common.logger import Logger
 from ..common.task_status import TaskStatus
 from ..common.text import Text
 
-CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+NO_WINDOW_KWARGS = (
+    {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
+)
 
 
 class OCRTask:
@@ -352,20 +354,23 @@ class OCRProcess(QObject):
             # 获取进程ID
             pid = self.process.processId()
 
-            # 使用taskkill强制终止进程树（包括子进程）
-            try:
-                subprocess.run(
-                    ["taskkill", "/F", "/T", "/PID", str(pid)],
-                    capture_output=True,
-                    timeout=2,
-                    creationflags=CREATE_NO_WINDOW,
-                )
-                self.log_signal.emit(self.globalText.TextAuto022, False, False)
-            except Exception as e:
-                self.log_signal.emit(
-                    self.globalText.TextAuto025.format(str(e)), True, False
-                )
-                # 如果taskkill失败，尝试使用QProcess的kill
+            if os.name == "nt":
+                # 使用taskkill强制终止进程树（包括子进程）
+                try:
+                    subprocess.run(
+                        ["taskkill", "/F", "/T", "/PID", str(pid)],
+                        capture_output=True,
+                        timeout=2,
+                        **NO_WINDOW_KWARGS,
+                    )
+                    self.log_signal.emit(self.globalText.TextAuto022, False, False)
+                except Exception as e:
+                    self.log_signal.emit(
+                        self.globalText.TextAuto025.format(str(e)), True, False
+                    )
+                    # 如果taskkill失败，尝试使用QProcess的kill
+                    self.process.kill()
+            else:
                 self.process.kill()
 
             # 等待进程结束

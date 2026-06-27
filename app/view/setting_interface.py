@@ -1,6 +1,7 @@
 # coding:utf-8
 # from ..common.signal_bus import signalBus
 # from ..common.icon import Logo
+import os
 import shutil
 import subprocess
 import sys
@@ -31,8 +32,12 @@ from qframelesswindow.utils import getSystemAccentColor
 from ..common.config import cfg, get_default_exe_path
 from ..common.event_bus import event_bus
 from ..common.setting import COPYLEFT, TEAM, VERSION, YEAR
-from ..components.config_card import DetectionCard
 from ..common.text import Text
+from ..components.config_card import DetectionCard
+
+NO_WINDOW_KWARGS = (
+    {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
+)
 
 
 class ExeDetectThread(QThread):
@@ -51,6 +56,7 @@ class ExeDetectThread(QThread):
                 [self.exe_path, self.version_flag],
                 capture_output=True,
                 timeout=10,
+                **NO_WINDOW_KWARGS,
             )
             print(result.stdout.decode("utf-8"))
             print(result.stderr.decode("utf-8"))
@@ -78,13 +84,19 @@ class SettingInterface(ScrollArea):
         self.settingLabel = TitleLabel(self.globalText.Settings, self)
 
         # 个性化
-        self.personalGroup = SettingCardGroup(self.globalText.Personalization, self.scrollWidget)
+        self.personalGroup = SettingCardGroup(
+            self.globalText.Personalization, self.scrollWidget
+        )
         self.themeCard = ComboBoxSettingCard(
             cfg.themeMode,
             FIF.BRUSH,
             self.globalText.ApplicationTheme,
             self.globalText.AAA,
-            texts=[self.globalText.Light, self.globalText.Dark, self.globalText.FollowSystem],
+            texts=[
+                self.globalText.Light,
+                self.globalText.Dark,
+                self.globalText.FollowSystem,
+            ],
             parent=self.personalGroup,
         )
         self.accentColorCard = ComboBoxSettingCard(
@@ -112,7 +124,14 @@ class SettingInterface(ScrollArea):
             FIF.ZOOM,
             self.globalText.InterfaceScaling,
             self.globalText.ACAFS,
-            texts=["100%", "125%", "150%", "175%", "200%", self.globalText.FollowSystem],
+            texts=[
+                "100%",
+                "125%",
+                "150%",
+                "175%",
+                "200%",
+                self.globalText.FollowSystem,
+            ],
             parent=self.personalGroup,
         )
         self.languageCard = ComboBoxSettingCard(
@@ -163,7 +182,9 @@ class SettingInterface(ScrollArea):
         )
 
         # download
-        self.downloadGroup = SettingCardGroup(self.globalText.Download, self.scrollWidget)
+        self.downloadGroup = SettingCardGroup(
+            self.globalText.Download, self.scrollWidget
+        )
         self.ytdlpPathCard = PushSettingCard(
             self.globalText.SelectFile3,
             ":/app/images/logo/ytdlp.svg",

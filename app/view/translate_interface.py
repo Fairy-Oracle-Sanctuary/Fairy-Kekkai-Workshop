@@ -161,7 +161,7 @@ class TranslationInterface(BaseFunctionInterface):
         return {
             "hunyuan-turbos-latest": self.globalText.TencentHunyuan,
             "deepseek": self.globalText.Deepseek,
-            "gemini-3-flash-preview": self.globalText.Gemini3Flash,
+            "gemini-3.5-flash": self.globalText.Gemini3Flash,
             "intern-latest": self.globalText.InternLM,
             "glm-4.5-flash": self.globalText.GLM45FLASH,
             "spark-lite": self.globalText.SparkLite,
@@ -253,7 +253,7 @@ class TranslationInterface(BaseFunctionInterface):
             self.show_error_message(self.globalText.PFIYBES1AKF)
             return
 
-        elif cfg.get(cfg.ai_model) == "gemini-3-flash-preview" and not cfg.get(
+        elif cfg.get(cfg.ai_model) == "gemini-3.5-flash" and not cfg.get(
             cfg.geminiApiKey
         ):
             self.show_error_message(self.globalText.PFIYG3FAKF)
