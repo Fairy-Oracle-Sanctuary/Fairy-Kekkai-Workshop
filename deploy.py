@@ -37,6 +37,7 @@ elif sys.platform == "darwin":
         "--macos-create-app-bundle",
         "--assume-yes-for-download",
         "--macos-disable-console",
+        "--include-data-dir=tools=tools",
         f"--macos-app-version={VERSION}",
         '--macos-app-name="Fairy Kekkai Workshop"',
         "--macos-app-icon=app/resource/images/logo.ico",
