@@ -276,7 +276,8 @@ class DownloadInterface(ScrollArea):
         if waiting_tasks:
             task = waiting_tasks[0]
             self.startDownload(task)
-            self.setUpdateBoxEnabled(False)
+            if sys.platform == "win32":
+                self.setUpdateBoxEnabled(False)
 
     def startDownload(self, task: DownloadTask):
         """开始下载任务"""
@@ -342,7 +343,8 @@ class DownloadInterface(ScrollArea):
 
     def onDownloadFinished(self, task_id, success, message):
         """下载完成"""
-        self.setUpdateBoxEnabled(True)
+        if sys.platform == "win32":
+            self.setUpdateBoxEnabled(True)
         for task in self.download_tasks:
             if task.id == task_id:
                 if success:
