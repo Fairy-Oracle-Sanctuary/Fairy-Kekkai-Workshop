@@ -1,0 +1,20 @@
+name: Sync Release To Gitea
+
+on:
+  release:
+    types: [published, edited, deleted]
+  workflow_dispatch:
+
+jobs:
+  sync_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync GitHub Release to Gitea
+        uses: appleboy/gitea-release-action@v1.6.0
+        with:
+          gitea_base_url: ${{ secrets.GITEA_URL }}
+          gitea_token: ${{ secrets.GITEA_TOKEN }}
+          repo_owner: K2CrO4
+          repo_name: Fairy-Kekkai-Workshop
+          upload_assets: true
+          overwrite: true
