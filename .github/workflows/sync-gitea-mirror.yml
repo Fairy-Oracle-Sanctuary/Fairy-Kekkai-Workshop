@@ -1,0 +1,50 @@
+name: Sync to Gitea
+# 每次推送到 main 分支时同步代码到 Gitea 镜像
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  sync_mirror:
+    runs-on: ubuntu-latest
+    env:
+      GITEA_URL: ${{ secrets.GITEA_URL }}
+      GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+      GITEA_OWNER: K2CrO4
+      GITEA_REPO: Fairy-Kekkai-Workshop
+    steps:
+      - name: 拉取完整仓库数据
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 推送镜像到 Gitea
+        run: |
+          if [ -z "$GITEA_URL" ] || [ -z "$GITEA_TOKEN" ]; then
+            echo "缺少 GITEA_URL 或 GITEA_TOKEN，跳过同步"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 初始化或更新 mirror 远程地址
+          if git remote get-url mirror >/dev/null 2>&1; then
+            git remote set-url mirror "https://${GITEA_TOKEN}@${GITEA_URL#https://}/${GITEA_OWNER}/${GITEA_REPO}.git"
+          else
+            git remote add mirror "https://${GITEA_TOKEN}@${GITEA_URL#https://}/${GITEA_OWNER}/${GITEA_REPO}.git"
+          fi
+
+          # 仅在远端不存在 main 时静默创建，否则强制同步
+          if git ls-remote --heads mirror main | grep -q main; then
+            git push mirror main:main --force
+            echo "已强制同步 main 到 Gitea"
+          else
+            git push mirror main:main
+            echo "已推送 main 到 Gitea（首次）"
+          fi
+
+          # 同步所有标签
+          git push mirror --tags --force
