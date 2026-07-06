@@ -12,7 +12,7 @@ jobs:
     env:
       GITEA_URL: ${{ secrets.GITEA_URL }}
       GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
-      GITEA_OWNER: K2CrO4
+      GITEA_OWNER: Fairy-Oracle-Sanctuary
       GITEA_REPO: Fairy-Kekkai-Workshop
     steps:
       - name: 拉取完整仓库数据
