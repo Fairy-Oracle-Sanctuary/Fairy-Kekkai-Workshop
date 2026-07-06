@@ -53,15 +53,18 @@ jobs:
 
             echo "===== 处理Tag: $TAG ====="
 
+            # 替换正文 github 域名到自建Gitea
+            NEW_BODY=$(echo "$BODY" | sed 's|https://github.com|https://git.ora-san.org|g')
+
             # 1. 查询Gitea是否已有该tag的release
             GITEA_EXIST=$(curl -s -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/repos/$GITEA_OWNER/$GITEA_REPO/releases/tags/$TAG")
             EXIST_ID=$(echo "$GITEA_EXIST" | jq -r '.id')
 
-            # 组装请求体
+            # 组装请求体（使用替换后的NEW_BODY）
             PAYLOAD=$(jq -n \
               --arg t "$TAG" \
               --arg n "$TITLE" \
-              --arg b "$BODY" \
+              --arg b "$NEW_BODY" \
               --argjson d "$DRAFT" \
               --argjson p "$PRERELEASE" \
               '{tag_name:$t, name:$n, body:$b, draft:$d, prerelease:$p}')
