@@ -123,6 +123,8 @@ const messages = {
     "download.win.detail": "Full support for OCR, speech recognition, and hardware-accelerated compression",
     "download.mac.detail": "Supports video downloads, AI translation, project management, and video compression (OCR & Whisper are temporarily unsupported)",
     "download.btn": "Get Latest Installer",
+    "download.mirror.text": "Can't access GitHub? Use our mirror download link",
+    "download.mirror.btn": "Go to Mirror Download",
     "docs.nav.workflow": "Workflow",
     "docs.nav.requirements": "Requirements",
     "docs.nav.model": "Whisper Model",
