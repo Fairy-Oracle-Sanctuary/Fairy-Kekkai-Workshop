@@ -1,4 +1,5 @@
 import os
+import platform
 import re
 import subprocess
 import sys
@@ -17,7 +18,7 @@ def _windows_file_version(ver: str) -> str:
 if sys.platform == "win32":
     wv = _windows_file_version(VERSION)
     args = [
-        sys.executable,  # 使用当前Python解释器
+        sys.executable,
         "-m",
         "nuitka",
         "--standalone",
@@ -26,7 +27,11 @@ if sys.platform == "win32":
         "--plugin-enable=pyside6",
         "--include-qt-plugins=sensible,sqldrivers",
         "--assume-yes-for-downloads",
-        "--mingw64",
+    ]
+    # ARM Windows 用 MSVC，x64 用 MinGW
+    if platform.machine().lower() in ("amd64", "x86_64"):
+        args.append("--mingw64")
+    args += [
         "--show-memory",
         "--show-progress",
         "--windows-icon-from-ico=app/resource/images/logo.ico",

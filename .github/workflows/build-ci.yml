@@ -1,5 +1,4 @@
 name: Build CI
-# 自动+手动双触发；产物仅作为 Artifact 上传
 on:
   push:
     branches:
@@ -23,30 +22,55 @@ on:
 
 jobs:
   build:
-    name: Build (${{ matrix.os }})
+    name: Build (${{ matrix.label }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
+          # ── Windows ──
           - os: windows-latest
-            artifact_name: Fairy-Kekkai-Workshop-Windows
+            label: Windows x64
+            arch: x86_64
+            artifact_name: Fairy-Kekkai-Workshop-Windows-x64
             artifact_path: dist/Fairy-Kekkai-Workshop.dist/
-            deploy_args: ""
+            use_mingw: true
+          - os: windows-11-arm
+            label: Windows ARM64
+            arch: arm64
+            artifact_name: Fairy-Kekkai-Workshop-Windows-arm64
+            artifact_path: dist/Fairy-Kekkai-Workshop.dist/
+            use_mingw: false
+          # ── macOS ──
+          - os: macos-13
+            label: macOS x64 (Intel)
+            arch: x86_64
+            artifact_name: Fairy-Kekkai-Workshop-macOS-x64
+            artifact_path: dist/Fairy-Kekkai-Workshop.dist/
+            make_dmg: true
           - os: macos-latest
-            artifact_name: Fairy-Kekkai-Workshop-macOS
+            label: macOS ARM64 (Apple Silicon)
+            arch: arm64
+            artifact_name: Fairy-Kekkai-Workshop-macOS-arm64
             artifact_path: dist/Fairy-Kekkai-Workshop.dist/
-            deploy_args: ""
-            extra_paths: |-
-              dist/Fairy-Kekkai-Workshop.dmg
+            make_dmg: true
+          # ── Linux ──
           - os: ubuntu-latest
-            artifact_name: Fairy-Kekkai-Workshop-Linux
+            label: Linux x64
+            arch: x86_64
+            artifact_name: Fairy-Kekkai-Workshop-Linux-x64
             artifact_path: dist/Fairy-Kekkai-Workshop/
-            deploy_args: ""
-            extra_paths: |-
-              dist/*.deb
-              dist/*.rpm
-              dist/*.pkg.tar.zst
+            deb_arch: amd64
+            rpm_arch: x86_64
+            archlinux_arch: x86_64
+          - os: ubuntu-24.04-arm
+            label: Linux ARM64
+            arch: arm64
+            artifact_name: Fairy-Kekkai-Workshop-Linux-arm64
+            artifact_path: dist/Fairy-Kekkai-Workshop/
+            deb_arch: arm64
+            rpm_arch: aarch64
+            archlinux_arch: aarch64
 
     steps:
       - name: 拉取代码
@@ -61,20 +85,21 @@ jobs:
           cache: pip
 
       - name: 安装 PyInstaller（Linux 分支使用）
+        if: startsWith(matrix.os, 'ubuntu')
         run: pip install pyinstaller
 
       - name: 安装项目依赖
         run: pip install -r requirements.txt
 
       - name: 安装 Nuitka（Windows / macOS）
-        if: matrix.os != 'ubuntu-latest'
+        if: "!startsWith(matrix.os, 'ubuntu')"
         run: pip install nuitka
 
-      - name: 安装 MinGW64（Windows）
-        if: matrix.os == 'windows-latest'
+      - name: 安装 MinGW64（Windows x64）
+        if: matrix.use_mingw
         run: choco install -y mingw --version=14.2.0
 
-      - name: 创建 tools 占位目录（CI 环境无 tools.zip）
+      - name: 创建 tools 占位目录
         run: mkdir -p tools
 
       - name: 动态设置版本号（git commit + 编译时间）
@@ -105,10 +130,9 @@ jobs:
         run: python deploy.py
 
       - name: 制作 macOS .dmg
-        if: matrix.os == 'macos-latest'
+        if: matrix.make_dmg
         run: |
           brew install create-dmg
-          # 查找 Nuitka 生成的 .app（在 .dist 目录内）
           APP_PATH=$(find dist -maxdepth 3 -name "*.app" -type d | head -1)
           if [ -z "$APP_PATH" ]; then
             echo "找不到 .app，请检查 build 输出"
@@ -116,7 +140,8 @@ jobs:
             exit 1
           fi
           echo "APP 路径: $APP_PATH"
-          rm -f dist/Fairy-Kekkai-Workshop.dmg
+          DMG_NAME="dist/Fairy-Kekkai-Workshop-${{ matrix.arch }}.dmg"
+          rm -f "$DMG_NAME"
           create-dmg \
             --volname "Fairy Kekkai Workshop" \
             --window-pos 200 120 \
@@ -125,13 +150,13 @@ jobs:
             --icon "$(basename "$APP_PATH")" 175 190 \
             --app-drop-link 425 190 \
             --no-internet-enable \
-            "dist/Fairy-Kekkai-Workshop.dmg" \
+            "$DMG_NAME" \
             "$APP_PATH" \
           || true
-          test -f dist/Fairy-Kekkai-Workshop.dmg
+          test -f "$DMG_NAME"
 
       - name: 打包 Linux 系统包（deb / rpm / arch）
-        if: matrix.os == 'ubuntu-latest'
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt update && sudo apt install -y ruby rubygems zstd libarchive-tools
           sudo gem install --no-document fpm
@@ -142,43 +167,43 @@ jobs:
           BIN_DIR="$PKG_DIR/usr/bin"
           mkdir -p "$INSTALL_DIR" "$BIN_DIR"
 
-          # 拷贝 PyInstaller 产物到包目录
           cp -a dist/Fairy-Kekkai-Workshop/* "$INSTALL_DIR/"
-
-          # 创建启动脚本软链接
           ln -s /opt/fairy-kekkai-workshop/Fairy-Kekkai-Workshop "$BIN_DIR/fairy-kekkai-workshop"
 
-          # 生成 .deb
+          # .deb
           fpm -s dir -t deb \
             -n fairy-kekkai-workshop \
             -v "$VERSION" \
+            -a "${{ matrix.deb_arch }}" \
             --description "Fairy Kekkai Workshop - Video Subtitle Processing Tool" \
             --url "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop" \
             --license MIT \
             -C "$PKG_DIR" \
-            -p dist/fairy-kekkai-workshop_${VERSION}_amd64.deb \
+            -p dist/fairy-kekkai-workshop_${VERSION}_${{ matrix.deb_arch }}.deb \
             .
 
-          # 生成 .rpm
+          # .rpm
           fpm -s dir -t rpm \
             -n fairy-kekkai-workshop \
             -v "$VERSION" \
+            -a "${{ matrix.rpm_arch }}" \
             --description "Fairy Kekkai Workshop - Video Subtitle Processing Tool" \
             --url "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop" \
             --license MIT \
             -C "$PKG_DIR" \
-            -p dist/fairy-kekkai-workshop-${VERSION}-1.x86_64.rpm \
+            -p dist/fairy-kekkai-workshop-${VERSION}-1.${{ matrix.rpm_arch }}.rpm \
             .
 
-          # 生成 Arch Linux .pkg.tar.zst
+          # Arch Linux .pkg.tar.zst
           fpm -s dir -t pacman \
             -n fairy-kekkai-workshop \
             -v "$VERSION" \
+            -a "${{ matrix.archlinux_arch }}" \
             --description "Fairy Kekkai Workshop - Video Subtitle Processing Tool" \
             --url "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop" \
             --license MIT \
             -C "$PKG_DIR" \
-            -p dist/fairy-kekkai-workshop-${VERSION}-1-x86_64.pkg.tar.zst \
+            -p dist/fairy-kekkai-workshop-${VERSION}-1-${{ matrix.archlinux_arch }}.pkg.tar.zst \
             .
 
           echo "=== 生成的包 ==="
@@ -196,12 +221,54 @@ jobs:
           ls -la "${{ matrix.artifact_path }}" 2>/dev/null | head -20
           echo "产物已就绪"
 
-      - name: 上传构建产物
+      # ── 上传：非 Linux 平台（便携包 + dmg） ──
+      - name: 上传构建产物（Windows / macOS）
+        if: "!startsWith(matrix.os, 'ubuntu')"
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
           path: |
             ${{ matrix.artifact_path }}
-            ${{ matrix.extra_paths }}
+            dist/*.dmg
+          if-no-files-found: error
+          retention-days: 14
+
+      # ── 上传：Linux 便携包 ──
+      - name: 上传 Linux 便携包
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-portable
+          path: ${{ matrix.artifact_path }}
+          if-no-files-found: error
+          retention-days: 14
+
+      # ── 上传：Linux DEB ──
+      - name: 上传 Linux DEB 包
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-deb
+          path: dist/*.deb
+          if-no-files-found: error
+          retention-days: 14
+
+      # ── 上传：Linux RPM ──
+      - name: 上传 Linux RPM 包
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-rpm
+          path: dist/*.rpm
+          if-no-files-found: error
+          retention-days: 14
+
+      # ── 上传：Linux AUR/Arch ──
+      - name: 上传 Linux AUR 包
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-aur
+          path: dist/*.pkg.tar.zst
           if-no-files-found: error
           retention-days: 14
