@@ -21,6 +21,11 @@ from qfluentwidgets import (
 
 from ..common.event_bus import event_bus
 from ..common.setting import CONFIG_FILE, GITHUB_URL, UPDATE_TIME, VERSION
+
+try:
+    from ..common.setting import CI_BUILD_WARNING
+except ImportError:
+    CI_BUILD_WARNING = None
 from ..resource import resource_rc  # noqa: F401
 from ..view.log_interface import LogWindow
 from .statistic_widget import StatisticsWidget
@@ -131,6 +136,15 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
         self.statisticsLayout.addWidget(VerticalSeparator())
         self.statisticsLayout.addWidget(self.updateTimeWidget)
         self.statisticsLayout.setAlignment(Qt.AlignLeft)
+
+        # CI 测试版本警告
+        if CI_BUILD_WARNING:
+            self.ciWarningLabel = BodyLabel(CI_BUILD_WARNING, self)
+            self.ciWarningLabel.setStyleSheet(
+                "color: #e74c3c; font-weight: bold; font-size: 13px;"
+            )
+            self.vBoxLayout.addSpacing(8)
+            self.vBoxLayout.addWidget(self.ciWarningLabel)
 
         # description label
         self.vBoxLayout.addSpacing(20)
