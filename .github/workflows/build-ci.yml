@@ -27,7 +27,7 @@ jobs:
             deploy_args: ""
           - os: ubuntu-latest
             artifact_name: Fairy-Kekkai-Workshop-Linux
-            artifact_path: dist/Fairy-Kekkai-Workshop/Fairy-Kekkai-Workshop
+            artifact_path: dist/Fairy-Kekkai-Workshop/
             deploy_args: ""
 
     steps:
@@ -88,19 +88,100 @@ jobs:
           || true
           test -f dist/Fairy-Kekkai-Workshop.dmg
 
+      - name: 打包 Linux 系统包（deb / rpm / arch）
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt update && sudo apt install -y ruby rubygems
+          sudo gem install --no-document fpm
+          VERSION=$(python -c "from app.common.setting import VERSION; print(VERSION)")
+
+          PKG_DIR="dist/packaging"
+          INSTALL_DIR="$PKG_DIR/opt/fairy-kekkai-workshop"
+          BIN_DIR="$PKG_DIR/usr/bin"
+          mkdir -p "$INSTALL_DIR" "$BIN_DIR"
+
+          # 拷贝 PyInstaller 产物到包目录
+          cp -a dist/Fairy-Kekkai-Workshop/* "$INSTALL_DIR/"
+
+          # 创建启动脚本软链接
+          ln -s /opt/fairy-kekkai-workshop/Fairy-Kekkai-Workshop "$BIN_DIR/fairy-kekkai-workshop"
+
+          # 生成 .deb
+          fpm -s dir -t deb \
+            -n fairy-kekkai-workshop \
+            -v "$VERSION" \
+            --description "Fairy Kekkai Workshop - Video Subtitle Processing Tool" \
+            --url "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop" \
+            --license MIT \
+            -C "$PKG_DIR" \
+            -p dist/fairy-kekkai-workshop_${VERSION}_amd64.deb \
+            .
+
+          # 生成 .rpm
+          fpm -s dir -t rpm \
+            -n fairy-kekkai-workshop \
+            -v "$VERSION" \
+            --description "Fairy Kekkai Workshop - Video Subtitle Processing Tool" \
+            --url "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop" \
+            --license MIT \
+            -C "$PKG_DIR" \
+            -p dist/fairy-kekkai-workshop-${VERSION}-1.x86_64.rpm \
+            .
+
+          # 生成 Arch Linux .pkg.tar.zst
+          fpm -s dir -t pacman \
+            -n fairy-kekkai-workshop \
+            -v "$VERSION" \
+            --description "Fairy Kekkai Workshop - Video Subtitle Processing Tool" \
+            --url "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop" \
+            --license MIT \
+            -C "$PKG_DIR" \
+            -p dist/fairy-kekkai-workshop-${VERSION}-1-x86_64.pkg.tar.zst \
+            .
+
+          echo "=== 生成的包 ==="
+          ls -lh dist/*.deb dist/*.rpm dist/*.pkg.tar.zst
+
       - name: 验证产物
         shell: bash
         run: |
-          ls -la dist || true
-          if [ ! -e "${{ matrix.artifact_path }}" ]; then
-            echo "产物不存在: ${{ matrix.artifact_path }}"
-            echo "=== dist 目录结构 ==="
-            find dist -maxdepth 4 -type f 2>/dev/null || echo "dist 目录不存在"
-            exit 1
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            DEB=$(ls dist/*.deb 2>/dev/null)
+            RPM=$(ls dist/*.rpm 2>/dev/null)
+            ZST=$(ls dist/*.pkg.tar.zst 2>/dev/null)
+            if [ -z "$DEB" ] || [ -z "$RPM" ] || [ -z "$ZST" ]; then
+              echo "缺少 Linux 系统包产物"
+              ls -la dist/
+              exit 1
+            fi
+            echo "DEB: $DEB"
+            echo "RPM: $RPM"
+            echo "ARCH: $ZST"
+            echo "产物已就绪"
+          else
+            ls -la dist || true
+            if [ ! -e "${{ matrix.artifact_path }}" ]; then
+              echo "产物不存在: ${{ matrix.artifact_path }}"
+              find dist -maxdepth 4 -type f 2>/dev/null || echo "dist 目录不存在"
+              exit 1
+            fi
+            echo "产物已就绪"
           fi
-          echo "产物已就绪"
+
+      - name: 上传 Linux 系统包
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            dist/*.deb
+            dist/*.rpm
+            dist/*.pkg.tar.zst
+          if-no-files-found: error
+          retention-days: 14
 
       - name: 上传构建产物
+        if: matrix.os != 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
