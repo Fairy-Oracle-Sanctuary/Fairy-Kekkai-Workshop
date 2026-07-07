@@ -19,8 +19,8 @@ jobs:
       GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
       GITEA_OWNER: Fairy-Oracle-Sanctuary
       GITEA_REPO: Fairy-Kekkai-Workshop
-      GITEA_OWNER: Fairy-Oracle-Sanctuary
-      GITEA_REPO: Fairy-Kekkai-Workshop
+      GH_OWNER: ${{ github.repository_owner }}
+      GH_REPO: ${{ github.event.repository.name }}
       TMP_ASSET_DIR: ./tmp_gh_assets
     steps:
       - name: 拉取仓库代码
