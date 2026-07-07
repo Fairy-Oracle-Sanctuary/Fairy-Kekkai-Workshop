@@ -6,15 +6,15 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 指定仅同步单个Tag，留空同步全部（仅建议调试用）
+        description: 指定仅同步单个Tag，留空同步全部（仅调试用）
         required: false
         default: ''
 
 jobs:
   sync_release:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
-      # Gitea 配置建议统一放仓库Secrets，方便修改
       GITEA_URL: ${{ secrets.GITEA_URL }}
       GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
       GITEA_OWNER: Fairy-Oracle-Sanctuary
@@ -89,14 +89,21 @@ jobs:
 
             echo -e "\n==== Process Tag: ${TAG} ===="
 
-            # 替换正文链接 GitHub -> Gitea
+            # 替换正文链接 GitHub -> Gitea，修复链接后括号粘连
             NEW_BODY=$(echo "${BODY}" \
               | sed "s|https://github.com/${GH_OWNER}/${GH_REPO}|${GITEA_URL}/${GITEA_OWNER}/${GITEA_REPO}|g" \
-              | sed "s|https://github.com|${GITEA_URL}|g")
+              | sed "s|https://github.com|${GITEA_URL}|g" \
+              | sed 's/)(/)( /g')
 
             # 查询Gitea现有Release
             GITEA_REL_URL="${GITEA_API_BASE}/releases/tags/${TAG}"
             GITEA_EXIST_RAW=$(curl -sL "${GITEA_HEAD[@]}" "${GITEA_REL_URL}")
+
+            # 校验返回是否合法JSON，网关502/404返回HTML则跳过当前Tag
+            if ! echo "${GITEA_EXIST_RAW}" | jq empty >/dev/null 2>&1; then
+              echo "警告：Tag ${TAG} Gitea接口返回非JSON（网关异常/404），跳过该版本"
+              continue
+            fi
             EXIST_ID=$(echo "${GITEA_EXIST_RAW}" | jq -r '.id')
 
             # 删除分支优先执行
@@ -120,14 +127,21 @@ jobs:
               '{tag_name:$t, name:$n, body:$b, draft:$d, prerelease:$p}')
 
             if [[ "${EXIST_ID}" != "null" ]]; then
-              # 更新Release基础信息，清空旧附件
+              # 更新Release基础信息
               echo "更新已有Release ID: ${EXIST_ID}"
               curl -X PATCH -sL "${GITEA_HEAD[@]}" -d "${PAYLOAD}" "${GITEA_API_BASE}/releases/${EXIST_ID}"
 
-              # 删除全部旧资产
+              # 删除全部旧资产，捕获HTTP状态码屏蔽404页面输出
               echo "清理原有附件"
               echo "${GITEA_EXIST_RAW}" | jq -r '.assets[].id' | while read aid; do
-                curl -X DELETE -sL "${GITEA_HEAD[@]}" "${GITEA_API_BASE}/releases/assets/${aid}"
+                echo "尝试删除旧附件ID: $aid"
+                HTTP_CODE=$(curl -X DELETE -sL -w "%{http_code}" -o /dev/null \
+                  "${GITEA_HEAD[@]}" "${GITEA_API_BASE}/releases/assets/${aid}")
+                if [[ "$HTTP_CODE" == "404" ]]; then
+                  echo "附件 $aid 不存在，跳过"
+                elif [[ "$HTTP_CODE" != "204" && "$HTTP_CODE" != "200" ]]; then
+                  echo "警告：删除附件 $aid 异常，状态码 $HTTP_CODE"
+                fi
               done
             else
               # 创建新Release
@@ -146,14 +160,17 @@ jobs:
               echo "下载资产 ${ASSET_NAME} -> ${LOCAL_ASSET}"
               curl -sL --fail "${ASSET_URL}" -o "${LOCAL_ASSET}"
 
-              # 上传到Gitea Release
+              # 上传大文件：10分钟超时、3次自动重试，解决502/504网关超时
               echo "上传资产 ${ASSET_NAME} 至release ${EXIST_ID}"
               curl -X POST -sL \
+                --max-time 600 \
+                --retry 3 \
+                --retry-delay 5 \
                 -H "Authorization: token ${GITEA_TOKEN}" \
                 -F "attachment=@${LOCAL_ASSET};filename=${ASSET_NAME}" \
                 "${GITEA_API_BASE}/releases/${EXIST_ID}/assets"
 
-              # 清理本地文件
+              # 清理本地临时文件
               rm -f "${LOCAL_ASSET}"
             done
           done
