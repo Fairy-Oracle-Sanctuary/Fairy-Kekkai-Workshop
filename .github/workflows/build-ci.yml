@@ -1,0 +1,98 @@
+name: Build CI
+# 自动+手动双触发；产物仅作为 Artifact 上传
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: Fairy-Kekkai-Workshop-Windows
+            artifact_path: dist/Fairy-Kekkai-Workshop.dist/Fairy-Kekkai-Workshop.exe
+            deploy_args: ""
+          - os: macos-latest
+            artifact_name: Fairy-Kekkai-Workshop-macOS
+            artifact_path: dist/Fairy-Kekkai-Workshop.dmg
+            deploy_args: ""
+          - os: ubuntu-latest
+            artifact_name: Fairy-Kekkai-Workshop-Linux
+            artifact_path: dist/Fairy-Kekkai-Workshop/Fairy-Kekkai-Workshop
+            deploy_args: ""
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 设置 Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: 安装 PyInstaller（Linux 分支使用）
+        run: pip install pyinstaller
+
+      - name: 安装项目依赖
+        run: pip install -r requirements.txt
+
+      - name: 安装 Nuitka（Windows / macOS）
+        if: matrix.os != 'ubuntu-latest'
+        run: pip install nuitka
+
+      - name: 安装 MinGW64（Windows）
+        if: matrix.os == 'windows-latest'
+        run: choco install -y mingw --version=14.2.0
+
+      - name: 打包（调用 deploy.py）
+        shell: python
+        run: python deploy.py
+
+      - name: 制作 macOS .dmg
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install create-dmg
+          # 如已有同名 dmg 则先删除
+          rm -f dist/Fairy-Kekkai-Workshop.dmg
+          create-dmg \
+            --volname "Fairy Kekkai Workshop" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "Fairy-Kekkai-Workshop.app" 175 190 \
+            --app-drop-link 425 190 \
+            --no-internet-enable \
+            "dist/Fairy-Kekkai-Workshop.dmg" \
+            "dist/Fairy-Kekkai-Workshop.app" \
+          || true
+          # create-dmg 在已有挂载目录时返回非零，校验产物存在即可
+          test -f dist/Fairy-Kekkai-Workshop.dmg
+
+      - name: 归一化产物目录名
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            ls -la dist
+          else
+            ls -la dist
+          fi
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
+          if-no-files-found: error
+          retention-days: 14
