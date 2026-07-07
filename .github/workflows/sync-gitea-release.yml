@@ -6,106 +6,178 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description:
+        description: 指定仅同步单个Tag，留空同步全部（仅调试用）
         required: false
         default: ''
 
 jobs:
   sync_release:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       GITEA_URL: ${{ secrets.GITEA_URL }}
       GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
       GITEA_OWNER: Fairy-Oracle-Sanctuary
       GITEA_REPO: Fairy-Kekkai-Workshop
+      GH_OWNER: ${{ github.repository_owner }}
+      GH_REPO: ${{ github.event.repository.name }}
+      TMP_ASSET_DIR: ./tmp_gh_assets
     steps:
-      - name: 拉取完整仓库数据（获取Release、附件）
+      - name: 拉取仓库代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: 安装依赖jq处理API
-        run: sudo apt update && sudo apt install -y jq curl
-
-      - name: 同步Release脚本
+      - name: 安装依赖 jq curl
         run: |
-          # 传入手动输入的tag
+          set -euo pipefail
+          sudo apt update -qq
+          sudo apt install -y jq curl -qq
+
+      - name: 创建临时资产目录
+        run: mkdir -p "${{ env.TMP_ASSET_DIR }}"
+
+      - name: 同步Release主逻辑
+        run: |
+          set -euo pipefail
+          # 错误打印函数
+          error_exit() {
+            echo "ERROR: $1" >&2
+            exit 1
+          }
+
+          # 目标Tag过滤
           TARGET_TAG="${{ github.event.inputs.tag_name }}"
-          GH_OWNER=${{ github.repository_owner }}
-          GH_REPO=${{ github.event_name == 'release' && github.event.repository.name || github.event.repository.name }}
+          GH_API_RELEASE="https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/releases"
+          GH_HEAD=("-H" "Authorization: token ${{ github.TOKEN }}")
+          GITEA_API_BASE="${GITEA_URL}/api/v1/repos/${GITEA_OWNER}/${GITEA_REPO}"
+          GITEA_HEAD=("-H" "Authorization: token ${GITEA_TOKEN}" "-H" "Content-Type: application/json")
 
-          # 获取所有GitHub Release
-          GH_RELEASES=$(curl -s -H "Authorization: token ${{ github.TOKEN }}" "https://api.github.com/repos/$GH_OWNER/$GH_REPO/releases")
+          # 1. 获取GitHub Release列表
+          echo "=== Fetch GitHub Releases ==="
+          GH_RELEASES_RAW=$(curl -sL "${GH_HEAD[@]}" "${GH_API_RELEASE}")
+          [ -z "${GH_RELEASES_RAW}" ] && error_exit "GitHub Release API 返回空"
 
-          # 筛选需要同步的release
-          if [ -n "$TARGET_TAG" ]; then
-            GH_RELEASES=$(echo "$GH_RELEASES" | jq "[.[] | select(.tag_name == \"$TARGET_TAG\")]")
+          # 筛选目标tag
+          if [[ -n "${TARGET_TAG}" ]]; then
+            echo "仅同步指定Tag: ${TARGET_TAG}"
+            GH_RELEASES=$(echo "${GH_RELEASES_RAW}" | jq "[.[] | select(.tag_name == \"${TARGET_TAG}\")]")
+            # 校验是否匹配到release
+            MATCH_COUNT=$(echo "${GH_RELEASES}" | jq 'length')
+            if [[ "${MATCH_COUNT}" -eq 0 ]]; then
+              error_exit "未找到Tag=${TARGET_TAG} 的GitHub Release"
+            fi
+          else
+            GH_RELEASES="${GH_RELEASES_RAW}"
           fi
 
-          # 遍历每个Release同步到Gitea
-          echo "$GH_RELEASES" | jq -c '.[]' | while read -r rel; do
-            TAG=$(echo "$rel" | jq -r '.tag_name')
-            TITLE=$(echo "$rel" | jq -r '.name')
-            BODY=$(echo "$rel" | jq -r '.body')
-            DRAFT=$(echo "$rel" | jq -r '.draft')
-            PRERELEASE=$(echo "$rel" | jq -r '.prerelease')
-            ASSETS=$(echo "$rel" | jq -r '.assets')
+          # 判断是否为删除Release事件
+          IS_DELETE_EVENT="false"
+          if [[ "${{ github.event_name }}" == "release" && "${{ github.event.action }}" == "deleted" ]]; then
+            IS_DELETE_EVENT="true"
+            echo "=== 当前为Release删除事件，将同步删除Gitea对应版本 ==="
+          fi
 
-            echo "===== 处理Tag: $TAG ====="
+          # 循环处理每一条Release
+          echo "${GH_RELEASES}" | jq -c '.[]' | while read -r rel; do
+            TAG=$(echo "${rel}" | jq -r '.tag_name')
+            TITLE=$(echo "${rel}" | jq -r '.name // ""')
+            BODY=$(echo "${rel}" | jq -r '.body // ""')
+            DRAFT=$(echo "${rel}" | jq -r '.draft')
+            PRERELEASE=$(echo "${rel}" | jq -r '.prerelease')
+            ASSETS_RAW=$(echo "${rel}" | jq '.assets')
 
-            # 替换正文 github 域名到自建Gitea
-            NEW_BODY=$(echo "$BODY" | sed 's|https://github.com|https://git.ora-san.org|g')
+            echo -e "\n==== Process Tag: ${TAG} ===="
 
-            # 1. 查询Gitea是否已有该tag的release
-            GITEA_EXIST=$(curl -s -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/repos/$GITEA_OWNER/$GITEA_REPO/releases/tags/$TAG")
-            EXIST_ID=$(echo "$GITEA_EXIST" | jq -r '.id')
+            # 替换正文链接 GitHub -> Gitea，修复链接后括号粘连
+            NEW_BODY=$(echo "${BODY}" \
+              | sed "s|https://github.com/${GH_OWNER}/${GH_REPO}|${GITEA_URL}/${GITEA_OWNER}/${GITEA_REPO}|g" \
+              | sed "s|https://github.com|${GITEA_URL}|g" \
+              | sed 's/)(/)( /g')
 
-            # 组装请求体（使用替换后的NEW_BODY）
+            # 查询Gitea现有Release
+            GITEA_REL_URL="${GITEA_API_BASE}/releases/tags/${TAG}"
+            GITEA_EXIST_RAW=$(curl -sL "${GITEA_HEAD[@]}" "${GITEA_REL_URL}")
+
+            # 校验返回是否合法JSON，网关502/404返回HTML则跳过当前Tag
+            if ! echo "${GITEA_EXIST_RAW}" | jq empty >/dev/null 2>&1; then
+              echo "警告：Tag ${TAG} Gitea接口返回非JSON（网关异常/404），跳过该版本"
+              continue
+            fi
+            EXIST_ID=$(echo "${GITEA_EXIST_RAW}" | jq -r '.id')
+
+            # 删除分支优先执行
+            if [[ "${IS_DELETE_EVENT}" == "true" ]]; then
+              if [[ "${EXIST_ID}" != "null" ]]; then
+                echo "删除Gitea Release id=${EXIST_ID} tag=${TAG}"
+                curl -X DELETE -sL "${GITEA_HEAD[@]}" "${GITEA_API_BASE}/releases/${EXIST_ID}"
+              else
+                echo "Gitea不存在tag=${TAG}，无需删除"
+              fi
+              continue
+            fi
+
+            # 组装创建/更新Payload
             PAYLOAD=$(jq -n \
-              --arg t "$TAG" \
-              --arg n "$TITLE" \
-              --arg b "$NEW_BODY" \
-              --argjson d "$DRAFT" \
-              --argjson p "$PRERELEASE" \
+              --arg t "${TAG}" \
+              --arg n "${TITLE}" \
+              --arg b "${NEW_BODY}" \
+              --argjson d "${DRAFT}" \
+              --argjson p "${PRERELEASE}" \
               '{tag_name:$t, name:$n, body:$b, draft:$d, prerelease:$p}')
 
-            if [ "$EXIST_ID" != "null" ]; then
-              # 更新已有Release
-              echo "更新Gitea Release $TAG"
-              curl -X PATCH -H "Authorization: token $GITEA_TOKEN" \
-                -H "Content-Type: application/json" \
-                -d "$PAYLOAD" \
-                "$GITEA_URL/api/v1/repos/$GITEA_OWNER/$GITEA_REPO/releases/$EXIST_ID"
-              # 清空原有附件（避免重复）
-              echo "$GITEA_EXIST" | jq -r '.assets[].id' | while read aid; do
-                curl -X DELETE -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/repos/$GITEA_OWNER/$GITEA_REPO/releases/assets/$aid"
+            if [[ "${EXIST_ID}" != "null" ]]; then
+              # 更新Release基础信息
+              echo "更新已有Release ID: ${EXIST_ID}"
+              curl -X PATCH -sL "${GITEA_HEAD[@]}" -d "${PAYLOAD}" "${GITEA_API_BASE}/releases/${EXIST_ID}"
+
+              # 删除全部旧资产，捕获HTTP状态码屏蔽404页面输出
+              echo "清理原有附件"
+              echo "${GITEA_EXIST_RAW}" | jq -r '.assets[].id' | while read aid; do
+                echo "尝试删除旧附件ID: $aid"
+                HTTP_CODE=$(curl -X DELETE -sL -w "%{http_code}" -o /dev/null \
+                  "${GITEA_HEAD[@]}" "${GITEA_API_BASE}/releases/assets/${aid}")
+                if [[ "$HTTP_CODE" == "404" ]]; then
+                  echo "附件 $aid 不存在，跳过"
+                elif [[ "$HTTP_CODE" != "204" && "$HTTP_CODE" != "200" ]]; then
+                  echo "警告：删除附件 $aid 异常，状态码 $HTTP_CODE"
+                fi
               done
             else
               # 创建新Release
-              echo "新建Gitea Release $TAG"
-              curl -X POST -H "Authorization: token $GITEA_TOKEN" \
-                -H "Content-Type: application/json" \
-                -d "$PAYLOAD" \
-                "$GITEA_URL/api/v1/repos/$GITEA_OWNER/$GITEA_REPO/releases"
+              echo "新建Gitea Release Tag: ${TAG}"
+              CREATE_RET=$(curl -X POST -sL "${GITEA_HEAD[@]}" -d "${PAYLOAD}" "${GITEA_API_BASE}/releases")
+              EXIST_ID=$(echo "${CREATE_RET}" | jq -r '.id')
+              [[ "${EXIST_ID}" == "null" ]] && error_exit "创建Release失败: ${CREATE_RET}"
             fi
 
-            # 2. 上传所有二进制附件Assets
-            echo "$ASSETS" | jq -c '.[]' | while read -r asset; do
-              ASSET_URL=$(echo "$asset" | jq -r '.browser_download_url')
-              ASSET_NAME=$(echo "$asset" | jq -r '.name')
-              echo "下载并上传附件: $ASSET_NAME"
-              curl -sL "$ASSET_URL" -o "$ASSET_NAME"
-              # 获取最新release ID上传文件
-              LATEST_REL_ID=$(curl -s -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/repos/$GITEA_OWNER/$GITEA_REPO/releases/tags/$TAG" | jq -r '.id')
-              curl -X POST -H "Authorization: token $GITEA_TOKEN" \
-                -F "attachment=@$ASSET_NAME;filename=$ASSET_NAME" \
-                "$GITEA_URL/api/v1/repos/$GITEA_OWNER/$GITEA_REPO/releases/$LATEST_REL_ID/assets"
-              rm -f "$ASSET_NAME"
+            # 下载并上传附件
+            echo "${ASSETS_RAW}" | jq -c '.[]' | while read -r asset; do
+              ASSET_URL=$(echo "${asset}" | jq -r '.browser_download_url')
+              ASSET_NAME=$(echo "${asset}" | jq -r '.name')
+              LOCAL_ASSET="${{ env.TMP_ASSET_DIR }}/${ASSET_NAME}"
+
+              echo "下载资产 ${ASSET_NAME} -> ${LOCAL_ASSET}"
+              curl -sL --fail "${ASSET_URL}" -o "${LOCAL_ASSET}"
+
+              # 上传大文件：10分钟超时、3次自动重试，解决502/504网关超时
+              echo "上传资产 ${ASSET_NAME} 至release ${EXIST_ID}"
+              curl -X POST -sL \
+                --max-time 600 \
+                --retry 3 \
+                --retry-delay 5 \
+                -H "Authorization: token ${GITEA_TOKEN}" \
+                -F "attachment=@${LOCAL_ASSET};filename=${ASSET_NAME}" \
+                "${GITEA_API_BASE}/releases/${EXIST_ID}/assets"
+
+              # 清理本地临时文件
+              rm -f "${LOCAL_ASSET}"
             done
-
-            # 3. 如果GitHub删除Release，则同步删除Gitea对应版本
-            if [[ "${{ github.event.action }}" == "deleted" ]]; then
-              curl -X DELETE -H "Authorization: token $GITEA_TOKEN" "$GITEA_URL/api/v1/repos/$GITEA_OWNER/$GITEA_REPO/releases/$EXIST_ID"
-              echo "已删除Gitea Release $TAG"
-            fi
           done
+
+      - name: 清理临时文件
+        if: always()
+        run: rm -rf "${{ env.TMP_ASSET_DIR }}"
+
+      - name: 同步完成提示
+        run: echo "所有Release同步流程执行完毕"
