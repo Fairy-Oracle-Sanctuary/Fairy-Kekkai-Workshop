@@ -32,6 +32,11 @@ from qframelesswindow.utils import getSystemAccentColor
 from ..common.config import cfg, get_default_exe_path
 from ..common.event_bus import event_bus
 from ..common.setting import COPYLEFT, TEAM, VERSION, YEAR
+
+try:
+    from ..common.setting import CI_BUILD_WARNING
+except ImportError:
+    CI_BUILD_WARNING = None
 from ..common.text import Text
 from ..components.config_card import DetectionCard
 
@@ -205,16 +210,21 @@ class SettingInterface(ScrollArea):
 
         # 关于
         self.aboutGroup = SettingCardGroup(self.globalText.About, self.scrollWidget)
-        self.aboutCard = PrimaryPushSettingCard(
-            self.globalText.CheckForUpdates,
-            ":/app/images/logo.png",
-            self.globalText.About,
+        about_desc = (
             COPYLEFT
             + self.globalText.Copyleft
             + f" {YEAR}, {TEAM}. "
             + self.globalText.CurrentVersion
             + " v"
-            + VERSION,
+            + VERSION
+        )
+        if CI_BUILD_WARNING:
+            about_desc += "\n⚠ " + CI_BUILD_WARNING
+        self.aboutCard = PrimaryPushSettingCard(
+            self.globalText.CheckForUpdates,
+            ":/app/images/logo.png",
+            self.globalText.About,
+            about_desc,
             self.aboutGroup,
         )
         self.teachingTipCard = PushSettingCard(

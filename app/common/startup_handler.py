@@ -50,6 +50,11 @@ class StartupErrorHandler:
         """记录启动信息"""
         self.startup_logger.info("=" * 50)
         self.startup_logger.info(f"Fairy-Kekkai-Workshop 启动 - 版本: {VERSION}")
+        try:
+            from .setting import CI_BUILD_WARNING
+            self.startup_logger.warning(f"!!! {CI_BUILD_WARNING} !!!")
+        except ImportError:
+            pass
         self.startup_logger.info(f"Python版本: {sys.version}")
         self.startup_logger.info(f"操作系统: {os.name}")
         self.startup_logger.info(f"平台: {sys.platform}")

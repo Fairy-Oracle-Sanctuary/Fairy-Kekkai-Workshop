@@ -65,6 +65,29 @@ jobs:
       - name: 创建 tools 占位目录（CI 环境无 tools.zip）
         run: mkdir -p tools
 
+      - name: 动态设置版本号（git commit + 编译时间）
+        shell: bash
+        env:
+          BUILD_COMMIT: ${{ github.sha }}
+        run: |
+          COMMIT=$(git rev-parse --short HEAD)
+          python -c "
+          import os, re
+          from datetime import datetime, timezone, timedelta
+          build_time = (datetime.now(timezone(timedelta(hours=8)))
+                        .strftime('%Y-%m-%d %H:%M:%S'))
+          commit = os.environ['BUILD_COMMIT'][:7]
+          p = 'app/common/setting.py'
+          with open(p, 'r', encoding='utf-8') as f:
+              content = f.read()
+          content = re.sub(r'VERSION\s*=\s*"[^"]*"', f'VERSION = "{commit}-ci"', content)
+          content = re.sub(r'UPDATE_TIME\s*=\s*"[^"]*"', f'UPDATE_TIME = "{build_time}"', content)
+          content = re.sub(r'CI_BUILD_WARNING\s*=\s*"[^"]*"', f'CI_BUILD_WARNING = "此为CI测试版本，请勿在生产环境中使用"', content)
+          with open(p, 'w', encoding='utf-8') as f:
+              f.write(content)
+          print(f'VERSION={commit}  UPDATE_TIME={build_time}')
+          "
+
       - name: 打包（调用 deploy.py）
         env:
           PYTHONIOENCODING: utf-8
