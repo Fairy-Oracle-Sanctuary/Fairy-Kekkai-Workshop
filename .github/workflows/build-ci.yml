@@ -57,7 +57,6 @@ jobs:
         run: choco install -y mingw --version=14.2.0
 
       - name: 打包（调用 deploy.py）
-        shell: python
         run: python deploy.py
 
       - name: 制作 macOS .dmg
