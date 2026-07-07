@@ -4,9 +4,21 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'app/**'
+      - 'Fairy-Kekkai-Workshop.py'
+      - 'requirements.txt'
+      - 'deploy.py'
+      - '.github/workflows/build-ci.yml'
   pull_request:
     branches:
       - main
+    paths:
+      - 'app/**'
+      - 'Fairy-Kekkai-Workshop.py'
+      - 'requirements.txt'
+      - 'deploy.py'
+      - '.github/workflows/build-ci.yml'
   workflow_dispatch:
 
 jobs:
