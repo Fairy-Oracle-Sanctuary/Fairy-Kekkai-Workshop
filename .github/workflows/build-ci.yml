@@ -169,8 +169,10 @@ jobs:
           sudo apt-get install -y ruby rubygems zstd libarchive-tools
           sudo gem install --no-document fpm
           # 版本号中的 "-" 替换为 "_"，避免 pacman 警告
-          PKG_VERSION=$(grep -oP 'VERSION\s*=\s*"\K[^"]+' app/common/setting.py | head -1 | tr '-' '_')
-          echo "PKG_VERSION=$PKG_VERSION"
+          PKG_VERSION=$(grep -oP 'VERSION\s*=\s*"\K[^"]+' app/common/setting.py | head -1)
+          # deb/rpm 用原始版本（允许"-"），pacman 把"-"换成"."
+          PKG_VERSION_AUR=$(echo "$PKG_VERSION" | tr '-' '.')
+          echo "PKG_VERSION=$PKG_VERSION  PKG_VERSION_AUR=$PKG_VERSION_AUR"
 
           PKG_DIR="dist/packaging"
           INSTALL_DIR="$PKG_DIR/opt/fairy-kekkai-workshop"
@@ -204,18 +206,16 @@ jobs:
             -p dist/fairy-kekkai-workshop-${PKG_VERSION}-1.${{ matrix.rpm_arch }}.rpm \
             .
 
-          # Arch Linux .pkg.tar.zst - 用 gnutar + zstd 避免 fpm 调找不到的 bsdtar
+          # Arch Linux .pkg.tar.zst
           fpm -s dir -t pacman \
             -n fairy-kekkai-workshop \
-            -v "$PKG_VERSION" \
+            -v "$PKG_VERSION_AUR" \
             -a "${{ matrix.archlinux_arch }}" \
             --description "Fairy Kekkai Workshop - Video Subtitle Processing Tool" \
             --url "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop" \
             --license MIT \
             -C "$PKG_DIR" \
-            --pacman-use-file-permissions \
-            --pacman-chown=root:root \
-            -p dist/fairy-kekkai-workshop-${PKG_VERSION}-1-${{ matrix.archlinux_arch }}.pkg.tar.zst \
+            -p dist/fairy-kekkai-workshop-${PKG_VERSION_AUR}-1-${{ matrix.archlinux_arch }}.pkg.tar.zst \
             .
 
           echo "=== 生成的包 ==="
