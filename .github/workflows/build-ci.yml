@@ -91,7 +91,7 @@ jobs:
       - name: 打包 Linux 系统包（deb / rpm / arch）
         if: matrix.os == 'ubuntu-latest'
         run: |
-          sudo apt update && sudo apt install -y ruby rubygems
+          sudo apt update && sudo apt install -y ruby rubygems zstd libarchive-tools
           sudo gem install --no-document fpm
           VERSION=$(python -c "from app.common.setting import VERSION; print(VERSION)")
 
