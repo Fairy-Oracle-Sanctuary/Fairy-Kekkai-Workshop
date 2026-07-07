@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 
 from app.common.setting import VERSION
@@ -54,5 +55,5 @@ else:
     ]
 
 
-os.system(" ".join(args))
+subprocess.run(args, check=True)
 print("打包完成！")
