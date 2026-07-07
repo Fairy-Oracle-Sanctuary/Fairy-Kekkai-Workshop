@@ -19,16 +19,22 @@ jobs:
         include:
           - os: windows-latest
             artifact_name: Fairy-Kekkai-Workshop-Windows
-            artifact_path: dist/Fairy-Kekkai-Workshop.dist/Fairy-Kekkai-Workshop.exe
+            artifact_path: dist/Fairy-Kekkai-Workshop.dist/
             deploy_args: ""
           - os: macos-latest
             artifact_name: Fairy-Kekkai-Workshop-macOS
-            artifact_path: dist/Fairy-Kekkai-Workshop.dmg
+            artifact_path: dist/Fairy-Kekkai-Workshop.dist/
             deploy_args: ""
+            extra_paths: |-
+              dist/Fairy-Kekkai-Workshop.dmg
           - os: ubuntu-latest
             artifact_name: Fairy-Kekkai-Workshop-Linux
             artifact_path: dist/Fairy-Kekkai-Workshop/
             deploy_args: ""
+            extra_paths: |-
+              dist/*.deb
+              dist/*.rpm
+              dist/*.pkg.tar.zst
 
     steps:
       - name: 拉取代码
@@ -147,46 +153,21 @@ jobs:
       - name: 验证产物
         shell: bash
         run: |
-          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
-            DEB=$(ls dist/*.deb 2>/dev/null)
-            RPM=$(ls dist/*.rpm 2>/dev/null)
-            ZST=$(ls dist/*.pkg.tar.zst 2>/dev/null)
-            if [ -z "$DEB" ] || [ -z "$RPM" ] || [ -z "$ZST" ]; then
-              echo "缺少 Linux 系统包产物"
-              ls -la dist/
-              exit 1
-            fi
-            echo "DEB: $DEB"
-            echo "RPM: $RPM"
-            echo "ARCH: $ZST"
-            echo "产物已就绪"
-          else
-            ls -la dist || true
-            if [ ! -e "${{ matrix.artifact_path }}" ]; then
-              echo "产物不存在: ${{ matrix.artifact_path }}"
-              find dist -maxdepth 4 -type f 2>/dev/null || echo "dist 目录不存在"
-              exit 1
-            fi
-            echo "产物已就绪"
+          if [ ! -e "${{ matrix.artifact_path }}" ]; then
+            echo "编译目录不存在: ${{ matrix.artifact_path }}"
+            ls -la dist/ 2>/dev/null || echo "dist 目录不存在"
+            exit 1
           fi
+          echo "编译目录: ${{ matrix.artifact_path }}"
+          ls -la "${{ matrix.artifact_path }}" 2>/dev/null | head -20
+          echo "产物已就绪"
 
-      - name: 上传 Linux 系统包
-        if: matrix.os == 'ubuntu-latest'
+      - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            dist/*.deb
-            dist/*.rpm
-            dist/*.pkg.tar.zst
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: 上传构建产物
-        if: matrix.os != 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.artifact_path }}
+            ${{ matrix.artifact_path }}
+            ${{ matrix.extra_paths }}
           if-no-files-found: error
           retention-days: 14
