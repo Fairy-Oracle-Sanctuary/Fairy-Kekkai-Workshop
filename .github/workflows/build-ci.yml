@@ -70,8 +70,7 @@ jobs:
         env:
           BUILD_COMMIT: ${{ github.sha }}
         run: |
-          COMMIT=$(git rev-parse --short HEAD)
-          python -c "
+          python << 'PYEOF'
           import os, re
           from datetime import datetime, timezone, timedelta
           build_time = (datetime.now(timezone(timedelta(hours=8)))
@@ -85,8 +84,8 @@ jobs:
           content = re.sub(r'CI_BUILD_WARNING\s*=\s*"[^"]*"', f'CI_BUILD_WARNING = "此为CI测试版本，请勿在生产环境中使用"', content)
           with open(p, 'w', encoding='utf-8') as f:
               f.write(content)
-          print(f'VERSION={commit}  UPDATE_TIME={build_time}')
-          "
+          print(f'VERSION={commit}-ci  UPDATE_TIME={build_time}')
+          PYEOF
 
       - name: 打包（调用 deploy.py）
         env:
