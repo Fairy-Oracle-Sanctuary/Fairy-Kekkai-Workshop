@@ -49,7 +49,7 @@ else:
     args = [
         sys.executable,
         "-m",
-        "pyinstaller",
+        "PyInstaller",
         "-w",
         "Fairy-Kekkai-Workshop.py",
     ]

@@ -56,6 +56,9 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: choco install -y mingw --version=14.2.0
 
+      - name: 创建 tools 占位目录（CI 环境无 tools.zip）
+        run: mkdir -p tools
+
       - name: 打包（调用 deploy.py）
         run: python deploy.py
 
