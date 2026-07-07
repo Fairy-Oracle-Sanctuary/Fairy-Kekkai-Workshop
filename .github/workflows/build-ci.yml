@@ -60,6 +60,8 @@ jobs:
         run: mkdir -p tools
 
       - name: 打包（调用 deploy.py）
+        env:
+          PYTHONIOENCODING: utf-8
         run: python deploy.py
 
       - name: 制作 macOS .dmg
