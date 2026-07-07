@@ -169,7 +169,8 @@ jobs:
           sudo apt-get install -y ruby rubygems zstd libarchive-tools
           sudo gem install --no-document fpm
           # 版本号中的 "-" 替换为 "_"，避免 pacman 警告
-          PKG_VERSION=$(python -c "from app.common.setting import VERSION; print(VERSION).replace('-', '_')")
+          PKG_VERSION=$(grep -oP 'VERSION\s*=\s*"\K[^"]+' app/common/setting.py | head -1 | tr '-' '_')
+          echo "PKG_VERSION=$PKG_VERSION"
 
           PKG_DIR="dist/packaging"
           INSTALL_DIR="$PKG_DIR/opt/fairy-kekkai-workshop"
