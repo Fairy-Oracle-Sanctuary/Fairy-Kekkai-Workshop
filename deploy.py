@@ -1,5 +1,4 @@
 import os
-import platform
 import re
 import subprocess
 import sys
@@ -25,13 +24,10 @@ if sys.platform == "win32":
         "--windows-uac-admin",
         "--windows-disable-console",
         "--plugin-enable=pyside6",
-        "--include-qt-plugins=sensible,sqldrivers",
+        "--include-qt-plugins=sensible,sqldrivers,imageformats,platforms,styles,iconengines",
+        "--include-data-dir=app/resource=app/resource",
         "--assume-yes-for-downloads",
-    ]
-    # ARM Windows 用 MSVC，x64 用 MinGW
-    if platform.machine().lower() in ("amd64", "x86_64"):
-        args.append("--mingw64")
-    args += [
+        "--mingw64",
         "--show-memory",
         "--show-progress",
         "--windows-icon-from-ico=app/resource/images/logo.ico",
