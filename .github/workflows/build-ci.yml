@@ -90,11 +90,10 @@ jobs:
 
       - name: 安装项目依赖
         run: |
-          pip install "numpy>=2.1,<3"
-          # opencv 的 build deps（除 numpy 外），opencv-python 用 --no-build-isolation 复用已有 numpy
-          pip install cmake ninja scikit-build-core
-          pip install --no-build-isolation opencv-python>=4.8.0
-          pip install --no-build-isolation -r requirements.txt
+          pip install --upgrade pip setuptools wheel
+          pip install "numpy>=2.1,<3" cmake ninja scikit-build-core
+          pip install opencv-python>=4.8.0
+          pip install -r requirements.txt
 
       - name: 安装 Nuitka（Windows / macOS）
         if: "!startsWith(matrix.os, 'ubuntu')"
