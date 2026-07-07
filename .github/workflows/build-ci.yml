@@ -63,30 +63,39 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           brew install create-dmg
-          # 如已有同名 dmg 则先删除
+          # 查找 Nuitka 生成的 .app（在 .dist 目录内）
+          APP_PATH=$(find dist -maxdepth 3 -name "*.app" -type d | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "找不到 .app，请检查 build 输出"
+            ls -R dist
+            exit 1
+          fi
+          echo "APP 路径: $APP_PATH"
           rm -f dist/Fairy-Kekkai-Workshop.dmg
           create-dmg \
             --volname "Fairy Kekkai Workshop" \
             --window-pos 200 120 \
             --window-size 600 400 \
             --icon-size 100 \
-            --icon "Fairy-Kekkai-Workshop.app" 175 190 \
+            --icon "$(basename "$APP_PATH")" 175 190 \
             --app-drop-link 425 190 \
             --no-internet-enable \
             "dist/Fairy-Kekkai-Workshop.dmg" \
-            "dist/Fairy-Kekkai-Workshop.app" \
+            "$APP_PATH" \
           || true
-          # create-dmg 在已有挂载目录时返回非零，校验产物存在即可
           test -f dist/Fairy-Kekkai-Workshop.dmg
 
-      - name: 归一化产物目录名
+      - name: 验证产物
         shell: bash
         run: |
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            ls -la dist
-          else
-            ls -la dist
+          ls -la dist || true
+          if [ ! -e "${{ matrix.artifact_path }}" ]; then
+            echo "产物不存在: ${{ matrix.artifact_path }}"
+            echo "=== dist 目录结构 ==="
+            find dist -maxdepth 4 -type f 2>/dev/null || echo "dist 目录不存在"
+            exit 1
           fi
+          echo "产物已就绪"
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
