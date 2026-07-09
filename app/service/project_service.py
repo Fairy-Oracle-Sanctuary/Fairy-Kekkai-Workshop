@@ -1,6 +1,9 @@
+import logging
 import random
 import shutil
 from pathlib import Path
+
+from ..common.config import cfg
 
 
 class Project:
@@ -17,8 +20,12 @@ class Project:
     def __init__(self):
         self.isLink = []
         self.projects_location = Path.cwd()
+        self.refresh()
+
+    def refresh(self):
+        """重新扫描文件系统，刷新所有项目数据"""
         self.project_path = self.get_project_paths()
-        self.project_num = self.project_path.__len__()
+        self.project_num = len(self.project_path)
         self.project_video_url = [[] for _ in range(self.project_num)]
         self.project_subtitle_isTranslated = []
         self.project_name = self.get_project_names()
@@ -48,7 +55,7 @@ class Project:
                 project_paths.append(Path(path))
             cfg.linkProject.set("project_link", true_paths)
         except Exception:
-            pass
+            logging.warning("读取外部项目链接失败", exc_info=True)
 
         return project_paths
 
@@ -219,7 +226,7 @@ class Project:
         """删除项目并刷新变量"""
         try:
             shutil.rmtree(project_path)
-            self.__init__()
+            self.refresh()
             return [True, ""]
         except Exception as e:
             return [False, e]
@@ -230,7 +237,7 @@ class Project:
             old_path = Path(path)
             new_path = old_path.parent / name
             old_path.rename(new_path)
-            self.__init__()
+            self.refresh()
             return [True, ""]
         except Exception as e:
             return [False, str(e)]
@@ -241,7 +248,7 @@ class Project:
             icon_file = self.project_path[id] / "icon.txt"
             with icon_file.open("w", encoding="utf-8") as f:
                 f.write(icon_path)
-            self.__init__()
+            self.refresh()
             return [True, ""]
         except Exception as e:
             return [False, str(e)]
@@ -266,7 +273,7 @@ class Project:
         # print(file_path)
 
         self.replace_line_in_file(file_path, line_number + offset, new_content)
-        self.__init__()
+        self.refresh()
 
     def replace_line_in_file(self, file_path, line_number, new_content):
         """
@@ -507,12 +514,19 @@ class Project:
             return False
 
 
+class _ProjectProxy:
+    """延迟初始化的 Project 代理，import 时不触发文件扫描"""
+    _instance = None
+
+    def __getattr__(self, name):
+        if _ProjectProxy._instance is None:
+            _ProjectProxy._instance = Project()
+        return getattr(_ProjectProxy._instance, name)
+
+
+project = _ProjectProxy()
+
+
 if __name__ == "__main__":
-    project = Project()
     print(project.project_path)
     print(project.get_project_progress(3))
-    pass
-else:
-    from ..common.config import cfg
-
-    project = Project()

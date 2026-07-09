@@ -61,13 +61,19 @@ class DownloadProcess(QObject):
         self.is_cancelled = False
         self.process = None
         self.output_lines = []  # 存储输出用于错误诊断
+        self.filename_extracted = False
         self._cancellation_timer = None
 
-    def __del__(self):
-        """析构时确保子进程被终止"""
-        if self.process and self.process.state() == QProcess.Running:
-            self.process.kill()
-            self.process.waitForFinished(1000)
+    def cleanup(self):
+        """清理子进程资源，由各完成/错误/取消路径显式调用"""
+        if self.process:
+            if self.process.state() == QProcess.Running:
+                self.process.kill()
+                self.process.waitForFinished(1000)
+            self.process = None
+        if self._cancellation_timer:
+            self._cancellation_timer.stop()
+            self._cancellation_timer = None
 
     def build_ytdlp_command(self):
         """根据配置构建 yt-dlp 命令"""
@@ -265,45 +271,23 @@ class DownloadProcess(QObject):
         """处理标准输出"""
         if not self.process:
             return
-
         data = (
             self.process.readAllStandardOutput().data().decode("utf-8", errors="ignore")
         )
-        lines = data.split("\n")
-
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-
-            self.output_lines.append(line)
-
-            if self.is_cancelled:
-                return
-
-            # 解析进度信息
-            progress_match = self.parse_progress_line(line)
-            if progress_match:
-                percent, speed = progress_match
-                self.task.progress = percent
-                self.task.speed = speed
-                self.progress_signal.emit(percent, speed, self.task.filename)
-
-            # 提取文件名
-            if not hasattr(self, "filename_extracted") or not self.filename_extracted:
-                if self.extract_filename(line):
-                    self.filename_extracted = True
+        self._process_output_lines(data)
 
     def handle_stderr(self):
-        """处理标准错误输出"""
+        """处理标准错误输出（错误输出也可能包含进度信息）"""
         if not self.process:
             return
-
         data = (
             self.process.readAllStandardError().data().decode("utf-8", errors="ignore")
         )
-        lines = data.split("\n")
+        self._process_output_lines(data)
 
+    def _process_output_lines(self, data: str):
+        """解析输出行：提取进度和文件名"""
+        lines = data.split("\n")
         for line in lines:
             line = line.strip()
             if not line:
@@ -311,7 +295,6 @@ class DownloadProcess(QObject):
 
             self.output_lines.append(line)
 
-            # 错误输出也可能包含进度信息，所以同样解析
             if self.is_cancelled:
                 return
 
@@ -322,16 +305,17 @@ class DownloadProcess(QObject):
                 self.task.speed = speed
                 self.progress_signal.emit(percent, speed, self.task.filename)
 
-            if not hasattr(self, "filename_extracted") or not self.filename_extracted:
+            if not self.filename_extracted:
                 if self.extract_filename(line):
                     self.filename_extracted = True
 
     def handle_finished(self, exit_code, exit_status):
         """进程完成处理"""
+        self.cleanup()
         if self.is_cancelled:
             self.task.status = TaskStatus.CANCELLED
             self.finished_signal.emit(False, self.globalText.DownloadCancelled)
-            self.cancelled_signal.emit()  # 发送取消完成信号
+            self.cancelled_signal.emit()
             self.logger.info(f"下载任务已取消: {self.task.url}")
         elif exit_code == 0:
             self.task.status = TaskStatus.DONE
@@ -360,6 +344,7 @@ class DownloadProcess(QObject):
 
     def handle_error(self, error):
         """处理进程错误"""
+        self.cleanup()
         if self.is_cancelled:
             return
 
@@ -464,15 +449,13 @@ class DownloadProcess(QObject):
             # 设置超时保护，5秒后强制终止
             QTimer.singleShot(5000, self._forceTerminateIfNeeded)
         else:
-            # 如果没有进程在运行，直接发送取消完成信号
+            self.cleanup()
             self.cancelled_signal.emit()
 
     def _checkCancellationStatus(self):
         """检查取消状态"""
         if not self.process or self.process.state() != QProcess.Running:
-            # 进程已结束
-            if self._cancellation_timer:
-                self._cancellation_timer.stop()
+            self.cleanup()
             self.cancelled_signal.emit()
 
     def _forceTerminateIfNeeded(self):
@@ -480,10 +463,9 @@ class DownloadProcess(QObject):
         if self.process and self.process.state() == QProcess.Running:
             print("强制终止下载进程...")
             self.process.kill()
-            # 等待一小段时间让进程终止
             if self.process.waitForFinished(1000):
                 print("下载进程已强制终止")
-                self.cancelled_signal.emit()
             else:
                 print("警告: 进程终止可能未完成")
-                self.cancelled_signal.emit()
+        self.cleanup()
+        self.cancelled_signal.emit()

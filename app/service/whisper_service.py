@@ -66,11 +66,16 @@ class WhisperProcess(QObject):
         self.output_lines = []  # 存储输出用于错误诊断
         self._cancellation_timer = None
 
-    def __del__(self):
-        """析构时确保子进程被终止"""
-        if self.process and self.process.state() == QProcess.Running:
-            self.process.kill()
-            self.process.waitForFinished(1000)
+    def cleanup(self):
+        """清理子进程资源，由各完成/错误/取消路径显式调用"""
+        if self.process:
+            if self.process.state() == QProcess.Running:
+                self.process.kill()
+                self.process.waitForFinished(1000)
+            self.process = None
+        if self._cancellation_timer:
+            self._cancellation_timer.stop()
+            self._cancellation_timer = None
 
     @staticmethod
     def _activate_as_current(output_file: str, input_file: str = None):

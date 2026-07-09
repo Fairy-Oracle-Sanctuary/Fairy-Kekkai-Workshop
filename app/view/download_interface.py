@@ -1,5 +1,6 @@
 # coding:utf-8
 import json
+import logging
 import os
 import shutil
 import subprocess
@@ -626,7 +627,7 @@ class UpdateYtDlpThread(QThread):
             if result.returncode == 0:
                 return result.stdout.strip()
         except Exception:
-            pass
+            logging.warning("获取当前 yt-dlp 版本失败", exc_info=True)
         return None
 
     def _get_latest_version(self) -> str:
@@ -639,6 +640,7 @@ class UpdateYtDlpThread(QThread):
             data = json.loads(response.read().decode())
             return data.get("tag_name", "").lstrip("v")
         except Exception:
+            logging.warning("获取最新 yt-dlp 版本失败", exc_info=True)
             return None
 
 
