@@ -326,7 +326,7 @@ class ProjectInterface(ScrollArea):
                 widget.setParent(None)
 
         # 重新加载项目
-        project.__init__()
+        project.refresh()
 
         # 按保存的顺序排列项目
         order = cfg.linkProject.get_project_order()

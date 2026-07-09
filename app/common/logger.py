@@ -59,7 +59,7 @@ class Logger:
             if hasattr(self.__consoleHandler.stream, "reconfigure"):
                 self.__consoleHandler.stream.reconfigure(encoding="utf-8", errors="replace")
         except Exception:
-            pass
+            logging.warning("无法将控制台输出编码设置为 UTF-8")
         self.__fileHandler = logging.FileHandler(self.logFile, encoding="utf-8")
 
         # set log level

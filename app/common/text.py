@@ -2,7 +2,18 @@ from PySide6.QtCore import QObject
 
 
 class Text(QObject):
+    _instance = None
+    _initialized = False
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self):
+        if Text._initialized:
+            return
+        Text._initialized = True
         super().__init__()
         self.AddNewProject = self.tr("添加新项目")
         self.EnterProjectName = self.tr("输入项目的名字")

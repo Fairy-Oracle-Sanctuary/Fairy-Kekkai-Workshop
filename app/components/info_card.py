@@ -1,4 +1,5 @@
 # coding:utf-8
+import logging
 import os
 import sys
 
@@ -211,7 +212,7 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
                     log_file.unlink()
                     deleted += 1
                 except Exception:
-                    pass
+                    logging.warning("删除日志文件失败: %s", log_file)
 
         # 清空内存中的日志
         self.__initLog()
