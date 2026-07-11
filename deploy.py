@@ -1,4 +1,3 @@
-import os
 import re
 import subprocess
 import sys
@@ -8,10 +7,10 @@ from app.common.setting import VERSION
 
 def _windows_file_version(ver: str) -> str:
     """将任意版本字符串转为合法的 Windows 文件版本号 X.Y.Z.W。"""
-    nums = re.findall(r'\d+', ver)
+    nums = re.findall(r"\d+", ver)
     while len(nums) < 4:
-        nums.append('0')
-    return '.'.join(nums[:4])
+        nums.append("0")
+    return ".".join(nums[:4])
 
 
 if sys.platform == "win32":

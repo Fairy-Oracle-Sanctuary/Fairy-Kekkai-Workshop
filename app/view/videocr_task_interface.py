@@ -1,6 +1,6 @@
 # coding:utf-8
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import QTimer, Signal
 
 from ..common.text import Text
 from ..components.base_task_interface import BaseTaskInterface
@@ -23,6 +23,7 @@ class OcrTaskInterface(BaseTaskInterface):
         )
         self.globalText = globalText
         self._last_step1_seconds = {}
+        self.next_task_delay_ms = 5000
 
     def createTask(self, args):
         return OCRTask(args)
@@ -35,6 +36,10 @@ class OcrTaskInterface(BaseTaskInterface):
 
     def getTaskPath(self, task: OCRTask):
         return task.input_file
+
+    def startNextTaskAfterFinished(self):
+        if any(task.status.name == "WAITING" for task in self.tasks):
+            QTimer.singleShot(self.next_task_delay_ms, self.startNextTask)
 
     def onPrintLog(self, task_id, message, is_error, is_flush):
         """处理日志输出"""

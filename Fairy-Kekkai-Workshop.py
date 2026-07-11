@@ -78,15 +78,11 @@ if __name__ == "__main__":
 
 """
 ## 更新日志
-- 播放列表创建改用 yt-dlp：移除直接爬 YouTube 页面的反爬风险，支持 yt-dlp 支持的所有平台
-- 播放列表封面下载优化：改用 yt-dlp 下载封面，支持并发（最多 4 个），视频下载任务先派发不再等待封面
-- 项目详情页封面下载移除 YouTube 限制：改为输入完整视频 URL，通过 yt-dlp 下载任意平台封面
-- 修复封面下载完成后刷新项目的参数错误
-- 更新gemini模型到Gemini 3.5 Flash
+- 修复连续提取长视频会导致报错的bug
 
 ## 下载提示
-- [Fairy-Kekkai-Workshop-v2.2.0-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.2.0/Fairy-Kekkai-Workshop-v2.2.0-Windows-x86_64-Setup.exe)(windows10/11)
-- [Fairy-Kekkai-Workshop-v2.2.0-macos-arm64](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.2.0/Fairy-Kekkai-Workshop-v2.2.0-macos-arm64.dmg)(macos arm64)
+- [Fairy-Kekkai-Workshop-v2.2.1-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.2.1/Fairy-Kekkai-Workshop-v2.2.1-Windows-x86_64-Setup.exe)(windows10/11)
+- mac版本无变动，直接下载上一个版本即可
 - 迅雷链接：https://pan.xunlei.com/s/VOl2n0KP6LH3zXUqcYX1iYUAA1?pwd=yzim#
 
 # Fairy Kekkai Workshop
