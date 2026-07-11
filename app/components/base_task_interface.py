@@ -237,6 +237,9 @@ class BaseTaskInterface(ScrollArea):
                 self.updateTaskUI(task_id)
                 break
 
+    def startNextTaskAfterFinished(self):
+        self.startNextTask()
+
     def onTaskFinished(self, task_id, success, message):
         """任务完成"""
         from ..common.event_bus import event_bus
@@ -254,7 +257,8 @@ class BaseTaskInterface(ScrollArea):
                     task.status = TaskStatus.FAILED
                     if "取消" not in message:
                         event_bus.notification_service.show_error(
-                            self.globalText.Failed2.format(self.task_type), message.strip()
+                            self.globalText.Failed2.format(self.task_type),
+                            message.strip(),
                         )
 
                 # 移除活跃线程
@@ -266,7 +270,7 @@ class BaseTaskInterface(ScrollArea):
                 self.updateTaskUI(task_id)
 
                 # 开始下一个任务
-                self.startNextTask()
+                self.startNextTaskAfterFinished()
                 break
 
     def updateTaskUI(self, task_id):
