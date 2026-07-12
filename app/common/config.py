@@ -472,10 +472,10 @@ class Config(QConfig):
         "OCR", "MinSubtitleDuration", 0.2, RangeValidator(0.1, 10.0), restart=False
     )
 
-    # 置信度阈值 (0.0-1.0)
+    # 置信度阈值 (1-100)
     # 命令行使用：--confidence_threshold
     confidenceThreshold = RangeConfigItem(
-        "OCR", "ConfidenceThreshold", 0.3, RangeValidator(0.0, 1.0), restart=False
+        "OCR", "ConfidenceThreshold", 30, RangeValidator(1, 100), restart=False
     )
 
     # 是否启用GPU使用

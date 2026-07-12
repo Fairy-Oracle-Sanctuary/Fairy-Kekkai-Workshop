@@ -14,7 +14,8 @@ def _windows_file_version(ver: str) -> str:
 
 
 if sys.platform == "win32":
-    wv = _windows_file_version(VERSION)
+    wv = VERSION[0:5]
+    print(wv)
     args = [
         sys.executable,
         "-m",
