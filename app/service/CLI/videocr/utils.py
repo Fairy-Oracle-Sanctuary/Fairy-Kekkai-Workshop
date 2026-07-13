@@ -1,5 +1,4 @@
 import datetime
-import json
 import os
 import re
 import shutil
@@ -8,7 +7,7 @@ import sys
 import tempfile
 import threading
 from collections.abc import Iterator
-from typing import IO, Any, Optional
+from typing import IO, Any
 
 import av
 import fast_ssim  # type: ignore
@@ -138,17 +137,13 @@ def find_executable(program_name: str) -> str:
 
 
 def resolve_model_dirs(
-    lang: str, use_server_model: bool, support_files_path=None
+    lang: str, use_server_model: bool, support_files_path
 ) -> tuple[str, str, str]:
     """Resolves the model directory for the specified language and mode."""
     program_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     base_path = support_files_path or os.path.join(
         program_dir, "PaddleOCR.PP-OCRv5.support.files"
     )
-
-    luna_model_dir = resolve_luna_model_dir(lang, use_server_model, base_path)
-    if luna_model_dir:
-        return luna_model_dir, luna_model_dir, luna_model_dir
 
     det_path = os.path.join(base_path, "det")
     rec_path = os.path.join(base_path, "rec")
@@ -181,58 +176,6 @@ def resolve_model_dirs(
         rec_sub = "ka_PP-OCRv3_mobile_rec"
 
     return (os.path.join(det_path, det_sub), os.path.join(rec_path, rec_sub), cls_path)
-
-
-def resolve_luna_model_dir(
-    lang: str, use_server_model: bool, base_path: str
-) -> Optional[str]:
-    if not os.path.isdir(base_path):
-        return None
-
-    lang = map_luna_model_lang(lang)
-    required_files = {"det.onnx", "rec.onnx", "dict.txt", "info.json"}
-    candidates = []
-    for root, _, files in os.walk(base_path):
-        if not required_files.issubset(set(files)):
-            continue
-        info_path = os.path.join(root, "info.json")
-        try:
-            with open(info_path, encoding="utf-8") as f:
-                info = json.load(f)
-        except Exception:
-            continue
-        languages = set(info.get("languages", []))
-        if lang in languages:
-            candidates.append(root)
-
-    if not candidates:
-        return None
-
-    preferred_tiers = (
-        ["high", "other", "std"] if use_server_model else ["std", "other", "high"]
-    )
-    for tier in preferred_tiers:
-        for candidate in candidates:
-            parts = set(os.path.normpath(candidate).split(os.sep))
-            if tier in parts:
-                return candidate
-
-    return candidates[0]
-
-
-def map_luna_model_lang(lang: str) -> str:
-    lang_map = {
-        "ch": "zh",
-        "chinese_cht": "cht",
-        "japan": "ja",
-        "ja": "ja",
-        "zh": "zh",
-        "zh-CN": "zh",
-        "korean": "ko",
-        "ko": "ko",
-        "th": "th",
-    }
-    return lang_map.get(lang, lang)
 
 
 def perform_hardware_check(paddleocr_path: str, use_gpu: bool) -> None:
@@ -372,7 +315,7 @@ def is_running_in_container() -> bool:
     return os.path.exists("/.dockerenv")
 
 
-def create_clean_temp_dir(base_temp: Optional[str] = None) -> str:
+def create_clean_temp_dir(base_temp) -> str:
     """Cleans up orphaned temporary directories from previous crashed runs and creates a fresh one for the current process."""
     current_pid = os.getpid()
     temp_prefix = f"videocr_temp_{current_pid}_"
@@ -431,7 +374,7 @@ def prepare_stitch_batch(
 ) -> tuple[str, int, int, list[tuple[Any, int, int]]]:
     """Calculates grid dimensions and maps coordinates for a batch. Returns queue arguments."""
     h, w = batch[0]["img"].shape[:2]
-    cols = max(2, (max_width + grid_spacing) // (w + grid_spacing))
+    cols = max(1, (max_width + grid_spacing) // (w + grid_spacing))
 
     actual_cols = min(len(batch), cols)
     actual_rows = (len(batch) + cols - 1) // cols
@@ -473,7 +416,7 @@ def get_batch_limit(
     w: int, h: int, max_width: int, max_height: int, padding: int
 ) -> int:
     """Calculates the maximum number of frames that can fit in a stitched grid."""
-    cols = max(2, (max_width + padding) // (w + padding))
+    cols = max(1, (max_width + padding) // (w + padding))
     rows = max(1, (max_height + padding) // (h + padding))
     return cols * rows
 
@@ -676,33 +619,21 @@ def process_ssim_group(
     current_similar_batch: list[dict[str, Any]] = []
     prev_crops: list[Any] = []
 
-    PADDING = 5
-    crop_x1 = max(0, int(min(r[0] for r in union_rects)) - PADDING)
-    crop_y1 = max(0, int(min(r[1] for r in union_rects)) - PADDING)
-    crop_x2_pad = int(max(r[2] for r in union_rects)) + PADDING
-    crop_y2_pad = int(max(r[3] for r in union_rects)) + PADDING
-
     for i, (_, _, det_score, m) in enumerate(group_frames):
         grid_img = loaded_grids[m["grid_file"]]
         img = grid_img[m["y"] : m["y"] + m["h"], m["x"] : m["x"] + m["w"]]
         h, w = img.shape[:2]
 
-        cx2 = min(w, crop_x2_pad)
-        cy2 = min(h, crop_y2_pad)
-
         current_crops: list[Any] = []
         for rect in union_rects:
-            rx1, ry1 = max(0, int(rect[0])), max(0, int(rect[1]))
-            rx2, ry2 = min(w, int(rect[2])), min(h, int(rect[3]))
-            current_crops.append(img[ry1:ry2, rx1:rx2])
-
-        text_img = img[crop_y1:cy2, crop_x1:cx2]
+            cx1, cy1 = max(0, int(rect[0])), max(0, int(rect[1]))
+            cx2, cy2 = min(w, int(rect[2])), min(h, int(rect[3]))
+            current_crops.append(img[cy1:cy2, cx1:cx2])
 
         item_dict = {
-            "img": text_img.copy(),
+            "img": img.copy(),
             "frame_idx": m["frame_idx"],
             "det_score": det_score,
-            "crop_offset": (crop_x1, crop_y1),
         }
 
         if i == 0:

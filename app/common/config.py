@@ -23,6 +23,7 @@ from .setting import (
     CONFIG_FILE,
     CONFIG_FOLDER,
     EXE_SUFFIX,
+    PADDLEOCR_VERSION,
     PIC_SUFFIX,
     AI_model_dict,
     translate_language_dict,
@@ -386,14 +387,16 @@ class Config(QConfig):
     paddleocrPath = ConfigItem(
         "OCR",
         "PaddleocrPath",
-        str(Path(f"tools/PaddleOCR/paddleocr{EXE_SUFFIX}").absolute()),
+        str(Path(f"tools/{PADDLEOCR_VERSION}/paddleocr{EXE_SUFFIX}").absolute())
+        if PADDLEOCR_VERSION
+        else str(Path(f"tools/paddleocr{EXE_SUFFIX}").absolute()),
     )
 
     # support.files路径
     supportFilesPath = ConfigItem(
         "OCR",
         "supportFilesPath",
-        str(Path("tools/OCR.model").absolute()),
+        str(Path("tools/PaddleOCR.PP-OCRv5.support.files").absolute()),
     )
 
     tempDir = ConfigItem(

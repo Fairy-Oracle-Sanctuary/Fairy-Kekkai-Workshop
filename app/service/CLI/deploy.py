@@ -35,7 +35,6 @@ def run_nuitka():
         "--include-module=subprocess",
         "--include-module=os",
         "--include-module=logging",
-        "--include-module=opencc",
         "--assume-yes-for-downloads",
         "--show-memory",
         "--show-progress",
