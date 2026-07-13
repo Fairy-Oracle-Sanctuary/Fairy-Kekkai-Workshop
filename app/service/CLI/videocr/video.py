@@ -670,8 +670,6 @@ class Video:
                 os.path.basename(self.det_model_dir),
                 "--save_path",
                 det_res_dir,
-                "--device",
-                "gpu" if use_gpu else "cpu",
             ]
 
             print("Starting PaddleOCR...", flush=True)
@@ -883,7 +881,6 @@ class Video:
                                 rec_image_map[filename] = {
                                     "frame_idx": item["frame_idx"],
                                     "zone_idx": z_idx,
-                                    "crop_offset": item.get("crop_offset", (0, 0)),
                                 }
                                 rec_counter += 1
 
@@ -1055,7 +1052,7 @@ class Video:
                             match = re.search(r"ppocr INFO:\s*(\[.+\])", line)
                             if match:
                                 parsed = ast.literal_eval(match.group(1))
-                                rec_ocr_outputs[current_image].extend(parsed)
+                                rec_ocr_outputs[current_image].append(parsed)
                         except Exception as e:
                             print(
                                 f"Error parsing OCR for {current_image}: {e}",
@@ -1072,16 +1069,12 @@ class Video:
 
                 m = rec_image_map[filename]
                 coord_key = (m["frame_idx"], m["zone_idx"])
-                offset_x, offset_y = m.get("crop_offset", (0, 0))
 
                 if coord_key not in ocr_outputs:
                     ocr_outputs[coord_key] = []
 
                 for word_pred in results:
-                    adjusted_box = [
-                        [p[0] + offset_x, p[1] + offset_y] for p in word_pred[0]
-                    ]
-                    ocr_outputs[coord_key].append([adjusted_box, word_pred[1]])
+                    ocr_outputs[coord_key].append([word_pred[0], word_pred[1]])
 
             active_frame_coords = surviving_frames_meta | empty_frames_meta
 

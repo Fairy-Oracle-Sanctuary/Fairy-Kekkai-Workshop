@@ -1176,10 +1176,10 @@ class OCRSettingInterface(ScrollArea):
     def _connectSignalToSlot(self):
         """绑定信号"""
         # self.useFullframeCard.checkedChanged.connect(lambda: self._changeSelection(0))
-        # self.paddleocrPathCard.clicked.connect(self._onPaddleocrPathCardClicked)
-        # self.supportFilesPathCard.clicked.connect(self._onSupportFilesPathCardClicked)
+        self.paddleocrPathCard.clicked.connect(self._onPaddleocrPathCardClicked)
+        self.supportFilesPathCard.clicked.connect(self._onSupportFilesPathCardClicked)
         self.videocrCliPathCard.clicked.connect(self._onVideocrCliPathCardClicked)
-        # self.tempDirCard.clicked.connect(self._onTempDirCardClicked)
+        self.tempDirCard.clicked.connect(self._onTempDirCardClicked)
 
         self.useDualZoneCard.checkedChanged.connect(
             lambda v: self._useDualZoneCardChangeSelection(v)

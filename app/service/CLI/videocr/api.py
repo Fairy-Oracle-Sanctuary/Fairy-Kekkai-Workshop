@@ -60,9 +60,8 @@ def save_subtitles_to_file(
             "en", use_server_model, support_files_path
         )
 
-    google_lens_path = (
-        utils.find_executable("chrome-lens") if ocr_engine == "google_lens" else None
-    )
+    # google_lens_path = utils.find_executable("chrome-lens")
+    google_lens_path = None
 
     v = Video(
         video_path,

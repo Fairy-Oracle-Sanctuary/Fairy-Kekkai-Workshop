@@ -21,14 +21,13 @@ save_subtitles_to_file(
     frames_to_skip=0,
     # ── 识别 ──
     ocr_image_max_width=1280,
-    conf_threshold=30,
+    conf_threshold=0.3,
     # ── 字幕合并 ──
     sim_threshold=65,
     max_merge_gap_sec=0.1,
     post_processing=False,
     min_subtitle_duration_sec=0.2,
     # ── 路径 ──
-    # paddleocr_path=r"D:\CODE\Fairy-Kekkai-Workshop\tools\PaddleOCR\paddleocr.exe",
-    paddleocr_path=r"D:\CODE\Fairy-Kekkai-Workshop\tools\PaddleOCR\paddleocr.exe",
-    support_files_path=r"D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model",
+    paddleocr_path=r"D:\Program Files\VideOCR\PaddleOCR-GPU-v1.4.0-CUDA-12.9\paddleocr.exe",
+    support_files_path=r"D:\Program Files\VideOCR\PaddleOCR.PP-OCRv5.support.files",
 )
