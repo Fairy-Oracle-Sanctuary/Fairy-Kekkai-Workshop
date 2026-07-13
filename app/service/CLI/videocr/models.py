@@ -25,21 +25,22 @@ class PredictedFrames:
     lines: list[list[PredictedText]]
     confidence: float  # total confidence of all words
     text: str
+    _converter = None
 
     def __init__(
         self,
         ocr_engine: str,
         index: int,
         pred_data: list[list[Any]],
+        conf_threshold: float,
         zone_index: int,
         lang: str,
-        confidence_threshold: float = 0.0,
+        normalize_to_simplified_chinese: bool,
     ) -> None:
         self.start_index = index
         self.end_index = index
         self.zone_index = zone_index
         self.lines: list[list[PredictedText]] = []
-        self._confidence_threshold = confidence_threshold
 
         all_words: list[PredictedText] = []
         for word_pred in pred_data[0]:
@@ -49,10 +50,8 @@ class PredictedFrames:
             text = word_pred[1][0]
             conf = word_pred[1][1]
 
-            if conf < confidence_threshold:
-                continue
-
-            all_words.append(PredictedText(bounding_box, conf, text))
+            if conf >= conf_threshold:
+                all_words.append(PredictedText(bounding_box, conf, text))
 
         if not all_words:
             self.confidence = 100 if not pred_data[0] else 0
@@ -96,6 +95,9 @@ class PredictedFrames:
                 " ".join(word.text for word in line) for line in self.lines
             )
 
+        # if normalize_to_simplified_chinese and lang in ("ch", "zh-CN") and self.text:
+        #     self.text = self._converter.convert(self.text)
+
 
 class PredictedSubtitle:
     frames: list[PredictedFrames]
@@ -112,9 +114,8 @@ class PredictedSubtitle:
         sim_threshold: int,
         lang: str,
         language_model: wordninja.LanguageModel | None,
-        confidence_threshold: float = 0.0,
     ):
-        self.frames = [f for f in frames if f.confidence > confidence_threshold]
+        self.frames = [f for f in frames if f.confidence > 0]
         self.frames.sort(key=lambda frame: frame.start_index)
         self.zone_index = zone_index
         self.sim_threshold = sim_threshold

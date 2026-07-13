@@ -1,10 +1,12 @@
 import datetime
+import json
 import os
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 from collections.abc import Iterator
 from typing import IO, Any, Optional
 
@@ -124,24 +126,9 @@ def find_executable(program_name: str) -> str:
     ext = ".exe" if sys.platform == "win32" else ".bin"
     executable_name = f"{program_name}{ext}"
 
-    search_roots = [program_dir, os.path.join(program_dir, "..", "..", "tools")]
-
-    for root in search_roots:
-        root = os.path.normpath(root)
-        if not os.path.isdir(root):
-            continue
-        for entry in os.listdir(root):
-            if not entry.lower().startswith(f"{program_name.lower()}"):
-                continue
-            entry_path = os.path.join(root, entry)
-            if not os.path.isdir(entry_path):
-                continue
-            # 1. direct subdir: paddleocr/paddleocr.exe
-            path = os.path.join(entry_path, executable_name)
-            if os.path.isfile(path):
-                return path
-            # 2. cmake build: paddleocr/build/Release/paddleocr.exe
-            path = os.path.join(entry_path, "build", "Release", executable_name)
+    for entry in os.listdir(program_dir):
+        if entry.lower().startswith(f"{program_name.lower()}-"):
+            path = os.path.join(program_dir, entry, executable_name)
             if os.path.isfile(path):
                 return path
 
@@ -151,80 +138,101 @@ def find_executable(program_name: str) -> str:
 
 
 def resolve_model_dirs(
-    lang: str, use_server_model: bool, model_base_path: Optional[str] = None
+    lang: str, use_server_model: bool, support_files_path=None
 ) -> tuple[str, str, str]:
-    """Resolves the Luna OCR model directory for the specified language and mode."""
-    if model_base_path is None:
-        program_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-        base_path = os.path.join(program_dir, "..", "..", "..", "tools", "OCR.model")
-        base_path = os.path.normpath(base_path)
-    else:
-        base_path = model_base_path
-
-    pack = LUNA_LANG_MAP.get(lang, "cjk_mobile")
-
-    # high/cjk_mobile for CJK, other/* for other languages
-    if pack == "cjk_mobile":
-        quality = "high" if use_server_model else "std"
-        model_dir = os.path.join(base_path, quality, pack)
-        if not os.path.isdir(model_dir):
-            model_dir = os.path.join(base_path, "std", pack)
-    else:
-        # Other languages are in other/ directory
-        model_dir = os.path.join(base_path, "other", pack)
-        if not os.path.isdir(model_dir):
-            # Fallback to old structure
-            quality = "high" if use_server_model else "std"
-            model_dir = os.path.join(base_path, quality, pack)
-
-    # Return (det_dir, rec_dir, cls_dir); Luna keeps det+rec+dict in one folder
-    return (model_dir, model_dir, "")
-
-
-LUNA_LANG_MAP = {
-    "ch": "cjk_mobile",
-    "chinese_cht": "cjk_mobile",
-    "japan": "cjk_mobile",
-    "ja": "cjk_mobile",
-    "zh": "cjk_mobile",
-    "zh-CN": "cjk_mobile",
-    "en": "en",
-    "korean": "korean",
-    "ko": "korean",
-    "th": "thai",
-    "es": "latin",
-    "fr": "latin",
-    "de": "latin",
-    "it": "latin",
-    "pt": "latin",
-    "pt-br": "latin",
-    "ru": "eslav",
-    "uk": "eslav",
-    "vi": "latin",
-    "tr": "latin",
-    "pl": "latin",
-    "sv": "latin",
-    "nl": "latin",
-    "cs": "latin",
-    "hu": "latin",
-    "la": "latin",
-}
-
-
-def resolve_luna_model_dir(lang: str, use_server_model: bool) -> str:
-    """Resolves the Luna OCR model directory for the specified language and mode."""
+    """Resolves the model directory for the specified language and mode."""
     program_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-    base_path = os.path.join(program_dir, "..", "..", "..", "tools", "OCR.model")
-    base_path = os.path.normpath(base_path)
+    base_path = support_files_path or os.path.join(
+        program_dir, "PaddleOCR.PP-OCRv5.support.files"
+    )
 
-    quality = "high" if use_server_model else "std"
-    pack = LUNA_LANG_MAP.get(lang, "cjk_mobile")
+    luna_model_dir = resolve_luna_model_dir(lang, use_server_model, base_path)
+    if luna_model_dir:
+        return luna_model_dir, luna_model_dir, luna_model_dir
 
-    model_dir = os.path.join(base_path, quality, pack)
-    if not os.path.isdir(model_dir):
-        # fallback to std if high is missing
-        model_dir = os.path.join(base_path, "std", pack)
-    return model_dir
+    det_path = os.path.join(base_path, "det")
+    rec_path = os.path.join(base_path, "rec")
+    cls_path = os.path.join(base_path, "cls", "PP-LCNet_x1_0_textline_ori")
+
+    mode = "server" if use_server_model else "mobile"
+
+    # DET
+    if lang == "ka":
+        det_sub = "PP-OCRv3_mobile_det"
+    else:
+        det_sub = f"PP-OCRv5_{mode}_det"
+
+    # REC
+    if lang in ("ch", "chinese_cht", "japan"):
+        rec_sub = f"PP-OCRv5_{mode}_rec"
+    elif lang in PADDLEOCR_LANGS["latin"]:
+        rec_sub = "latin_PP-OCRv5_mobile_rec"
+    elif lang in PADDLEOCR_LANGS["arabic"]:
+        rec_sub = "arabic_PP-OCRv5_mobile_rec"
+    elif lang in PADDLEOCR_LANGS["eslav"]:
+        rec_sub = "eslav_PP-OCRv5_mobile_rec"
+    elif lang in PADDLEOCR_LANGS["cyrillic"]:
+        rec_sub = "cyrillic_PP-OCRv5_mobile_rec"
+    elif lang in PADDLEOCR_LANGS["devanagari"]:
+        rec_sub = "devanagari_PP-OCRv5_mobile_rec"
+    elif lang in ("en", "korean", "th", "el", "te", "ta"):
+        rec_sub = f"{lang}_PP-OCRv5_mobile_rec"
+    elif lang == "ka":
+        rec_sub = "ka_PP-OCRv3_mobile_rec"
+
+    return (os.path.join(det_path, det_sub), os.path.join(rec_path, rec_sub), cls_path)
+
+
+def resolve_luna_model_dir(
+    lang: str, use_server_model: bool, base_path: str
+) -> Optional[str]:
+    if not os.path.isdir(base_path):
+        return None
+
+    lang = map_luna_model_lang(lang)
+    required_files = {"det.onnx", "rec.onnx", "dict.txt", "info.json"}
+    candidates = []
+    for root, _, files in os.walk(base_path):
+        if not required_files.issubset(set(files)):
+            continue
+        info_path = os.path.join(root, "info.json")
+        try:
+            with open(info_path, encoding="utf-8") as f:
+                info = json.load(f)
+        except Exception:
+            continue
+        languages = set(info.get("languages", []))
+        if lang in languages:
+            candidates.append(root)
+
+    if not candidates:
+        return None
+
+    preferred_tiers = (
+        ["high", "other", "std"] if use_server_model else ["std", "other", "high"]
+    )
+    for tier in preferred_tiers:
+        for candidate in candidates:
+            parts = set(os.path.normpath(candidate).split(os.sep))
+            if tier in parts:
+                return candidate
+
+    return candidates[0]
+
+
+def map_luna_model_lang(lang: str) -> str:
+    lang_map = {
+        "ch": "zh",
+        "chinese_cht": "cht",
+        "japan": "ja",
+        "ja": "ja",
+        "zh": "zh",
+        "zh-CN": "zh",
+        "korean": "ko",
+        "ko": "ko",
+        "th": "th",
+    }
+    return lang_map.get(lang, lang)
 
 
 def perform_hardware_check(paddleocr_path: str, use_gpu: bool) -> None:
@@ -282,12 +290,7 @@ def perform_hardware_check(paddleocr_path: str, use_gpu: bool) -> None:
                 "--format=csv,noheader",
             ]
             result = subprocess.run(
-                command,
-                capture_output=True,
-                text=True,
-                check=True,
-                encoding="utf-8",
-                errors="replace",
+                command, capture_output=True, text=True, check=True, encoding="utf-8"
             )
 
             first_gpu_info = result.stdout.strip().split("\n")[0]
@@ -353,8 +356,6 @@ def is_process_running(pid: int) -> bool:
                 ["tasklist", "/FI", f"PID eq {pid}", "/NH"],
                 capture_output=True,
                 text=True,
-                encoding="utf-8",
-                errors="replace",
                 timeout=5,
             )
             return str(pid) in result.stdout
@@ -371,11 +372,12 @@ def is_running_in_container() -> bool:
     return os.path.exists("/.dockerenv")
 
 
-def create_clean_temp_dir() -> str:
+def create_clean_temp_dir(base_temp: Optional[str] = None) -> str:
     """Cleans up orphaned temporary directories from previous crashed runs and creates a fresh one for the current process."""
     current_pid = os.getpid()
     temp_prefix = f"videocr_temp_{current_pid}_"
-    base_temp = tempfile.gettempdir()
+    base_temp = base_temp or tempfile.gettempdir()
+    os.makedirs(base_temp, exist_ok=True)
 
     for name in os.listdir(base_temp):
         if name.startswith("videocr_temp_"):
@@ -394,7 +396,7 @@ def create_clean_temp_dir() -> str:
             except Exception as e:
                 print(f"Could not remove leftover temp dir '{name}': {e}", flush=True)
 
-    return tempfile.mkdtemp(prefix=temp_prefix)
+    return tempfile.mkdtemp(prefix=temp_prefix, dir=base_temp)
 
 
 def log_error(message: str, log_name: str = "error_log.txt") -> str:
@@ -429,7 +431,7 @@ def prepare_stitch_batch(
 ) -> tuple[str, int, int, list[tuple[Any, int, int]]]:
     """Calculates grid dimensions and maps coordinates for a batch. Returns queue arguments."""
     h, w = batch[0]["img"].shape[:2]
-    cols = max(1, (max_width + grid_spacing) // (w + grid_spacing))
+    cols = max(2, (max_width + grid_spacing) // (w + grid_spacing))
 
     actual_cols = min(len(batch), cols)
     actual_rows = (len(batch) + cols - 1) // cols
@@ -471,7 +473,7 @@ def get_batch_limit(
     w: int, h: int, max_width: int, max_height: int, padding: int
 ) -> int:
     """Calculates the maximum number of frames that can fit in a stitched grid."""
-    cols = max(1, (max_width + padding) // (w + padding))
+    cols = max(2, (max_width + padding) // (w + padding))
     rows = max(1, (max_height + padding) // (h + padding))
     return cols * rows
 
@@ -547,13 +549,18 @@ def stream_cli_process(args: list[str], log_name: str) -> Iterator[str]:
     process = subprocess.Popen(
         args,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
+        stderr=subprocess.PIPE,
         text=True,
         encoding="utf-8",
-        errors="replace",
         env=cli_env,
         bufsize=1,
     )
+
+    stderr_lines: list[str] = []
+    stderr_thread = threading.Thread(
+        target=read_pipe, args=(process.stderr, stderr_lines)
+    )
+    stderr_thread.start()
 
     stdout_lines: list[str] = []
     is_interrupted = False
@@ -573,14 +580,17 @@ def stream_cli_process(args: list[str], log_name: str) -> Iterator[str]:
         if process.stdout:
             process.stdout.close()
         exit_code = process.wait()
+        stderr_thread.join()
 
         if exit_code != 0 and not is_interrupted:
             full_stdout = "".join(stdout_lines)
+            full_stderr = "".join(stderr_lines)
             command_str = " ".join(args)
             log_message = (
                 f"Process failed with exit code {exit_code}.\n"
                 f"Command: {command_str}\n\n"
-                f"--- STDOUT ---\n{full_stdout}\n"
+                f"--- STDOUT ---\n{full_stdout}\n\n"
+                f"--- STDERR ---\n{full_stderr}\n"
             )
             log_file_path = log_error(log_message, log_name=log_name)
             print(
@@ -666,38 +676,33 @@ def process_ssim_group(
     current_similar_batch: list[dict[str, Any]] = []
     prev_crops: list[Any] = []
 
+    PADDING = 5
+    crop_x1 = max(0, int(min(r[0] for r in union_rects)) - PADDING)
+    crop_y1 = max(0, int(min(r[1] for r in union_rects)) - PADDING)
+    crop_x2_pad = int(max(r[2] for r in union_rects)) + PADDING
+    crop_y2_pad = int(max(r[3] for r in union_rects)) + PADDING
+
     for i, (_, _, det_score, m) in enumerate(group_frames):
         grid_img = loaded_grids[m["grid_file"]]
         img = grid_img[m["y"] : m["y"] + m["h"], m["x"] : m["x"] + m["w"]]
         h, w = img.shape[:2]
 
+        cx2 = min(w, crop_x2_pad)
+        cy2 = min(h, crop_y2_pad)
+
         current_crops: list[Any] = []
         for rect in union_rects:
-            cx1, cy1 = max(0, int(rect[0])), max(0, int(rect[1]))
-            cx2, cy2 = min(w, int(rect[2])), min(h, int(rect[3]))
-            current_crops.append(img[cy1:cy2, cx1:cx2])
+            rx1, ry1 = max(0, int(rect[0])), max(0, int(rect[1]))
+            rx2, ry2 = min(w, int(rect[2])), min(h, int(rect[3]))
+            current_crops.append(img[ry1:ry2, rx1:rx2])
 
-        crop_x1 = max(0, int(min(rect[0] for rect in union_rects)))
-        crop_y1 = max(0, int(min(rect[1] for rect in union_rects)))
-        crop_x2 = min(w, int(max(rect[2] for rect in union_rects)))
-        crop_y2 = min(h, int(max(rect[3] for rect in union_rects)))
-
-        pad_x = max(8, int((crop_x2 - crop_x1) * 0.03))
-        pad_y = max(6, int((crop_y2 - crop_y1) * 0.20))
-        crop_x1 = max(0, crop_x1 - pad_x)
-        crop_y1 = max(0, crop_y1 - pad_y)
-        crop_x2 = min(w, crop_x2 + pad_x)
-        crop_y2 = min(h, crop_y2 + pad_y)
-
-        if crop_x2 <= crop_x1 or crop_y2 <= crop_y1:
-            rec_img = img.copy()
-        else:
-            rec_img = img[crop_y1:crop_y2, crop_x1:crop_x2].copy()
+        text_img = img[crop_y1:cy2, crop_x1:cx2]
 
         item_dict = {
-            "img": rec_img,
+            "img": text_img.copy(),
             "frame_idx": m["frame_idx"],
             "det_score": det_score,
+            "crop_offset": (crop_x1, crop_y1),
         }
 
         if i == 0:

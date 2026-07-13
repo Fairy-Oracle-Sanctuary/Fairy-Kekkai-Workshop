@@ -9,13 +9,11 @@ from .video import Video
 def save_subtitles_to_file(
     video_path: str,
     file_path: str = "subtitle.srt",
-    temp_dir: str | None = None,
     ocr_engine: str = "google_lens",
-    paddleocr_path: str | None = None,
-    supportFilesPath: str | None = None,
     lang: str = "en",
     time_start: str = "0:00",
     time_end: str = "",
+    conf_threshold: int = 75,
     sim_threshold: int = 80,
     max_merge_gap_sec: float = 0.1,
     use_fullframe: bool = False,
@@ -30,8 +28,11 @@ def save_subtitles_to_file(
     ocr_image_max_width: int = 720,
     post_processing: bool = False,
     min_subtitle_duration_sec: float = 0.2,
+    normalize_to_simplified_chinese: bool = True,
     subtitle_alignments: list[str | None] | None = None,
-    confidence_threshold: float = 0.0,
+    paddleocr_path: str | None = None,
+    support_files_path: str | None = None,
+    temp_dir: str | None = None,
 ) -> None:
 
     if crop_zones is None:
@@ -42,8 +43,7 @@ def save_subtitles_to_file(
     elif len(subtitle_alignments) == 1:
         subtitle_alignments.append(None)
 
-    if not paddleocr_path:
-        paddleocr_path = utils.find_executable("paddleocr")
+    paddleocr_path = paddleocr_path or utils.find_executable("paddleocr")
     try:
         utils.perform_hardware_check(paddleocr_path, use_gpu)
     except SystemExit as e:
@@ -52,15 +52,17 @@ def save_subtitles_to_file(
 
     if ocr_engine == "paddleocr":
         det_model_dir, rec_model_dir, cls_model_dir = utils.resolve_model_dirs(
-            lang, use_server_model, supportFilesPath
+            lang, use_server_model, support_files_path
         )
-        google_lens_path = ""
     else:
         # For the Text-Detection-Only Pass just the default detection model is needed
         det_model_dir, rec_model_dir, cls_model_dir = utils.resolve_model_dirs(
-            "en", use_server_model, supportFilesPath
+            "en", use_server_model, support_files_path
         )
-        google_lens_path = utils.find_executable("chrome-lens")
+
+    google_lens_path = (
+        utils.find_executable("chrome-lens") if ocr_engine == "google_lens" else None
+    )
 
     v = Video(
         video_path,
@@ -69,7 +71,6 @@ def save_subtitles_to_file(
         rec_model_dir,
         cls_model_dir,
         google_lens_path,
-        temp_dir,
     )
     try:
         v.run_ocr(
@@ -79,6 +80,7 @@ def save_subtitles_to_file(
             use_angle_cls,
             time_start,
             time_end,
+            conf_threshold,
             use_fullframe,
             brightness_threshold,
             ssim_threshold,
@@ -86,7 +88,8 @@ def save_subtitles_to_file(
             frames_to_skip,
             crop_zones,
             ocr_image_max_width,
-            confidence_threshold,
+            normalize_to_simplified_chinese,
+            temp_dir,
         )
     except Exception as e:
         print(f"Error: {e}", flush=True)
