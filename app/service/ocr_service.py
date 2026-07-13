@@ -105,7 +105,7 @@ class OCRProcess(QObject):
         # 添加参数
         cmd_args.extend(["--video_path", args["video_path"]])
         cmd_args.extend(["--output", args["file_path"]])
-        cmd_args.extend(["--temp_dir", args["temp_dir"]])
+        # cmd_args.extend(["--ocr_engine", args["paddleocr"]])
         cmd_args.extend(["--lang", args["lang"]])
         cmd_args.extend(["--time_start", args["time_start"]])
         if args["time_end"]:
@@ -124,19 +124,19 @@ class OCRProcess(QObject):
         cmd_args.extend(
             ["--min_subtitle_duration", str(args["min_subtitle_duration_sec"])]
         )
-        cmd_args.extend(["--confidence_threshold", str(args["confidence_threshold"])])
+        cmd_args.extend(["--conf_threshold", str(args["confidence_threshold"])])
 
-        # 处理paddleocr_path参数
-        if "paddleocr_path" in args and args["paddleocr_path"]:
-            cmd_args.extend(["--paddleocr_path", args["paddleocr_path"]])
+        # # 处理paddleocr_path参数
+        # if "paddleocr_path" in args and args["paddleocr_path"]:
+        #     cmd_args.extend(["--paddleocr_path", args["paddleocr_path"]])
 
-        # 处理supportFilesPath参数
-        if "supportFilesPath" in args and args["supportFilesPath"]:
-            cmd_args.extend(["--supportFilesPath", args["supportFilesPath"]])
+        # # 处理supportFilesPath参数
+        # if "supportFilesPath" in args and args["supportFilesPath"]:
+        #     cmd_args.extend(["--supportFilesPath", args["supportFilesPath"]])
 
         # 处理use_dual_zone参数
-        if args["use_dual_zone"]:
-            cmd_args.extend(["--use_dual_zone", str(args["use_dual_zone"]).lower()])
+        # if args["use_dual_zone"]:
+        #     cmd_args.extend(["--use_dual_zone", str(args["use_dual_zone"]).lower()])
 
         # 处理crop_zones参数
         cmd_args.extend(["--crop_x", str(args["--crop_x"])])
