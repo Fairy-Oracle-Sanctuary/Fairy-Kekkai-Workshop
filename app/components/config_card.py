@@ -823,20 +823,20 @@ class OCRSettingInterface(ScrollArea):
         self.paddleocrPathGroup = SettingCardGroup(
             self.globalText.PaddleOCRPath, self.scrollWidget
         )
-        # self.paddleocrPathCard = PushSettingCard(
-        #     self.globalText.SelectFile3,
-        #     ":/app/images/logo/Paddle.svg",
-        #     self.globalText.PSPE,
-        #     cfg.get(cfg.paddleocrPath),
-        #     self.paddleocrPathGroup,
-        # )
-        # self.supportFilesPathCard = PushSettingCard(
-        #     self.globalText.SelectFolder,
-        #     ":/app/images/logo/Paddle.svg",
-        #     self.globalText.PleaseSelectOCRModel,
-        #     cfg.get(cfg.supportFilesPath),
-        #     self.paddleocrPathGroup,
-        # )
+        self.paddleocrPathCard = PushSettingCard(
+            self.globalText.SelectFile3,
+            ":/app/images/logo/Paddle.svg",
+            self.globalText.PSPE,
+            cfg.get(cfg.paddleocrPath),
+            self.paddleocrPathGroup,
+        )
+        self.supportFilesPathCard = PushSettingCard(
+            self.globalText.SelectFolder,
+            ":/app/images/logo/Paddle.svg",
+            self.globalText.PleaseSelectOCRModel,
+            cfg.get(cfg.supportFilesPath),
+            self.paddleocrPathGroup,
+        )
         self.videocrCliPathCard = PushSettingCard(
             self.globalText.SelectFile3,
             ":/app/images/logo/Paddle.svg",
@@ -844,13 +844,13 @@ class OCRSettingInterface(ScrollArea):
             cfg.get(cfg.videocrCliPath),
             self.paddleocrPathGroup,
         )
-        # self.tempDirCard = PushSettingCard(
-        #     self.globalText.SelectFolder,
-        #     ":/app/images/logo/Paddle.svg",
-        #     self.globalText.PSSETF,
-        #     cfg.get(cfg.tempDir),
-        #     self.paddleocrPathGroup,
-        # )
+        self.tempDirCard = PushSettingCard(
+            self.globalText.SelectFolder,
+            ":/app/images/logo/Paddle.svg",
+            self.globalText.PSSETF,
+            cfg.get(cfg.tempDir),
+            self.paddleocrPathGroup,
+        )
 
         # 时间设置
         self.timeGroup = SettingCardGroup(
@@ -1040,10 +1040,10 @@ class OCRSettingInterface(ScrollArea):
         self.settingLabel.move(36, 40)
 
         # 文件路径
-        # self.paddleocrPathGroup.addSettingCard(self.paddleocrPathCard)
-        # self.paddleocrPathGroup.addSettingCard(self.supportFilesPathCard)
+        self.paddleocrPathGroup.addSettingCard(self.paddleocrPathCard)
+        self.paddleocrPathGroup.addSettingCard(self.supportFilesPathCard)
         self.paddleocrPathGroup.addSettingCard(self.videocrCliPathCard)
-        # self.paddleocrPathGroup.addSettingCard(self.tempDirCard)
+        self.paddleocrPathGroup.addSettingCard(self.tempDirCard)
 
         # 时间设置
         self.timeGroup.addSettingCard(self.timeStartCard)

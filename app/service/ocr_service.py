@@ -127,16 +127,16 @@ class OCRProcess(QObject):
         cmd_args.extend(["--conf_threshold", str(args["confidence_threshold"])])
 
         # # 处理paddleocr_path参数
-        # if "paddleocr_path" in args and args["paddleocr_path"]:
-        #     cmd_args.extend(["--paddleocr_path", args["paddleocr_path"]])
+        if "paddleocr_path" in args and args["paddleocr_path"]:
+            cmd_args.extend(["--paddleocr_path", args["paddleocr_path"]])
 
         # # 处理supportFilesPath参数
-        # if "supportFilesPath" in args and args["supportFilesPath"]:
-        #     cmd_args.extend(["--supportFilesPath", args["supportFilesPath"]])
+        if "supportFilesPath" in args and args["supportFilesPath"]:
+            cmd_args.extend(["--supportFilesPath", args["supportFilesPath"]])
 
-        # 处理use_dual_zone参数
-        # if args["use_dual_zone"]:
-        #     cmd_args.extend(["--use_dual_zone", str(args["use_dual_zone"]).lower()])
+        # 处理tempDir参数
+        if "temp_dir" in args and args["temp_dir"]:
+            cmd_args.extend(["--tempDir", args["temp_dir"]])
 
         # 处理crop_zones参数
         cmd_args.extend(["--crop_x", str(args["--crop_x"])])

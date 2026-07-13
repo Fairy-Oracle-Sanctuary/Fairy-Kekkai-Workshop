@@ -1,5 +1,6 @@
 # Compilation instructions
 # nuitka-project: --standalone
+# nuitka-project: --include-windows-runtime-dlls=yes
 # nuitka-project-if: {OS} == "Windows":
 #     nuitka-project: --output-filename=videocr-cli
 # nuitka-project-if: {OS} == "Linux":
@@ -7,24 +8,52 @@
 
 # Windows-specific metadata for the executable
 # nuitka-project-if: {OS} == "Windows":
+#     nuitka-project-set: APP_VERSION = (__import__("sys").path.insert(0, "..") or __import__("_version").__version__)
 #     nuitka-project: --file-description="VideOCR CLI"
-#     nuitka-project: --file-version="1.4.0"
+#     nuitka-project: --file-version={APP_VERSION}
 #     nuitka-project: --product-name="VideOCR-CLI"
-#     nuitka-project: --product-version="1.4.0"
+#     nuitka-project: --product-version={APP_VERSION}
 #     nuitka-project: --copyright="timminator"
+
+from __future__ import annotations
 
 import argparse
 import os
 import sys
 from contextlib import nullcontext
+from typing import Callable
 
 from videocr import save_subtitles_to_file, utils
+from videocr.lang_dictionaries import GOOGLE_LENS_LANGS, PADDLEOCR_LANGS
 from wakepy import keep
 
 
 # custom validators for argparse
-def restricted_int(min_val=None, max_val=None):
-    def validator(arg):
+def valid_video_path(arg: str) -> str:
+    if not os.path.isfile(arg):
+        raise argparse.ArgumentTypeError(
+            f"Video file does not exist or is not a valid file: '{arg}'"
+        )
+    return arg
+
+
+def valid_output_path(arg: str) -> str:
+    dir_name = os.path.dirname(arg) or "."
+    if not os.path.isdir(dir_name):
+        raise argparse.ArgumentTypeError(
+            f"Output directory does not exist: '{dir_name}'"
+        )
+    if not os.access(dir_name, os.W_OK):
+        raise argparse.ArgumentTypeError(
+            f"Output directory is not writable: '{dir_name}'"
+        )
+    return arg
+
+
+def restricted_int(
+    min_val: int | None = None, max_val: int | None = None
+) -> Callable[[str], int]:
+    def validator(arg: str) -> int:
         try:
             value = int(arg)
         except ValueError:
@@ -41,8 +70,10 @@ def restricted_int(min_val=None, max_val=None):
     return validator
 
 
-def restricted_float(min_val=None, max_val=None):
-    def validator(arg):
+def restricted_float(
+    min_val: float | None = None, max_val: float | None = None
+) -> Callable[[str], float]:
+    def validator(arg: str) -> float:
         try:
             value = float(arg)
         except ValueError:
@@ -59,7 +90,7 @@ def restricted_float(min_val=None, max_val=None):
     return validator
 
 
-def valid_time_string(arg):
+def valid_time_string(arg: str) -> str:
     if not arg:
         return ""
     try:
@@ -71,54 +102,43 @@ def valid_time_string(arg):
         ) from None
 
 
-def main():
-    """强制 stdout/stderr 无缓冲，确保 Nuitka onefile 模式下进度实时输出"""
-    os.environ["PYTHONUNBUFFERED"] = "1"
-    os.environ["PYTHONIOENCODING"] = "utf-8"
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(line_buffering=True, encoding="utf-8", errors="replace")
-    if hasattr(sys.stderr, "reconfigure"):
-        sys.stderr.reconfigure(line_buffering=True, encoding="utf-8", errors="replace")
+def valid_alignment_name(arg: str) -> str | None:
+    if not arg:
+        return None
+    if arg in utils.VALID_ALIGNMENT_NAMES:
+        return utils.ALIGNMENT_MAP[arg]
+    allowed_values = ", ".join(sorted(list(utils.VALID_ALIGNMENT_NAMES)))
+    raise argparse.ArgumentTypeError(
+        f"Invalid alignment '{arg}'. Allowed values are: {allowed_values}"
+    )
 
+
+def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Extract subtitles from video using PaddleOCR."
+        description="Extract subtitles from a video using PaddleOCR or Google Lens."
     )
 
     parser.add_argument(
-        "--video_path", type=str, required=True, help="Path to the video file"
+        "--video_path",
+        type=valid_video_path,
+        required=True,
+        help="Path to the video file",
     )
     parser.add_argument(
         "--output",
-        type=str,
+        type=valid_output_path,
         default="subtitle.srt",
         help="Output SRT file path (default: subtitle.srt)",
     )
     parser.add_argument(
         "--ocr_engine",
         type=str,
+        choices=["paddleocr", "google_lens"],
         default="paddleocr",
-        help="OCR engine (default: paddleocr)",
+        help="OCR engine to use in the recognition step (default: paddleocr)",
     )
     parser.add_argument(
-        "--temp_dir",
-        type=str,
-        default=None,
-        help="Temporary directory for OCR results (default: system temp)",
-    )
-    parser.add_argument(
-        "--paddleocr_path",
-        type=str,
-        default=None,
-        help="Custom path to paddleocr.exe (default: auto-detect)",
-    )
-    parser.add_argument(
-        "--supportFilesPath",
-        type=str,
-        default=None,
-        help="Path to OCR model directory (default: tools/OCR.model)",
-    )
-    parser.add_argument(
-        "--lang", type=str, default="ch", help="OCR language (default: ch)"
+        "--lang", type=str, default="en", help="OCR language code (default: en)"
     )
     parser.add_argument(
         "--time_start",
@@ -131,6 +151,12 @@ def main():
         type=valid_time_string,
         default="",
         help="End time (MM:SS or HH:MM:SS)",
+    )
+    parser.add_argument(
+        "--conf_threshold",
+        type=restricted_int(0, 100),
+        default=75,
+        help="Confidence threshold (PaddleOCR only, default: 75)",
     )
     parser.add_argument(
         "--sim_threshold",
@@ -160,7 +186,7 @@ def main():
         "--use_angle_cls",
         type=lambda x: x.lower() == "true",
         default=False,
-        help="Enable Classification (default: false)",
+        help="Enable Classification (PaddleOCR only, default: false)",
     )
     parser.add_argument(
         "--use_server_model",
@@ -178,7 +204,7 @@ def main():
         "--ssim_threshold",
         type=restricted_int(0, 100),
         default=92,
-        help="SSIM similarity threshold (default: 92)",
+        help="SSIM similarity threshold for initial frame filtering in Step 1 (default: 92)",
     )
     parser.add_argument(
         "--subtitle_position",
@@ -193,6 +219,12 @@ def main():
         help="Frames to skip (default: 1)",
     )
     parser.add_argument(
+        "--normalize_to_simplified_chinese",
+        type=lambda x: x.lower() == "false",
+        default=False,
+        help="Normalize Traditional Chinese characters to Simplified Chinese for ch (default: false)",
+    )
+    parser.add_argument(
         "--post_processing",
         type=lambda x: x.lower() == "true",
         default=False,
@@ -205,22 +237,10 @@ def main():
         help="Minimum subtitle duration in seconds (default: 0.2)",
     )
     parser.add_argument(
-        "--confidence_threshold",
-        type=restricted_float(min_val=0.0, max_val=1.0),
-        default=0.0,
-        help="Minimum confidence threshold for OCR results (0.0-1.0, default: 0.0)",
-    )
-    parser.add_argument(
         "--ocr_image_max_width",
         type=restricted_int(min_val=1),
-        default=1280,
-        help="Maximum image width used for OCR (default: 1280)",
-    )
-    parser.add_argument(
-        "--use_dual_zone",
-        type=lambda x: x.lower() == "true",
-        default=False,
-        help="Enable dual zone OCR processing (default: false)",
+        default=720,
+        help="Maximum image width used for OCR (default: 720)",
     )
     parser.add_argument(
         "--crop_x", type=int, default=None, help="(Zone 1) Crop start X"
@@ -247,14 +267,51 @@ def main():
         "--crop_height2", type=int, default=None, help="(Zone 2) Crop height"
     )
     parser.add_argument(
+        "--subtitle_alignment",
+        type=valid_alignment_name,
+        default=None,
+        help="(Zone 1) Subtitle alignment. Allowed: bottom-left, bottom-center, bottom-right, middle-left, middle-center, middle-right, top-left, top-center, top-right",
+    )
+    parser.add_argument(
+        "--subtitle_alignment2",
+        type=valid_alignment_name,
+        default=None,
+        help="(Zone 2) Subtitle alignment. See --subtitle_alignment for allowed values.",
+    )
+    parser.add_argument(
         "--allow_system_sleep",
         type=lambda x: x.lower() == "true",
         default=False,
         help="Allow the system to sleep during processing (default: false)",
     )
+    parser.add_argument(
+        "--paddleocr_path",
+        type=str,
+        default="",
+        help="Custom PaddleOCR executable path",
+    )
+    parser.add_argument(
+        "--supportFilesPath",
+        type=str,
+        default="",
+        help="Custom PaddleOCR support files directory",
+    )
+    parser.add_argument(
+        "--tempDir", type=str, default="", help="Custom temporary directory"
+    )
+
     args = parser.parse_args()
 
     try:
+        if args.ocr_engine == "paddleocr" and args.lang.lower() not in (
+            set().union(*PADDLEOCR_LANGS.values())
+        ):
+            raise ValueError(f"Unsupported language code '{args.lang}' for PaddleOCR.")
+        if args.ocr_engine == "google_lens" and args.lang not in GOOGLE_LENS_LANGS:
+            raise ValueError(
+                f"Unsupported language code '{args.lang}' for Google Lens."
+            )
+
         if args.time_start and args.time_end:
             start_ms = utils.get_ms_from_time_str(args.time_start)
             end_ms = utils.get_ms_from_time_str(args.time_end)
@@ -263,7 +320,7 @@ def main():
                     f"Start Time ({args.time_start}) cannot be after End Time ({args.time_end})."
                 )
 
-        crop_zones = []
+        crop_zones: list[dict[str, int]] = []
         if not args.use_fullframe:
             zone1_vars = [args.crop_x, args.crop_y, args.crop_width, args.crop_height]
 
@@ -284,51 +341,42 @@ def main():
                     "Partial crop coordinates detected for Zone 1. You must provide ALL four: --crop_x, --crop_y, --crop_width, and --crop_height."
                 )
 
-            if args.use_dual_zone:
-                zone2_vars = [
-                    args.crop_x2,
-                    args.crop_y2,
-                    args.crop_width2,
-                    args.crop_height2,
-                ]
+            zone2_vars = [
+                args.crop_x2,
+                args.crop_y2,
+                args.crop_width2,
+                args.crop_height2,
+            ]
 
-                is_zone2_full = all(v is not None for v in zone2_vars)
-                is_zone2_empty = all(v is None for v in zone2_vars)
+            is_zone2_full = all(v is not None for v in zone2_vars)
+            is_zone2_empty = all(v is None for v in zone2_vars)
 
-                if is_zone2_full:
-                    crop_zones.append(
-                        {
-                            "x": args.crop_x2,
-                            "y": args.crop_y2,
-                            "width": args.crop_width2,
-                            "height": args.crop_height2,
-                        }
-                    )
-                elif not is_zone2_empty:
-                    raise ValueError(
-                        "Partial crop coordinates detected for Zone 2. You must provide ALL four: --crop_x2, --crop_y2, --crop_width2, and --crop_height2."
-                    )
-                else:
-                    if is_zone1_full:
-                        raise ValueError(
-                            "Dual zone OCR was requested, but coordinates for the second zone were not provided."
-                        )
+            if is_zone2_full:
+                crop_zones.append(
+                    {
+                        "x": args.crop_x2,
+                        "y": args.crop_y2,
+                        "width": args.crop_width2,
+                        "height": args.crop_height2,
+                    }
+                )
+            elif not is_zone2_empty:
+                raise ValueError(
+                    "Partial crop coordinates detected for Zone 2. You must provide ALL four: --crop_x2, --crop_y2, --crop_width2, and --crop_height2."
+                )
 
-        keep_awake_manager = (
-            nullcontext() if args.allow_system_sleep else keep.running()
-        )
+        disable_wakelock = args.allow_system_sleep or utils.is_running_in_container()
+        keep_awake_manager = nullcontext() if disable_wakelock else keep.running()
 
         with keep_awake_manager:
             save_subtitles_to_file(
                 video_path=args.video_path,
                 file_path=args.output,
-                temp_dir=args.temp_dir,
                 ocr_engine=args.ocr_engine,
-                paddleocr_path=args.paddleocr_path,
-                supportFilesPath=args.supportFilesPath,
                 lang=args.lang,
                 time_start=args.time_start,
                 time_end=args.time_end,
+                conf_threshold=args.conf_threshold,
                 sim_threshold=args.sim_threshold,
                 max_merge_gap_sec=args.max_merge_gap,
                 use_fullframe=args.use_fullframe,
@@ -340,10 +388,14 @@ def main():
                 subtitle_position=args.subtitle_position,
                 frames_to_skip=args.frames_to_skip,
                 crop_zones=crop_zones,
+                normalize_to_simplified_chinese=args.normalize_to_simplified_chinese,
                 post_processing=args.post_processing,
                 min_subtitle_duration_sec=args.min_subtitle_duration,
                 ocr_image_max_width=args.ocr_image_max_width,
-                confidence_threshold=args.confidence_threshold,
+                subtitle_alignments=[args.subtitle_alignment, args.subtitle_alignment2],
+                paddleocr_path=args.paddleocr_path or None,
+                support_files_path=args.supportFilesPath or None,
+                temp_dir=args.tempDir or None,
             )
     except ValueError as e:
         print(f"Error: {e}")

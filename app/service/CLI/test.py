@@ -21,16 +21,14 @@ save_subtitles_to_file(
     frames_to_skip=0,
     # ── 识别 ──
     ocr_image_max_width=1280,
-    confidence_threshold=0.3,
+    conf_threshold=30,
     # ── 字幕合并 ──
     sim_threshold=65,
     max_merge_gap_sec=0.1,
     post_processing=False,
     min_subtitle_duration_sec=0.2,
     # ── 路径 ──
+    # paddleocr_path=r"D:\CODE\Fairy-Kekkai-Workshop\tools\PaddleOCR\paddleocr.exe",
     paddleocr_path=r"D:\CODE\Fairy-Kekkai-Workshop\tools\PaddleOCR\paddleocr.exe",
-    supportFilesPath=r"D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model",
+    support_files_path=r"D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model",
 )
-"""
-"D:\CODE\Fairy-Kekkai-Workshop\tools\PaddleOCR\paddleocr.exe" ocr --input "D:\CODE\Fairy-Kekkai-Workshop\temp1\rec_images" --device gpu --lang japan --text_detection_model_dir "D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model\high\cjk_mobile" --text_recognition_model_dir "D:\CODE\Fairy-Kekkai-Workshop\tools\OCR.model\high\cjk_mobile"
-"""

@@ -5,7 +5,6 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import ScrollArea, SegmentedWidget
 
 from ..common.task_status import TaskStatus, status_text
-from ..common.text import Text
 
 
 class BaseTaskInterface(ScrollArea):
@@ -22,7 +21,6 @@ class BaseTaskInterface(ScrollArea):
         parent=None,
     ):
         super().__init__(parent)
-        self.globalText = Text()
         self.view = QWidget(self)
         self.vBoxLayout = QVBoxLayout(self.view)
 
@@ -53,7 +51,7 @@ class BaseTaskInterface(ScrollArea):
         self.failedTab = QWidget()
 
         self.segmentedWidget.addItem(
-            self.allTab, self.globalText.All, lambda: self.filterTasks("all")
+            self.allTab, self.tr("全部"), lambda: self.filterTasks("all")
         )
         self.segmentedWidget.addItem(
             self.processingTab,
@@ -101,11 +99,11 @@ class BaseTaskInterface(ScrollArea):
 
     def getSuccessMessage(self, task_path):
         """获取成功消息"""
-        return self.globalText.Completed.format(task_path, self.task_type)
+        return f"-{task_path}- {self.task_type}完成"
 
     def getFailureMessage(self, task_path, message):
         """获取失败消息"""
-        return self.globalText.Failed.format(task_path, message)
+        return f"-{task_path}- {self.task_type}失败: {message}"
 
     def _updateMaxConcurrentTasks(self, value):
         """更新最大并发任务数"""
@@ -237,9 +235,6 @@ class BaseTaskInterface(ScrollArea):
                 self.updateTaskUI(task_id)
                 break
 
-    def startNextTaskAfterFinished(self):
-        self.startNextTask()
-
     def onTaskFinished(self, task_id, success, message):
         """任务完成"""
         from ..common.event_bus import event_bus
@@ -250,15 +245,13 @@ class BaseTaskInterface(ScrollArea):
                 if success:
                     task.status = TaskStatus.DONE
                     event_bus.notification_service.show_success(
-                        self.globalText.TextAuto006.format(self.task_type),
-                        self.getSuccessMessage(task_path),
+                        f"{self.task_type}完成", self.getSuccessMessage(task_path)
                     )
                 else:
                     task.status = TaskStatus.FAILED
                     if "取消" not in message:
                         event_bus.notification_service.show_error(
-                            self.globalText.Failed2.format(self.task_type),
-                            message.strip(),
+                            f"{self.task_type}失败", message.strip()
                         )
 
                 # 移除活跃线程
@@ -270,7 +263,7 @@ class BaseTaskInterface(ScrollArea):
                 self.updateTaskUI(task_id)
 
                 # 开始下一个任务
-                self.startNextTaskAfterFinished()
+                self.startNextTask()
                 break
 
     def updateTaskUI(self, task_id):

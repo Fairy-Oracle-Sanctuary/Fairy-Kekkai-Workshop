@@ -1,6 +1,5 @@
 # coding:utf-8
 import json
-import logging
 import os
 import shutil
 import subprocess
@@ -31,21 +30,15 @@ from app.common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
 from ..common.task_status import TaskStatus, status_text
-from ..common.text import Text
 from ..components.config_card import YTDLPSettingInterface
 from ..components.dialog import CustomMessageBox
 from ..components.download_card import DownloadItemWidget
 from ..service.download_service import DownloadProcess, DownloadTask
 
-NO_WINDOW_KWARGS = (
-    {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
-)
-
 
 class DownloadStackedInterface(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.globalText = Text()
 
         # 创建堆叠窗口
         self.pivot = Pivot(self)
@@ -57,11 +50,9 @@ class DownloadStackedInterface(QWidget):
 
         # 添加标签页
         self.addSubInterface(
-            self.downloadInterface, "downloadInterface", self.globalText.Download
+            self.downloadInterface, "downloadInterface", self.tr("下载")
         )
-        self.addSubInterface(
-            self.settingInterface, "settingInterface", self.globalText.Settings
-        )
+        self.addSubInterface(self.settingInterface, "settingInterface", self.tr("设置"))
 
         # 连接信号并初始化当前标签页
         self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
@@ -97,7 +88,6 @@ class DownloadInterface(ScrollArea):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.globalText = Text()
         self.view = QWidget(self)
         self.vBoxLayout = QVBoxLayout(self.view)
 
@@ -121,13 +111,13 @@ class DownloadInterface(ScrollArea):
         self.enableTransparentBackground()
 
         # 创建添加下载按钮
-        addDownloadBtn = PrimaryPushButton(self.globalText.AddDownloadTask, self)
+        addDownloadBtn = PrimaryPushButton(self.tr("添加下载任务"), self)
         addDownloadBtn.setIcon(FluentIcon.ADD)
         addDownloadBtn.clicked.connect(self.showAddDownloadDialog)
 
         # 创建更新组件
         if sys.platform == "win32":
-            self.updateBtn = PushButton(self.globalText.UpdateYtDlp, self)
+            self.updateBtn = PushButton(self.tr("更新yt-dlp"), self)
 
         # 创建分段控件
         self.segmentedWidget = SegmentedWidget(self)
@@ -137,11 +127,11 @@ class DownloadInterface(ScrollArea):
         self.failedTab = QWidget()
 
         self.segmentedWidget.addItem(
-            self.allTab, self.globalText.All, lambda: self.filterTasks("all")
+            self.allTab, self.tr("全部"), lambda: self.filterTasks("all")
         )
         self.segmentedWidget.addItem(
             self.downloadingTab,
-            status_text(TaskStatus.PROCESSING, self.globalText.Downloading),
+            status_text(TaskStatus.PROCESSING, self.tr("下载中")),
             lambda: self.filterTasks(TaskStatus.PROCESSING),
         )
         self.segmentedWidget.addItem(
@@ -206,8 +196,8 @@ class DownloadInterface(ScrollArea):
                 break
 
         dialog = CustomMessageBox(
-            title=self.globalText.AddDownloadTask,
-            text=self.globalText.PleaseEnterVideoURL,
+            title=self.tr("添加下载任务"),
+            text=self.tr("请输入视频URL:"),
             parent=main_window if main_window else self.window(),
             min_width=500,
         )
@@ -216,18 +206,18 @@ class DownloadInterface(ScrollArea):
             url = dialog.LineEdit.text().strip()
             if not url:
                 event_bus.notification_service.show_warning(
-                    self.globalText.InputError, self.globalText.PleaseEnterAValidURL
+                    self.tr("输入错误"), self.tr("请输入有效的URL")
                 )
                 return
 
             path = QFileDialog.getExistingDirectory(
                 self,
-                self.globalText.PSTDTDT,
+                self.tr("请选择要下载到的目录"),
                 os.path.expanduser("~\\Downloads"),
             )
             if not path:
                 event_bus.notification_service.show_warning(
-                    self.globalText.InputError, self.globalText.PSTDTDT
+                    self.tr("输入错误"), self.tr("请选择要下载到的目录")
                 )
                 return
 
@@ -277,8 +267,7 @@ class DownloadInterface(ScrollArea):
         if waiting_tasks:
             task = waiting_tasks[0]
             self.startDownload(task)
-            if sys.platform == "win32":
-                self.setUpdateBoxEnabled(False)
+            self.setUpdateBoxEnabled(False)
 
     def startDownload(self, task: DownloadTask):
         """开始下载任务"""
@@ -293,8 +282,8 @@ class DownloadInterface(ScrollArea):
         if not os.path.exists(ytdlp_path):
             self.logger.error(f"[开始下载] yt-dlp 路径不存在: {ytdlp_path}")
             event_bus.notification_service.show_error(
-                self.globalText.ConfigurationError,
-                self.globalText.YDPDNEPCTCPIS.format(ytdlp_path),
+                "配置错误",
+                f"yt-dlp 路径不存在: {ytdlp_path}\n请在设置中配置正确的路径",
             )
             task.status = TaskStatus.FAILED
             self.updateTaskUI(task.id)
@@ -344,15 +333,13 @@ class DownloadInterface(ScrollArea):
 
     def onDownloadFinished(self, task_id, success, message):
         """下载完成"""
-        if sys.platform == "win32":
-            self.setUpdateBoxEnabled(True)
+        self.setUpdateBoxEnabled(True)
         for task in self.download_tasks:
             if task.id == task_id:
                 if success:
                     task.status = TaskStatus.DONE
                     event_bus.notification_service.show_success(
-                        self.globalText.DownloadCompleted,
-                        self.globalText.TextAuto065.format(task.filename),
+                        "下载完成", f"-{task.filename}- 下载完成"
                     )
                     self.logger.info(
                         f"下载完成: -{task.filename}- 路径: {task.download_path}"
@@ -360,7 +347,7 @@ class DownloadInterface(ScrollArea):
                 else:
                     task.status = TaskStatus.FAILED
                     event_bus.notification_service.show_error(
-                        self.globalText.DownloadFailed, message.strip()
+                        "下载失败", message.strip()
                     )
                     self.logger.error(
                         f"下载失败: -{task.filename}- 路径: {task.download_path} 错误信息: {message.strip()}"
@@ -467,9 +454,7 @@ class DownloadInterface(ScrollArea):
             # 开始下一个下载
             self.startNextDownload()
         except Exception as e:
-            event_bus.notification_service.show_error(
-                self.globalText.Error, self.globalText.TaskRemovalFailed.format(e)
-            )
+            event_bus.notification_service.show_error("错误", f"任务移除失败: {e}")
 
     def addDownloadFromProject(self, request_data):
         """从项目界面添加下载任务"""
@@ -487,15 +472,13 @@ class DownloadInterface(ScrollArea):
 
     def setUpdateBoxEnabled(self, enabled):
         """设置更新框状态"""
-        self.updateBtn.setEnabled(enabled)
+        if sys.platform == "win32":
+            self.updateBtn.setEnabled(enabled)
 
     def updateYtDlp(self):
         """Update yt-dlp"""
         self.setUpdateBoxEnabled(False)
-        if sys.platform == "linux":
-            self.update_thread = LinuxUpdateYtDlpThread()
-        else:
-            self.update_thread = UpdateYtDlpThread()
+        self.update_thread = UpdateYtDlpThread()
         self.update_thread.progress_signal.connect(self.onUpdateProgress)
         self.update_thread.finished_signal.connect(self.onUpdateFinished)
         self.update_thread.start()
@@ -503,21 +486,17 @@ class DownloadInterface(ScrollArea):
 
     def onUpdateProgress(self, progress, message):
         """Handle yt-dlp update progress"""
-        self.updateBtn.setText(self.globalText.Downloading2.format(progress))
+        self.updateBtn.setText(f"下载中: {progress}%")
 
     def onUpdateFinished(self, success, message):
         """Handle yt-dlp update completion"""
         self.setUpdateBoxEnabled(True)
         self.updateBtn.setText("下载/更新yt-dlp")
         if success:
-            event_bus.notification_service.show_success(
-                self.globalText.UpdateSuccessful, message
-            )
+            event_bus.notification_service.show_success("更新成功", message)
             self.logger.info(f"yt-dlp update success: {message}")
         else:
-            event_bus.notification_service.show_error(
-                self.globalText.UpdateFailed, message
-            )
+            event_bus.notification_service.show_error("更新失败", message)
             self.logger.error(f"yt-dlp update failed: {message}")
 
 
@@ -622,89 +601,6 @@ class UpdateYtDlpThread(QThread):
                 capture_output=True,
                 text=True,
                 timeout=10,
-                **NO_WINDOW_KWARGS,
-            )
-            if result.returncode == 0:
-                return result.stdout.strip()
-        except Exception:
-            logging.warning("获取当前 yt-dlp 版本失败", exc_info=True)
-        return None
-
-    def _get_latest_version(self) -> str:
-        """Get latest yt-dlp version from GitHub API"""
-        try:
-            response = urllib.request.urlopen(
-                "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest",
-                timeout=10,
-            )
-            data = json.loads(response.read().decode())
-            return data.get("tag_name", "").lstrip("v")
-        except Exception:
-            logging.warning("获取最新 yt-dlp 版本失败", exc_info=True)
-            return None
-
-
-class LinuxUpdateYtDlpThread(QThread):
-    """Linux 下更新 yt-dlp 线程（使用 pip）"""
-
-    progress_signal = Signal(int, str)
-    finished_signal = Signal(bool, str)
-
-    def __init__(self):
-        super().__init__()
-        self._is_cancelled = False
-
-    def run(self):
-        try:
-            self.progress_signal.emit(0, "正在检查 yt-dlp 版本...")
-            current_version = self._get_current_version()
-            latest_version = self._get_latest_version()
-
-            if current_version and current_version == latest_version:
-                self.finished_signal.emit(
-                    True, f"yt-dlp 已是最新版本 ({latest_version})"
-                )
-                return
-
-            self.progress_signal.emit(0, f"正在更新 yt-dlp 到 {latest_version}...")
-
-            # 使用 pip 安装/更新 yt-dlp
-            result = subprocess.run(
-                [sys.executable, "-m", "pip", "install", "-U", "yt-dlp"],
-                capture_output=True,
-                text=True,
-                timeout=120,
-                **NO_WINDOW_KWARGS,
-            )
-
-            if self._is_cancelled:
-                self.finished_signal.emit(False, "yt-dlp 更新已取消")
-                return
-
-            if result.returncode == 0:
-                self.progress_signal.emit(100, "yt-dlp 更新完成")
-                self.finished_signal.emit(True, "yt-dlp 更新成功")
-            else:
-                self.finished_signal.emit(
-                    False, f"yt-dlp 更新失败:\n{result.stderr.strip()}"
-                )
-
-        except subprocess.TimeoutExpired:
-            self.finished_signal.emit(False, "yt-dlp 更新超时")
-        except Exception as e:
-            self.finished_signal.emit(False, f"yt-dlp 更新失败: {str(e)}")
-
-    def cancel(self):
-        self._is_cancelled = True
-
-    def _get_current_version(self) -> str:
-        try:
-            result = subprocess.run(
-                ["yt-dlp", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10,
-                **NO_WINDOW_KWARGS,
             )
             if result.returncode == 0:
                 return result.stdout.strip()
@@ -713,6 +609,7 @@ class LinuxUpdateYtDlpThread(QThread):
         return None
 
     def _get_latest_version(self) -> str:
+        """Get latest yt-dlp version from GitHub API"""
         try:
             response = urllib.request.urlopen(
                 "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest",
