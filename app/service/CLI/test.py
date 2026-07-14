@@ -18,7 +18,7 @@ save_subtitles_to_file(
     crop_zones=[{"x": 12, "y": 582, "width": 1265, "height": 135}],
     # ── 去重 ──
     ssim_threshold=95,
-    frames_to_skip=0,
+    frames_to_skip=2,
     # ── 识别 ──
     ocr_image_max_width=1280,
     conf_threshold=0.3,

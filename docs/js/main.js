@@ -161,12 +161,12 @@ const htmlKeys = new Set([
 // Showcase images per locale
 const showcaseImages = {
   zh: {
-    light: 'https://res.cloudinary.com/do6rggmy6/image/upload/v1781682611/thumbnail_full_qs4gz6.png',
-    dark:  'https://res.cloudinary.com/do6rggmy6/image/upload/v1781682613/thumbnail_full_black_hcrbkt.png'
+    light: 'images/thumbnail_full.png',
+    dark:  'images/thumbnail_full_black.png'
   },
   en: {
-    light: 'https://res.cloudinary.com/do6rggmy6/image/upload/v1782085537/thumbnail_full_en_npfb7n.png',
-    dark:  'https://res.cloudinary.com/do6rggmy6/image/upload/v1782085537/thumbnail_full_en_black_alrths.png'
+    light: 'images/thumbnail_full_en.png',
+    dark:  'images/thumbnail_full_en_black.png'
   }
 };
 

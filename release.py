@@ -151,6 +151,7 @@ def prepare_version(
 
 def run_iscc(ocr_tag: str, iss_path: Path, output_name: str) -> tuple[str, bool]:
     """调用 Inno Setup 编译器，实时显示输出"""
+    return
     print(f"  [{ocr_tag}] ISCC 开始编译...")
     result = subprocess.run(
         ["ISCC.exe", str(iss_path)],

@@ -2,8 +2,9 @@
 
 import os
 import subprocess
+import tempfile
 
-from PySide6.QtCore import QObject, QProcess, Signal
+from PySide6.QtCore import QObject, QProcess, QThread, Signal
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus
@@ -386,3 +387,181 @@ class OCRProcess(QObject):
         else:
             # 如果没有进程在运行，直接发送取消完成信号
             self.cancelled_signal.emit()
+
+
+class ScreenOCRThread(QThread):
+    """屏幕区域 OCR 线程
+
+    截取屏幕指定区域 → 保存临时图片 → 调用 paddleocr.exe ocr → 解析 JSON → 通过 event_bus 通知
+    """
+
+    def __init__(self, rect, parent=None):
+        super().__init__(parent)
+        self.rect = rect  # QRect (屏幕全局坐标)
+        self.logger = Logger("ScreenOCRThread", "screen_ocr")
+        self._cancelled = False
+
+    def run(self):
+        try:
+            lang = cfg.get(cfg.ocr_lang)
+            use_gpu = cfg.get(cfg.useGpu)
+            use_angle_cls = cfg.get(cfg.useAngleCls)
+            use_server_model = cfg.get(cfg.useServerModel)
+
+            event_bus.screen_ocr_started.emit()
+            event_bus.screen_ocr_log.emit("正在截取屏幕区域...")
+
+            # 1. 截取屏幕区域
+            from PySide6.QtWidgets import QApplication
+
+            screen = QApplication.primaryScreen()
+            pixmap = screen.grabWindow(
+                0, self.rect.x(), self.rect.y(), self.rect.width(), self.rect.height()
+            )
+            if pixmap.isNull():
+                event_bus.screen_ocr_finished.emit(False, "截取屏幕失败")
+                return
+
+            # 2. 保存为临时图片
+            temp_dir = tempfile.mkdtemp(prefix="screen_ocr_")
+            img_path = os.path.join(temp_dir, "capture.png")
+            pixmap.save(img_path, "PNG")
+
+            event_bus.screen_ocr_log.emit(f"已保存截图: {img_path}")
+
+            # 3. 构建 paddleocr 命令
+            paddleocr_path = cfg.get(cfg.paddleocrPath)
+            if not os.path.exists(paddleocr_path):
+                event_bus.screen_ocr_finished.emit(
+                    False, f"paddleocr 不存在: {paddleocr_path}"
+                )
+                return
+
+            support_files_path = cfg.get(cfg.supportFilesPath)
+
+            # 解析模型目录
+            from .CLI.videocr import utils
+
+            det_model_dir, rec_model_dir, cls_model_dir = utils.resolve_model_dirs(
+                lang, use_server_model, support_files_path
+            )
+
+            cmd_args = [
+                paddleocr_path,
+                "ocr",
+                "--input",
+                temp_dir,
+                "--device",
+                "gpu" if use_gpu else "cpu",
+                "--use_textline_orientation",
+                "true" if use_angle_cls else "false",
+                "--use_doc_orientation_classify",
+                "false",
+                "--use_doc_unwarping",
+                "false",
+                "--lang",
+                lang,
+                "--text_detection_model_dir",
+                det_model_dir,
+                "--text_detection_model_name",
+                os.path.basename(det_model_dir),
+                "--text_recognition_model_dir",
+                rec_model_dir,
+                "--text_recognition_model_name",
+                os.path.basename(rec_model_dir),
+            ]
+
+            if use_angle_cls:
+                cmd_args += ["--textline_orientation_model_dir", cls_model_dir]
+                cmd_args += [
+                    "--textline_orientation_model_name",
+                    os.path.basename(cls_model_dir),
+                ]
+
+            event_bus.screen_ocr_log.emit("启动 PaddleOCR...")
+
+            # 4. 执行 CLI 进程
+            cli_env = os.environ.copy()
+            cli_env["PYTHONIOENCODING"] = "utf-8"
+            cli_env["PYTHONUNBUFFERED"] = "1"
+
+            process = subprocess.Popen(
+                cmd_args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                encoding="utf-8",
+                env=cli_env,
+                bufsize=1,
+                **NO_WINDOW_KWARGS,
+            )
+
+            stdout_lines = []
+            for line in iter(process.stdout.readline, ""):
+                line = line.strip()
+                if not line:
+                    continue
+                stdout_lines.append(line)
+                if "ppocr INFO:" in line:
+                    event_bus.screen_ocr_log.emit(line)
+                if self._cancelled:
+                    process.kill()
+                    break
+
+            process.wait()
+
+            if self._cancelled:
+                event_bus.screen_ocr_finished.emit(False, "已取消")
+                return
+
+            if process.returncode != 0:
+                stderr_data = process.stderr.read() if process.stderr else ""
+                last_stdout = "\n".join(stdout_lines[-10:]) if stdout_lines else ""
+                diag = f"PaddleOCR 失败 (code={process.returncode})\n命令: {' '.join(cmd_args)}\nstderr:\n{stderr_data}\nstdout(最后10行):\n{last_stdout}"
+                print(diag)
+                event_bus.screen_ocr_finished.emit(
+                    False,
+                    f"PaddleOCR 失败 (code={process.returncode}): {stderr_data[:500]}",
+                )
+                return
+
+            # 5. 解析 ppocr INFO 输出，提取文本
+            import ast
+            import re
+
+            texts = []
+            for line in stdout_lines:
+                line = line.strip()
+                # 匹配 ppocr INFO: [[[x,y],...], ('text', score)] 格式
+                m = re.search(r"ppocr INFO:\s*(\[.*\])\s*$", line)
+                if not m:
+                    continue
+                try:
+                    parsed = ast.literal_eval(m.group(1))
+                    # parsed 格式: [[[x1,y1],[x2,y2],[x3,y3],[x4,y4]], ('text', confidence)]
+                    if isinstance(parsed, list) and len(parsed) == 2:
+                        text = parsed[1][0]
+                        if isinstance(text, str) and text.strip():
+                            texts.append(text.strip())
+                except (ValueError, SyntaxError, IndexError):
+                    continue
+
+            result_text = "\n".join(texts)
+            event_bus.screen_ocr_log.emit(f"识别完成，共 {len(texts)} 行文本")
+            event_bus.screen_ocr_finished.emit(True, result_text)
+
+        except Exception as e:
+            self.logger.error(f"屏幕OCR失败: {str(e)}")
+            event_bus.screen_ocr_finished.emit(False, f"屏幕OCR失败: {str(e)}")
+        finally:
+            # 清理临时目录
+            try:
+                import shutil
+
+                if os.path.exists(temp_dir):
+                    shutil.rmtree(temp_dir, ignore_errors=True)
+            except Exception:
+                pass
+
+    def cancel(self):
+        self._cancelled = True

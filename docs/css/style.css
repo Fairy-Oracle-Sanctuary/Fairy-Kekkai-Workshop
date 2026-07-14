@@ -482,7 +482,7 @@ img {
   display: flex;
   align-items: center;
   padding-top: 4rem;
-  background-image: url('https://res.cloudinary.com/do6rggmy6/image/upload/v1781682601/hero_image_dllmki.png');
+  background-image: url('../images/hero_image.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -490,7 +490,7 @@ img {
 }
 
 [data-theme="dark"] .hero {
-  background-image: url('https://res.cloudinary.com/do6rggmy6/image/upload/v1781682602/hero_image_dark_urrouh.png');
+  background-image: url('../images/hero_image_dark.png');
 }
 
 .particles-container {

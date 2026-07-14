@@ -84,6 +84,17 @@ class GlobalEventBus(QObject):
     # 错误和消息事件
     notification = Signal(dict)  # {"type": "success", "title": "...", "message": "..."}
 
+    # 悬浮ocr窗口事件
+    ocr_window_closed = Signal()
+
+    # 屏幕OCR（悬浮窗口单次OCR）事件
+    screen_ocr_started = Signal()
+    screen_ocr_finished = Signal(bool, str)  # 成功/失败, OCR文本
+    screen_ocr_log = Signal(str)  # 实时日志
+
+    # 屏幕翻译（悬浮窗口一次性翻译）事件
+    screen_translate_finished = Signal(bool, str)  # 成功/失败, 翻译文本
+
 
 # 创建全局单例
 event_bus = GlobalEventBus()

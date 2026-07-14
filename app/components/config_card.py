@@ -51,6 +51,7 @@ from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import SettingCardGroup as CardGroup
 
 from ..common.config import cfg
+from ..common.setting import IS_PADDLEOCR_CPU
 from ..common.text import Text
 
 
@@ -982,6 +983,10 @@ class OCRSettingInterface(ScrollArea):
             configItem=cfg.useGpu,
             parent=self.featureGroup,
         )
+        if IS_PADDLEOCR_CPU:
+            cfg.set(cfg.useGpu, False)
+            self.useGpuCard.setChecked(False)
+            self.useGpuCard.setEnabled(False)
         # self.useFullframeCard = SwitchSettingCard(
         #     FIF.FULL_SCREEN,
         #     self.tr("使用全帧OCR"),
