@@ -78,15 +78,15 @@ if __name__ == "__main__":
 
 """
 ## 更新日志
-- ocr更换回原本的引擎
+- 新增悬浮窗 OCR
 
 ## 下载提示
 - Windows10/11：
   - CPU：
-    - [Fairy-Kekkai-Workshop-v2.3.0-CPU-v1.5.1-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.3.0/Fairy-Kekkai-Workshop-v2.3.0-CPU-v1.5.1-Windows-x86_64-Setup.exe)
+    - [Fairy-Kekkai-Workshop-v2.4.0-CPU-v1.5.1-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.4.0/Fairy-Kekkai-Workshop-v2.4.0-CPU-v1.5.1-Windows-x86_64-Setup.exe)
   - GPU：
-    - [Fairy-Kekkai-Workshop-v2.3.0-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.3.0/Fairy-Kekkai-Workshop-v2.3.0-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe)
-    - [Fairy-Kekkai-Workshop-v2.3.0-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.3.0/Fairy-Kekkai-Workshop-v2.3.0-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe)
+    - [Fairy-Kekkai-Workshop-v2.4.0-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.4.0/Fairy-Kekkai-Workshop-v2.4.0-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe)
+    - [Fairy-Kekkai-Workshop-v2.4.0-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.4.0/Fairy-Kekkai-Workshop-v2.4.0-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe)
 - mac版本无变动，直接下载上一个版本即可
 - 迅雷链接：https://pan.xunlei.com/s/VOl2n0KP6LH3zXUqcYX1iYUAA1?pwd=yzim#
 
