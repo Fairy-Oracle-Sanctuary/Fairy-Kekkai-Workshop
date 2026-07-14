@@ -6,7 +6,7 @@
 
 ### 核心特性
 - 📥 **视频下载**：基于 yt-dlp，支持 YouTube 等多个视频平台
-- 🔤 **字幕提取**：集成 paddleocr，支持自定义 OCR 参数和模型路径
+- 🔤 **字幕提取**：基于 [VideOCR](https://github.com/timminator/VideOCR)，支持 PaddleOCR 与 Google Lens 双引擎，支持 200+ 种语言
 - 🎤 **语音识别**：基于 [Const-me/Whisper](https://github.com/Const-me/Whisper)，支持多语言语音转字幕，带实时进度显示
 - 🌐 **智能翻译**：支持多个 AI 模型（OpenAI、Deepseek、腾讯混元、ERNIE、Gemini、书生等）
 - 🎬 **视频压制**：基于 FFmpeg，支持自定义编码参数
@@ -52,13 +52,14 @@ Fairy-Kekkai-Workshop/
 │   │   ├── srt_service.py         # 字幕文件处理
 │   │   ├── version_service.py     # 版本更新检查
 │   │   └── CLI/                   # CLI 工具模块
-│   │       ├── videocr/           # videocr 核心模块
-│   │       │   ├── videocr_cli.py # videocr CLI 入口
-│   │       │   ├── deploy.py      # CLI 打包脚本
-│   │       │   ├── api.py         # OCR API
-│   │       │   ├── video.py       # 视频处理
+│   │       ├── videocr/           # videocr 核心模块（来自 [VideOCR](https://github.com/timminator/VideOCR)）
+│   │       │   ├── __init__.py    # 模块导出
+│   │       │   ├── api.py         # OCR API（save_subtitles_to_file）
+│   │       │   ├── video.py       # 视频处理（帧提取、OCR、字幕生成）
 │   │       │   ├── models.py      # 数据模型
-│   │       │   └── utils.py       # 工具函数
+│   │       │   ├── utils.py       # 工具函数（SSIM、时间解析、语言字典等）
+│   │       │   ├── lang_dictionaries.py # PaddleOCR/Google Lens 语言代码映射
+│   │       │   └── pyav_adapter.py # PyAV 视频解码适配器
 │   │       ├── whispernet/         # WhisperNet CLI (C#)
 │   │       │   ├── Program.cs     # CLI 入口，支持进度输出
 │   │       │   └── WhisperNetCLI.csproj
@@ -71,23 +72,7 @@ Fairy-Kekkai-Workshop/
 │   │       │   ├── Utils/          # 工具函数
 │   │       │   ├── Whisper.vcxproj # Visual Studio 项目文件
 │   │       │   └── ...             # 其他源文件
-│   │       └── paddleocr/         # paddleocr C++ 源码（自包含）
-│   │           ├── CMakeLists.txt  # CMake 构建（FetchContent 自动下载依赖）
-│   │           ├── main.cpp       # CLI 入口（text_detection / ocr 命令）
-│   │           ├── dbcrnn.cpp     # DBNet 文字检测 + CRNN 文字识别
-│   │           ├── dbcrnn.hpp
-│   │           ├── ortwrapper.cpp # ONNX Runtime 封装
-│   │           ├── ortwrapper.hpp
-│   │           ├── localocr.cpp   # CVUtils C API 实现
-│   │           ├── similarity.cpp # SSIM 相似度计算
-│   │           ├── shared.cpp     # 文件版本查询（独立构建桩）
-│   │           ├── shared.hpp
-│   │           ├── deviceinfo.hpp # 设备信息（DML/OpenVINO/CPU）
-│   │           ├── format.hpp     # cv::Mat 内存构造
-│   │           ├── cvutils_api.h  # C API 声明
-│   │           ├── cvutils_compat.h # PCH 替代兼容头
-│   │           ├── libonnxruntime.cmake # ONNX Runtime + DirectML 下载
-│   │           └── .clangd        # clangd 配置
+│   │       └── paddleocr/         # paddleocr C++ 源码（已移除，改用 VideOCR）
 │   │
 │   ├── view/                      # UI 视图层
 │   │   ├── main_window.py         # 主窗口（含启动页、主题切换按钮）
@@ -108,12 +93,8 @@ Fairy-Kekkai-Workshop/
 │       └── qss/                   # 样式表
 │
 ├── tools/                         # 外部工具目录
-│   ├── OCR.model/                 # OCR 模型文件
-│   ├── PaddleOCR/                 # paddleocr 可执行文件
-│   │   ├── paddleocr.exe
-│   │   ├── CVUtils.dll
-│   │   ├── onnxruntime.dll
-│   │   └── ...
+│   ├── OCR.model/                 # OCR 模型文件（PaddleOCR 模型）
+│   ├── videocr-cli.exe            # VideOCR CLI 可执行文件（Nuitka 打包）
 │   ├── Whisper.model/             # Whisper 模型文件（ggml 格式）
 │   ├── Whisper/                   # WhisperNet CLI 及依赖
 │   │   ├── WhisperNetCLI.exe
@@ -121,7 +102,6 @@ Fairy-Kekkai-Workshop/
 │   │   ├── WhisperNet.dll
 │   │   ├── ComLight.dll
 │   │   └── ...
-│   ├── videocr-cli.exe            # videocr CLI 可执行文件
 │   ├── yt-dlp.exe                 # 视频下载工具
 │   └── ffmpeg.exe                 # 视频处理工具
 │
@@ -161,10 +141,10 @@ Fairy-Kekkai-Workshop/
    ```
 
 4. **准备 OCR 工具**
-   - 编译 paddleocr C++ 可执行文件（见下文 [paddleocr 编译](#paddleocr-c-编译)）
-   - 编译完成后将产物复制到 `tools/PaddleOCR/`
-   - 下载 OCR 模型文件放到 `tools/OCR.model/` 目录
-   - 编译 videocr CLI: `cd app/service/CLI && python deploy.py`
+   - 安装 VideOCR 依赖：`pip install . --group all`（在 [VideOCR](https://github.com/timminator/VideOCR) 源码目录中）
+   - 编译 videocr CLI：`cd app/service/CLI && python deploy.py`（使用 Nuitka 打包为 `videocr-cli.exe`）
+   - 将编译产物 `videocr-cli.exe` 复制到 `tools/` 目录
+   - 下载 PaddleOCR 模型文件放到 `tools/OCR.model/` 目录
 
 5. **准备 Whisper 工具**（仅 Windows）
    - 下载 Whisper 模型文件（ggml 格式）放到 `tools/Whisper.model/` 目录
@@ -195,10 +175,11 @@ Fairy-Kekkai-Workshop/
 
 **外部工具**（需手动准备）：
 ```bash
-# paddleocr（字幕提取）
-# 编译 paddleocr C++ 可执行文件：cmake + MSBuild（见下方章节）
-# 将 paddleocr.exe, onnxruntime.dll, DirectML.dll 复制到 tools/PaddleOCR/
-# 下载 OCR 模型文件放到 tools/OCR.model/ 目录
+# VideOCR CLI（字幕提取）
+# 安装 VideOCR 依赖：pip install . --group all
+# 编译 videocr CLI：cd app/service/CLI && python deploy.py
+# 将 videocr-cli.exe 复制到 tools/ 目录
+# 下载 PaddleOCR 模型文件放到 tools/OCR.model/ 目录
 
 # FFmpeg（视频压制）
 # Windows: 下载编译版本或通过 scoop/chocolatey
@@ -209,70 +190,91 @@ Fairy-Kekkai-Workshop/
 uv pip install yt-dlp
 ```
 
-### paddleocr C++ 编译
+### VideOCR CLI 编译
 
-paddleocr 是自包含的 C++ 项目，通过 CMake FetchContent 自动下载所有依赖（OpenCV、Clipper2、ONNX Runtime、DirectML），无需手动配置。
+VideOCR 是基于 Python 的 OCR 工具，支持 PaddleOCR 与 Google Lens 双引擎。本项目使用 Nuitka 将其打包为独立可执行文件 `videocr-cli.exe`。
 
 **前置要求**：
-- Visual Studio 2022（含 C++ 桌面开发工作负载）
-- CMake 3.20+
-- Git（Clipper2 通过 Git 获取）
+- Python 3.9+
+- Nuitka（`pip install nuitka`）
+- VideOCR 依赖（`pip install . --group all`，在 [VideOCR](https://github.com/timminator/VideOCR) 源码目录中）
+- C++ Build Tools（Nuitka 编译需要，如 Visual Studio 含 "Desktop development with C++" 工作负载）
+- 7zip（需在 PATH 中可用）
 
 **编译步骤**：
 ```bash
-# 在 paddleocr 目录外创建 build 目录
-cd app/service/CLI/paddleocr
-mkdir build && cd build
+# 进入 CLI 目录
+cd app/service/CLI
 
-# 配置 CMake（自动下载 OpenCV、Clipper2、ONNX Runtime、DirectML）
-cmake .. -G "Visual Studio 17 2022" -A x64
+# 使用 Nuitka 打包（默认方式）
+python deploy.py
 
-# 编译 Release
-cmake --build . --config Release -j 4
+# 或使用 PyInstaller 打包
+# 修改 deploy.py 中 main() 调用 run_pyinstaller()
 ```
 
-**产物位置**：`build/Release/`
-- `paddleocr.exe` - OCR CLI 可执行文件
-- `onnxruntime.dll` - ONNX Runtime（含 DML GPU 支持）
-- `DirectML.dll` - DirectML GPU 加速
+**产物位置**：`dist/videocr_cli/videocr-cli.exe`
 
 **部署到生产环境**：
 ```bash
-copy build/Release/paddleocr.exe tools/PaddleOCR/
-copy build/Release/onnxruntime.dll tools/PaddleOCR/
-copy build/Release/DirectML.dll tools/PaddleOCR/
+copy dist/videocr_cli/videocr-cli.exe tools/
 ```
 
 **测试**：
 ```bash
 # 无参数运行（显示帮助）
-tools/PaddleOCR/paddleocr.exe
+tools/videocr-cli.exe --help
 
 # CPU OCR 测试
-tools/PaddleOCR/paddleocr.exe ocr ^
-  --input path/to/images ^
-  --device cpu ^
-  --text_detection_model_dir tools/OCR.model/high/cjk_mobile ^
-  --text_recognition_model_dir tools/OCR.model/high/cjk_mobile
+tools/videocr-cli.exe ^
+  --video_path path/to/video.mp4 ^
+  --output output.srt ^
+  --ocr_engine paddleocr ^
+  --lang japan ^
+  --use_gpu false ^
+  --paddleocr_path tools/PaddleOCR ^
+  --supportFilesPath tools/OCR.model
 ```
 
-**源码结构**：
-| 文件 | 来源 | 说明 |
-|------|------|------|
-| `main.cpp` | 本项目 | CLI 入口，支持 `text_detection` 和 `ocr` 命令 |
-| `dbcrnn.cpp/.hpp` | LunaTranslator CVUtils | DBNet 文字检测 + CRNN 文字识别核心算法 |
-| `ortwrapper.cpp/.hpp` | LunaTranslator CVUtils | ONNX Runtime 会话封装（DML/CPU/OpenVINO） |
-| `localocr.cpp` | LunaTranslator CVUtils | C API 实现（`OcrInit` / `OcrDetect` / `OcrDestroy`） |
-| `similarity.cpp` | LunaTranslator CVUtils | SSIM 图像相似度计算 |
-| `shared.cpp/.hpp` | 独立实现 | 文件版本查询 + DLL 路径搜索（构建桩） |
-| `deviceinfo.hpp` | LunaTranslator CVUtils | GPU 设备信息（DML/OpenVINO/CPU） |
-| `format.hpp` | LunaTranslator CVUtils | 从内存构造 `cv::Mat` |
-| `cvutils_api.h` | 本项目 | C API 声明（独立构建，无 dllimport） |
-| `cvutils_compat.h` | 本项目 | PCH 替代品，提供 Windows SDK / ATL 头文件 |
-| `libonnxruntime.cmake` | LunaTranslator CVUtils | ONNX Runtime + DirectML NuGet 包下载 |
-| `.clangd` | 本项目 | IDE clangd 智能提示配置 |
+**VideOCR CLI 主要参数**：
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `--video_path` | （必填） | 视频文件路径 |
+| `--output` | `subtitle.srt` | 输出 SRT 文件路径 |
+| `--ocr_engine` | `paddleocr` | OCR 引擎（`paddleocr` 或 `google_lens`） |
+| `--lang` | `en` | OCR 语言代码 |
+| `--conf_threshold` | `75` | 置信度阈值（PaddleOCR 专用，0-100） |
+| `--sim_threshold` | `80` | 字幕行合并相似度阈值（0-100） |
+| `--ssim_threshold` | `92` | SSIM 帧去重阈值（0-100） |
+| `--max_merge_gap` | `0.09` | 最大合并间隔（秒） |
+| `--use_fullframe` | `false` | 是否使用完整帧进行 OCR |
+| `--use_gpu` | `false` | 是否启用 GPU |
+| `--use_angle_cls` | `false` | 是否启用方向分类（PaddleOCR 专用） |
+| `--use_server_model` | `false` | 是否使用服务器端模型 |
+| `--brightness_threshold` | `None` | 亮度阈值（0-255，用于过滤暗色背景） |
+| `--subtitle_position` | `center` | 字幕位置（`center`/`left`/`right`/`any`） |
+| `--frames_to_skip` | `1` | 跳帧数 |
+| `--post_processing` | `false` | 是否启用后处理（自动插入缺失空格） |
+| `--min_subtitle_duration` | `0.2` | 最小字幕持续时间（秒） |
+| `--ocr_image_max_width` | `720` | OCR 图像最大宽度（像素） |
+| `--crop_x/y/width/height` | `None` | 裁剪区域 1（像素） |
+| `--crop_x2/y2/width2/height2` | `None` | 裁剪区域 2（双区域 OCR） |
+| `--paddleocr_path` | `None` | PaddleOCR 可执行文件路径 |
+| `--supportFilesPath` | `None` | PaddleOCR 模型文件目录 |
+| `--tempDir` | `None` | 临时目录路径 |
 
-**clangd 配置**：项目 `.clangd` 文件包含构建目录下的依赖头文件路径和 Windows SDK 路径，用于 IDE 的代码补全和静态分析。首次 CMake 配置后 clangd 即可正常工作。
+**源码结构**：
+| 文件 | 说明 |
+|------|------|
+| `videocr_cli.py` | CLI 入口，解析参数并调用 `save_subtitles_to_file` |
+| `deploy.py` | Nuitka/PyInstaller 打包脚本 |
+| `videocr/__init__.py` | 模块导出 |
+| `videocr/api.py` | OCR API（`save_subtitles_to_file`） |
+| `videocr/video.py` | 视频处理（帧提取、OCR、字幕生成） |
+| `videocr/models.py` | 数据模型 |
+| `videocr/utils.py` | 工具函数（SSIM、时间解析、Levenshtein 相似度等） |
+| `videocr/lang_dictionaries.py` | PaddleOCR/Google Lens 语言代码映射 |
+| `videocr/pyav_adapter.py` | PyAV 视频解码适配器 |
 
 ---
 
@@ -304,10 +306,10 @@ cfg.set(cfg.dpiScale, 1.5)
 - `deepseekModel`：Deepseek 模型选择（deepseek-v4-flash/deepseek-v4-pro）
 - `deepseekReasoning`：Deepseek 深度思考模式开关
 - `concurrentDownloads`：最大并发下载数
-- `confidenceThreshold`：OCR 置信度阈值（0.0-1.0，默认 0.3）
-- `ssimThreshold`：SSIM 去重阈值（0-100，默认 90）
-- `simThreshold`：字幕合并相似度阈值（0-100，默认 65）
-- `framesToSkip`：跳帧数（0-100，默认 3）
+- `confidenceThreshold`：OCR 置信度阈值（0-100，默认 75）
+- `ssimThreshold`：SSIM 去重阈值（0-100，默认 92）
+- `simThreshold`：字幕合并相似度阈值（0-100，默认 80）
+- `framesToSkip`：跳帧数（默认 1）
 - `useTranslateContext`：是否启用 AI 翻译多轮对话上下文
 
 ### 2. 事件总线（`app/common/event_bus.py`）
@@ -481,7 +483,7 @@ thread.start()
 
 ### 5. OCR 服务（`app/service/ocr_service.py`）
 
-基于 paddleocr 的字幕提取服务，支持 GPU 加速和多参数调节。
+基于 [VideOCR](https://github.com/timminator/VideOCR) 的字幕提取服务，支持 PaddleOCR 与 Google Lens 双引擎，支持 GPU 加速和多参数调节。
 
 ```python
 from app.service.ocr_service import OCRProcess, OCRTask
@@ -492,14 +494,14 @@ task = OCRTask(args={
     "file_path": "/path/to/output.srt",
     "temp_dir": "/path/to/temp",
     "lang": "ja",
-    "paddleocr_path": "tools/PaddleOCR/paddleocr.exe",
+    "paddleocr_path": "tools/PaddleOCR",
     "supportFilesPath": "tools/OCR.model",
-    "confidence_threshold": 0.3,  # 置信度阈值 (0.0-1.0)
-    "ssim_threshold": 90,         # SSIM 去重阈值 (0-100)
-    "sim_threshold": 65,          # 字幕合并相似度 (0-100)
-    "frames_to_skip": 3,          # 跳过的帧数
-    "ocr_image_max_width": 1280,  # OCR 图像最大宽度
-    "use_gpu": True,              # 是否使用 GPU
+    "confidence_threshold": 75,    # 置信度阈值 (0-100)
+    "ssim_threshold": 92,          # SSIM 去重阈值 (0-100)
+    "sim_threshold": 80,           # 字幕合并相似度 (0-100)
+    "frames_to_skip": 1,           # 跳过的帧数
+    "ocr_image_max_width": 720,    # OCR 图像最大宽度
+    "use_gpu": True,               # 是否使用 GPU
 })
 
 # 执行 OCR
@@ -510,28 +512,29 @@ process.start()
 
 **OCR 流程**：
 1. 视频帧提取和 SSIM 去重过滤
-2. 文本检测（Text-Detection-Only pass）
-3. 文本识别（OCR + 置信度评分）
+2. 文本检测（PaddleOCR DBNet）
+3. 文本识别（PaddleOCR CRNN 或 Google Lens）
 4. 置信度过滤（丢弃低质量识别结果）
-5. 字幕生成和合并
+5. 字幕生成和合并（Levenshtein 相似度）
 
 **OCR 高级参数说明**：
 
 | 参数 | 默认值 | 范围 | 说明 |
 |------|--------|------|------|
-| `ssim_threshold` | 90 | 0-100 | SSIM 阈值，越高越保守（不去重），越低越激进（多去重） |
-| `sim_threshold` | 65 | 0-100 | 字幕合并相似度阈值，越高越不易合并 |
-| `frames_to_skip` | 3 | 0-100 | 每 N 帧取一帧，0=每帧都取（最慢但最全） |
-| `ocr_image_max_width` | 1280 | 100-4096 | OCR 输入图像最大宽度（像素） |
-| `confidence_threshold` | 0.3 | 0.0-1.0 | 置信度过滤阈值，低于此值的识别结果被丢弃 |
-| `brightness_threshold` | 0 | 0-255 | 亮度阈值，用于过滤暗色背景噪点（0=禁用） |
-| `max_merge_gap` | 0.1 | 0.1-10.0 | 最大合并间隔（秒），增大可合并更多断句 |
-| `min_subtitle_duration` | 0.2 | 0.1-10.0 | 最小字幕持续时间（秒） |
+| `ssim_threshold` | 92 | 0-100 | SSIM 阈值，越高越保守（不去重），越低越激进（多去重） |
+| `sim_threshold` | 80 | 0-100 | 字幕合并相似度阈值（Levenshtein），越高越不易合并 |
+| `frames_to_skip` | 1 | 0+ | 每 N 帧取一帧，0=每帧都取（最慢但最全） |
+| `ocr_image_max_width` | 720 | 1+ | OCR 输入图像最大宽度（像素） |
+| `confidence_threshold` | 75 | 0-100 | 置信度过滤阈值（PaddleOCR 专用），低于此值的识别结果被丢弃 |
+| `brightness_threshold` | None | 0-255 | 亮度阈值，用于过滤暗色背景噪点（None=禁用） |
+| `max_merge_gap` | 0.09 | 0.0+ | 最大合并间隔（秒），增大可合并更多断句 |
+| `min_subtitle_duration` | 0.2 | 0.0+ | 最小字幕持续时间（秒） |
+| `post_processing` | false | - | 后处理：自动插入缺失空格（英语/西语等） |
 
 **参数调整建议**：
 - **漏句** → 降低 `frames_to_skip`，提高 `ssim_threshold`，降低 `ocr_image_max_width`
-- **误识别多** → 提高 `confidence_threshold` 至 0.5~0.7
-- **字幕断句多** → 提高 `sim_threshold` 至 75~85，增大 `max_merge_gap` 至 0.2~0.5
+- **误识别多** → 提高 `confidence_threshold` 至 80~90
+- **字幕断句多** → 提高 `sim_threshold` 至 85~95，增大 `max_merge_gap` 至 0.2~0.5
 
 ### 6. Whisper 语音识别服务（`app/service/whisper_service.py`）
 
@@ -1001,11 +1004,11 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 ### Q: 字幕提取失败
 
 **A**:
-1. 确保 `paddleocr.exe` 存在于 `tools/PaddleOCR/` 目录
-2. 确保 OCR 模型文件存在于 `tools/OCR.model/` 目录
+1. 确保 `videocr-cli.exe` 存在于 `tools/` 目录
+2. 确保 PaddleOCR 模型文件存在于 `tools/OCR.model/` 目录
 3. 检查 VC++ 运行时是否已安装（需要 MSVCP140.dll 和 VCRUNTIME140.dll）
-4. 检查 GPU 驱动是否支持 DirectML（如使用 GPU）
-5. **OpenCC 字典文件问题**：如果打包后出现 `t2s.json not found` 错误，需要确保 OpenCC 字典文件正确打包到可执行文件中
+4. 检查 GPU 驱动是否支持 CUDA（如使用 GPU）
+5. 如果使用 Google Lens 引擎，确保网络连接正常
 
 ### Q: 翻译功能不可用
 
@@ -1059,7 +1062,7 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 | 功能 | 状态 | 备注 |
 |------|------|------|
 | 视频下载 | ✅ | 基于 yt-dlp，支持大多数平台 |
-| 字幕提取 | ✅ | PaddleOCR，需手动安装模型，仅 Windows |
+| 字幕提取 | ✅ | 基于 [VideOCR](https://github.com/timminator/VideOCR)，支持 PaddleOCR/Google Lens 引擎，仅 Windows |
 | 语音识别 | ✅ | [Const-me/Whisper](https://github.com/Const-me/Whisper)，仅 Windows，支持实时进度 |
 | 翻译 | ✅ | 多 AI 模型支持，部分 SDK 不兼容 |
 | 视频压制 | ✅ | 基于 FFmpeg，支持多种编码器 |
@@ -1105,7 +1108,7 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 
 - **UI 框架**：PySide6 + QFluentWidgets (Modern UI)
 - **视频处理**：FFmpeg + yt-dlp
-- **字幕识别**：paddleocr
+- **字幕识别**：[VideOCR](https://github.com/timminator/VideOCR)（PaddleOCR / Google Lens）
 - **语音识别**：[Const-me/Whisper](https://github.com/Const-me/Whisper)
 - **翻译**：多个云 API（OpenAI、Deepseek、腾讯混元等）
 - **B 站上传**：Bilibili API
@@ -1115,5 +1118,5 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 
 ---
 
-**最后更新**：2026 年 6 月 3 日  
+**最后更新**：2026 年 7 月 14 日  
 **维护者**：`Baby2016` `镀铬酸钾`
