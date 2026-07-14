@@ -4,7 +4,7 @@ from pathlib import Path
 
 AUTHOR = "baby2016"
 TEAM = "天机阁(Fairy-Oracle-Sanctuary)"
-VERSION = "2.3.0"
+VERSION = "2.4.0"
 YEAR = "2026"
 UPDATE_TIME = "2026-7-14"
 # CI 测试版本警告，设为空字符串不显示，填入文字则显示警告
@@ -16,6 +16,7 @@ else:
 
 RELEASE_URL = "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases"
 GITHUB_URL = "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop"
+OFFICIAL_WEBSITE = "https://fkw.ora-san.org"
 
 CONFIG_FOLDER = Path("AppData").absolute()
 
@@ -274,3 +275,4 @@ def _read_paddleocr_version() -> str:
 
 
 PADDLEOCR_VERSION = _read_paddleocr_version() if sys.platform == "win32" else ""
+IS_PADDLEOCR_CPU = "CPU" in PADDLEOCR_VERSION.upper()

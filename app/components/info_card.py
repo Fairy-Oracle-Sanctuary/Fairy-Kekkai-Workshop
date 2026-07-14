@@ -21,16 +21,23 @@ from qfluentwidgets import (
 )
 
 from ..common.event_bus import event_bus
-from ..common.setting import CONFIG_FILE, GITHUB_URL, UPDATE_TIME, VERSION
+from ..common.setting import (
+    CONFIG_FILE,
+    GITHUB_URL,
+    OFFICIAL_WEBSITE,
+    UPDATE_TIME,
+    VERSION,
+)
+from .floating_window import FloatingWindow
 
 try:
     from ..common.setting import CI_BUILD_WARNING
 except ImportError:
     CI_BUILD_WARNING = None
+from ..common.text import Text
 from ..resource import resource_rc  # noqa: F401
 from ..view.log_interface import LogWindow
 from .statistic_widget import StatisticsWidget
-from ..common.text import Text
 
 
 class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
@@ -52,12 +59,21 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
             self,
         )
 
-        self.versionWidget = StatisticsWidget(self.globalText.Version, f"v{VERSION}", self)
-        self.updateTimeWidget = StatisticsWidget(self.globalText.UpdateTime, UPDATE_TIME, self)
+        self.versionWidget = StatisticsWidget(
+            self.globalText.Version, f"v{VERSION}", self
+        )
+        self.updateTimeWidget = StatisticsWidget(
+            self.globalText.UpdateTime, UPDATE_TIME, self
+        )
 
         self.descriptionLabel = BodyLabel(
             self.globalText.FairyKekkaiWorkshop2,
             self,
+        )
+
+        self.websiteButton = TransparentToolButton(FluentIcon.GLOBE, self)
+        self.websiteButton.clicked.connect(
+            lambda: QDesktopServices.openUrl(QUrl(OFFICIAL_WEBSITE))
         )
 
         self.githubButton = TransparentToolButton(FluentIcon.GITHUB, self)
@@ -70,6 +86,8 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
         self.clearLogButton.setToolTip(self.globalText.ClearAllLogs)
         self.resetButton = TransparentToolButton(FluentIcon.SYNC, self)
         self.resetButton.setToolTip(self.globalText.RASAR)
+        self.floatingButton = PrimaryPushButton(FluentIcon.PIN, "OCR")
+        self.floatingButton.setToolTip("悬浮窗口")
 
         self.hBoxLayout = QHBoxLayout(self)
         self.vBoxLayout = QVBoxLayout()
@@ -94,6 +112,8 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
         # setFont(self.tagButton, 12)
         # self.tagButton.setFixedSize(80, 32)
 
+        self.websiteButton.setFixedSize(32, 32)
+        self.websiteButton.setIconSize(QSize(14, 14))
         self.githubButton.setFixedSize(32, 32)
         self.githubButton.setIconSize(QSize(14, 14))
 
@@ -156,17 +176,24 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
         self.buttonLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.addLayout(self.buttonLayout)
         self.buttonLayout.addWidget(self.logButton, 0, Qt.AlignLeft)
+        self.buttonLayout.addSpacing(12)
+        self.buttonLayout.addWidget(self.floatingButton, 0, Qt.AlignLeft)
         self.buttonLayout.addStretch(1)
         self.buttonLayout.addWidget(self.clearLogButton, 0, Qt.AlignRight)
         self.buttonLayout.addWidget(self.resetButton, 0, Qt.AlignRight)
         self.buttonLayout.addWidget(self.githubButton, 0, Qt.AlignRight)
+        self.buttonLayout.addWidget(self.websiteButton, 0, Qt.AlignRight)
 
     def __connectSignalToSlot(self):
         self.logButton.clicked.connect(self.__onLogButtonClicked)
         self.clearLogButton.clicked.connect(self.__onClearLogClicked)
         self.resetButton.clicked.connect(self.__onResetClicked)
+        self.floatingButton.clicked.connect(self.__onFloatingButtonClicked)
         event_bus.log_window_closed.connect(lambda: self.logButton.setEnabled(True))
         event_bus.log_message.connect(self.appendLog)
+        event_bus.ocr_window_closed.connect(
+            lambda: self.floatingButton.setEnabled(True)
+        )
 
     def __initLog(self):
         self.allLogs = ""
@@ -176,6 +203,11 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
         self.whisperLogs = ""
         self.aiLogs = ""
         self.ffmpegLogs = ""
+
+    def __onFloatingButtonClicked(self):
+        self.floatingButton.setEnabled(False)
+        self.floatingWindow = FloatingWindow()
+        self.floatingWindow.show()
 
     def __onLogButtonClicked(self):
         self.logButton.setEnabled(False)
@@ -222,7 +254,8 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
             pass
 
         event_bus.notification_service.show_success(
-            self.globalText.ClearSuccessful, self.globalText.ClearedLogFiles.format(deleted)
+            self.globalText.ClearSuccessful,
+            self.globalText.ClearedLogFiles.format(deleted),
         )
 
     def __onResetClicked(self):
@@ -242,7 +275,9 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
             if CONFIG_FILE.exists():
                 CONFIG_FILE.unlink()
         except Exception as e:
-            event_bus.notification_service.show_error(self.globalText.ResetFailed, str(e))
+            event_bus.notification_service.show_error(
+                self.globalText.ResetFailed, str(e)
+            )
             return
 
         self.__restartApplication()

@@ -507,3 +507,69 @@ class TranslateThread(QThread):
     def cancel(self):
         self._is_running = False
         self.task.status = TaskStatus.CANCELLED
+
+
+class ScreenTranslateThread(QThread):
+    """悬浮窗口一次性翻译线程，翻译当前 OCR 文本"""
+
+    def __init__(self, text: str):
+        super().__init__()
+        self._text = text
+        self._is_running = True
+
+    def run(self):
+        try:
+            ai_model = cfg.get(cfg.ai_model)
+            origin_lang = cfg.get(cfg.origin_lang)
+            target_lang = cfg.get(cfg.target_lang)
+            temperature = float(cfg.get(cfg.aiTemperature))
+
+            service_cls = TranslateThread.SERVICES.get(ai_model)
+            if not service_cls:
+                event_bus.screen_translate_finished.emit(
+                    False, f"不支持的AI模型: {ai_model}"
+                )
+                return
+
+            task = TranslateTask(
+                args={
+                    "AI": ai_model,
+                    "origin_lang": origin_lang,
+                    "target_lang": target_lang,
+                    "temperature": temperature,
+                    "deepseek_model": cfg.get(cfg.deepseekModel),
+                    "deepseek_reasoning": cfg.get(cfg.deepseekReasoning),
+                }
+            )
+
+            service = (
+                service_cls(task) if service_cls == DeepseekService else service_cls()
+            )
+
+            prompt = (
+                f"你是一个专业的{target_lang}翻译助手。\n"
+                f"请将以下{origin_lang}文本翻译为{target_lang}，"
+                f"保持原意流畅自然，直接输出翻译结果：\n\n{self._text}"
+            )
+            messages = [{"role": "user", "content": prompt}]
+
+            full_response = ""
+            for text_piece in service.translate_with_context(
+                origin_lang, target_lang, messages, temperature
+            ):
+                if not self._is_running:
+                    break
+                full_response += text_piece
+
+            full_response = remove_thinking_content(full_response)
+
+            if self._is_running:
+                event_bus.screen_translate_finished.emit(True, full_response)
+            else:
+                event_bus.screen_translate_finished.emit(False, "已取消")
+        except Exception as e:
+            error_msg = BaseTranslateService.analysis_error(str(e))
+            event_bus.screen_translate_finished.emit(False, error_msg)
+
+    def cancel(self):
+        self._is_running = False
