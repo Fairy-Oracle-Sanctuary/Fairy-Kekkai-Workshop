@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  Complete project management, support for 1800+ video download sites, one-click project creation from YouTube playlists, PaddleOCR-based video OCR, Whisper speech recognition, customizable AI subtitle translation, and FFmpeg-based video compression.
+  Complete project management, support for 1800+ video download sites, one-click project creation from YouTube playlists, VideOCR-based video OCR (supporting PaddleOCR and Google Lens engines), Whisper speech recognition, customizable AI subtitle translation, and FFmpeg-based video compression.
 </p>
 
 <p align="center">
@@ -73,10 +73,11 @@
 - Support for custom video quality and format
 
 ### 🔤 Subtitle Extraction (OCR)
-- Integrated PaddleOCR with custom OCR parameters
+- Based on [VideOCR](https://github.com/timminator/VideOCR), supporting both PaddleOCR and Google Lens engines
+- Supports 200+ languages
 - Visual subtitle area selection
 - Support for dual-area OCR (top and bottom subtitles)
-- GPU acceleration support
+- GPU acceleration support (CUDA)
 - Real-time log output
 
 ### 🎙️ Speech Recognition
@@ -249,11 +250,11 @@ A: This is a normal PySide6 warning and does not affect functionality. It can be
 ### Q: Subtitle extraction failed
 
 A:
-1. Ensure `paddleocr.exe` exists in the `tools/PaddleOCR/` directory
-2. Ensure OCR model files exist in the `tools/OCR.model/` directory
+1. Ensure `videocr-cli.exe` exists in the `tools/` directory
+2. Ensure PaddleOCR model files exist in the `tools/OCR.model/` directory
 3. Check if VC++ runtime is installed (requires MSVCP140.dll and VCRUNTIME140.dll)
-4. Check if GPU driver supports DirectML (if using GPU)
-5. If `t2s.json not found` error occurs after packaging, ensure OpenCC dictionary files are correctly packaged
+4. Check if GPU driver supports CUDA (if using GPU)
+5. If using Google Lens engine, ensure network connection is active
 
 ### Q: Whisper speech recognition failed
 
@@ -286,7 +287,7 @@ A:
 | Feature | Status | Notes |
 |---------|--------|-------|
 | Video Download | ✅ | Based on yt-dlp, supports 1800+ sites |
-| Subtitle Extraction | ✅ | PaddleOCR, requires manual model installation, Windows only |
+| Subtitle Extraction | ✅ | Based on VideOCR, supports PaddleOCR/Google Lens engines, Windows only |
 | Speech Recognition | ✅ | WhisperNet, Windows only, real-time progress support |
 | Translation | ✅ | Multi-AI model support, some SDKs incompatible |
 | Video Compression | ✅ | Based on FFmpeg, supports multiple encoders |
@@ -299,7 +300,7 @@ A:
 
 - **UI Framework**: PySide6 + QFluentWidgets (Modern UI)
 - **Video Processing**: FFmpeg + yt-dlp
-- **Subtitle Recognition**: paddleocr
+- **Subtitle Recognition**: [VideOCR](https://github.com/timminator/VideOCR) (PaddleOCR / Google Lens)
 - **Speech Recognition**: [Const-me/Whisper](https://github.com/Const-me/Whisper)
 - **Translation**: Multiple cloud APIs (OpenAI, Deepseek, Tencent Hunyuan, etc.)
 - **Configuration Storage**: JSON
@@ -330,8 +331,7 @@ This project is licensed under the GPL license. See the LICENSE file in the repo
 
 ## Acknowledgments
 
-- videocli from [VideOCR](https://github.com/timminator/VideOCR)
-- OCR implementation ideas from [LunaTranslator](https://github.com/HIllya51/LunaTranslator)
+- OCR engine from [VideOCR](https://github.com/timminator/VideOCR)
 - Whisper from [Const-me/Whisper](https://github.com/Const-me/Whisper)
 
 ---

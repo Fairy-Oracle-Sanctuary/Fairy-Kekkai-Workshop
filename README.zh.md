@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  完整的项目管理、支持1800+网站视频下载、对于YouTube额外支持根据视频列表一键创建项目、基于PaddleOCR的视频OCR、Whisper语音识别、可自定义接入AI的字幕文件翻译、基于FFmpeg的视频压制。
+  完整的项目管理、支持1800+网站视频下载、对于YouTube额外支持根据视频列表一键创建项目、基于VideOCR的视频OCR（支持PaddleOCR与Google Lens引擎）、Whisper语音识别、可自定义接入AI的字幕文件翻译、基于FFmpeg的视频压制。
 </p>
 
 <p align="center">
@@ -73,10 +73,11 @@
 - 支持自定义视频质量和格式
 
 ### 🔤 字幕提取（OCR）
-- 集成 PaddleOCR，支持自定义OCR参数
+- 基于 [VideOCR](https://github.com/timminator/VideOCR)，支持 PaddleOCR 与 Google Lens 双引擎
+- 支持 200+ 种语言识别
 - 可视化字幕区域选择
 - 支持双区域OCR（上下字幕）
-- 支持GPU加速
+- 支持 GPU 加速（CUDA）
 - 实时日志输出
 
 ### 🎙️ 语音识别
@@ -249,11 +250,11 @@ A: 这是 PySide6 的正常警告，不影响功能。可以安全忽略。
 ### Q: 字幕提取失败
 
 A:
-1. 确保 `paddleocr.exe` 存在于 `tools/PaddleOCR/` 目录
-2. 确保OCR模型文件存在于 `tools/OCR.model/` 目录
-3. 检查VC++运行时是否已安装（需要MSVCP140.dll和VCRUNTIME140.dll）
-4. 检查GPU驱动是否支持DirectML（如使用GPU）
-5. 如果打包后出现 `t2s.json not found` 错误，需要确保OpenCC字典文件正确打包
+1. 确保 `videocr-cli.exe` 存在于 `tools/` 目录
+2. 确保 PaddleOCR 模型文件存在于 `tools/OCR.model/` 目录
+3. 检查 VC++ 运行时是否已安装（需要 MSVCP140.dll 和 VCRUNTIME140.dll）
+4. 检查 GPU 驱动是否支持 CUDA（如使用 GPU）
+5. 如果使用 Google Lens 引擎，确保网络连接正常
 
 ### Q: Whisper 语音识别失败
 
@@ -286,7 +287,7 @@ A:
 | 功能 | 状态 | 备注 |
 |------|------|------|
 | 视频下载 | ✅ | 基于yt-dlp，支持1800+网站 |
-| 字幕提取 | ✅ | PaddleOCR，需手动安装模型，仅Windows |
+| 字幕提取 | ✅ | 基于 VideOCR，支持 PaddleOCR/Google Lens 引擎，仅 Windows |
 | 语音识别 | ✅ | WhisperNet，仅Windows，支持实时进度 |
 | 翻译 | ✅ | 多AI模型支持，部分SDK不兼容 |
 | 视频压制 | ✅ | 基于FFmpeg，支持多种编码器 |
@@ -299,7 +300,7 @@ A:
 
 - **UI框架**：PySide6 + QFluentWidgets (Modern UI)
 - **视频处理**：FFmpeg + yt-dlp
-- **字幕识别**：paddleocr
+- **字幕识别**：[VideOCR](https://github.com/timminator/VideOCR)（PaddleOCR / Google Lens）
 - **语音识别**：[Const-me/Whisper](https://github.com/Const-me/Whisper)
 - **翻译**：多个云API（OpenAI、Deepseek、腾讯混元等）
 - **配置存储**：JSON
@@ -330,8 +331,7 @@ A:
 
 ## 致谢
 
-- videocli 来自 [VideOCR](https://github.com/timminator/VideOCR)
-- OCR实现思路来自 [LunaTranslator](https://github.com/HIllya51/LunaTranslator)
+- OCR 引擎来自 [VideOCR](https://github.com/timminator/VideOCR)
 - Whisper来自 [Const-me/Whisper](https://github.com/Const-me/Whisper)
 
 ---
