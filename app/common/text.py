@@ -79,6 +79,7 @@ class Text(QObject):
         self.Completed = self.tr("-{}- {}完成")
         self.Failed = self.tr("-{}- 失败: {}")
         self.Failed2 = self.tr("{}失败")
+        self.TaskFailed = self.tr("-{}- {}失败: {}")
         self.BatchDeleteFiles = self.tr("批量删除文件")
         self.SelectAll = self.tr("全选")
         self.DeselectAll = self.tr("取消全选")
@@ -1034,3 +1035,8 @@ class Text(QObject):
         self.FWNoTextToTranslate = self.tr("暂无OCR结果可翻译")
         self.FWTranslating = self.tr("翻译中...")
         self.FWTranslateComplete = self.tr("翻译完成: {}")
+
+        # --- 下载界面补充 ---
+        self.AddedDownloadToQueue = self.tr("已添加下载任务到队列")
+        self.UpdateYtDlpInProgress = self.tr("下载/更新yt-dlp中...")
+        self.UpdateYtDlpButton = self.tr("下载/更新yt-dlp")

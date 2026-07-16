@@ -36,6 +36,8 @@ class Language(Enum):
 
     CHINESE_SIMPLIFIED = QLocale(QLocale.Chinese, QLocale.China)
     ENGLISH = QLocale(QLocale.English)
+    JAPANESE = QLocale(QLocale.Japanese)
+    KOREAN = QLocale(QLocale.Korean)
     AUTO = QLocale()
 
 
