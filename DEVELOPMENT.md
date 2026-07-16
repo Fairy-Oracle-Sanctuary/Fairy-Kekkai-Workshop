@@ -5,7 +5,7 @@
 **Fairy-Kekkai-Workshop** 是一个功能完整的视频字幕处理和管理工具，支持视频下载、字幕提取、多语言翻译、视频压制以及 B 站直播内容上传等功能。该项目采用 PySide6 + QFluentWidgets 构建现代化桌面应用。
 
 ### 核心特性
-- 📥 **视频下载**：基于 yt-dlp，支持 YouTube 等多个视频平台
+- 📥 **视频下载**：基于 yt-dlp，支持 1800+ 视频网站
 - 🔤 **字幕提取**：基于 [VideOCR](https://github.com/timminator/VideOCR)，支持 PaddleOCR 与 Google Lens 双引擎，支持 200+ 种语言
 - 🎤 **语音识别**：基于 [Const-me/Whisper](https://github.com/Const-me/Whisper)，支持多语言语音转字幕，带实时进度显示
 - 🌐 **智能翻译**：支持多个 AI 模型（OpenAI、Deepseek、腾讯混元、ERNIE、Gemini、书生等）
