@@ -1853,7 +1853,7 @@
     <message>
         <location filename="../../common/text.py" line="389"/>
         <source>查看您的烤肉项目</source>
-        <translation>구이 프로젝트 보기</translation>
+        <translation>번역 프로젝트 보기</translation>
     </message>
     <message>
         <location filename="../../common/text.py" line="390"/>
