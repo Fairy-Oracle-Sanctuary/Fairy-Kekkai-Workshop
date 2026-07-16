@@ -28,7 +28,7 @@
   </a>
 
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/Version-2.1.0-purple" alt="Version 2.1.0"/>
+    <img src="https://img.shields.io/badge/Version-2.4.0-purple" alt="Version 2.4.0"/>
   </a>
 
   <a style="text-decoration:none">
@@ -44,7 +44,7 @@
  <a href="README.md">English</a> | <a href="README.zh.md">简体中文</a>
 </p>
 
-![thumbnail](docs/images/thumbnail_full_black.png)
+![thumbnail](docs/images/zh/thumbnail_full_black.png)
 
 <p align="center">
   <a href="#功能特性">功能特性</a> •
@@ -63,7 +63,7 @@
 - 支持导入/链接外部项目
 - 项目进度自动追踪（封面、原视频、熟肉、原字幕、译文）
 - 批量任务智能筛选和派发
-- 支持从YouTube播放列表一键创建项目
+- 支持从视频播放列表一键创建项目（支持所有 yt-dlp 支持的网站）
 
 ### 📥 视频下载
 - 基于 yt-dlp，支持1800+视频网站
@@ -178,7 +178,7 @@ python Fairy-Kekkai-Workshop.py
 
 ### 项目管理流程
 
-1. **创建项目**：手动创建或从YouTube播放列表导入
+1. **创建项目**：手动创建或从视频播放列表导入（支持所有 yt-dlp 支持的网站）
 2. **添加剧集**：设置集数、标题、视频URL
 3. **批量任务**：选择任务类型，智能筛选符合条件的剧集
 4. **执行任务**：通过事件总线自动派发到对应功能界面

@@ -161,12 +161,12 @@ const htmlKeys = new Set([
 // Showcase images per locale
 const showcaseImages = {
   zh: {
-    light: 'images/thumbnail_full.png',
-    dark:  'images/thumbnail_full_black.png'
+    light: 'images/zh/thumbnail_full.png',
+    dark:  'images/zh/thumbnail_full_black.png'
   },
   en: {
-    light: 'images/thumbnail_full_en.png',
-    dark:  'images/thumbnail_full_en_black.png'
+    light: 'images/en/thumbnail_full.png',
+    dark:  'images/en/thumbnail_full_black.png'
   }
 };
 

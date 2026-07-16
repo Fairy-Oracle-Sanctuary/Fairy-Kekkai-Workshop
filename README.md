@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  Complete project management, support for 1800+ video download sites, one-click project creation from YouTube playlists, VideOCR-based video OCR (supporting PaddleOCR and Google Lens engines), Whisper speech recognition, customizable AI subtitle translation, and FFmpeg-based video compression.
+  Complete project management, support for 1800+ video download sites, one-click project creation from video playlists (supports all yt-dlp supported sites), VideOCR-based video OCR (supporting PaddleOCR and Google Lens engines), Whisper speech recognition, customizable AI subtitle translation, and FFmpeg-based video compression.
 </p>
 
 <p align="center">
@@ -28,7 +28,7 @@
   </a>
 
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/Version-2.1.0-purple" alt="Version 2.1.0"/>
+    <img src="https://img.shields.io/badge/Version-2.4.0-purple" alt="Version 2.4.0"/>
   </a>
 
   <a style="text-decoration:none">
@@ -44,7 +44,7 @@
  <a href="README.md">English</a> | <a href="README.zh.md">简体中文</a>
 </p>
 
-![thumbnail](docs/images/thumbnail_full_en_black.png)
+![thumbnail](docs/images/en/thumbnail_full_black.png)
 
 <p align="center">
   <a href="#features">Features</a> •
@@ -63,7 +63,7 @@
 - Support for importing/linking external projects
 - Automatic project progress tracking (cover, raw video, cooked video, original subtitles, translated subtitles)
 - Intelligent batch task filtering and dispatch
-- Support for one-click project creation from YouTube playlists
+- Support for one-click project creation from video playlists (all yt-dlp supported sites)
 
 ### 📥 Video Download
 - Based on yt-dlp, supports 1800+ video sites
@@ -178,7 +178,7 @@ On first run, a tutorial will be displayed introducing the main features and usa
 
 ### Project Management Workflow
 
-1. **Create Project**: Manual creation or import from YouTube playlist
+1. **Create Project**: Manual creation or import from video playlist (all yt-dlp supported sites)
 2. **Add Episodes**: Set episode number, title, video URL
 3. **Batch Tasks**: Select task type, intelligently filter eligible episodes
 4. **Execute Tasks**: Automatically dispatch to corresponding feature interfaces via event bus
