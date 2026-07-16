@@ -35,5 +35,7 @@
         <file>images/logo.ico</file>
         <file>images/controls/whisper.svg</file>
         <file>i18n/app.en_US.qm</file>
+        <file>i18n/app.ja_JP.qm</file>
+        <file>i18n/app.ko_KR.qm</file>
     </qresource>
 </RCC>

@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import ScrollArea, SegmentedWidget
 
 from ..common.task_status import TaskStatus, status_text
+from ..common.text import Text
 
 
 class BaseTaskInterface(ScrollArea):
@@ -15,8 +16,8 @@ class BaseTaskInterface(ScrollArea):
     def __init__(
         self,
         object_name="BaseTaskInterface",
-        processing_text="处理中",
-        task_type="任务",
+        processing_text=None,
+        task_type=None,
         max_concurrent_tasks=1,
         parent=None,
     ):
@@ -24,10 +25,12 @@ class BaseTaskInterface(ScrollArea):
         self.view = QWidget(self)
         self.vBoxLayout = QVBoxLayout(self.view)
 
+        self.globalText = Text()
+
         # 配置项 - 子类可以在初始化后修改这些属性
         self.object_name = object_name
-        self.processing_text = processing_text
-        self.task_type = task_type  # 用于消息显示
+        self.processing_text = processing_text or self.globalText.Processing
+        self.task_type = task_type or self.globalText.Task2  # 用于消息显示
 
         self.tasks = []  # 所有任务
         self.task_paths = []  # 所有任务文件路径
@@ -51,7 +54,7 @@ class BaseTaskInterface(ScrollArea):
         self.failedTab = QWidget()
 
         self.segmentedWidget.addItem(
-            self.allTab, self.tr("全部"), lambda: self.filterTasks("all")
+            self.allTab, self.globalText.All, lambda: self.filterTasks("all")
         )
         self.segmentedWidget.addItem(
             self.processingTab,
@@ -99,11 +102,11 @@ class BaseTaskInterface(ScrollArea):
 
     def getSuccessMessage(self, task_path):
         """获取成功消息"""
-        return f"-{task_path}- {self.task_type}完成"
+        return self.globalText.Completed.format(task_path, self.task_type)
 
     def getFailureMessage(self, task_path, message):
         """获取失败消息"""
-        return f"-{task_path}- {self.task_type}失败: {message}"
+        return self.globalText.TaskFailed.format(task_path, self.task_type, message)
 
     def _updateMaxConcurrentTasks(self, value):
         """更新最大并发任务数"""
@@ -245,13 +248,15 @@ class BaseTaskInterface(ScrollArea):
                 if success:
                     task.status = TaskStatus.DONE
                     event_bus.notification_service.show_success(
-                        f"{self.task_type}完成", self.getSuccessMessage(task_path)
+                        self.globalText.TextAuto006.format(self.task_type),
+                        self.getSuccessMessage(task_path),
                     )
                 else:
                     task.status = TaskStatus.FAILED
-                    if "取消" not in message:
+                    if self.globalText.Cancel not in message:
                         event_bus.notification_service.show_error(
-                            f"{self.task_type}失败", message.strip()
+                            self.globalText.Failed2.format(self.task_type),
+                            message.strip(),
                         )
 
                 # 移除活跃线程

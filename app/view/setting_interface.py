@@ -144,7 +144,13 @@ class SettingInterface(ScrollArea):
             FIF.LANGUAGE,
             self.globalText.Language,
             self.globalText.SetInterfaceLanguage,
-            texts=["简体中文", "English", self.globalText.FollowSystem],
+            texts=[
+                "简体中文",
+                "English",
+                "日本語",
+                "한국어",
+                self.globalText.FollowSystem,
+            ],
             parent=self.personalGroup,
         )
         self.closeDirectlyCard = SwitchSettingCard(
