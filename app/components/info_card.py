@@ -28,7 +28,6 @@ from ..common.setting import (
     UPDATE_TIME,
     VERSION,
 )
-from .floating_window import FloatingWindow
 
 try:
     from ..common.setting import CI_BUILD_WARNING
@@ -188,7 +187,10 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
         self.logButton.clicked.connect(self.__onLogButtonClicked)
         self.clearLogButton.clicked.connect(self.__onClearLogClicked)
         self.resetButton.clicked.connect(self.__onResetClicked)
-        self.floatingButton.clicked.connect(self.__onFloatingButtonClicked)
+        if sys.platform == "win32":
+            self.floatingButton.clicked.connect(self.__onFloatingButtonClicked)
+        else:
+            self.floatingButton.setEnabled(False)
         event_bus.log_window_closed.connect(lambda: self.logButton.setEnabled(True))
         event_bus.log_message.connect(self.appendLog)
         event_bus.ocr_window_closed.connect(
@@ -205,6 +207,8 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
         self.ffmpegLogs = ""
 
     def __onFloatingButtonClicked(self):
+        from .floating_window import FloatingWindow
+
         self.floatingButton.setEnabled(False)
         self.floatingWindow = FloatingWindow()
         self.floatingWindow.show()

@@ -11,11 +11,11 @@ Fairy-Kekkai-Workshop/deploy.py
 import os
 import sys
 
-from PySide6.QtCore import QSharedMemory, QTranslator
+from PySide6.QtCore import QFile, QLocale, QSharedMemory, QTranslator
 from PySide6.QtWidgets import QApplication
 from qfluentwidgets import FluentTranslator
 
-from app.common.config import cfg
+from app.common.config import Language, cfg
 from app.common.setting import TEAM, VERSION
 from app.view.main_window import MainWindow
 
@@ -54,10 +54,12 @@ def main():
     app.setOrganizationName(TEAM)
 
     # 安装翻译器
-    locale = cfg.get(cfg.language).value
+    language = cfg.get(cfg.language)
+    locale = QLocale.system() if language == Language.AUTO else language.value
     translator = FluentTranslator(locale)
     galleryTranslator = QTranslator()
-    galleryTranslator.load(locale, "app", ".", ":/app/i18n")
+    if language != Language.AUTO or QFile.exists(f":/app/i18n/app.{locale.name()}.qm"):
+        galleryTranslator.load(locale, "app", ".", ":/app/i18n")
 
     app.installTranslator(translator)
     app.installTranslator(galleryTranslator)
@@ -79,6 +81,9 @@ if __name__ == "__main__":
 """
 ## 更新日志
 - 新增悬浮窗 OCR
+- 新增 5 种界面语言：德语、西班牙语、法语、葡萄牙语（巴西）、繁体中文
+- 修复「跟随系统」语言模式在中文系统下显示英文的问题
+- 默认语言改为「跟随系统」
 
 ## 下载提示
 - Windows10/11：
