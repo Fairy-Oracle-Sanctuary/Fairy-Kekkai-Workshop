@@ -36,7 +36,7 @@
   </a>
 
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/Language-English%20|%20简体中文-cyan" alt="Language English | 简体中文"/>
+    <img src="https://img.shields.io/badge/Language-9%20Languages-cyan" alt="Language 9 Languages"/>
   </a>
 </p>
 
@@ -209,7 +209,7 @@ Main configuration items can be modified in the settings page:
 - Theme color
 - Interface scaling
 - Background image
-- Language (Chinese/English)
+- Language (9 languages)
 
 ### Project
 - Number of project detail pages

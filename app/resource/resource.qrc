@@ -34,8 +34,13 @@
         <file>images/controls/SkipEndFill_black.svg</file>
         <file>images/logo.ico</file>
         <file>images/controls/whisper.svg</file>
+        <file>i18n/app.de_DE.qm</file>
         <file>i18n/app.en_US.qm</file>
+        <file>i18n/app.es_ES.qm</file>
+        <file>i18n/app.fr_FR.qm</file>
         <file>i18n/app.ja_JP.qm</file>
         <file>i18n/app.ko_KR.qm</file>
+        <file>i18n/app.pt_BR.qm</file>
+        <file>i18n/app.zh_TW.qm</file>
     </qresource>
 </RCC>

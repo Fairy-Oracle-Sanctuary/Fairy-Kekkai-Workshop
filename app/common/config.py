@@ -36,8 +36,13 @@ class Language(Enum):
 
     CHINESE_SIMPLIFIED = QLocale(QLocale.Chinese, QLocale.China)
     ENGLISH = QLocale(QLocale.English)
+    FRENCH = QLocale(QLocale.French, QLocale.France)
+    GERMAN = QLocale(QLocale.German, QLocale.Germany)
     JAPANESE = QLocale(QLocale.Japanese)
     KOREAN = QLocale(QLocale.Korean)
+    PORTUGUESE_BRAZIL = QLocale(QLocale.Portuguese, QLocale.Brazil)
+    SPANISH = QLocale(QLocale.Spanish, QLocale.Spain)
+    CHINESE_TRADITIONAL = QLocale(QLocale.Chinese, QLocale.Taiwan)
     AUTO = QLocale()
 
 
@@ -162,7 +167,7 @@ class Config(QConfig):
     language = OptionsConfigItem(
         "MainWindow",
         "Language",
-        Language.CHINESE_SIMPLIFIED,
+        Language.AUTO,
         OptionsValidator(Language),
         LanguageSerializer(),
         restart=True,

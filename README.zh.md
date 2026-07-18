@@ -36,7 +36,7 @@
   </a>
 
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/Language-English%20|%20简体中文-cyan" alt="Language English | 简体中文"/>
+    <img src="https://img.shields.io/badge/Language-9%20Languages-cyan" alt="Language 9 Languages"/>
   </a>
 </p>
 
@@ -106,7 +106,7 @@
 - 带进度条和状态文字的启动页
 - 相邻文件快速导航
 - 项目进度可视化展示
-- 多语言支持（中文、英文）
+- 多语言支持（9种语言：简体中文、英语、日语、韩语、德语、西班牙语、法语、葡萄牙语、繁体中文）
 
 ---
 
@@ -209,7 +209,7 @@ python Fairy-Kekkai-Workshop.py
 - 主题色
 - 界面缩放
 - 背景图片
-- 语言（中文/英文）
+- 语言（9种语言）
 
 ### 项目
 - 项目详情页数量
