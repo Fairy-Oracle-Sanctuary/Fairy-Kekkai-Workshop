@@ -1,8 +1,12 @@
+import os
 import re
 import subprocess
 import sys
 
 from app.common.setting import VERSION
+
+
+N_JOBS = os.cpu_count() or 4
 
 
 def _windows_file_version(ver: str) -> str:
@@ -35,7 +39,7 @@ if sys.platform == "win32":
         f"--windows-product-version={wv}",
         '--windows-file-description="Fairy Kekkai Workshop"',
         "--lto=yes",
-        "--jobs=auto",
+        f"--jobs={N_JOBS}",
         "--output-dir=dist",
         "Fairy-Kekkai-Workshop.py",
     ]
@@ -57,7 +61,7 @@ elif sys.platform == "darwin":
         '--macos-app-name="Fairy Kekkai Workshop"',
         "--macos-app-icon=app/resource/images/logo.ico",
         "--lto=yes",
-        "--jobs=auto",
+        f"--jobs={N_JOBS}",
         "--output-dir=dist",
         "Fairy-Kekkai-Workshop.py",
     ]
@@ -73,7 +77,7 @@ else:
         "--assume-yes-for-download",
         "--include-data-dir=tools=tools",
         "--lto=yes",
-        "--jobs=auto",
+        f"--jobs={N_JOBS}",
         "--output-dir=dist",
         "Fairy-Kekkai-Workshop.py",
     ]
