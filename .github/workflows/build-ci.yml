@@ -87,7 +87,7 @@ jobs:
 
       - name: 安装 MinGW64（Windows x64）
         if: matrix.use_mingw
-        run: choco install -y mingw --version=14.2.0
+        run: choco install -y mingw
 
       - name: 创建 tools 占位目录
         run: mkdir -p tools
