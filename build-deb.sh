@@ -44,6 +44,11 @@ echo "复制图标..."
 cp "${DEST_DIR}/app/resource/images/logo.png" \
    "${BUILD_DIR}/usr/share/icons/hicolor/256x256/apps/fairy-kekkai-workshop.png"
 
+# 复制桌面启动器
+echo "复制桌面启动器..."
+cp packaging/fairy-kekkai-workshop.desktop \
+   "${BUILD_DIR}/usr/share/applications/"
+
 # 设置启动脚本权限
 chmod 755 "${BUILD_DIR}/usr/bin/fairy-kekkai-workshop"
 

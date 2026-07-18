@@ -46,22 +46,10 @@ exec python3 /opt/fairy-kekkai-workshop/Fairy-Kekkai-Workshop.py "$@"
 LAUNCHER
     chmod 755 "${pkgdir}/usr/bin/${pkgname}"
 
-    # 创建桌面入口
+    # 安装桌面启动器
     mkdir -p "${pkgdir}/usr/share/applications"
-    cat > "${pkgdir}/usr/share/applications/${pkgname}.desktop" << DESKTOP
-[Desktop Entry]
-Type=Application
-Name=Fairy Kekkai Workshop
-Name[zh_CN]=幻想结界工坊
-Comment=Video subtitle processing and management tool
-Comment[zh_CN]=视频字幕处理和管理工具
-Exec=/usr/bin/fairy-kekkai-workshop
-Icon=fairy-kekkai-workshop
-Categories=AudioVideo;Video;Graphics;
-Terminal=false
-StartupNotify=true
-MimeType=video/mp4;video/webm;video/x-matroska;
-DESKTOP
+    cp packaging/fairy-kekkai-workshop.desktop \
+       "${pkgdir}/usr/share/applications/${pkgname}.desktop"
 
     # 安装图标
     mkdir -p "${pkgdir}/usr/share/icons/hicolor/256x256/apps"

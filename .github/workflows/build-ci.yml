@@ -8,6 +8,7 @@ on:
       - 'Fairy-Kekkai-Workshop.py'
       - 'requirements.txt'
       - 'deploy.py'
+      - 'packaging/**'
       - '.github/workflows/build-ci.yml'
   pull_request:
     branches:
@@ -17,6 +18,7 @@ on:
       - 'Fairy-Kekkai-Workshop.py'
       - 'requirements.txt'
       - 'deploy.py'
+      - 'packaging/**'
       - '.github/workflows/build-ci.yml'
   workflow_dispatch:
 
@@ -164,6 +166,13 @@ jobs:
 
           cp -a dist/Fairy-Kekkai-Workshop/* "$INSTALL_DIR/"
           ln -s /opt/fairy-kekkai-workshop/Fairy-Kekkai-Workshop "$BIN_DIR/fairy-kekkai-workshop"
+
+          # 安装桌面启动器(.desktop)和图标
+          ICON_DIR="$PKG_DIR/usr/share/icons/hicolor/256x256/apps"
+          DESKTOP_DIR="$PKG_DIR/usr/share/applications"
+          mkdir -p "$ICON_DIR" "$DESKTOP_DIR"
+          cp app/resource/images/logo.png "$ICON_DIR/fairy-kekkai-workshop.png"
+          cp packaging/fairy-kekkai-workshop.desktop "$DESKTOP_DIR/"
 
           # .deb
           fpm -s dir -t deb \
