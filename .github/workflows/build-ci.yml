@@ -217,7 +217,7 @@ jobs:
             exit 1
           fi
           echo "编译目录: ${{ matrix.artifact_path }}"
-          ls -la "${{ matrix.artifact_path }}" 2>/dev/null | head -20
+          ls -la "${{ matrix.artifact_path }}" 2>/dev/null | head -20 || true
           echo "产物已就绪"
 
       # ── 上传：非 Linux 平台（便携包 + dmg） ──
