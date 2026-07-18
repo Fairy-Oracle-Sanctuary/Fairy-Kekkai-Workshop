@@ -14,8 +14,8 @@ def _windows_file_version(ver: str) -> str:
 
 
 if sys.platform == "win32":
-    wv = VERSION[0:5]
-    print(wv)
+    wv = _windows_file_version(VERSION)
+    print(f"Windows File Version: {wv}")
     args = [
         sys.executable,
         "-m",
@@ -34,6 +34,8 @@ if sys.platform == "win32":
         f"--windows-file-version={wv}",
         f"--windows-product-version={wv}",
         '--windows-file-description="Fairy Kekkai Workshop"',
+        "--lto=yes",
+        "--jobs=auto",
         "--output-dir=dist",
         "Fairy-Kekkai-Workshop.py",
     ]
@@ -54,6 +56,8 @@ elif sys.platform == "darwin":
         f"--macos-app-version={VERSION}",
         '--macos-app-name="Fairy Kekkai Workshop"',
         "--macos-app-icon=app/resource/images/logo.ico",
+        "--lto=yes",
+        "--jobs=auto",
         "--output-dir=dist",
         "Fairy-Kekkai-Workshop.py",
     ]
@@ -68,6 +72,8 @@ else:
         "--show-progress",
         "--assume-yes-for-download",
         "--include-data-dir=tools=tools",
+        "--lto=yes",
+        "--jobs=auto",
         "--output-dir=dist",
         "Fairy-Kekkai-Workshop.py",
     ]
