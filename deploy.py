@@ -61,8 +61,14 @@ else:
     args = [
         sys.executable,
         "-m",
-        "PyInstaller",
-        "-w",
+        "nuitka",
+        "--standalone",
+        "--plugin-enable=pyside6",
+        "--show-memory",
+        "--show-progress",
+        "--assume-yes-for-download",
+        "--include-data-dir=tools=tools",
+        "--output-dir=dist",
         "Fairy-Kekkai-Workshop.py",
     ]
 

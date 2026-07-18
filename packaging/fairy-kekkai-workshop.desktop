@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Fairy Kekkai Workshop
+Name[zh_CN]=Fairy Kekkai Workshop
+Comment=Video subtitle processing and management tool
+Comment[zh_CN]=视频字幕处理与管理工具
+Exec=fairy-kekkai-workshop
+Icon=fairy-kekkai-workshop
+Categories=AudioVideo;Video;Graphics;Qt;
+Terminal=false
+StartupNotify=true
+MimeType=video/mp4;video/webm;video/x-matroska;video/x-msvideo;video/x-ms-wmv;video/mpeg;

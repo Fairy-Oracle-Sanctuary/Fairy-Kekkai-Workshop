@@ -1,6 +1,10 @@
 import ctypes
-import ctypes.wintypes
 import sys
+
+IS_WIN = sys.platform == 'win32'
+
+if IS_WIN:
+    import ctypes.wintypes  # noqa: F811
 
 from PySide6.QtCore import (
     Q_ARG,
@@ -35,35 +39,37 @@ from qfluentwidgets import (
 from ..common.event_bus import event_bus
 from ..common.text import Text
 
-# Win32 常量
-GWL_EXSTYLE = -20
-WS_EX_TRANSPARENT = 0x00000020
+if IS_WIN:
+    GWL_EXSTYLE = -20
+    WS_EX_TRANSPARENT = 0x00000020
 
-user32 = ctypes.windll.user32
-user32.SetWindowLongW.restype = ctypes.c_long
-user32.SetWindowLongW.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_long]
-user32.GetWindowLongW.restype = ctypes.c_long
-user32.GetWindowLongW.argtypes = [ctypes.c_void_p, ctypes.c_int]
-user32.GetWindowTextW.restype = ctypes.c_int
-user32.GetWindowTextW.argtypes = [ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_int]
-user32.GetWindowTextLengthW.restype = ctypes.c_int
-user32.GetWindowTextLengthW.argtypes = [ctypes.c_void_p]
-user32.WindowFromPoint.restype = ctypes.c_void_p
-user32.WindowFromPoint.argtypes = [ctypes.wintypes.POINT]
-user32.GetWindowRect.restype = ctypes.c_int
-user32.GetWindowRect.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.wintypes.RECT)]
-user32.GetForegroundWindow.restype = ctypes.c_void_p
-user32.GetCursorPos.argtypes = [ctypes.POINTER(ctypes.wintypes.POINT)]
-user32.GetCursorPos.restype = ctypes.c_int
-user32.GetKeyState.argtypes = [ctypes.c_int]
-user32.GetKeyState.restype = ctypes.c_short
-user32.GetAncestor.argtypes = [ctypes.c_void_p, ctypes.c_uint]
-user32.GetAncestor.restype = ctypes.c_void_p
-user32.GetWindowThreadProcessId.argtypes = [
-    ctypes.c_void_p,
-    ctypes.POINTER(ctypes.c_uint),
-]
-user32.GetWindowThreadProcessId.restype = ctypes.c_uint
+    user32 = ctypes.windll.user32
+    user32.SetWindowLongW.restype = ctypes.c_long
+    user32.SetWindowLongW.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_long]
+    user32.GetWindowLongW.restype = ctypes.c_long
+    user32.GetWindowLongW.argtypes = [ctypes.c_void_p, ctypes.c_int]
+    user32.GetWindowTextW.restype = ctypes.c_int
+    user32.GetWindowTextW.argtypes = [ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_int]
+    user32.GetWindowTextLengthW.restype = ctypes.c_int
+    user32.GetWindowTextLengthW.argtypes = [ctypes.c_void_p]
+    user32.WindowFromPoint.restype = ctypes.c_void_p
+    user32.WindowFromPoint.argtypes = [ctypes.wintypes.POINT]
+    user32.GetWindowRect.restype = ctypes.c_int
+    user32.GetWindowRect.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.wintypes.RECT)]
+    user32.GetForegroundWindow.restype = ctypes.c_void_p
+    user32.GetCursorPos.argtypes = [ctypes.POINTER(ctypes.wintypes.POINT)]
+    user32.GetCursorPos.restype = ctypes.c_int
+    user32.GetKeyState.argtypes = [ctypes.c_int]
+    user32.GetKeyState.restype = ctypes.c_short
+    user32.GetAncestor.argtypes = [ctypes.c_void_p, ctypes.c_uint]
+    user32.GetAncestor.restype = ctypes.c_void_p
+    user32.GetWindowThreadProcessId.argtypes = [
+        ctypes.c_void_p,
+        ctypes.POINTER(ctypes.c_uint),
+    ]
+    user32.GetWindowThreadProcessId.restype = ctypes.c_uint
+else:
+    user32 = None
 
 VK_LBUTTON = 0x01
 GA_ROOT = 2
@@ -338,6 +344,9 @@ class FloatingWindow(QWidget):
         pass
 
     def _on_bind_window(self):
+        if not IS_WIN:
+            self._set_status(self.t.FWWindowsOnly)
+            return
         if self._bound_hwnd:
             self._unbind_window()
             return
@@ -407,7 +416,7 @@ class FloatingWindow(QWidget):
         self._set_status(self.t.FWUnbound)
 
     def _trace_bound_window(self):
-        if not self._bound_hwnd:
+        if not IS_WIN or not self._bound_hwnd:
             return
         try:
             rect = ctypes.wintypes.RECT()
@@ -566,6 +575,8 @@ class FloatingWindow(QWidget):
 
     # --- 鼠标穿透 ---
     def _set_win32_transparent(self, on: bool):
+        if not IS_WIN:
+            return
         hwnd = int(self.winId())
         if on:
             user32.SetWindowLongW(

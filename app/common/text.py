@@ -1035,6 +1035,7 @@ class Text(QObject):
         self.FWNoTextToTranslate = self.tr("暂无OCR结果可翻译")
         self.FWTranslating = self.tr("翻译中...")
         self.FWTranslateComplete = self.tr("翻译完成: {}")
+        self.FWWindowsOnly = self.tr("该功能仅支持Windows系统")
 
         # --- 下载界面补充 ---
         self.AddedDownloadToQueue = self.tr("已添加下载任务到队列")
