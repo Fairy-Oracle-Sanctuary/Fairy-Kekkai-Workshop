@@ -49,7 +49,7 @@ jobs:
             label: Linux x64
             arch: x86_64
             artifact_name: Fairy-Kekkai-Workshop-Linux-x64
-            artifact_path: dist/Fairy-Kekkai-Workshop/
+            artifact_path: dist/Fairy-Kekkai-Workshop.dist/
             deb_arch: amd64
             rpm_arch: x86_64
             archlinux_arch: x86_64
@@ -57,7 +57,7 @@ jobs:
             label: Linux ARM64
             arch: arm64
             artifact_name: Fairy-Kekkai-Workshop-Linux-arm64
-            artifact_path: dist/Fairy-Kekkai-Workshop/
+            artifact_path: dist/Fairy-Kekkai-Workshop.dist/
             deb_arch: arm64
             rpm_arch: aarch64
             archlinux_arch: aarch64
@@ -74,15 +74,10 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: 安装 PyInstaller（Linux 分支使用）
-        if: startsWith(matrix.os, 'ubuntu')
-        run: pip install pyinstaller
-
       - name: 安装项目依赖
         run: pip install -r requirements.txt
 
-      - name: 安装 Nuitka（Windows / macOS）
-        if: "!startsWith(matrix.os, 'ubuntu')"
+      - name: 安装 Nuitka
         run: pip install nuitka
 
       - name: 安装 MinGW64（Windows x64）
@@ -164,8 +159,8 @@ jobs:
           BIN_DIR="$PKG_DIR/usr/bin"
           mkdir -p "$INSTALL_DIR" "$BIN_DIR"
 
-          cp -a dist/Fairy-Kekkai-Workshop/* "$INSTALL_DIR/"
-          ln -s /opt/fairy-kekkai-workshop/Fairy-Kekkai-Workshop "$BIN_DIR/fairy-kekkai-workshop"
+          cp -a dist/Fairy-Kekkai-Workshop.dist/* "$INSTALL_DIR/"
+          ln -s /opt/fairy-kekkai-workshop/Fairy-Kekkai-Workshop.bin "$BIN_DIR/fairy-kekkai-workshop"
 
           # 安装桌面启动器(.desktop)和图标
           ICON_DIR="$PKG_DIR/usr/share/icons/hicolor/256x256/apps"

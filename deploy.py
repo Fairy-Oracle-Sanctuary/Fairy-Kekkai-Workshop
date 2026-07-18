@@ -60,6 +60,7 @@ elif sys.platform == "darwin":
         f"--macos-app-version={VERSION}",
         '--macos-app-name="Fairy Kekkai Workshop"',
         "--macos-app-icon=app/resource/images/logo.ico",
+        "--noinclude-data-file=**/*.so",
         "--lto=yes",
         f"--jobs={N_JOBS}",
         "--output-dir=dist",
