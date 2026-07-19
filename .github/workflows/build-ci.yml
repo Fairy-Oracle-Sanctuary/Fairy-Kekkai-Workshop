@@ -7,7 +7,7 @@ on:
       - 'app/**'
       - 'Fairy-Kekkai-Workshop.py'
       - 'requirements.txt'
-      - 'deploy.py'
+      - 'build_ci.py'
       - 'packaging/**'
       - '.github/workflows/build-ci.yml'
   pull_request:
@@ -17,7 +17,7 @@ on:
       - 'app/**'
       - 'Fairy-Kekkai-Workshop.py'
       - 'requirements.txt'
-      - 'deploy.py'
+      - 'build_ci.py'
       - 'packaging/**'
       - '.github/workflows/build-ci.yml'
   workflow_dispatch:
@@ -109,10 +109,10 @@ jobs:
           print(f'VERSION={commit}-ci  UPDATE_TIME={build_time}')
           PYEOF
 
-      - name: 打包（调用 deploy.py）
+      - name: 打包（调用 build_ci.py）
         env:
           PYTHONIOENCODING: utf-8
-        run: python deploy.py
+        run: python build_ci.py
 
       - name: 制作 macOS .dmg
         if: matrix.make_dmg
