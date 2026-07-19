@@ -81,21 +81,29 @@ if __name__ == "__main__":
 """
 ## 更新日志
 - 新增悬浮窗 OCR
+- 悬浮窗新增「OCR并翻译」组合按钮，一键完成 OCR 并自动翻译
 - 新增 5 种界面语言：德语、西班牙语、法语、葡萄牙语（巴西）、繁体中文
 - 修复「跟随系统」语言模式在中文系统下显示英文的问题
 - 默认语言改为「跟随系统」
+- 新增软件更新功能，自动下载安装包并打开文件夹
+- 修复 AI 翻译偶发乱轴问题
+- 注意此次更新后不要乱改ai提示词
+- 注意此次更新将覆盖软件原有配置，请保管好api key
 
 ## 下载提示
 - Windows10/11：
   - CPU：
-    - [Fairy-Kekkai-Workshop-v2.4.0-CPU-v1.5.1-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.4.0/Fairy-Kekkai-Workshop-v2.4.0-CPU-v1.5.1-Windows-x86_64-Setup.exe)
+    - [Fairy-Kekkai-Workshop-v2.5.0-CPU-v1.5.1-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.0/Fairy-Kekkai-Workshop-v2.5.0-CPU-v1.5.1-Windows-x86_64-Setup.exe)
   - GPU：
-    - [Fairy-Kekkai-Workshop-v2.4.0-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.4.0/Fairy-Kekkai-Workshop-v2.4.0-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe)
-    - [Fairy-Kekkai-Workshop-v2.4.0-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.4.0/Fairy-Kekkai-Workshop-v2.4.0-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe)
+    - [Fairy-Kekkai-Workshop-v2.5.0-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.0/Fairy-Kekkai-Workshop-v2.5.0-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe) (Nvidia 10 Series graphics cards)
+    - [Fairy-Kekkai-Workshop-v2.5.0-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.0/Fairy-Kekkai-Workshop-v2.5.0-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe) (Nvidia 16 - 50 Series graphics cards)
+  - 如果你已安装过上个版本：
+    - [Fairy-Kekkai-Workshop-v2.5.0-Clear-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.0/Fairy-Kekkai-Workshop-v2.5.0-Clear-Windows-x86_64-Setup.exe)
 - mac版本无变动，直接下载上一个版本即可
 - 迅雷链接：https://pan.xunlei.com/s/VOl2n0KP6LH3zXUqcYX1iYUAA1?pwd=yzim#
 
 # Fairy Kekkai Workshop
+!OCRUPDATE!
 
 ---
 

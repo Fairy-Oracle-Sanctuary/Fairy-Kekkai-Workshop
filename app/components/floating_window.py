@@ -105,6 +105,7 @@ class FloatingWindow(QWidget):
         self._ocr_history = []
         self._last_ocr_text = ""
         self._last_translate_text = ""
+        self._auto_translate = False  # OCR并翻译模式标志
         self._bound_hwnd = None
         self._bound_title = ""
         self._trace_last_rect = None
@@ -169,6 +170,11 @@ class FloatingWindow(QWidget):
             FIF.MESSAGE, self.t.FWTranslate, self._on_translate_once
         )
         toolbar.addWidget(self.btn_translate)
+
+        self.btn_ocr_translate = self._make_tool_btn(
+            FIF.SEND, self.t.FWOCRAndTranslate, self._on_ocr_and_translate
+        )
+        toolbar.addWidget(self.btn_ocr_translate)
 
         self.btn_bind_window = self._make_tool_btn(
             FIF.LINK, self.t.FWBindWindow, self._on_bind_window
@@ -247,6 +253,12 @@ class FloatingWindow(QWidget):
     def _set_status(self, text: str):
         self.status_label.setText(text)
 
+    def _set_action_buttons_enabled(self, enabled: bool):
+        """统一管理三个动作按钮的启用/禁用状态（互斥禁用）"""
+        self.btn_ocr_once.setEnabled(enabled)
+        self.btn_translate.setEnabled(enabled)
+        self.btn_ocr_translate.setEnabled(enabled)
+
     # --- OCR 功能（占位） ---
     def _on_ocr_range(self):
         self._set_status(self.t.FWSelectRangeStatus)
@@ -279,7 +291,7 @@ class FloatingWindow(QWidget):
         if not hasattr(self, "_ocr_rect") or not self._ocr_rect:
             self._set_status(self.t.FWSelectRangeFirst)
             return
-        self.btn_ocr_once.setEnabled(False)
+        self._set_action_buttons_enabled(False)
         self._set_status(self.t.FWOCRRunning)
 
         from ..service.ocr_service import ScreenOCRThread
@@ -289,14 +301,17 @@ class FloatingWindow(QWidget):
         self._ocr_thread.start()
 
     def _on_ocr_thread_finished(self):
-        self.btn_ocr_once.setEnabled(True)
+        # 仅清理线程引用，按钮恢复统一由 _on_screen_ocr_finished /
+        # _on_translate_thread_finished 处理
+        # （跨线程信号入队顺序：screen_ocr_finished 先于 QThread.finished，
+        #  若在此处根据 _auto_translate 判断会因已被重置而错误恢复按钮）
         self._ocr_thread = None
 
     def _on_translate_once(self):
         if not self._last_ocr_text:
             self._set_status(self.t.FWNoTextToTranslate)
             return
-        self.btn_translate.setEnabled(False)
+        self._set_action_buttons_enabled(False)
         self._set_status(self.t.FWTranslating)
 
         from ..service.translate_service import ScreenTranslateThread
@@ -305,8 +320,23 @@ class FloatingWindow(QWidget):
         self._translate_thread.finished.connect(self._on_translate_thread_finished)
         self._translate_thread.start()
 
+    def _on_ocr_and_translate(self):
+        """OCR完成后自动翻译"""
+        if not hasattr(self, "_ocr_rect") or not self._ocr_rect:
+            self._set_status(self.t.FWSelectRangeFirst)
+            return
+        self._auto_translate = True
+        self._set_action_buttons_enabled(False)
+        self._set_status(self.t.FWOCRRunning)
+
+        from ..service.ocr_service import ScreenOCRThread
+
+        self._ocr_thread = ScreenOCRThread(self._ocr_rect)
+        self._ocr_thread.finished.connect(self._on_ocr_thread_finished)
+        self._ocr_thread.start()
+
     def _on_translate_thread_finished(self):
-        self.btn_translate.setEnabled(True)
+        self._set_action_buttons_enabled(True)
         self._translate_thread = None
 
     def _on_screen_translate_finished(self, success: bool, text: str):
@@ -337,7 +367,17 @@ class FloatingWindow(QWidget):
                 if len(text) > 50
                 else self.t.FWOCRComplete.format(text)
             )
+            # OCR并翻译模式：OCR成功后自动触发翻译（按钮继续禁用，由翻译完成时恢复）
+            if self._auto_translate and text:
+                self._auto_translate = False
+                self._on_translate_once()
+                return
+            # 普通 OCR 模式或 OCR 成功但无文本：恢复按钮
+            self._auto_translate = False
+            self._set_action_buttons_enabled(True)
         else:
+            self._auto_translate = False
+            self._set_action_buttons_enabled(True)
             self._set_status(self.t.FWOCRFailed.format(text))
 
     def _on_grab_window(self):

@@ -1,12 +1,8 @@
-import os
 import re
 import subprocess
 import sys
 
 from app.common.setting import VERSION
-
-
-N_JOBS = os.cpu_count() or 4
 
 
 def _windows_file_version(ver: str) -> str:
@@ -18,8 +14,8 @@ def _windows_file_version(ver: str) -> str:
 
 
 if sys.platform == "win32":
-    wv = _windows_file_version(VERSION)
-    print(f"Windows File Version: {wv}")
+    wv = VERSION[0:5]
+    print(wv)
     args = [
         sys.executable,
         "-m",
@@ -38,12 +34,9 @@ if sys.platform == "win32":
         f"--windows-file-version={wv}",
         f"--windows-product-version={wv}",
         '--windows-file-description="Fairy Kekkai Workshop"',
-        "--lto=yes",
-        f"--jobs={N_JOBS}",
         "--output-dir=dist",
         "Fairy-Kekkai-Workshop.py",
     ]
-
 elif sys.platform == "darwin":
     args = [
         sys.executable,

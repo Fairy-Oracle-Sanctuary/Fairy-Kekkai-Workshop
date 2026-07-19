@@ -24,6 +24,7 @@ from ..common.event_bus import event_bus
 from ..common.setting import GITHUB_URL, RELEASE_URL
 from ..common.task_status import TaskStatus
 from ..common.text import Text
+from ..components.dialog import UpdateDialog
 from ..components.infobar import NotificationService
 from ..components.system_tray import SystemTray
 from ..service.version_service import VersionService
@@ -668,14 +669,8 @@ class MainWindow(window):
 
     def checkUpdate(self):
         if self.versionManager.hasNewVersion():
-            self.showMessageBox(
-                self.globalText.NewVersionDetected,
-                self.globalText.NewVersion
-                + f" {self.versionManager.lastestVersion} "
-                + self.globalText.ADYWTDI,
-                True,
-                lambda: QDesktopServices.openUrl(QUrl(RELEASE_URL)),
-            )
+            w = UpdateDialog(self.versionManager, self)
+            w.exec()
         else:
             self.showMessageBox(
                 self.globalText.NoNewVersion,

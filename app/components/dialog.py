@@ -1,6 +1,6 @@
 import os
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import (
     CheckBox,
@@ -19,6 +19,7 @@ from qfluentwidgets import (
 
 from ..common.event_bus import event_bus
 from ..service.project_service import project
+from ..service.version_service import VersionService
 from ..common.text import Text
 
 
@@ -984,3 +985,129 @@ class BatchDeleteFileDialog(MessageBoxBase):
             if cb.isChecked():
                 selected.append((folder_num, folder_path, target_name))
         return selected
+
+
+class UpdateDialog(MessageBoxBase):
+    """更新对话框 - 显示更新日志并下载安装包"""
+
+    def __init__(self, version_service, parent=None):
+        super().__init__(parent)
+        self.globalText = Text()
+        self.versionService = version_service
+        self.downloadThread = None
+        self.filepath = ""
+        self._downloading = False
+        self._downloaded = False
+
+        self.setup_ui()
+        # 延迟获取更新信息，让对话框先显示
+        QTimer.singleShot(100, self._fetch_update_info)
+
+    def setup_ui(self):
+        version = self.versionService.lastestVersion
+        self.titleLabel = SubtitleLabel(
+            self.globalText.UpdateAvailable.format(version)
+        )
+        self.viewLayout.addWidget(self.titleLabel)
+
+        # 更新日志
+        self.changelogEdit = PlainTextEdit(self)
+        self.changelogEdit.setReadOnly(True)
+        self.changelogEdit.setPlainText(self.globalText.FetchingUpdateInfo)
+        self.viewLayout.addWidget(self.changelogEdit)
+
+        # 进度条
+        self.progressBar = ProgressBar(self)
+        self.progressBar.setVisible(False)
+        self.viewLayout.addWidget(self.progressBar)
+
+        # 按钮
+        self.yesButton.setText(self.globalText.DownloadInstaller)
+        self.cancelButton.setText(self.globalText.Close)
+
+        self.widget.setMinimumWidth(500)
+        self.widget.setMinimumHeight(350)
+
+    def _fetch_update_info(self):
+        """获取更新信息"""
+        info = self.versionService.getUpdateInfo()
+        changelog = info.get("changelog", "")
+        if changelog:
+            self.changelogEdit.setPlainText(changelog)
+        else:
+            self.changelogEdit.setPlainText(self.globalText.NoChangelog)
+
+    def accept(self):
+        """重写接受方法：首次点击开始下载，再次点击打开文件夹并关闭"""
+        if self._downloading:
+            return  # 下载进行中，忽略点击
+
+        if self._downloaded:
+            # 已下载完成，打开文件夹并关闭
+            VersionService.openFolder(self.filepath)
+            super().accept()
+            return
+
+        # 开始下载
+        self._start_download()
+
+    def _start_download(self):
+        """开始下载安装包"""
+        self._downloading = True
+        self.yesButton.setEnabled(False)
+        self.yesButton.setText(self.globalText.Downloading3)
+        self.cancelButton.setEnabled(False)
+        self.progressBar.setVisible(True)
+        self.progressBar.setValue(0)
+
+        self.downloadThread, self.filepath = (
+            self.versionService.createDownloadThread()
+        )
+        self.downloadThread.progress.connect(self._on_progress)
+        self.downloadThread.succeeded.connect(self._on_finished)
+        self.downloadThread.error.connect(self._on_error)
+        # 连接 QThread 内置 finished 信号，在线程完全结束后安全清理
+        self.downloadThread.finished.connect(self._on_thread_finished)
+        self.downloadThread.start()
+
+    def _on_progress(self, downloaded, total):
+        if total > 0:
+            percent = int(downloaded * 100 / total)
+            self.progressBar.setValue(percent)
+
+    def _on_finished(self, filepath):
+        """下载成功（线程即将结束，但尚未完全退出）"""
+        self.progressBar.setValue(100)
+        self.yesButton.setText(self.globalText.OpenFolder)
+        self.yesButton.setEnabled(True)
+        self.cancelButton.setEnabled(True)
+        self._downloading = False
+        self._downloaded = True
+        self.changelogEdit.appendPlainText(
+            f"\n{self.globalText.DownloadedTo.format(filepath)}"
+        )
+        # 自动打开文件夹
+        VersionService.openFolder(filepath)
+
+    def _on_error(self, error_msg):
+        """下载失败（线程即将结束，但尚未完全退出）"""
+        self.progressBar.setVisible(False)
+        self.yesButton.setEnabled(True)
+        self.yesButton.setText(self.globalText.DownloadInstaller)
+        self.cancelButton.setEnabled(True)
+        self._downloading = False
+        self.changelogEdit.appendPlainText(
+            f"\n{self.globalText.DownloadFailed3.format(error_msg)}"
+        )
+
+    def _on_thread_finished(self):
+        """QThread 内置 finished 信号：线程已完全停止，可安全释放引用"""
+        if self.downloadThread is not None:
+            self.downloadThread.deleteLater()
+            self.downloadThread = None
+
+    def reject(self):
+        """重写拒绝方法：下载进行中时不允许关闭"""
+        if self._downloading:
+            return
+        super().reject()

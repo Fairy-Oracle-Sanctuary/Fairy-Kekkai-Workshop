@@ -1099,7 +1099,7 @@
         <translation>下載中</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="990"/>
+        <location filename="../../common/text.py" line="998"/>
         <source>请输入视频URL:</source>
         <translation>請輸入影片URL:</translation>
     </message>
@@ -2234,347 +2234,347 @@
         <translation>Fairy Kekkai Workshop 已是最新版本</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="467"/>
+        <location filename="../../common/text.py" line="475"/>
         <source>下载完成 -{}-</source>
         <translation>下載完成 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="468"/>
+        <location filename="../../common/text.py" line="476"/>
         <source>下载失败 -{}-</source>
         <translation>下載失敗 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="469"/>
+        <location filename="../../common/text.py" line="477"/>
         <source>视频字幕识别完成 -{}-</source>
         <translation>影片字幕辨識完成 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="470"/>
+        <location filename="../../common/text.py" line="478"/>
         <source>视频字幕识别失败 -{}-</source>
         <translation>影片字幕辨識失敗 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="471"/>
+        <location filename="../../common/text.py" line="479"/>
         <source>翻译完成 -{}-</source>
         <translation>翻譯完成 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="472"/>
+        <location filename="../../common/text.py" line="480"/>
         <source>翻译失败 -{}-</source>
         <translation>翻譯失敗 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="473"/>
+        <location filename="../../common/text.py" line="481"/>
         <source>压制完成 -{}-</source>
         <translation>壓製完成 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="474"/>
+        <location filename="../../common/text.py" line="482"/>
         <source>压制失败 -{}-</source>
         <translation>壓製失敗 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="475"/>
+        <location filename="../../common/text.py" line="483"/>
         <source>上传完成 -{}-</source>
         <translation>上傳完成 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="476"/>
+        <location filename="../../common/text.py" line="484"/>
         <source>上传失败 -{}-</source>
         <translation>上傳失敗 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="477"/>
+        <location filename="../../common/text.py" line="485"/>
         <source>语音识别完成 -{}-</source>
         <translation>語音辨識完成 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="478"/>
+        <location filename="../../common/text.py" line="486"/>
         <source>语音识别失败 -{}-</source>
         <translation>語音辨識失敗 -{}-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="479"/>
+        <location filename="../../common/text.py" line="487"/>
         <source>OCR 设置</source>
         <translation>OCR 設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="480"/>
+        <location filename="../../common/text.py" line="488"/>
         <source>PaddleOCR 路径</source>
         <translation>PaddleOCR 路徑</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="481"/>
+        <location filename="../../common/text.py" line="489"/>
         <source>选择文件夹</source>
         <translation>選擇資料夾</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="482"/>
+        <location filename="../../common/text.py" line="490"/>
         <source>时间设置</source>
         <translation>時間設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="483"/>
+        <location filename="../../common/text.py" line="491"/>
         <source>开始时间</source>
         <translation>開始時間</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="484"/>
+        <location filename="../../common/text.py" line="492"/>
         <source>设置视频处理的起始时间点 (例如: 0:00 或 1:23:45)</source>
         <translation>設定影片處理的起始時間點 (例如: 0:00 或 1:23:45)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="487"/>
+        <location filename="../../common/text.py" line="495"/>
         <source>结束时间</source>
         <translation>結束時間</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="488"/>
+        <location filename="../../common/text.py" line="496"/>
         <source>设置视频处理的结束时间点 (例如: 0:10 或 2:34:56)</source>
         <translation>設定影片處理的結束時間點 (例如: 0:10 或 2:34:56)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="491"/>
+        <location filename="../../common/text.py" line="499"/>
         <source>阈值设置</source>
         <translation>閾值設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="492"/>
+        <location filename="../../common/text.py" line="500"/>
         <source>相似度阈值</source>
         <translation>相似度閾值</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="493"/>
+        <location filename="../../common/text.py" line="501"/>
         <source>字幕帧之间的相似度阈值 (0-100)</source>
         <translation>字幕幀之間的相似度閾值 (0-100)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="494"/>
+        <location filename="../../common/text.py" line="502"/>
         <source>SSIM阈值</source>
         <translation>SSIM閾值</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="495"/>
+        <location filename="../../common/text.py" line="503"/>
         <source>结构相似性指数阈值，用于判断帧间变化 (0-100)</source>
         <translation>結構相似性指數閾值，用於判斷幀間變化 (0-100)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="496"/>
+        <location filename="../../common/text.py" line="504"/>
         <source>处理参数</source>
         <translation>處理參數</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="497"/>
+        <location filename="../../common/text.py" line="505"/>
         <source>最大合并间隔</source>
         <translation>最大合併間隔</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="498"/>
+        <location filename="../../common/text.py" line="506"/>
         <source>相邻字幕片段的最大合并间隔 (0.1-10.0 秒)</source>
         <translation>相鄰字幕片段的最大合併間隔 (0.1-10.0 秒)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="499"/>
+        <location filename="../../common/text.py" line="507"/>
         <source>最大OCR图像宽度</source>
         <translation>最大OCR影像寬度</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="500"/>
+        <location filename="../../common/text.py" line="508"/>
         <source>OCR处理时图像的最大宽度 (100-4096 像素)</source>
         <translation>OCR處理時影像的最大寬度 (100-4096 像素)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="501"/>
+        <location filename="../../common/text.py" line="509"/>
         <source>跳过的帧数</source>
         <translation>跳過的幀數</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="502"/>
+        <location filename="../../common/text.py" line="510"/>
         <source>处理时跳过的帧数，用于提高处理速度 (0-100)</source>
         <translation>處理時跳過的幀數，用於提高處理速度 (0-100)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="503"/>
+        <location filename="../../common/text.py" line="511"/>
         <source>最小字幕持续时间</source>
         <translation>最小字幕持續時間</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="504"/>
+        <location filename="../../common/text.py" line="512"/>
         <source>字幕的最小持续时间，短于此时间的字幕将被过滤 (0.1-10.0 秒)</source>
         <translation>字幕的最小持續時間，短於此時間的字幕將被過濾 (0.1-10.0 秒)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="507"/>
+        <location filename="../../common/text.py" line="515"/>
         <source>功能开关</source>
         <translation>功能開關</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="508"/>
+        <location filename="../../common/text.py" line="516"/>
         <source>启用GPU加速</source>
         <translation>啟用GPU加速</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="509"/>
+        <location filename="../../common/text.py" line="517"/>
         <source>使用GPU进行OCR处理以提高速度</source>
         <translation>使用GPU進行OCR處理以提高速度</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="510"/>
+        <location filename="../../common/text.py" line="518"/>
         <source>启用双区域OCR</source>
         <translation>啟用雙區域OCR</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="511"/>
+        <location filename="../../common/text.py" line="519"/>
         <source>支持同时处理两个区域的字幕</source>
         <translation>支援同時處理兩個區域的字幕</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="512"/>
+        <location filename="../../common/text.py" line="520"/>
         <source>使用后期处理</source>
         <translation>使用後期處理</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="513"/>
+        <location filename="../../common/text.py" line="521"/>
         <source>对OCR结果进行后期处理优化</source>
         <translation>對OCR結果進行後期處理最佳化</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="514"/>
+        <location filename="../../common/text.py" line="522"/>
         <source>使用高精度模型</source>
         <translation>使用高精度模型</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="515"/>
+        <location filename="../../common/text.py" line="523"/>
         <source>使用更好的模型进行OCR处理</source>
         <translation>使用更好的模型進行OCR處理</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="516"/>
+        <location filename="../../common/text.py" line="524"/>
         <source>请选择paddleocr.exe</source>
         <translation>請選擇paddleocr.exe</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="517"/>
+        <location filename="../../common/text.py" line="525"/>
         <source>paddleocr.exe 路径不能包含中文字符</source>
         <translation>paddleocr.exe 路徑不能包含中文字元</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="518"/>
+        <location filename="../../common/text.py" line="526"/>
         <source>确认</source>
         <translation>確認</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="519"/>
+        <location filename="../../common/text.py" line="527"/>
         <source>请选择OCR.model</source>
         <translation>請選擇OCR.model</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="520"/>
+        <location filename="../../common/text.py" line="528"/>
         <source>OCR.model 路径不能包含中文字符</source>
         <translation>OCR.model 路徑不能包含中文字元</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="521"/>
+        <location filename="../../common/text.py" line="529"/>
         <source>请选择videocr-cli.exe</source>
         <translation>請選擇videocr-cli.exe</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="522"/>
+        <location filename="../../common/text.py" line="530"/>
         <source>videocr-cli.exe 路径不能包含中文字符</source>
         <translation>videocr-cli.exe 路徑不能包含中文字元</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="523"/>
+        <location filename="../../common/text.py" line="531"/>
         <source>请选择字幕提取临时文件夹temp</source>
         <translation>請選擇字幕提取暫存資料夾temp</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="524"/>
+        <location filename="../../common/text.py" line="532"/>
         <source>字幕提取临时文件夹temp 路径不能包含中文字符</source>
         <translation>字幕提取暫存資料夾temp 路徑不能包含中文字元</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="525"/>
+        <location filename="../../common/text.py" line="533"/>
         <source>提取</source>
         <translation>提取</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="526"/>
+        <location filename="../../common/text.py" line="534"/>
         <source>提取中</source>
         <translation>提取中</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="527"/>
+        <location filename="../../common/text.py" line="535"/>
         <source>步骤1/3: 正在处理视频帧…</source>
         <translation>步驟1/3: 正在處理影片幀…</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="528"/>
+        <location filename="../../common/text.py" line="536"/>
         <source>步骤1/3: 正在处理视频帧… {}/{}</source>
         <translation>步驟1/3: 正在處理影片幀… {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="529"/>
+        <location filename="../../common/text.py" line="537"/>
         <source>步骤2/3: 正在进行文本检测 {}/{}</source>
         <translation>步驟2/3: 正在進行文字偵測 {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="530"/>
+        <location filename="../../common/text.py" line="538"/>
         <source>步骤2/3: 正在分析检测帧 {}/{}</source>
         <translation>步驟2/3: 正在分析偵測幀 {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="531"/>
+        <location filename="../../common/text.py" line="539"/>
         <source>步骤3/3: 正在对图像进行OCR识别 {}/{}</source>
         <translation>步驟3/3: 正在對影像進行OCR辨識 {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="532"/>
+        <location filename="../../common/text.py" line="540"/>
         <source>正在生成字幕文件...</source>
         <translation>正在產生字幕檔案...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="533"/>
+        <location filename="../../common/text.py" line="541"/>
         <source>解析进度失败: {}</source>
         <translation>解析進度失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="534"/>
+        <location filename="../../common/text.py" line="542"/>
         <source>跳转到第一页</source>
         <translation>跳轉到第一頁</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="535"/>
+        <location filename="../../common/text.py" line="543"/>
         <source>跳转到最后一页</source>
         <translation>跳轉到最後一頁</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="536"/>
+        <location filename="../../common/text.py" line="544"/>
         <source>上一页</source>
         <translation>上一頁</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="537"/>
+        <location filename="../../common/text.py" line="545"/>
         <source>下一页</source>
         <translation>下一頁</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="538"/>
+        <location filename="../../common/text.py" line="546"/>
         <source>跳转到</source>
         <translation>跳轉到</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="539"/>
+        <location filename="../../common/text.py" line="547"/>
         <source>页 共计 {} 页</source>
         <translation>頁 共計 {} 頁</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="540"/>
+        <location filename="../../common/text.py" line="548"/>
         <source>Prompt编写帮助</source>
         <translation>Prompt編寫幫助</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="541"/>
+        <location filename="../../common/text.py" line="549"/>
         <source>{origin_lang}表示原语言
 {target_lang}表示翻译后的语言
 {content}表示待翻译的文本</source>
@@ -2583,1237 +2583,1237 @@
 {content}表示待翻譯的文字</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="544"/>
+        <location filename="../../common/text.py" line="552"/>
         <source>打开项目</source>
         <translation>開啟專案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="545"/>
+        <location filename="../../common/text.py" line="553"/>
         <source>已修改项目信息</source>
         <translation>已修改專案資訊</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="546"/>
+        <location filename="../../common/text.py" line="554"/>
         <source>正在加载项目...</source>
         <translation>正在載入專案...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="547"/>
+        <location filename="../../common/text.py" line="555"/>
         <source>开始下载</source>
         <translation>開始下載</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="548"/>
+        <location filename="../../common/text.py" line="556"/>
         <source>正在下载图片...</source>
         <translation>正在下載圖片...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="549"/>
+        <location filename="../../common/text.py" line="557"/>
         <source>图片已下载到: {}</source>
         <translation>圖片已下載到: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="550"/>
+        <location filename="../../common/text.py" line="558"/>
         <source>刷新时出错: {}</source>
         <translation>重新整理時出錯: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="551"/>
+        <location filename="../../common/text.py" line="559"/>
         <source>返回项目列表</source>
         <translation>返回專案列表</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="552"/>
+        <location filename="../../common/text.py" line="560"/>
         <source>刷新项目列表</source>
         <translation>重新整理專案列表</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="553"/>
+        <location filename="../../common/text.py" line="561"/>
         <source>批量任务</source>
         <translation>批次任務</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="554"/>
+        <location filename="../../common/text.py" line="562"/>
         <source>批量添加下载/语音识别/翻译/压制任务</source>
         <translation>批次新增下載/語音辨識/翻譯/壓制任務</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="555"/>
+        <location filename="../../common/text.py" line="563"/>
         <source>批量删除</source>
         <translation>批次刪除</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="556"/>
+        <location filename="../../common/text.py" line="564"/>
         <source>按文件类型批量删除剧集文件</source>
         <translation>按檔案型別批次刪除劇集檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="557"/>
+        <location filename="../../common/text.py" line="565"/>
         <source>共 {} 集，第 {}/{} 页</source>
         <translation>共 {} 集，第 {}/{} 頁</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="558"/>
+        <location filename="../../common/text.py" line="566"/>
         <source>插入新的一集</source>
         <translation>插入新的一集</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="559"/>
+        <location filename="../../common/text.py" line="567"/>
         <source>已刷新文件列表</source>
         <translation>已重新整理檔案列表</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="560"/>
+        <location filename="../../common/text.py" line="568"/>
         <source>提示</source>
         <translation>提示</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="561"/>
+        <location filename="../../common/text.py" line="569"/>
         <source>当前项目没有剧集</source>
         <translation>目前專案沒有劇集</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="562"/>
+        <location filename="../../common/text.py" line="570"/>
         <source>第 {} 集添加失败: {}</source>
         <translation>第 {} 集新增失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="563"/>
+        <location filename="../../common/text.py" line="571"/>
         <source>已添加 {} 个任务</source>
         <translation>已新增 {} 個任務</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="564"/>
+        <location filename="../../common/text.py" line="572"/>
         <source>没有选中任何任务</source>
         <translation>沒有選中任何任務</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="565"/>
+        <location filename="../../common/text.py" line="573"/>
         <source>没有选中任何文件</source>
         <translation>沒有選中任何檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="566"/>
+        <location filename="../../common/text.py" line="574"/>
         <source>确认批量删除</source>
         <translation>確認批次刪除</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="567"/>
+        <location filename="../../common/text.py" line="575"/>
         <source>确定要批量删除 {} 个 '{}' 吗？此操作不可撤销。</source>
         <translation>確定要批次刪除 {} 個 '{}' 嗎？此操作不可撤銷。</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="568"/>
+        <location filename="../../common/text.py" line="576"/>
         <source>已删除 {} 个 '{}'</source>
         <translation>已刪除 {} 個 '{}'</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="569"/>
+        <location filename="../../common/text.py" line="577"/>
         <source>批量删除失败: {}</source>
         <translation>批次刪除失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="570"/>
+        <location filename="../../common/text.py" line="578"/>
         <source>在这之前插入新的一集</source>
         <translation>在這之前插入新的一集</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="571"/>
+        <location filename="../../common/text.py" line="579"/>
         <source>删除这一集(不可撤销)</source>
         <translation>刪除這一集(不可撤銷)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="572"/>
+        <location filename="../../common/text.py" line="580"/>
         <source>编辑本集标题和视频url</source>
         <translation>編輯本集標題和影片網址</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="573"/>
+        <location filename="../../common/text.py" line="581"/>
         <source>打开本集链接: {}</source>
         <translation>開啟本集連結: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="574"/>
+        <location filename="../../common/text.py" line="582"/>
         <source>在第 {} 集处插入</source>
         <translation>在第 {} 集處插入</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="575"/>
+        <location filename="../../common/text.py" line="583"/>
         <source>翻译后标题:</source>
         <translation>翻譯後標題:</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="576"/>
+        <location filename="../../common/text.py" line="584"/>
         <source>视频URL:</source>
         <translation>影片網址:</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="577"/>
+        <location filename="../../common/text.py" line="585"/>
         <source>请输入翻译后标题</source>
         <translation>請輸入翻譯後標題</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="578"/>
+        <location filename="../../common/text.py" line="586"/>
         <source>请输入视频URL</source>
         <translation>請輸入影片網址</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="579"/>
+        <location filename="../../common/text.py" line="587"/>
         <source>已插入新的一集</source>
         <translation>已插入新的一集</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="580"/>
+        <location filename="../../common/text.py" line="588"/>
         <source>未知错误</source>
         <translation>未知錯誤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="581"/>
+        <location filename="../../common/text.py" line="589"/>
         <source>添加失败: {}</source>
         <translation>新增失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="582"/>
+        <location filename="../../common/text.py" line="590"/>
         <source>确定要删除这一集吗？此操作不可撤销。</source>
         <translation>確定要刪除這一集嗎？此操作不可撤銷。</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="583"/>
+        <location filename="../../common/text.py" line="591"/>
         <source>处理中</source>
         <translation>處理中</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="584"/>
+        <location filename="../../common/text.py" line="592"/>
         <source>正在删除第 {} 集...</source>
         <translation>正在刪除第 {} 集...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="585"/>
+        <location filename="../../common/text.py" line="593"/>
         <source>已删除第 {} 集</source>
         <translation>已刪除第 {} 集</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="586"/>
+        <location filename="../../common/text.py" line="594"/>
         <source>删除失败: {}</source>
         <translation>刪除失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="587"/>
+        <location filename="../../common/text.py" line="595"/>
         <source>编辑第 {} 集的标题和视频URL</source>
         <translation>編輯第 {} 集的標題和影片網址</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="588"/>
+        <location filename="../../common/text.py" line="596"/>
         <source>标题:</source>
         <translation>標題:</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="589"/>
+        <location filename="../../common/text.py" line="597"/>
         <source>URL:</source>
         <translation>網址:</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="590"/>
+        <location filename="../../common/text.py" line="598"/>
         <source>请输入标题</source>
         <translation>請輸入標題</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="591"/>
+        <location filename="../../common/text.py" line="599"/>
         <source>请输入视频url</source>
         <translation>請輸入影片網址</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="592"/>
+        <location filename="../../common/text.py" line="600"/>
         <source>编辑第 {} 集标题和视频url成功</source>
         <translation>編輯第 {} 集標題和影片網址成功</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="593"/>
+        <location filename="../../common/text.py" line="601"/>
         <source>正在复制文件 {}...</source>
         <translation>正在複製檔案 {}...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="594"/>
+        <location filename="../../common/text.py" line="602"/>
         <source>已上传文件到: {}/{}</source>
         <translation>已上傳檔案到: {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="595"/>
+        <location filename="../../common/text.py" line="603"/>
         <source>已创建新项目: {}</source>
         <translation>已建立新專案: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="596"/>
+        <location filename="../../common/text.py" line="604"/>
         <source>{} 并不是一个合法的项目</source>
         <translation>{} 並不是一個合法的專案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="597"/>
+        <location filename="../../common/text.py" line="605"/>
         <source>选择导入模式</source>
         <translation>選擇匯入模式</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="598"/>
+        <location filename="../../common/text.py" line="606"/>
         <source>是否要把整个项目文件夹复制过来</source>
         <translation>是否要把整個專案資料夾複製過來</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="599"/>
+        <location filename="../../common/text.py" line="607"/>
         <source>复制</source>
         <translation>複製</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="600"/>
+        <location filename="../../common/text.py" line="608"/>
         <source>只连接路径</source>
         <translation>只連線路徑</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="601"/>
+        <location filename="../../common/text.py" line="609"/>
         <source>已添加 {}</source>
         <translation>已新增 {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="602"/>
+        <location filename="../../common/text.py" line="610"/>
         <source>已导入此路径 {}</source>
         <translation>已匯入此路徑 {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="603"/>
+        <location filename="../../common/text.py" line="611"/>
         <source>项目创建完毕</source>
         <translation>專案建立完畢</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="604"/>
+        <location filename="../../common/text.py" line="612"/>
         <source>失败</source>
         <translation>失敗</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="605"/>
+        <location filename="../../common/text.py" line="613"/>
         <source>已刷新项目列表</source>
         <translation>已重新整理專案列表</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="606"/>
+        <location filename="../../common/text.py" line="614"/>
         <source>项目 {} 已删除</source>
         <translation>專案 {} 已刪除</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="607"/>
+        <location filename="../../common/text.py" line="615"/>
         <source>删除项目失败: {}</source>
         <translation>刪除專案失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="608"/>
+        <location filename="../../common/text.py" line="616"/>
         <source>已解除项目 {} 的连接</source>
         <translation>已解除專案 {} 的連線</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="609"/>
+        <location filename="../../common/text.py" line="617"/>
         <source>项目已置顶</source>
         <translation>專案已置頂</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="610"/>
+        <location filename="../../common/text.py" line="618"/>
         <source>我知道了</source>
         <translation>我知道了</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="611"/>
+        <location filename="../../common/text.py" line="619"/>
         <source>封面</source>
         <translation>封面</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="612"/>
+        <location filename="../../common/text.py" line="620"/>
         <source>原视频</source>
         <translation>原始影片</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="613"/>
+        <location filename="../../common/text.py" line="621"/>
         <source>翻译后的视频</source>
         <translation>翻譯後的影片</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="614"/>
+        <location filename="../../common/text.py" line="622"/>
         <source>原字幕</source>
         <translation>原始字幕</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="615"/>
+        <location filename="../../common/text.py" line="623"/>
         <source>翻译后的字幕</source>
         <translation>翻譯後的字幕</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="616"/>
+        <location filename="../../common/text.py" line="624"/>
         <source>打开成功</source>
         <translation>開啟成功</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="617"/>
+        <location filename="../../common/text.py" line="625"/>
         <source>已打开项目 {}</source>
         <translation>已開啟專案 {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="618"/>
+        <location filename="../../common/text.py" line="626"/>
         <source>* 标题</source>
         <translation>* 標題</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="619"/>
+        <location filename="../../common/text.py" line="627"/>
         <source>请输入稿件标题</source>
         <translation>請輸入稿件標題</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="620"/>
+        <location filename="../../common/text.py" line="628"/>
         <source>  类型</source>
         <translation>型別</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="621"/>
+        <location filename="../../common/text.py" line="629"/>
         <source>自制</source>
         <translation>自製</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="622"/>
+        <location filename="../../common/text.py" line="630"/>
         <source>转载</source>
         <translation>轉載</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="623"/>
+        <location filename="../../common/text.py" line="631"/>
         <source>还可以添加{}个标签</source>
         <translation>還可以新增{}個標籤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="624"/>
+        <location filename="../../common/text.py" line="632"/>
         <source>已达到标签上限</source>
         <translation>已達到標籤上限</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="625"/>
+        <location filename="../../common/text.py" line="633"/>
         <source>按回车键Enter创建标签</source>
         <translation>按回車鍵Enter建立標籤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="626"/>
+        <location filename="../../common/text.py" line="634"/>
         <source>上传</source>
         <translation>上傳</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="627"/>
+        <location filename="../../common/text.py" line="635"/>
         <source>视频文件</source>
         <translation>影片檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="628"/>
+        <location filename="../../common/text.py" line="636"/>
         <source>封面文件</source>
         <translation>封面檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="629"/>
+        <location filename="../../common/text.py" line="637"/>
         <source>请选择你的封面</source>
         <translation>請選擇你的封面</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="630"/>
+        <location filename="../../common/text.py" line="638"/>
         <source>选择视频文件</source>
         <translation>選擇影片檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="631"/>
+        <location filename="../../common/text.py" line="639"/>
         <source>选择封面文件</source>
         <translation>選擇封面檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="632"/>
+        <location filename="../../common/text.py" line="640"/>
         <source>基本设置</source>
         <translation>基本設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="633"/>
+        <location filename="../../common/text.py" line="641"/>
         <source>请先填写Cookie：Sessdata</source>
         <translation>請先填寫Cookie：Sessdata</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="634"/>
+        <location filename="../../common/text.py" line="642"/>
         <source>请先填写Cookie：BiliJct</source>
         <translation>請先填寫Cookie：BiliJct</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="635"/>
+        <location filename="../../common/text.py" line="643"/>
         <source>请先填写Cookie：Buvid3</source>
         <translation>請先填寫Cookie：Buvid3</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="636"/>
+        <location filename="../../common/text.py" line="644"/>
         <source>请选择视频文件</source>
         <translation>請選擇影片檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="637"/>
+        <location filename="../../common/text.py" line="645"/>
         <source>请选择封面文件</source>
         <translation>請選擇封面檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="638"/>
+        <location filename="../../common/text.py" line="646"/>
         <source>请输入转载链接</source>
         <translation>請輸入轉貼連結</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="639"/>
+        <location filename="../../common/text.py" line="647"/>
         <source>请输入标签</source>
         <translation>請輸入標籤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="640"/>
+        <location filename="../../common/text.py" line="648"/>
         <source>选择的时间必须大于现在的时间</source>
         <translation>選擇的時間必須大於現在的時間</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="641"/>
+        <location filename="../../common/text.py" line="649"/>
         <source>上传视频进度</source>
         <translation>上傳影片進度</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="642"/>
+        <location filename="../../common/text.py" line="650"/>
         <source>上传设置</source>
         <translation>上傳設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="643"/>
+        <location filename="../../common/text.py" line="651"/>
         <source>upload-video 路径</source>
         <translation>upload-video 路徑</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="644"/>
+        <location filename="../../common/text.py" line="652"/>
         <source>Cookie (必填 否则无法上传)</source>
         <translation>Cookie (必填，否則無法上傳)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="645"/>
+        <location filename="../../common/text.py" line="653"/>
         <source>SESSDATA</source>
         <translation>SESSDATA</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="646"/>
+        <location filename="../../common/text.py" line="654"/>
         <source>设置你的SESSDATA</source>
         <translation>設定你的SESSDATA</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="647"/>
+        <location filename="../../common/text.py" line="655"/>
         <source>BILI_JCT</source>
         <translation>BILI_JCT</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="648"/>
+        <location filename="../../common/text.py" line="656"/>
         <source>设置你的BILI_JCT</source>
         <translation>設定你的BILI_JCT</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="649"/>
+        <location filename="../../common/text.py" line="657"/>
         <source>BUVID3</source>
         <translation>BUVID3</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="650"/>
+        <location filename="../../common/text.py" line="658"/>
         <source>设置你的BUVID3</source>
         <translation>設定你的BUVID3</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="651"/>
+        <location filename="../../common/text.py" line="659"/>
         <source>选择upload-video文件</source>
         <translation>選擇upload-video檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="652"/>
+        <location filename="../../common/text.py" line="660"/>
         <source>视频上传</source>
         <translation>影片上傳</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="653"/>
+        <location filename="../../common/text.py" line="661"/>
         <source>个性化</source>
         <translation>個人化</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="654"/>
+        <location filename="../../common/text.py" line="662"/>
         <source>应用主题</source>
         <translation>應用主題</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="655"/>
+        <location filename="../../common/text.py" line="663"/>
         <source>调整应用的外观</source>
         <translation>調整應用程式的外觀</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="656"/>
+        <location filename="../../common/text.py" line="664"/>
         <source>浅色</source>
         <translation>淺色</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="657"/>
+        <location filename="../../common/text.py" line="665"/>
         <source>深色</source>
         <translation>深色</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="658"/>
+        <location filename="../../common/text.py" line="666"/>
         <source>跟随系统设置</source>
         <translation>跟隨系統設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="659"/>
+        <location filename="../../common/text.py" line="667"/>
         <source>主题色</source>
         <translation>主題色</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="660"/>
+        <location filename="../../common/text.py" line="668"/>
         <source>调整应用的主题颜色</source>
         <translation>調整應用程式的主題顏色</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="661"/>
+        <location filename="../../common/text.py" line="669"/>
         <source>海沫绿</source>
         <translation>海沫綠</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="662"/>
+        <location filename="../../common/text.py" line="670"/>
         <source>窗口类型</source>
         <translation>視窗類型</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="663"/>
+        <location filename="../../common/text.py" line="671"/>
         <source>调整应用的窗口类型</source>
         <translation>調整應用程式的視窗類型</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="664"/>
+        <location filename="../../common/text.py" line="672"/>
         <source>MSFluentWindow</source>
         <translation>MSFluentWindow</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="665"/>
+        <location filename="../../common/text.py" line="673"/>
         <source>FluentWindow</source>
         <translation>FluentWindow</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="666"/>
+        <location filename="../../common/text.py" line="674"/>
         <source>SplitFluentWindow</source>
         <translation>SplitFluentWindow</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="667"/>
+        <location filename="../../common/text.py" line="675"/>
         <source>界面缩放</source>
         <translation>介面縮放</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="668"/>
+        <location filename="../../common/text.py" line="676"/>
         <source>调整组件和字体的大小</source>
         <translation>調整元件和字型的大小</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="669"/>
+        <location filename="../../common/text.py" line="677"/>
         <source>语言</source>
         <translation>語言</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="670"/>
+        <location filename="../../common/text.py" line="678"/>
         <source>设置界面语言</source>
         <translation>設定介面語言</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="671"/>
+        <location filename="../../common/text.py" line="679"/>
         <source>直接关闭</source>
         <translation>直接關閉</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="672"/>
+        <location filename="../../common/text.py" line="680"/>
         <source>启用或禁用直接关闭应用</source>
         <translation>啟用或停用直接關閉應用程式</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="673"/>
+        <location filename="../../common/text.py" line="681"/>
         <source>背景图片</source>
         <translation>背景圖片</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="674"/>
+        <location filename="../../common/text.py" line="682"/>
         <source>启用或禁用应用背景图片</source>
         <translation>啟用或停用應用程式背景圖片</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="675"/>
+        <location filename="../../common/text.py" line="683"/>
         <source>选择背景图片</source>
         <translation>選擇背景圖片</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="676"/>
+        <location filename="../../common/text.py" line="684"/>
         <source>背景透明度</source>
         <translation>背景透明度</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="677"/>
+        <location filename="../../common/text.py" line="685"/>
         <source>调整背景图片的透明度</source>
         <translation>調整背景圖片的透明度</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="678"/>
+        <location filename="../../common/text.py" line="686"/>
         <source>项目详情页数量</source>
         <translation>專案詳情頁數量</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="679"/>
+        <location filename="../../common/text.py" line="687"/>
         <source>调整项目详情页项目数量</source>
         <translation>調整專案詳情頁項目數量</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="680"/>
+        <location filename="../../common/text.py" line="688"/>
         <source>检测程序</source>
         <translation>偵測程式</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="681"/>
+        <location filename="../../common/text.py" line="689"/>
         <source>自动检测并更新程序路径</source>
         <translation>自動偵測並更新程式路徑</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="682"/>
+        <location filename="../../common/text.py" line="690"/>
         <source>关于</source>
         <translation>關於</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="683"/>
+        <location filename="../../common/text.py" line="691"/>
         <source>检查更新</source>
         <translation>檢查更新</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="684"/>
+        <location filename="../../common/text.py" line="692"/>
         <source>Copyleft</source>
         <translation>Copyleft</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="685"/>
+        <location filename="../../common/text.py" line="693"/>
         <source>当前版本</source>
         <translation>目前版本</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="686"/>
+        <location filename="../../common/text.py" line="694"/>
         <source>查看新手引导</source>
         <translation>查看新手引導</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="687"/>
+        <location filename="../../common/text.py" line="695"/>
         <source>新手引导</source>
         <translation>新手引導</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="688"/>
+        <location filename="../../common/text.py" line="696"/>
         <source>重新查看软件使用教程</source>
         <translation>重新查看軟體使用教學</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="689"/>
+        <location filename="../../common/text.py" line="697"/>
         <source>配置在重启软件后生效</source>
         <translation>設定在重新啟動軟體後生效</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="690"/>
+        <location filename="../../common/text.py" line="698"/>
         <source>选择ytdlp文件</source>
         <translation>選擇ytdlp檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="691"/>
+        <location filename="../../common/text.py" line="699"/>
         <source>检测成功</source>
         <translation>偵測成功</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="692"/>
+        <location filename="../../common/text.py" line="700"/>
         <source>{}路径已设置为{}</source>
         <translation>{}路徑已設定為{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="693"/>
+        <location filename="../../common/text.py" line="701"/>
         <source>未检测到{}程序，是否要下载</source>
         <translation>未偵測到{}程式，是否要下載</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="694"/>
+        <location filename="../../common/text.py" line="702"/>
         <source>前往下载</source>
         <translation>前往下載</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="695"/>
+        <location filename="../../common/text.py" line="703"/>
         <source>检测中...</source>
         <translation>偵測中...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="696"/>
+        <location filename="../../common/text.py" line="704"/>
         <source>显示/隐藏界面</source>
         <translation>顯示/隱藏介面</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="697"/>
+        <location filename="../../common/text.py" line="705"/>
         <source>退出</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="698"/>
+        <location filename="../../common/text.py" line="706"/>
         <source>程序已最小化到系统托盘</source>
         <translation>程式已最小化到系統托盤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="699"/>
+        <location filename="../../common/text.py" line="707"/>
         <source>欢迎使用 Fairy Kekkai Workshop</source>
         <translation>歡迎使用 Fairy Kekkai Workshop</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="700"/>
+        <location filename="../../common/text.py" line="708"/>
         <source>这是一个专为东方Project视频翻译设计的工具，支持视频下载、OCR识别、语音识别、AI翻译、视频压制等功能。主页的「关于」卡片中还可以查看日志、一键清空日志或重置所有设置。</source>
         <translation>這是一個專為東方Project影片翻譯設計的工具，支援影片下載、OCR辨識、語音辨識、AI翻譯、影片壓制等功能。主頁的「關於」卡片中還可以查看日誌、一鍵清空日誌或重設所有設定。</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="703"/>
+        <location filename="../../common/text.py" line="711"/>
         <source>点击「新建项目」创建新的翻译项目，或点击「导入项目」导入已有项目。每个项目对应一个视频系列。</source>
         <translation>點擊「新增專案」建立新的翻譯專案，或點擊「匯入專案」匯入現有專案。每個專案對應一個影片系列。</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="706"/>
+        <location filename="../../common/text.py" line="714"/>
         <source>下载视频</source>
         <translation>下載影片</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="707"/>
+        <location filename="../../common/text.py" line="715"/>
         <source>在下载界面输入视频URL，支持YouTube、Bilibili等平台。可选择清晰度和下载格式。</source>
         <translation>在下載介面輸入影片URL，支援YouTube、Bilibili等平台。可選擇畫質和下載格式。</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="710"/>
+        <location filename="../../common/text.py" line="718"/>
         <source>OCR识别</source>
         <translation>OCR辨識</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="711"/>
+        <location filename="../../common/text.py" line="719"/>
         <source>在字幕界面选择视频文件，点击「开始OCR」进行字幕识别。需要配置PaddleOCR模型路径。</source>
         <translation>在字幕介面選擇影片檔案，點擊「開始OCR」進行字幕辨識。需要設定PaddleOCR模型路徑。</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="714"/>
+        <location filename="../../common/text.py" line="722"/>
         <source>在识别界面选择视频或音频文件，使用 Whisper 模型将语音转写为字幕。可在设置中选择模型、语言、输出格式与 GPU 加速。</source>
         <translation>在辨識介面選擇影片或音訊檔案，使用 Whisper 模型將語音轉寫為字幕。可在設定中選擇模型、語言、輸出格式與 GPU 加速。</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="717"/>
+        <location filename="../../common/text.py" line="725"/>
         <source>AI翻译</source>
         <translation>AI翻譯</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="718"/>
+        <location filename="../../common/text.py" line="726"/>
         <source>在翻译界面选择SRT文件，配置AI模型和API Key，点击「开始翻译」进行翻译。支持多轮对话保持上下文。</source>
         <translation>在翻譯介面選擇SRT檔案，設定AI模型和API Key，點擊「開始翻譯」進行翻譯。支援多輪對話保持上下文。</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="721"/>
+        <location filename="../../common/text.py" line="729"/>
         <source>在压制界面选择视频文件，将字幕烤制进视频并压制输出。可在设置中调整编码器、CRF、分辨率等参数。</source>
         <translation>在壓制介面選擇影片檔案，將字幕烤製進影片並壓制輸出。可在設定中調整編碼器、CRF、解析度等參數。</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="724"/>
+        <location filename="../../common/text.py" line="732"/>
         <source>设置配置</source>
         <translation>設定配置</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="725"/>
+        <location filename="../../common/text.py" line="733"/>
         <source>在设置界面配置各种API Key、模型路径、下载参数等。首次使用请先完成基础配置。</source>
         <translation>在設定介面設定各種API Key、模型路徑、下載參數等。首次使用請先完成基礎設定。</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="728"/>
+        <location filename="../../common/text.py" line="736"/>
         <source>上一步</source>
         <translation>上一步</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="729"/>
+        <location filename="../../common/text.py" line="737"/>
         <source>跳过</source>
         <translation>跳過</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="730"/>
+        <location filename="../../common/text.py" line="738"/>
         <source>下一步</source>
         <translation>下一步</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="731"/>
+        <location filename="../../common/text.py" line="739"/>
         <source>完成</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="732"/>
+        <location filename="../../common/text.py" line="740"/>
         <source>新建项目</source>
         <translation>新增專案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="733"/>
+        <location filename="../../common/text.py" line="741"/>
         <source>导入项目</source>
         <translation>匯入專案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="734"/>
+        <location filename="../../common/text.py" line="742"/>
         <source>根据视频列表创建项目</source>
         <translation>根據影片列表建立專案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="735"/>
+        <location filename="../../common/text.py" line="743"/>
         <source>翻译进度</source>
         <translation>翻譯進度</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="736"/>
+        <location filename="../../common/text.py" line="744"/>
         <source>翻译文本将在这里显示...</source>
         <translation>翻譯文字將在這裡顯示...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="737"/>
+        <location filename="../../common/text.py" line="745"/>
         <source>AI设置</source>
         <translation>AI設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="738"/>
+        <location filename="../../common/text.py" line="746"/>
         <source>AI参数</source>
         <translation>AI參數</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="739"/>
+        <location filename="../../common/text.py" line="747"/>
         <source>AI温度</source>
         <translation>AI溫度</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="740"/>
+        <location filename="../../common/text.py" line="748"/>
         <source>调整AI生成文本的温度(0~2)</source>
         <translation>調整AI生成文字的溫度(0~2)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="741"/>
+        <location filename="../../common/text.py" line="749"/>
         <source>Prompt模板</source>
         <translation>Prompt模板</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="742"/>
+        <location filename="../../common/text.py" line="750"/>
         <source>设置你的Prompt模板</source>
         <translation>設定你的Prompt模板</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="743"/>
+        <location filename="../../common/text.py" line="751"/>
         <source>Deepseek Api Key</source>
         <translation>Deepseek Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="744"/>
+        <location filename="../../common/text.py" line="752"/>
         <source>设置你的Deepseek Api Key</source>
         <translation>設定你的Deepseek Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="745"/>
+        <location filename="../../common/text.py" line="753"/>
         <source>智谱 GLM-4.5-FLASH</source>
         <translation>智譜 GLM-4.5-FLASH</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="746"/>
+        <location filename="../../common/text.py" line="754"/>
         <source>智谱 GLM-4.5-FLASH Api Key</source>
         <translation>智譜 GLM-4.5-FLASH Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="747"/>
+        <location filename="../../common/text.py" line="755"/>
         <source>设置你的GLM-4.5-FLASH Api Key</source>
         <translation>設定你的 GLM-4.5-FLASH Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="748"/>
+        <location filename="../../common/text.py" line="756"/>
         <source>讯飞 Spark Lite</source>
         <translation>訊飛 Spark Lite</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="749"/>
+        <location filename="../../common/text.py" line="757"/>
         <source>讯飞 Spark Lite Api Password</source>
         <translation>訊飛 Spark Lite Api Password</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="750"/>
+        <location filename="../../common/text.py" line="758"/>
         <source>设置你的讯飞 Spark Lite Api Password</source>
         <translation>設定你的訊飛 Spark Lite Api Password</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="751"/>
+        <location filename="../../common/text.py" line="759"/>
         <source>腾讯混元 Api Key</source>
         <translation>騰訊混元 Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="752"/>
+        <location filename="../../common/text.py" line="760"/>
         <source>设置你的腾讯混元 Api Key</source>
         <translation>設定你的騰訊混元 Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="753"/>
+        <location filename="../../common/text.py" line="761"/>
         <source>书生 Api Key</source>
         <translation>書生 Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="754"/>
+        <location filename="../../common/text.py" line="762"/>
         <source>设置你的书生 Api Key</source>
         <translation>設定你的書生 Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="755"/>
+        <location filename="../../common/text.py" line="763"/>
         <source>百度ERNIE-Speed-128K (不推荐使用)</source>
         <translation>百度 ERNIE-Speed-128K (不建議使用)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="756"/>
+        <location filename="../../common/text.py" line="764"/>
         <source>百度ERNIE-Speed-128K Api Key</source>
         <translation>百度 ERNIE-Speed-128K Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="757"/>
+        <location filename="../../common/text.py" line="765"/>
         <source>设置你的百度ERNIE-Speed-128K Api Key</source>
         <translation>設定你的百度 ERNIE-Speed-128K Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="758"/>
+        <location filename="../../common/text.py" line="766"/>
         <source>Gemini</source>
         <translation>Gemini</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="759"/>
+        <location filename="../../common/text.py" line="767"/>
         <source>Gemini 3.5 Flash Api Key</source>
         <translation>Gemini 3.5 Flash Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="760"/>
+        <location filename="../../common/text.py" line="768"/>
         <source>设置你的Gemini 3.5 Flash Api Key</source>
         <translation>設定你的 Gemini 3.5 Flash Api Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="761"/>
+        <location filename="../../common/text.py" line="769"/>
         <source>自定义模型 (支持OpenAI兼容API)</source>
         <translation>自訂模型 (支援 OpenAI 相容 API)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="762"/>
+        <location filename="../../common/text.py" line="770"/>
         <source>启用自定义模型</source>
         <translation>啟用自訂模型</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="763"/>
+        <location filename="../../common/text.py" line="771"/>
         <source>启用自定义模型支持</source>
         <translation>啟用自訂模型支援</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="764"/>
+        <location filename="../../common/text.py" line="772"/>
         <source>模型名称</source>
         <translation>模型名稱</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="765"/>
+        <location filename="../../common/text.py" line="773"/>
         <source>设置自定义模型名称</source>
         <translation>設定自訂模型名稱</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="766"/>
+        <location filename="../../common/text.py" line="774"/>
         <source>API密钥</source>
         <translation>API 金鑰</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="767"/>
+        <location filename="../../common/text.py" line="775"/>
         <source>设置自定义模型的API密钥</source>
         <translation>設定自訂模型的 API 金鑰</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="768"/>
+        <location filename="../../common/text.py" line="776"/>
         <source>API基础URL</source>
         <translation>API 基礎 URL</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="769"/>
+        <location filename="../../common/text.py" line="777"/>
         <source>设置自定义模型的API基础URL</source>
         <translation>設定自訂模型的 API 基礎 URL</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="770"/>
+        <location filename="../../common/text.py" line="778"/>
         <source>模型端点</source>
         <translation>模型端點</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="771"/>
+        <location filename="../../common/text.py" line="779"/>
         <source>设置模型端点(可选，默认使用模型名称)</source>
         <translation>設定模型端點 (選填，預設使用模型名稱)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="772"/>
+        <location filename="../../common/text.py" line="780"/>
         <source>翻译中</source>
         <translation>翻譯中</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="773"/>
+        <location filename="../../common/text.py" line="781"/>
         <source>翻译完成</source>
         <translation>翻譯完成</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="774"/>
+        <location filename="../../common/text.py" line="782"/>
         <source>-{}- 翻译完成</source>
         <translation>-{}- 翻譯完成</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="775"/>
+        <location filename="../../common/text.py" line="783"/>
         <source>翻译失败</source>
         <translation>翻譯失敗</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="776"/>
+        <location filename="../../common/text.py" line="784"/>
         <source>原文语言</source>
         <translation>原文語言</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="777"/>
+        <location filename="../../common/text.py" line="785"/>
         <source>选择字幕文本的语言</source>
         <translation>選擇字幕文字的語言</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="778"/>
+        <location filename="../../common/text.py" line="786"/>
         <source>翻译语言</source>
         <translation>翻譯語言</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="779"/>
+        <location filename="../../common/text.py" line="787"/>
         <source>选择翻译后的语言</source>
         <translation>選擇翻譯後的語言</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="780"/>
+        <location filename="../../common/text.py" line="788"/>
         <source>AI模型</source>
         <translation>AI 模型</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="781"/>
+        <location filename="../../common/text.py" line="789"/>
         <source>选择AI模型</source>
         <translation>選擇 AI 模型</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="782"/>
+        <location filename="../../common/text.py" line="790"/>
         <source>启用上下文关联</source>
         <translation>啟用上下文關聯</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="783"/>
+        <location filename="../../common/text.py" line="791"/>
         <source>开启后AI翻译将参考前后字幕，关闭则每批独立翻译</source>
         <translation>開啟後 AI 翻譯將參考前後字幕，關閉則每批獨立翻譯</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="784"/>
+        <location filename="../../common/text.py" line="792"/>
         <source>Deepseek模型</source>
         <translation>Deepseek 模型</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="785"/>
+        <location filename="../../common/text.py" line="793"/>
         <source>选择Deepseek模型版本</source>
         <translation>選擇 Deepseek 模型版本</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="786"/>
+        <location filename="../../common/text.py" line="794"/>
         <source>深度思考</source>
         <translation>深度思考</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="787"/>
+        <location filename="../../common/text.py" line="795"/>
         <source>启用Deepseek深度思考模式</source>
         <translation>啟用 Deepseek 深度思考模式</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="788"/>
+        <location filename="../../common/text.py" line="796"/>
         <source>SRT 内容预览</source>
         <translation>SRT 內容預覽</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="789"/>
+        <location filename="../../common/text.py" line="797"/>
         <source>共 0 条字幕</source>
         <translation>共 0 條字幕</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="790"/>
+        <location filename="../../common/text.py" line="798"/>
         <source>序号</source>
         <translation>序號</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="791"/>
+        <location filename="../../common/text.py" line="799"/>
         <source>时间轴</source>
         <translation>時間軸</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="792"/>
+        <location filename="../../common/text.py" line="800"/>
         <source>内容</source>
         <translation>內容</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="793"/>
+        <location filename="../../common/text.py" line="801"/>
         <source>请先填写您的DeepSeek API Key</source>
         <translation>請先填寫您的 DeepSeek API Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="794"/>
+        <location filename="../../common/text.py" line="802"/>
         <source>请先填写您的GLM-4.5-FLASH API Key</source>
         <translation>請先填寫您的 GLM-4.5-FLASH API Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="795"/>
+        <location filename="../../common/text.py" line="803"/>
         <source>请先填写您的Spark-Lite API Key</source>
         <translation>請先填寫您的 Spark-Lite API Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="796"/>
+        <location filename="../../common/text.py" line="804"/>
         <source>请先填写您的腾讯混元 API Key</source>
         <translation>請先填寫您的騰訊混元 API Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="797"/>
+        <location filename="../../common/text.py" line="805"/>
         <source>请先填写您的书生 API Key</source>
         <translation>請先填寫您的書生 API Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="798"/>
+        <location filename="../../common/text.py" line="806"/>
         <source>请先填写您的百度ERNIE-Speed-128K API Key</source>
         <translation>請先填寫您的百度 ERNIE-Speed-128K API Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="799"/>
+        <location filename="../../common/text.py" line="807"/>
         <source>请先填写您的Gemini 3.5 Flash API Key</source>
         <translation>請先填寫您的 Gemini 3.5 Flash API Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="800"/>
+        <location filename="../../common/text.py" line="808"/>
         <source>请先在设置中启用自定义模型</source>
         <translation>請先在設定中啟用自訂模型</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="801"/>
+        <location filename="../../common/text.py" line="809"/>
         <source>请先填写您的自定义模型API密钥</source>
         <translation>請先填寫您的自訂模型 API 金鑰</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="802"/>
+        <location filename="../../common/text.py" line="810"/>
         <source>请先填写您的自定义模型API基础URL</source>
         <translation>請先填寫您的自訂模型 API 基礎 URL</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="803"/>
+        <location filename="../../common/text.py" line="811"/>
         <source>请先填写您的自定义模型名称</source>
         <translation>請先填寫您的自訂模型名稱</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="804"/>
+        <location filename="../../common/text.py" line="812"/>
         <source>原语言和目标语言相同</source>
         <translation>原文與目標語言相同</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="805"/>
+        <location filename="../../common/text.py" line="813"/>
         <source>共 {} 条字幕</source>
         <translation>共 {} 條字幕</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="806"/>
+        <location filename="../../common/text.py" line="814"/>
         <source>视频预览区域
 
 点击浏览按钮选择视频文件</source>
@@ -3821,87 +3821,87 @@
 點擊瀏覽按鈕選擇影片檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="807"/>
+        <location filename="../../common/text.py" line="815"/>
         <source>框选区域</source>
         <translation>框選區域</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="808"/>
+        <location filename="../../common/text.py" line="816"/>
         <source>清除框选</source>
         <translation>清除框選</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="809"/>
+        <location filename="../../common/text.py" line="817"/>
         <source>框选区域坐标: 未选择</source>
         <translation>框選區域座標：未選擇</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="810"/>
+        <location filename="../../common/text.py" line="818"/>
         <source>框选区域坐标: 正在选择...</source>
         <translation>框選區域座標：正在選擇...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="811"/>
+        <location filename="../../common/text.py" line="819"/>
         <source>无法加载视频帧</source>
         <translation>無法載入影片影格</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="812"/>
+        <location filename="../../common/text.py" line="820"/>
         <source>区域 {} 坐标</source>
         <translation>區域 {} 座標</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="813"/>
+        <location filename="../../common/text.py" line="821"/>
         <source>宽度:</source>
         <translation>寬度：</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="814"/>
+        <location filename="../../common/text.py" line="822"/>
         <source>高度:</source>
         <translation>高度：</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="815"/>
+        <location filename="../../common/text.py" line="823"/>
         <source>应用</source>
         <translation>套用</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="816"/>
+        <location filename="../../common/text.py" line="824"/>
         <source>区域{}: x={}, y={}, w={}, h={}</source>
         <translation>區域{}：x={}, y={}, w={}, h={}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="817"/>
+        <location filename="../../common/text.py" line="825"/>
         <source>提取字幕</source>
         <translation>提取字幕</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="818"/>
+        <location filename="../../common/text.py" line="826"/>
         <source>识别语言</source>
         <translation>辨識語言</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="819"/>
+        <location filename="../../common/text.py" line="827"/>
         <source>视频预览</source>
         <translation>影片預覽</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="820"/>
+        <location filename="../../common/text.py" line="828"/>
         <source>帧: -/-</source>
         <translation>影格：-/-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="821"/>
+        <location filename="../../common/text.py" line="829"/>
         <source>时间: -/-</source>
         <translation>時間：-/-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="822"/>
+        <location filename="../../common/text.py" line="830"/>
         <source>处理日志将显示在这里...</source>
         <translation>處理記錄將顯示在這裡...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="823"/>
+        <location filename="../../common/text.py" line="831"/>
         <source>参数调整建议：
 • 漏句 → 降低「跳过的帧数」，提高「SSIM阈值」，降低「最大图像宽度」至 720
 • 误识别多 → 提高「置信度阈值」至 0.5~0.7，过滤低质量识别结果
@@ -3914,594 +3914,594 @@
 以上參數均在「進階設定」中調整</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="826"/>
+        <location filename="../../common/text.py" line="834"/>
         <source>清空日志</source>
         <translation>清空記錄</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="827"/>
+        <location filename="../../common/text.py" line="835"/>
         <source>成功加载视频: {}</source>
         <translation>成功載入影片：{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="828"/>
+        <location filename="../../common/text.py" line="836"/>
         <source>总帧数: {}, FPS: {:.2f}</source>
         <translation>總影格數：{}, FPS：{:.2f}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="829"/>
+        <location filename="../../common/text.py" line="837"/>
         <source>加载视频失败: {}</source>
         <translation>載入影片失敗：{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="830"/>
+        <location filename="../../common/text.py" line="838"/>
         <source>帧: {}/{}</source>
         <translation>影格：{}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="831"/>
+        <location filename="../../common/text.py" line="839"/>
         <source>时间: {}/{}</source>
         <translation>時間：{}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="832"/>
+        <location filename="../../common/text.py" line="840"/>
         <source>paddleocr.exe不存在: {}</source>
         <translation>paddleocr.exe 不存在：{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="833"/>
+        <location filename="../../common/text.py" line="841"/>
         <source>PaddleOCR路径 {} 不能包含中文字符</source>
         <translation>PaddleOCR 路徑 {} 不能包含中文字元</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="834"/>
+        <location filename="../../common/text.py" line="842"/>
         <source>支持文件夹路径 {} 不能包含中文字符</source>
         <translation>支援資料夾路徑 {} 不能包含中文字元</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="835"/>
+        <location filename="../../common/text.py" line="843"/>
         <source>临时文件夹路径 {} 不能包含中文字符</source>
         <translation>暫存資料夾路徑 {} 不能包含中文字元</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="836"/>
+        <location filename="../../common/text.py" line="844"/>
         <source>PaddleOCR路径不存在: {}</source>
         <translation>PaddleOCR 路徑不存在：{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="837"/>
+        <location filename="../../common/text.py" line="845"/>
         <source>支持文件夹路径不存在: {}</source>
         <translation>支援資料夾路徑不存在：{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="838"/>
+        <location filename="../../common/text.py" line="846"/>
         <source>请先选择视频文件</source>
         <translation>請先選擇影片檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="839"/>
+        <location filename="../../common/text.py" line="847"/>
         <source>请设置输出文件路径</source>
         <translation>請設定輸出檔案路徑</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="840"/>
+        <location filename="../../common/text.py" line="848"/>
         <source>请先框选字幕区域</source>
         <translation>請先框選字幕區域</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="841"/>
+        <location filename="../../common/text.py" line="849"/>
         <source>使用自定义区域: {}, {}, {}x{}</source>
         <translation>使用自訂區域：{}, {}, {}x{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="842"/>
+        <location filename="../../common/text.py" line="850"/>
         <source>识别</source>
         <translation>辨識</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="843"/>
+        <location filename="../../common/text.py" line="851"/>
         <source>选择要识别的语言</source>
         <translation>選擇要辨識的語言</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="844"/>
+        <location filename="../../common/text.py" line="852"/>
         <source>输出格式</source>
         <translation>輸出格式</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="845"/>
+        <location filename="../../common/text.py" line="853"/>
         <source>选择字幕输出格式</source>
         <translation>選擇字幕輸出格式</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="846"/>
+        <location filename="../../common/text.py" line="854"/>
         <source>使用此功能前需&lt;a href=&quot;https://pan.xunlei.com/s/VOu1R3aOfz05uqcbNUBSnEFSA1?pwd=62cr#&quot; style=&quot;color: #0078d4;&quot;&gt;手动下载模型&lt;/a&gt;后设置模型路径。&lt;b&gt;注意&lt;/b&gt;: 若是超过10分钟的视频强烈建议更换medium模型，超过30分钟的视频更换large模型。更多模型可前往&lt;a href='https://huggingface.co/ggerganov/whisper.cpp/tree/main' style='color: #0078d4;'&gt;https://huggingface.co/ggerganov/whisper.cpp/tree/main&lt;/a&gt;下载，语音设置不推荐选择自动检测。目前模型存在幻觉，可能会生成一些重复文本，剪辑时请注意。</source>
         <translation>使用此功能前需&amp;lt;a href=&amp;quot;https://pan.xunlei.com/s/VOu1R3aOfz05uqcbNUBSnEFSA1?pwd=62cr#&amp;quot; style=&amp;quot;color: #0078d4;&amp;quot;&amp;gt;手動下載模型&amp;lt;/a&amp;gt;後設定模型路徑。&amp;lt;b&amp;gt;注意&amp;lt;/b&amp;gt;：若是超過 10 分鐘的影片強烈建議更換 medium 模型，超過 30 分鐘的影片更換 large 模型。更多模型可前往&amp;lt;a href='https://huggingface.co/ggerganov/whisper.cpp/tree/main' style='color: #0078d4;'&amp;gt;https://huggingface.co/ggerganov/whisper.cpp/tree/main&amp;lt;/a&amp;gt;下載，語音設定不推薦選擇自動偵測。目前模型存在幻覺，可能會產生一些重複文字，剪輯時請注意。</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="849"/>
+        <location filename="../../common/text.py" line="857"/>
         <source>Whisper CLI路径 {} 不存在</source>
         <translation>Whisper CLI 路徑 {} 不存在</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="850"/>
+        <location filename="../../common/text.py" line="858"/>
         <source>Whisper模型路径 {} 不存在</source>
         <translation>Whisper模型路徑 {} 不存在</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="851"/>
+        <location filename="../../common/text.py" line="859"/>
         <source>语音识别进度</source>
         <translation>語音辨識進度</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="852"/>
+        <location filename="../../common/text.py" line="860"/>
         <source>Whisper 语音识别设置</source>
         <translation>Whisper 語音辨識設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="853"/>
+        <location filename="../../common/text.py" line="861"/>
         <source>模型路径</source>
         <translation>模型路徑</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="854"/>
+        <location filename="../../common/text.py" line="862"/>
         <source>选择模型文件</source>
         <translation>選擇模型檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="855"/>
+        <location filename="../../common/text.py" line="863"/>
         <source>程序路径</source>
         <translation>程式路徑</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="856"/>
+        <location filename="../../common/text.py" line="864"/>
         <source>选择程序</source>
         <translation>選擇程式</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="857"/>
+        <location filename="../../common/text.py" line="865"/>
         <source>语言设置</source>
         <translation>語言設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="858"/>
+        <location filename="../../common/text.py" line="866"/>
         <source>GPU 加速</source>
         <translation>GPU 加速</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="859"/>
+        <location filename="../../common/text.py" line="867"/>
         <source>启用 GPU 加速</source>
         <translation>啟用 GPU 加速</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="860"/>
+        <location filename="../../common/text.py" line="868"/>
         <source>使用 GPU 加速语音识别</source>
         <translation>使用 GPU 加速語音辨識</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="861"/>
+        <location filename="../../common/text.py" line="869"/>
         <source>选择 Whisper 模型文件</source>
         <translation>選擇 Whisper 模型檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="862"/>
+        <location filename="../../common/text.py" line="870"/>
         <source>选择 Whisper main.exe 程序</source>
         <translation>選擇 Whisper main.exe 程式</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="863"/>
+        <location filename="../../common/text.py" line="871"/>
         <source>识别中</source>
         <translation>辨識中</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="864"/>
+        <location filename="../../common/text.py" line="872"/>
         <source>YT-DLP 下载设置</source>
         <translation>YT-DLP 下載設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="865"/>
+        <location filename="../../common/text.py" line="873"/>
         <source>YT-DLP 路径</source>
         <translation>YT-DLP 路徑</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="866"/>
+        <location filename="../../common/text.py" line="874"/>
         <source>下载格式与质量</source>
         <translation>下載格式與品質</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="867"/>
+        <location filename="../../common/text.py" line="875"/>
         <source>视频质量</source>
         <translation>影片品質</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="868"/>
+        <location filename="../../common/text.py" line="876"/>
         <source>选择视频分辨率</source>
         <translation>選擇影片解析度</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="869"/>
+        <location filename="../../common/text.py" line="877"/>
         <source>4K (2160p)</source>
         <translation>4K (2160p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="870"/>
+        <location filename="../../common/text.py" line="878"/>
         <source>2K (1440p)</source>
         <translation>2K (1440p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="871"/>
+        <location filename="../../common/text.py" line="879"/>
         <source>全高清 (1080p)</source>
         <translation>全高畫質 (1080p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="872"/>
+        <location filename="../../common/text.py" line="880"/>
         <source>高清 (720p)</source>
         <translation>高畫質 (720p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="873"/>
+        <location filename="../../common/text.py" line="881"/>
         <source>标清 (480p)</source>
         <translation>標準畫質 (480p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="874"/>
+        <location filename="../../common/text.py" line="882"/>
         <source>流畅 (360p)</source>
         <translation>流暢 (360p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="875"/>
+        <location filename="../../common/text.py" line="883"/>
         <source>最佳质量</source>
         <translation>最佳品質</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="876"/>
+        <location filename="../../common/text.py" line="884"/>
         <source>最差质量</source>
         <translation>最差品質</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="877"/>
+        <location filename="../../common/text.py" line="885"/>
         <source>代理设置</source>
         <translation>代理設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="878"/>
+        <location filename="../../common/text.py" line="886"/>
         <source>系统代理</source>
         <translation>系統代理</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="879"/>
+        <location filename="../../common/text.py" line="887"/>
         <source>是否启用系统默认代理</source>
         <translation>是否啟用系統預設代理</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="880"/>
+        <location filename="../../common/text.py" line="888"/>
         <source>自定义代理</source>
         <translation>自訂代理</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="881"/>
+        <location filename="../../common/text.py" line="889"/>
         <source>设置自定义的代理地址</source>
         <translation>設定自訂的代理位址</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="882"/>
+        <location filename="../../common/text.py" line="890"/>
         <source>字幕设置</source>
         <translation>字幕設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="883"/>
+        <location filename="../../common/text.py" line="891"/>
         <source>下载字幕</source>
         <translation>下載字幕</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="884"/>
+        <location filename="../../common/text.py" line="892"/>
         <source>自动下载视频字幕</source>
         <translation>自動下載影片字幕</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="885"/>
+        <location filename="../../common/text.py" line="893"/>
         <source>字幕语言</source>
         <translation>字幕語言</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="886"/>
+        <location filename="../../common/text.py" line="894"/>
         <source>设置字幕语言，多个语言用逗号分隔</source>
         <translation>設定字幕語言，多個語言用逗號分隔</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="887"/>
+        <location filename="../../common/text.py" line="895"/>
         <source>内嵌字幕</source>
         <translation>內嵌字幕</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="888"/>
+        <location filename="../../common/text.py" line="896"/>
         <source>将字幕嵌入视频文件中</source>
         <translation>將字幕嵌入影片檔案中</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="889"/>
+        <location filename="../../common/text.py" line="897"/>
         <source>元数据与缩略图</source>
         <translation>元資料與縮圖</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="890"/>
+        <location filename="../../common/text.py" line="898"/>
         <source>下载缩略图</source>
         <translation>下載縮圖</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="891"/>
+        <location filename="../../common/text.py" line="899"/>
         <source>下载视频缩略图</source>
         <translation>下載影片縮圖</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="892"/>
+        <location filename="../../common/text.py" line="900"/>
         <source>内嵌缩略图</source>
         <translation>內嵌縮圖</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="893"/>
+        <location filename="../../common/text.py" line="901"/>
         <source>将缩略图嵌入视频文件中</source>
         <translation>將縮圖嵌入影片檔案中</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="894"/>
+        <location filename="../../common/text.py" line="902"/>
         <source>下载元数据</source>
         <translation>下載元資料</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="895"/>
+        <location filename="../../common/text.py" line="903"/>
         <source>下载视频元数据信息</source>
         <translation>下載影片元資料資訊</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="896"/>
+        <location filename="../../common/text.py" line="904"/>
         <source>写入描述</source>
         <translation>寫入描述</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="897"/>
+        <location filename="../../common/text.py" line="905"/>
         <source>将视频描述写入单独文件</source>
         <translation>將影片描述寫入單獨檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="898"/>
+        <location filename="../../common/text.py" line="906"/>
         <source>写入信息JSON</source>
         <translation>寫入資訊JSON</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="899"/>
+        <location filename="../../common/text.py" line="907"/>
         <source>将视频信息写入JSON文件</source>
         <translation>將影片資訊寫入JSON檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="900"/>
+        <location filename="../../common/text.py" line="908"/>
         <source>写入注释</source>
         <translation>寫入註解</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="901"/>
+        <location filename="../../common/text.py" line="909"/>
         <source>写入视频注释信息</source>
         <translation>寫入影片註解資訊</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="902"/>
+        <location filename="../../common/text.py" line="910"/>
         <source>下载控制</source>
         <translation>下載控制</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="903"/>
+        <location filename="../../common/text.py" line="911"/>
         <source>并发下载数量</source>
         <translation>並發下載數量</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="904"/>
+        <location filename="../../common/text.py" line="912"/>
         <source>同时下载的最大视频数量</source>
         <translation>同時下載的最大影片數量</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="905"/>
+        <location filename="../../common/text.py" line="913"/>
         <source>重试次数</source>
         <translation>重試次數</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="906"/>
+        <location filename="../../common/text.py" line="914"/>
         <source>下载失败时的重试次数</source>
         <translation>下載失敗時的重試次數</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="907"/>
+        <location filename="../../common/text.py" line="915"/>
         <source>下载超时(秒)</source>
         <translation>下載逾時(秒)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="908"/>
+        <location filename="../../common/text.py" line="916"/>
         <source>下载超时时间设置</source>
         <translation>下載逾時時間設定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="909"/>
+        <location filename="../../common/text.py" line="917"/>
         <source>限速下载</source>
         <translation>限速下載</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="910"/>
+        <location filename="../../common/text.py" line="918"/>
         <source>启用下载速率限制</source>
         <translation>啟用下載速率限制</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="911"/>
+        <location filename="../../common/text.py" line="919"/>
         <source>最大下载速率</source>
         <translation>最大下載速率</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="912"/>
+        <location filename="../../common/text.py" line="920"/>
         <source>设置最大下载速率 (如: 10M, 1K)</source>
         <translation>設定最大下載速率 (如: 10M, 1K)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="913"/>
+        <location filename="../../common/text.py" line="921"/>
         <source>跳过已存在文件</source>
         <translation>跳過已存在檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="914"/>
+        <location filename="../../common/text.py" line="922"/>
         <source>避免重复下载已存在的文件</source>
         <translation>避免重複下載已存在的檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="915"/>
+        <location filename="../../common/text.py" line="923"/>
         <source>输出模板</source>
         <translation>輸出模板</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="916"/>
+        <location filename="../../common/text.py" line="924"/>
         <source>设置输出文件名模板</source>
         <translation>設定輸出檔案名稱模板</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="917"/>
+        <location filename="../../common/text.py" line="925"/>
         <source>使用Cookies</source>
         <translation>使用Cookies</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="918"/>
+        <location filename="../../common/text.py" line="926"/>
         <source>使用cookies文件进行下载</source>
         <translation>使用cookies檔案進行下載</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="919"/>
+        <location filename="../../common/text.py" line="927"/>
         <source>选择Cookies文件</source>
         <translation>選擇Cookies檔案</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="920"/>
+        <location filename="../../common/text.py" line="928"/>
         <source>Text Files (*.txt);;All Files (*)</source>
         <translation>文字檔案 (*.txt);;所有檔案 (*)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="921"/>
+        <location filename="../../common/text.py" line="929"/>
         <source>等待中</source>
         <translation>等待中</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="922"/>
+        <location filename="../../common/text.py" line="930"/>
         <source>正在取消...</source>
         <translation>正在取消...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="923"/>
+        <location filename="../../common/text.py" line="931"/>
         <source>程序错误</source>
         <translation>程式錯誤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="924"/>
+        <location filename="../../common/text.py" line="932"/>
         <source>程序运行时发生未处理的错误</source>
         <translation>程式執行時發生未處理的錯誤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="925"/>
+        <location filename="../../common/text.py" line="933"/>
         <source>启动错误</source>
         <translation>啟動錯誤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="926"/>
+        <location filename="../../common/text.py" line="934"/>
         <source>应用程序启动失败</source>
         <translation>應用程式啟動失敗</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="927"/>
+        <location filename="../../common/text.py" line="935"/>
         <source>已完成</source>
         <translation>已完成</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="928"/>
+        <location filename="../../common/text.py" line="936"/>
         <source>{}完成</source>
         <translation>{}完成</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="929"/>
+        <location filename="../../common/text.py" line="937"/>
         <source>置信度阈值</source>
         <translation>置信度閾值</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="930"/>
+        <location filename="../../common/text.py" line="938"/>
         <source>低于此置信度的OCR结果将被过滤 (0-100, 0=不过滤)</source>
         <translation>低於此置信度的OCR結果將被過濾 (0-100, 0=不過濾)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="931"/>
+        <location filename="../../common/text.py" line="939"/>
         <source>已创建项目文件夹,正在下载封面</source>
         <translation>已建立專案資料夾，正在下載封面</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="932"/>
+        <location filename="../../common/text.py" line="940"/>
         <source>封面下载完成,开始添加下载视频任务</source>
         <translation>封面下載完成，開始新增下載影片任務</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="933"/>
+        <location filename="../../common/text.py" line="941"/>
         <source>已完成项目初始化！</source>
         <translation>已完成專案初始化！</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="934"/>
+        <location filename="../../common/text.py" line="942"/>
         <source>网址错误</source>
         <translation>網址錯誤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="935"/>
+        <location filename="../../common/text.py" line="943"/>
         <source>请求超时</source>
         <translation>請求逾時</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="936"/>
+        <location filename="../../common/text.py" line="944"/>
         <source>图片成功下载并保存到: {}</source>
         <translation>圖片成功下載並儲存到: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="937"/>
+        <location filename="../../common/text.py" line="945"/>
         <source>下载图片时出错: {}</source>
         <translation>下載圖片時出錯: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="938"/>
+        <location filename="../../common/text.py" line="946"/>
         <source>yt-dlp不存在: {}</source>
         <translation>yt-dlp不存在: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="939"/>
+        <location filename="../../common/text.py" line="947"/>
         <source>压制已取消</source>
         <translation>壓制已取消</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="940"/>
+        <location filename="../../common/text.py" line="948"/>
         <source>ffmpeg.exe不存在: {}</source>
         <translation>ffmpeg.exe不存在: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="941"/>
+        <location filename="../../common/text.py" line="949"/>
         <source>正在取消OCR处理...
 </source>
         <translation>正在取消OCR處理...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="942"/>
+        <location filename="../../common/text.py" line="950"/>
         <source>OCR处理已取消</source>
         <translation>OCR處理已取消</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="943"/>
+        <location filename="../../common/text.py" line="951"/>
         <source>OCR处理完成
 </source>
         <translation>OCR處理完成</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="944"/>
+        <location filename="../../common/text.py" line="952"/>
         <source>已强制终止OCR进程及其子进程</source>
         <translation>已強制終止OCR程序及其子程序</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="945"/>
+        <location filename="../../common/text.py" line="953"/>
         <source>OCR处理失败:
 {}
 </source>
@@ -4509,466 +4509,516 @@
 {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="946"/>
+        <location filename="../../common/text.py" line="954"/>
         <source>已清理临时目录: {}
 </source>
         <translation>已清理暫存目錄: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="947"/>
+        <location filename="../../common/text.py" line="955"/>
         <source>终止进程失败: {}</source>
         <translation>終止程序失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="948"/>
+        <location filename="../../common/text.py" line="956"/>
         <source>清理临时目录失败: {}
 </source>
         <translation>清理暫存目錄失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="949"/>
+        <location filename="../../common/text.py" line="957"/>
         <source>Cookie 配置错误或已过期</source>
         <translation>Cookie 配置錯誤或已過期</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="950"/>
+        <location filename="../../common/text.py" line="958"/>
         <source>进程启动失败</source>
         <translation>進程啟動失敗</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="951"/>
+        <location filename="../../common/text.py" line="959"/>
         <source>进程崩溃</source>
         <translation>進程崩潰</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="952"/>
+        <location filename="../../common/text.py" line="960"/>
         <source>进程超时</source>
         <translation>進程超時</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="953"/>
+        <location filename="../../common/text.py" line="961"/>
         <source>写入错误</source>
         <translation>寫入錯誤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="954"/>
+        <location filename="../../common/text.py" line="962"/>
         <source>读取错误</source>
         <translation>讀取錯誤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="955"/>
+        <location filename="../../common/text.py" line="963"/>
         <source>上传已取消</source>
         <translation>上傳已取消</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="956"/>
+        <location filename="../../common/text.py" line="964"/>
         <source>上传完成</source>
         <translation>上傳完成</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="957"/>
+        <location filename="../../common/text.py" line="965"/>
         <source>网络连接错误</source>
         <translation>網路連線錯誤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="958"/>
+        <location filename="../../common/text.py" line="966"/>
         <source>正在准备上传...</source>
         <translation>正在準備上傳...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="959"/>
+        <location filename="../../common/text.py" line="967"/>
         <source>准备上传</source>
         <translation>準備上傳</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="960"/>
+        <location filename="../../common/text.py" line="968"/>
         <source>视频文件不存在或格式错误</source>
         <translation>影片檔案不存在或格式錯誤</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="961"/>
+        <location filename="../../common/text.py" line="969"/>
         <source>进程错误: {}</source>
         <translation>進程錯誤: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="962"/>
+        <location filename="../../common/text.py" line="970"/>
         <source>上传失败，错误码: {}</source>
         <translation>上傳失敗，錯誤碼: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="963"/>
+        <location filename="../../common/text.py" line="971"/>
         <source>预上传失败</source>
         <translation>預上傳失敗</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="964"/>
+        <location filename="../../common/text.py" line="972"/>
         <source>upload-video.exe不存在: {}</source>
         <translation>upload-video.exe不存在: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="965"/>
+        <location filename="../../common/text.py" line="973"/>
         <source>视频上传失败: {}</source>
         <translation>影片上傳失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="966"/>
+        <location filename="../../common/text.py" line="974"/>
         <source>开始上传视频...</source>
         <translation>開始上傳影片...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="967"/>
+        <location filename="../../common/text.py" line="975"/>
         <source>开始上传</source>
         <translation>開始上傳</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="968"/>
+        <location filename="../../common/text.py" line="976"/>
         <source>上传中</source>
         <translation>上傳中</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="969"/>
+        <location filename="../../common/text.py" line="977"/>
         <source>未知</source>
         <translation>未知</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="970"/>
+        <location filename="../../common/text.py" line="978"/>
         <source>上传失败</source>
         <translation>上傳失敗</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="971"/>
+        <location filename="../../common/text.py" line="979"/>
         <source>上传速度: {}</source>
         <translation>上傳速度: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="972"/>
+        <location filename="../../common/text.py" line="980"/>
         <source>上传中 {}%</source>
         <translation>上傳中 {}%</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="973"/>
+        <location filename="../../common/text.py" line="981"/>
         <source>视频上传完成</source>
         <translation>影片上傳完成</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="974"/>
+        <location filename="../../common/text.py" line="982"/>
         <source>正在提交信息...</source>
         <translation>正在提交資訊...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="975"/>
+        <location filename="../../common/text.py" line="983"/>
         <source>提交视频信息...</source>
         <translation>提交影片資訊...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="976"/>
+        <location filename="../../common/text.py" line="984"/>
         <source>提交信息</source>
         <translation>提交資訊</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="977"/>
+        <location filename="../../common/text.py" line="985"/>
         <source>提交失败</source>
         <translation>提交失敗</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="978"/>
+        <location filename="../../common/text.py" line="986"/>
         <source>上传成功</source>
         <translation>上傳成功</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="979"/>
+        <location filename="../../common/text.py" line="987"/>
         <source>任务已取消</source>
         <translation>任務已取消</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="980"/>
+        <location filename="../../common/text.py" line="988"/>
         <source>翻译进度: {}%</source>
         <translation>翻譯進度: {}%</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="981"/>
+        <location filename="../../common/text.py" line="989"/>
         <source>不支持的AI模型: {}</source>
         <translation>不支援的AI模型: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="982"/>
+        <location filename="../../common/text.py" line="990"/>
         <source>翻译失败: {}</source>
         <translation>翻譯失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="983"/>
+        <location filename="../../common/text.py" line="991"/>
         <source>后处理失败: {}</source>
         <translation>後處理失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="984"/>
+        <location filename="../../common/text.py" line="992"/>
         <source>转录已取消</source>
         <translation>轉錄已取消</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="985"/>
+        <location filename="../../common/text.py" line="993"/>
         <source>转录完成</source>
         <translation>轉錄完成</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="986"/>
+        <location filename="../../common/text.py" line="994"/>
         <source>main.exe 不存在: {}</source>
         <translation>main.exe 不存在: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="987"/>
+        <location filename="../../common/text.py" line="995"/>
         <source>-{}- 下载完成</source>
         <translation>-{}- 下載完成</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="988"/>
+        <location filename="../../common/text.py" line="996"/>
         <source>压制中</source>
         <translation>壓制中</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="989"/>
+        <location filename="../../common/text.py" line="997"/>
         <source>丹麦语</source>
         <translation>丹麥語</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="993"/>
+        <location filename="../../common/text.py" line="1001"/>
         <source>悬浮OCR</source>
         <translation>懸浮OCR</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="994"/>
+        <location filename="../../common/text.py" line="1002"/>
         <source>选择OCR区域</source>
         <translation>選擇OCR區域</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="995"/>
+        <location filename="../../common/text.py" line="1003"/>
         <source>选择OCR区域...</source>
         <translation>選擇OCR區域...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="996"/>
+        <location filename="../../common/text.py" line="1004"/>
         <source>取消选择</source>
         <translation>取消選擇</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="997"/>
+        <location filename="../../common/text.py" line="1005"/>
         <source>区域过小，请重新选择</source>
         <translation>區域過小，請重新選擇</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="998"/>
+        <location filename="../../common/text.py" line="1006"/>
         <source>区域: ({},{}) {}x{}</source>
         <translation>區域: ({},{}) {}x{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="999"/>
+        <location filename="../../common/text.py" line="1007"/>
         <source>显示/隐藏区域</source>
         <translation>顯示/隱藏區域</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1000"/>
+        <location filename="../../common/text.py" line="1008"/>
         <source>区域显示: 开</source>
         <translation>區域顯示: 開</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1001"/>
+        <location filename="../../common/text.py" line="1009"/>
         <source>区域显示: 关</source>
         <translation>區域顯示: 關</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1002"/>
+        <location filename="../../common/text.py" line="1010"/>
         <source>单次OCR</source>
         <translation>單次OCR</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1003"/>
+        <location filename="../../common/text.py" line="1011"/>
         <source>请先选择OCR区域</source>
         <translation>請先選擇OCR區域</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1004"/>
+        <location filename="../../common/text.py" line="1012"/>
         <source>执行单次OCR...</source>
         <translation>執行單次OCR...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1005"/>
+        <location filename="../../common/text.py" line="1013"/>
         <source>OCR进行中...</source>
         <translation>OCR進行中...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1006"/>
+        <location filename="../../common/text.py" line="1014"/>
         <source>OCR完成: {}</source>
         <translation>OCR完成: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1007"/>
+        <location filename="../../common/text.py" line="1015"/>
         <source>OCR失败: {}</source>
         <translation>OCR失敗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1008"/>
+        <location filename="../../common/text.py" line="1016"/>
         <source>复制结果</source>
         <translation>複製結果</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1009"/>
+        <location filename="../../common/text.py" line="1017"/>
         <source>暂无OCR结果可复制</source>
         <translation>暫無OCR結果可複製</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1010"/>
+        <location filename="../../common/text.py" line="1018"/>
         <source>已复制到剪贴板</source>
         <translation>已複製到剪貼簿</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1011"/>
+        <location filename="../../common/text.py" line="1019"/>
         <source>历史记录</source>
         <translation>歷史記錄</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1012"/>
+        <location filename="../../common/text.py" line="1020"/>
         <source>暂无历史记录</source>
         <translation>暫無歷史記錄</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1013"/>
+        <location filename="../../common/text.py" line="1021"/>
         <source>已从历史复制: {}</source>
         <translation>已從歷史複製: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1014"/>
+        <location filename="../../common/text.py" line="1022"/>
         <source>绑定窗口</source>
         <translation>綁定視窗</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1015"/>
+        <location filename="../../common/text.py" line="1023"/>
         <source>绑定窗口: {}</source>
         <translation>綁定視窗: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1016"/>
+        <location filename="../../common/text.py" line="1024"/>
         <source>请点击要绑定的窗口...</source>
         <translation>請點擊要綁定的視窗...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1017"/>
+        <location filename="../../common/text.py" line="1025"/>
         <source>取消绑定</source>
         <translation>取消綁定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1018"/>
+        <location filename="../../common/text.py" line="1026"/>
         <source>已绑定: {}</source>
         <translation>已綁定: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1019"/>
+        <location filename="../../common/text.py" line="1027"/>
         <source>已取消绑定</source>
         <translation>已取消綁定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1020"/>
+        <location filename="../../common/text.py" line="1028"/>
         <source>区域跟随: ({},{}) {}x{}</source>
         <translation>區域跟隨: ({},{}) {}x{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1021"/>
+        <location filename="../../common/text.py" line="1029"/>
         <source>背景透明</source>
         <translation>背景透明</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1022"/>
+        <location filename="../../common/text.py" line="1030"/>
         <source>背景透明: 开</source>
         <translation>背景透明: 開</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1023"/>
+        <location filename="../../common/text.py" line="1031"/>
         <source>背景透明: 关</source>
         <translation>背景透明: 關</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1024"/>
+        <location filename="../../common/text.py" line="1032"/>
         <source>锁定工具栏</source>
         <translation>鎖定工具列</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1025"/>
+        <location filename="../../common/text.py" line="1033"/>
         <source>工具栏: 已锁定</source>
         <translation>工具列: 已鎖定</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1026"/>
+        <location filename="../../common/text.py" line="1034"/>
         <source>工具栏: 已解锁</source>
         <translation>工具列: 已解鎖</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1027"/>
+        <location filename="../../common/text.py" line="1035"/>
         <source>鼠标穿透</source>
         <translation>滑鼠穿透</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1028"/>
+        <location filename="../../common/text.py" line="1036"/>
         <source>鼠标穿透: 开</source>
         <translation>滑鼠穿透: 開</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1029"/>
+        <location filename="../../common/text.py" line="1037"/>
         <source>鼠标穿透: 关</source>
         <translation>滑鼠穿透: 關</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1030"/>
+        <location filename="../../common/text.py" line="1038"/>
         <source>取消置顶</source>
         <translation>取消置頂</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1031"/>
+        <location filename="../../common/text.py" line="1039"/>
         <source>置顶: 开</source>
         <translation>置頂: 開</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1032"/>
+        <location filename="../../common/text.py" line="1040"/>
         <source>置顶: 关</source>
         <translation>置頂: 關</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1033"/>
+        <location filename="../../common/text.py" line="1041"/>
         <source>就绪</source>
         <translation>就緒</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1034"/>
+        <location filename="../../common/text.py" line="1042"/>
         <source>一次翻译</source>
         <translation>一次翻譯</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1035"/>
+        <location filename="../../common/text.py" line="1044"/>
         <source>暂无OCR结果可翻译</source>
         <translation>暫無OCR結果可翻譯</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1036"/>
+        <location filename="../../common/text.py" line="1045"/>
         <source>翻译中...</source>
         <translation>翻譯中...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1037"/>
+        <location filename="../../common/text.py" line="1046"/>
         <source>翻译完成: {}</source>
         <translation>翻譯完成: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1040"/>
+        <location filename="../../common/text.py" line="1050"/>
         <source>已添加下载任务到队列</source>
         <translation>已新增下載任務到佇列</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1041"/>
+        <location filename="../../common/text.py" line="1051"/>
         <source>下载/更新yt-dlp中...</source>
         <translation>下載/更新yt-dlp中...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1042"/>
+        <location filename="../../common/text.py" line="1052"/>
         <source>下载/更新yt-dlp</source>
         <translation>下載/更新yt-dlp</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="467"/>
+        <source>发现新版本 {}，是否立即下载？</source>
+        <translation>發現新版本 {}，是否立即下載？</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="468"/>
+        <source>正在获取更新信息...</source>
+        <translation>正在獲取更新資訊...</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="469"/>
+        <source>暂无更新日志</source>
+        <translation>暫無更新日誌</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="470"/>
+        <source>下载安装包</source>
+        <translation>下載安裝包</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="471"/>
+        <source>下载中...</source>
+        <translation>下載中...</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="472"/>
+        <source>下载失败: {}</source>
+        <translation>下載失敗: {}</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="473"/>
+        <source>已下载到: {}</source>
+        <translation>已下載到: {}</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="474"/>
+        <source>获取更新信息失败，请检查网络连接</source>
+        <translation>獲取更新資訊失敗，請檢查網路連線</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="1043"/>
+        <source>OCR并翻译</source>
+        <translation>OCR並翻譯</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="1047"/>
+        <source>该功能仅支持Windows系统</source>
+        <translation>該功能僅支援Windows系統</translation>
     </message>
 </context>
 </TS>
