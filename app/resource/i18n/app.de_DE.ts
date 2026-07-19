@@ -1099,7 +1099,7 @@
         <translation>Wird heruntergeladen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="990"/>
+        <location filename="../../common/text.py" line="998"/>
         <source>请输入视频URL:</source>
         <translation>Video-URL eingeben:</translation>
     </message>
@@ -2234,347 +2234,347 @@ Bitte konfigurieren Sie den richtigen Pfad in den Einstellungen</translation>
         <translation>Fairy Kekkai Workshop ist bereits die neueste Version  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="467"/>
+        <location filename="../../common/text.py" line="475"/>
         <source>下载完成 -{}-</source>
         <translation>Download abgeschlossen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="468"/>
+        <location filename="../../common/text.py" line="476"/>
         <source>下载失败 -{}-</source>
         <translation>Download fehlgeschlagen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="469"/>
+        <location filename="../../common/text.py" line="477"/>
         <source>视频字幕识别完成 -{}-</source>
         <translation>Video-Untertitelerkennung abgeschlossen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="470"/>
+        <location filename="../../common/text.py" line="478"/>
         <source>视频字幕识别失败 -{}-</source>
         <translation>Video-Untertitelerkennung fehlgeschlagen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="471"/>
+        <location filename="../../common/text.py" line="479"/>
         <source>翻译完成 -{}-</source>
         <translation>Übersetzung abgeschlossen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="472"/>
+        <location filename="../../common/text.py" line="480"/>
         <source>翻译失败 -{}-</source>
         <translation>Übersetzung fehlgeschlagen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="473"/>
+        <location filename="../../common/text.py" line="481"/>
         <source>压制完成 -{}-</source>
         <translation>Komprimierung abgeschlossen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="474"/>
+        <location filename="../../common/text.py" line="482"/>
         <source>压制失败 -{}-</source>
         <translation>Komprimierung fehlgeschlagen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="475"/>
+        <location filename="../../common/text.py" line="483"/>
         <source>上传完成 -{}-</source>
         <translation>Upload abgeschlossen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="476"/>
+        <location filename="../../common/text.py" line="484"/>
         <source>上传失败 -{}-</source>
         <translation>Upload fehlgeschlagen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="477"/>
+        <location filename="../../common/text.py" line="485"/>
         <source>语音识别完成 -{}-</source>
         <translation>Spracherkennung abgeschlossen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="478"/>
+        <location filename="../../common/text.py" line="486"/>
         <source>语音识别失败 -{}-</source>
         <translation>Spracherkennung fehlgeschlagen -{}-  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="479"/>
+        <location filename="../../common/text.py" line="487"/>
         <source>OCR 设置</source>
         <translation>OCR-Einstellungen  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="480"/>
+        <location filename="../../common/text.py" line="488"/>
         <source>PaddleOCR 路径</source>
         <translation>PaddleOCR-Pfad  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="481"/>
+        <location filename="../../common/text.py" line="489"/>
         <source>选择文件夹</source>
         <translation>Ordner auswählen  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="482"/>
+        <location filename="../../common/text.py" line="490"/>
         <source>时间设置</source>
         <translation>Zeiteinstellungen  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="483"/>
+        <location filename="../../common/text.py" line="491"/>
         <source>开始时间</source>
         <translation>Startzeit  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="484"/>
+        <location filename="../../common/text.py" line="492"/>
         <source>设置视频处理的起始时间点 (例如: 0:00 或 1:23:45)</source>
         <translation>Startzeitpunkt der Videoverarbeitung festlegen (z. B. 0:00 oder 1:23:45)  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="487"/>
+        <location filename="../../common/text.py" line="495"/>
         <source>结束时间</source>
         <translation>Endzeit  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="488"/>
+        <location filename="../../common/text.py" line="496"/>
         <source>设置视频处理的结束时间点 (例如: 0:10 或 2:34:56)</source>
         <translation>Endzeitpunkt der Videoverarbeitung festlegen (z. B. 0:10 oder 2:34:56)  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="491"/>
+        <location filename="../../common/text.py" line="499"/>
         <source>阈值设置</source>
         <translation>Schwellenwerteinstellungen  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="492"/>
+        <location filename="../../common/text.py" line="500"/>
         <source>相似度阈值</source>
         <translation>Ähnlichkeitsschwellenwert  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="493"/>
+        <location filename="../../common/text.py" line="501"/>
         <source>字幕帧之间的相似度阈值 (0-100)</source>
         <translation>Ähnlichkeitsschwellenwert zwischen Untertitelframes (0-100)  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="494"/>
+        <location filename="../../common/text.py" line="502"/>
         <source>SSIM阈值</source>
         <translation>SSIM-Schwellenwert  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="495"/>
+        <location filename="../../common/text.py" line="503"/>
         <source>结构相似性指数阈值，用于判断帧间变化 (0-100)</source>
         <translation>Struktureller Ähnlichkeitsindex-Schwellenwert für Frame-Änderungen (0-100)  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="496"/>
+        <location filename="../../common/text.py" line="504"/>
         <source>处理参数</source>
         <translation>Verarbeitungsparameter  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="497"/>
+        <location filename="../../common/text.py" line="505"/>
         <source>最大合并间隔</source>
         <translation>Maximale Zusammenführungsintervall  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="498"/>
+        <location filename="../../common/text.py" line="506"/>
         <source>相邻字幕片段的最大合并间隔 (0.1-10.0 秒)</source>
         <translation>Maximales Zusammenführungsintervall benachbarter Untertitelabschnitte (0,1-10,0 Sekunden)  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="499"/>
+        <location filename="../../common/text.py" line="507"/>
         <source>最大OCR图像宽度</source>
         <translation>Maximale OCR-Bildbreite  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="500"/>
+        <location filename="../../common/text.py" line="508"/>
         <source>OCR处理时图像的最大宽度 (100-4096 像素)</source>
         <translation>Maximale Bildbreite für die OCR-Verarbeitung (100-4096 Pixel)  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="501"/>
+        <location filename="../../common/text.py" line="509"/>
         <source>跳过的帧数</source>
         <translation>Übersprungene Frames  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="502"/>
+        <location filename="../../common/text.py" line="510"/>
         <source>处理时跳过的帧数，用于提高处理速度 (0-100)</source>
         <translation>Übersprungene Frames bei der Verarbeitung zur Geschwindigkeitssteigerung (0-100)  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="503"/>
+        <location filename="../../common/text.py" line="511"/>
         <source>最小字幕持续时间</source>
         <translation>Minimale Untertitel-Dauer  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="504"/>
+        <location filename="../../common/text.py" line="512"/>
         <source>字幕的最小持续时间，短于此时间的字幕将被过滤 (0.1-10.0 秒)</source>
         <translation>Minimale Dauer eines Untertitels; kürzere werden gefiltert (0,1-10,0 Sekunden)  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="507"/>
+        <location filename="../../common/text.py" line="515"/>
         <source>功能开关</source>
         <translation>Funktionsschalter  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="508"/>
+        <location filename="../../common/text.py" line="516"/>
         <source>启用GPU加速</source>
         <translation>GPU-Beschleunigung aktivieren  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="509"/>
+        <location filename="../../common/text.py" line="517"/>
         <source>使用GPU进行OCR处理以提高速度</source>
         <translation>GPU für OCR-Verarbeitung zur Geschwindigkeitssteigerung verwenden  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="510"/>
+        <location filename="../../common/text.py" line="518"/>
         <source>启用双区域OCR</source>
         <translation>Dual-Region-OCR aktivieren  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="511"/>
+        <location filename="../../common/text.py" line="519"/>
         <source>支持同时处理两个区域的字幕</source>
         <translation>Gleichzeitige Verarbeitung von Untertiteln in zwei Bereichen unterstützen  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="512"/>
+        <location filename="../../common/text.py" line="520"/>
         <source>使用后期处理</source>
         <translation>Nachbearbeitung verwenden  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="513"/>
+        <location filename="../../common/text.py" line="521"/>
         <source>对OCR结果进行后期处理优化</source>
         <translation>Nachbearbeitung zur Optimierung der OCR-Ergebnisse durchführen  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="514"/>
+        <location filename="../../common/text.py" line="522"/>
         <source>使用高精度模型</source>
         <translation>Hochpräzisionsmodell verwenden  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="515"/>
+        <location filename="../../common/text.py" line="523"/>
         <source>使用更好的模型进行OCR处理</source>
         <translation>Besseres Modell für die OCR-Verarbeitung verwenden  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="516"/>
+        <location filename="../../common/text.py" line="524"/>
         <source>请选择paddleocr.exe</source>
         <translation>Bitte wählen Sie paddleocr.exe  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="517"/>
+        <location filename="../../common/text.py" line="525"/>
         <source>paddleocr.exe 路径不能包含中文字符</source>
         <translation>Der Pfad zu paddleocr.exe darf keine chinesischen Zeichen enthalten  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="518"/>
+        <location filename="../../common/text.py" line="526"/>
         <source>确认</source>
         <translation>Bestätigen  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="519"/>
+        <location filename="../../common/text.py" line="527"/>
         <source>请选择OCR.model</source>
         <translation>Bitte wählen Sie OCR.model  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="520"/>
+        <location filename="../../common/text.py" line="528"/>
         <source>OCR.model 路径不能包含中文字符</source>
         <translation>Der Pfad zu OCR.model darf keine chinesischen Zeichen enthalten  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="521"/>
+        <location filename="../../common/text.py" line="529"/>
         <source>请选择videocr-cli.exe</source>
         <translation>Bitte wählen Sie videocr-cli.exe  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="522"/>
+        <location filename="../../common/text.py" line="530"/>
         <source>videocr-cli.exe 路径不能包含中文字符</source>
         <translation>Der Pfad zu videocr-cli.exe darf keine chinesischen Zeichen enthalten  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="523"/>
+        <location filename="../../common/text.py" line="531"/>
         <source>请选择字幕提取临时文件夹temp</source>
         <translation>Bitte wählen Sie den temporären Ordner für die Untertitelextraktion temp  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="524"/>
+        <location filename="../../common/text.py" line="532"/>
         <source>字幕提取临时文件夹temp 路径不能包含中文字符</source>
         <translation>Der Pfad zum temporären Ordner temp für die Untertitelextraktion darf keine chinesischen Zeichen enthalten  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="525"/>
+        <location filename="../../common/text.py" line="533"/>
         <source>提取</source>
         <translation>Extrahieren  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="526"/>
+        <location filename="../../common/text.py" line="534"/>
         <source>提取中</source>
         <translation>Extrahiere  </translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="527"/>
+        <location filename="../../common/text.py" line="535"/>
         <source>步骤1/3: 正在处理视频帧…</source>
         <translation>Schritt 1/3: Videoframes werden verarbeitet...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="528"/>
+        <location filename="../../common/text.py" line="536"/>
         <source>步骤1/3: 正在处理视频帧… {}/{}</source>
         <translation>Schritt 1/3: Videoframes werden verarbeitet… {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="529"/>
+        <location filename="../../common/text.py" line="537"/>
         <source>步骤2/3: 正在进行文本检测 {}/{}</source>
         <translation>Schritt 2/3: Texterkennung läuft {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="530"/>
+        <location filename="../../common/text.py" line="538"/>
         <source>步骤2/3: 正在分析检测帧 {}/{}</source>
         <translation>Schritt 2/3: Erkennungsframes werden analysiert {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="531"/>
+        <location filename="../../common/text.py" line="539"/>
         <source>步骤3/3: 正在对图像进行OCR识别 {}/{}</source>
         <translation>Schritt 3/3: OCR-Erkennung für Bilder läuft {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="532"/>
+        <location filename="../../common/text.py" line="540"/>
         <source>正在生成字幕文件...</source>
         <translation>Untertiteldatei wird generiert...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="533"/>
+        <location filename="../../common/text.py" line="541"/>
         <source>解析进度失败: {}</source>
         <translation>Parsing-Fortschritt fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="534"/>
+        <location filename="../../common/text.py" line="542"/>
         <source>跳转到第一页</source>
         <translation>Zur ersten Seite springen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="535"/>
+        <location filename="../../common/text.py" line="543"/>
         <source>跳转到最后一页</source>
         <translation>Zur letzten Seite springen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="536"/>
+        <location filename="../../common/text.py" line="544"/>
         <source>上一页</source>
         <translation>Vorherige Seite</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="537"/>
+        <location filename="../../common/text.py" line="545"/>
         <source>下一页</source>
         <translation>Nächste Seite</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="538"/>
+        <location filename="../../common/text.py" line="546"/>
         <source>跳转到</source>
         <translation>Springen zu</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="539"/>
+        <location filename="../../common/text.py" line="547"/>
         <source>页 共计 {} 页</source>
         <translation>Seite {} von insgesamt {} Seiten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="540"/>
+        <location filename="../../common/text.py" line="548"/>
         <source>Prompt编写帮助</source>
         <translation>Prompt-Erstellungshilfe</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="541"/>
+        <location filename="../../common/text.py" line="549"/>
         <source>{origin_lang}表示原语言
 {target_lang}表示翻译后的语言
 {content}表示待翻译的文本</source>
@@ -2583,1237 +2583,1237 @@ Bitte konfigurieren Sie den richtigen Pfad in den Einstellungen</translation>
 {content} steht für den zu übersetzenden Text</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="544"/>
+        <location filename="../../common/text.py" line="552"/>
         <source>打开项目</source>
         <translation>Projekt öffnen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="545"/>
+        <location filename="../../common/text.py" line="553"/>
         <source>已修改项目信息</source>
         <translation>Projektinformationen geändert</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="546"/>
+        <location filename="../../common/text.py" line="554"/>
         <source>正在加载项目...</source>
         <translation>Projekt wird geladen...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="547"/>
+        <location filename="../../common/text.py" line="555"/>
         <source>开始下载</source>
         <translation>Download starten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="548"/>
+        <location filename="../../common/text.py" line="556"/>
         <source>正在下载图片...</source>
         <translation>Bilder werden heruntergeladen...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="549"/>
+        <location filename="../../common/text.py" line="557"/>
         <source>图片已下载到: {}</source>
         <translation>Bilder heruntergeladen nach: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="550"/>
+        <location filename="../../common/text.py" line="558"/>
         <source>刷新时出错: {}</source>
         <translation>Fehler beim Aktualisieren: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="551"/>
+        <location filename="../../common/text.py" line="559"/>
         <source>返回项目列表</source>
         <translation>Zurück zur Projektliste</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="552"/>
+        <location filename="../../common/text.py" line="560"/>
         <source>刷新项目列表</source>
         <translation>Projektliste aktualisieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="553"/>
+        <location filename="../../common/text.py" line="561"/>
         <source>批量任务</source>
         <translation>Batch-Aufgaben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="554"/>
+        <location filename="../../common/text.py" line="562"/>
         <source>批量添加下载/语音识别/翻译/压制任务</source>
         <translation>Batch hinzufügen: Download/Spracherkennung/Übersetzung/Komprimierung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="555"/>
+        <location filename="../../common/text.py" line="563"/>
         <source>批量删除</source>
         <translation>Batch löschen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="556"/>
+        <location filename="../../common/text.py" line="564"/>
         <source>按文件类型批量删除剧集文件</source>
         <translation>Nach Dateityp batchweise Episodendateien löschen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="557"/>
+        <location filename="../../common/text.py" line="565"/>
         <source>共 {} 集，第 {}/{} 页</source>
         <translation>Insgesamt {} Episoden, Seite {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="558"/>
+        <location filename="../../common/text.py" line="566"/>
         <source>插入新的一集</source>
         <translation>Neue Episode einfügen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="559"/>
+        <location filename="../../common/text.py" line="567"/>
         <source>已刷新文件列表</source>
         <translation>Dateiliste aktualisiert</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="560"/>
+        <location filename="../../common/text.py" line="568"/>
         <source>提示</source>
         <translation>Hinweis</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="561"/>
+        <location filename="../../common/text.py" line="569"/>
         <source>当前项目没有剧集</source>
         <translation>Aktuelles Projekt hat keine Episoden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="562"/>
+        <location filename="../../common/text.py" line="570"/>
         <source>第 {} 集添加失败: {}</source>
         <translation>Episode {} hinzufügen fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="563"/>
+        <location filename="../../common/text.py" line="571"/>
         <source>已添加 {} 个任务</source>
         <translation>{} Aufgaben hinzugefügt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="564"/>
+        <location filename="../../common/text.py" line="572"/>
         <source>没有选中任何任务</source>
         <translation>Keine Aufgabe ausgewählt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="565"/>
+        <location filename="../../common/text.py" line="573"/>
         <source>没有选中任何文件</source>
         <translation>Keine Datei ausgewählt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="566"/>
+        <location filename="../../common/text.py" line="574"/>
         <source>确认批量删除</source>
         <translation>Batch-Löschung bestätigen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="567"/>
+        <location filename="../../common/text.py" line="575"/>
         <source>确定要批量删除 {} 个 '{}' 吗？此操作不可撤销。</source>
         <translation>Möchten Sie wirklich {} '{}' batchweise löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="568"/>
+        <location filename="../../common/text.py" line="576"/>
         <source>已删除 {} 个 '{}'</source>
         <translation>{} '{}' gelöscht</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="569"/>
+        <location filename="../../common/text.py" line="577"/>
         <source>批量删除失败: {}</source>
         <translation>Batch-Löschung fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="570"/>
+        <location filename="../../common/text.py" line="578"/>
         <source>在这之前插入新的一集</source>
         <translation>Neue Episode davor einfügen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="571"/>
+        <location filename="../../common/text.py" line="579"/>
         <source>删除这一集(不可撤销)</source>
         <translation>Diese Episode löschen (nicht rückgängig machbar)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="572"/>
+        <location filename="../../common/text.py" line="580"/>
         <source>编辑本集标题和视频url</source>
         <translation>Titel und Video-URL dieser Episode bearbeiten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="573"/>
+        <location filename="../../common/text.py" line="581"/>
         <source>打开本集链接: {}</source>
         <translation>Link dieser Episode öffnen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="574"/>
+        <location filename="../../common/text.py" line="582"/>
         <source>在第 {} 集处插入</source>
         <translation>An Episode {} einfügen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="575"/>
+        <location filename="../../common/text.py" line="583"/>
         <source>翻译后标题:</source>
         <translation>Übersetzter Titel:</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="576"/>
+        <location filename="../../common/text.py" line="584"/>
         <source>视频URL:</source>
         <translation>Video-URL:</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="577"/>
+        <location filename="../../common/text.py" line="585"/>
         <source>请输入翻译后标题</source>
         <translation>Bitte übersetzten Titel eingeben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="578"/>
+        <location filename="../../common/text.py" line="586"/>
         <source>请输入视频URL</source>
         <translation>Bitte Video-URL eingeben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="579"/>
+        <location filename="../../common/text.py" line="587"/>
         <source>已插入新的一集</source>
         <translation>Neue Episode eingefügt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="580"/>
+        <location filename="../../common/text.py" line="588"/>
         <source>未知错误</source>
         <translation>Unbekannter Fehler</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="581"/>
+        <location filename="../../common/text.py" line="589"/>
         <source>添加失败: {}</source>
         <translation>Hinzufügen fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="582"/>
+        <location filename="../../common/text.py" line="590"/>
         <source>确定要删除这一集吗？此操作不可撤销。</source>
         <translation>Möchten Sie diese Episode wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="583"/>
+        <location filename="../../common/text.py" line="591"/>
         <source>处理中</source>
         <translation>In Bearbeitung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="584"/>
+        <location filename="../../common/text.py" line="592"/>
         <source>正在删除第 {} 集...</source>
         <translation>Episode {} wird gelöscht...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="585"/>
+        <location filename="../../common/text.py" line="593"/>
         <source>已删除第 {} 集</source>
         <translation>Episode {} gelöscht</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="586"/>
+        <location filename="../../common/text.py" line="594"/>
         <source>删除失败: {}</source>
         <translation>Löschen fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="587"/>
+        <location filename="../../common/text.py" line="595"/>
         <source>编辑第 {} 集的标题和视频URL</source>
         <translation>Titel und Video-URL von Episode {} bearbeiten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="588"/>
+        <location filename="../../common/text.py" line="596"/>
         <source>标题:</source>
         <translation>Titel:</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="589"/>
+        <location filename="../../common/text.py" line="597"/>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="590"/>
+        <location filename="../../common/text.py" line="598"/>
         <source>请输入标题</source>
         <translation>Bitte Titel eingeben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="591"/>
+        <location filename="../../common/text.py" line="599"/>
         <source>请输入视频url</source>
         <translation>Bitte Video-URL eingeben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="592"/>
+        <location filename="../../common/text.py" line="600"/>
         <source>编辑第 {} 集标题和视频url成功</source>
         <translation>Bearbeitung von Titel und Video-URL für Episode {} erfolgreich</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="593"/>
+        <location filename="../../common/text.py" line="601"/>
         <source>正在复制文件 {}...</source>
         <translation>Datei {} wird kopiert...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="594"/>
+        <location filename="../../common/text.py" line="602"/>
         <source>已上传文件到: {}/{}</source>
         <translation>Datei hochgeladen nach: {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="595"/>
+        <location filename="../../common/text.py" line="603"/>
         <source>已创建新项目: {}</source>
         <translation>Neues Projekt erstellt: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="596"/>
+        <location filename="../../common/text.py" line="604"/>
         <source>{} 并不是一个合法的项目</source>
         <translation>{} ist kein gültiges Projekt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="597"/>
+        <location filename="../../common/text.py" line="605"/>
         <source>选择导入模式</source>
         <translation>Importmodus auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="598"/>
+        <location filename="../../common/text.py" line="606"/>
         <source>是否要把整个项目文件夹复制过来</source>
         <translation>Soll der gesamte Projektordner kopiert werden?</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="599"/>
+        <location filename="../../common/text.py" line="607"/>
         <source>复制</source>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="600"/>
+        <location filename="../../common/text.py" line="608"/>
         <source>只连接路径</source>
         <translation>Nur Pfad verknüpfen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="601"/>
+        <location filename="../../common/text.py" line="609"/>
         <source>已添加 {}</source>
         <translation>{} hinzugefügt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="602"/>
+        <location filename="../../common/text.py" line="610"/>
         <source>已导入此路径 {}</source>
         <translation>Pfad {} importiert</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="603"/>
+        <location filename="../../common/text.py" line="611"/>
         <source>项目创建完毕</source>
         <translation>Projekterstellung abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="604"/>
+        <location filename="../../common/text.py" line="612"/>
         <source>失败</source>
         <translation>Fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="605"/>
+        <location filename="../../common/text.py" line="613"/>
         <source>已刷新项目列表</source>
         <translation>Projektliste aktualisiert</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="606"/>
+        <location filename="../../common/text.py" line="614"/>
         <source>项目 {} 已删除</source>
         <translation>Projekt {} gelöscht</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="607"/>
+        <location filename="../../common/text.py" line="615"/>
         <source>删除项目失败: {}</source>
         <translation>Projekt löschen fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="608"/>
+        <location filename="../../common/text.py" line="616"/>
         <source>已解除项目 {} 的连接</source>
         <translation>Verknüpfung von Projekt {} aufgehoben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="609"/>
+        <location filename="../../common/text.py" line="617"/>
         <source>项目已置顶</source>
         <translation>Projekt oben angepinnt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="610"/>
+        <location filename="../../common/text.py" line="618"/>
         <source>我知道了</source>
         <translation>Ich habe verstanden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="611"/>
+        <location filename="../../common/text.py" line="619"/>
         <source>封面</source>
         <translation>Cover</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="612"/>
+        <location filename="../../common/text.py" line="620"/>
         <source>原视频</source>
         <translation>Originalvideo</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="613"/>
+        <location filename="../../common/text.py" line="621"/>
         <source>翻译后的视频</source>
         <translation>Übersetztes Video</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="614"/>
+        <location filename="../../common/text.py" line="622"/>
         <source>原字幕</source>
         <translation>Originaluntertitel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="615"/>
+        <location filename="../../common/text.py" line="623"/>
         <source>翻译后的字幕</source>
         <translation>Übersetzte Untertitel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="616"/>
+        <location filename="../../common/text.py" line="624"/>
         <source>打开成功</source>
         <translation>Öffnen erfolgreich</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="617"/>
+        <location filename="../../common/text.py" line="625"/>
         <source>已打开项目 {}</source>
         <translation>Projekt {} geöffnet</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="618"/>
+        <location filename="../../common/text.py" line="626"/>
         <source>* 标题</source>
         <translation>* Titel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="619"/>
+        <location filename="../../common/text.py" line="627"/>
         <source>请输入稿件标题</source>
         <translation>Bitte Manuskripttitel eingeben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="620"/>
+        <location filename="../../common/text.py" line="628"/>
         <source>  类型</source>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="621"/>
+        <location filename="../../common/text.py" line="629"/>
         <source>自制</source>
         <translation>Selbst erstellt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="622"/>
+        <location filename="../../common/text.py" line="630"/>
         <source>转载</source>
         <translation>Weiterleitung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="623"/>
+        <location filename="../../common/text.py" line="631"/>
         <source>还可以添加{}个标签</source>
         <translation>Es können noch {} Tags hinzugefügt werden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="624"/>
+        <location filename="../../common/text.py" line="632"/>
         <source>已达到标签上限</source>
         <translation>Tag-Limit erreicht</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="625"/>
+        <location filename="../../common/text.py" line="633"/>
         <source>按回车键Enter创建标签</source>
         <translation>Drücken Sie die Eingabetaste, um einen Tag zu erstellen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="626"/>
+        <location filename="../../common/text.py" line="634"/>
         <source>上传</source>
         <translation>Hochladen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="627"/>
+        <location filename="../../common/text.py" line="635"/>
         <source>视频文件</source>
         <translation>Videodatei</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="628"/>
+        <location filename="../../common/text.py" line="636"/>
         <source>封面文件</source>
         <translation>Coverdatei</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="629"/>
+        <location filename="../../common/text.py" line="637"/>
         <source>请选择你的封面</source>
         <translation>Bitte wählen Sie Ihr Cover</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="630"/>
+        <location filename="../../common/text.py" line="638"/>
         <source>选择视频文件</source>
         <translation>Videodatei auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="631"/>
+        <location filename="../../common/text.py" line="639"/>
         <source>选择封面文件</source>
         <translation>Cover-Datei auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="632"/>
+        <location filename="../../common/text.py" line="640"/>
         <source>基本设置</source>
         <translation>Grundeinstellungen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="633"/>
+        <location filename="../../common/text.py" line="641"/>
         <source>请先填写Cookie：Sessdata</source>
         <translation>Bitte zuerst Cookie ausfüllen: Sessdata</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="634"/>
+        <location filename="../../common/text.py" line="642"/>
         <source>请先填写Cookie：BiliJct</source>
         <translation>Bitte zuerst Cookie ausfüllen: BiliJct</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="635"/>
+        <location filename="../../common/text.py" line="643"/>
         <source>请先填写Cookie：Buvid3</source>
         <translation>Bitte zuerst Cookie ausfüllen: Buvid3</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="636"/>
+        <location filename="../../common/text.py" line="644"/>
         <source>请选择视频文件</source>
         <translation>Bitte Videodatei auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="637"/>
+        <location filename="../../common/text.py" line="645"/>
         <source>请选择封面文件</source>
         <translation>Bitte Cover-Datei auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="638"/>
+        <location filename="../../common/text.py" line="646"/>
         <source>请输入转载链接</source>
         <translation>Bitte Weiterleitungs-Link eingeben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="639"/>
+        <location filename="../../common/text.py" line="647"/>
         <source>请输入标签</source>
         <translation>Bitte Tags eingeben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="640"/>
+        <location filename="../../common/text.py" line="648"/>
         <source>选择的时间必须大于现在的时间</source>
         <translation>Ausgewählte Zeit muss später als aktuelle Zeit sein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="641"/>
+        <location filename="../../common/text.py" line="649"/>
         <source>上传视频进度</source>
         <translation>Video-Upload-Fortschritt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="642"/>
+        <location filename="../../common/text.py" line="650"/>
         <source>上传设置</source>
         <translation>Upload-Einstellungen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="643"/>
+        <location filename="../../common/text.py" line="651"/>
         <source>upload-video 路径</source>
         <translation>Upload-Video-Pfad</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="644"/>
+        <location filename="../../common/text.py" line="652"/>
         <source>Cookie (必填 否则无法上传)</source>
         <translation>Cookie (erforderlich, sonst kein Upload möglich)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="645"/>
+        <location filename="../../common/text.py" line="653"/>
         <source>SESSDATA</source>
         <translation>SESSDATA</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="646"/>
+        <location filename="../../common/text.py" line="654"/>
         <source>设置你的SESSDATA</source>
         <translation>SESSDATA festlegen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="647"/>
+        <location filename="../../common/text.py" line="655"/>
         <source>BILI_JCT</source>
         <translation>BILI_JCT</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="648"/>
+        <location filename="../../common/text.py" line="656"/>
         <source>设置你的BILI_JCT</source>
         <translation>BILI_JCT festlegen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="649"/>
+        <location filename="../../common/text.py" line="657"/>
         <source>BUVID3</source>
         <translation>BUVID3</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="650"/>
+        <location filename="../../common/text.py" line="658"/>
         <source>设置你的BUVID3</source>
         <translation>BUVID3 festlegen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="651"/>
+        <location filename="../../common/text.py" line="659"/>
         <source>选择upload-video文件</source>
         <translation>Upload-Video-Datei auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="652"/>
+        <location filename="../../common/text.py" line="660"/>
         <source>视频上传</source>
         <translation>Video-Upload</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="653"/>
+        <location filename="../../common/text.py" line="661"/>
         <source>个性化</source>
         <translation>Personalisierung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="654"/>
+        <location filename="../../common/text.py" line="662"/>
         <source>应用主题</source>
         <translation>Anwendungsthema</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="655"/>
+        <location filename="../../common/text.py" line="663"/>
         <source>调整应用的外观</source>
         <translation>Aussehen der Anwendung anpassen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="656"/>
+        <location filename="../../common/text.py" line="664"/>
         <source>浅色</source>
         <translation>Hell</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="657"/>
+        <location filename="../../common/text.py" line="665"/>
         <source>深色</source>
         <translation>Dunkel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="658"/>
+        <location filename="../../common/text.py" line="666"/>
         <source>跟随系统设置</source>
         <translation>Systemeinstellungen folgen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="659"/>
+        <location filename="../../common/text.py" line="667"/>
         <source>主题色</source>
         <translation>Themenfarbe</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="660"/>
+        <location filename="../../common/text.py" line="668"/>
         <source>调整应用的主题颜色</source>
         <translation>Themenfarbe der Anwendung anpassen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="661"/>
+        <location filename="../../common/text.py" line="669"/>
         <source>海沫绿</source>
         <translation>Meeresgrün</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="662"/>
+        <location filename="../../common/text.py" line="670"/>
         <source>窗口类型</source>
         <translation>Fenstertyp</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="663"/>
+        <location filename="../../common/text.py" line="671"/>
         <source>调整应用的窗口类型</source>
         <translation>Fenstertyp der Anwendung anpassen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="664"/>
+        <location filename="../../common/text.py" line="672"/>
         <source>MSFluentWindow</source>
         <translation>MSFluentWindow</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="665"/>
+        <location filename="../../common/text.py" line="673"/>
         <source>FluentWindow</source>
         <translation>FluentWindow</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="666"/>
+        <location filename="../../common/text.py" line="674"/>
         <source>SplitFluentWindow</source>
         <translation>SplitFluentWindow</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="667"/>
+        <location filename="../../common/text.py" line="675"/>
         <source>界面缩放</source>
         <translation>Oberflächenskalierung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="668"/>
+        <location filename="../../common/text.py" line="676"/>
         <source>调整组件和字体的大小</source>
         <translation>Größe von Komponenten und Schriftarten anpassen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="669"/>
+        <location filename="../../common/text.py" line="677"/>
         <source>语言</source>
         <translation>Sprache</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="670"/>
+        <location filename="../../common/text.py" line="678"/>
         <source>设置界面语言</source>
         <translation>Oberflächensprache einstellen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="671"/>
+        <location filename="../../common/text.py" line="679"/>
         <source>直接关闭</source>
         <translation>Direkt schließen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="672"/>
+        <location filename="../../common/text.py" line="680"/>
         <source>启用或禁用直接关闭应用</source>
         <translation>Direktes Schließen der Anwendung aktivieren/deaktivieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="673"/>
+        <location filename="../../common/text.py" line="681"/>
         <source>背景图片</source>
         <translation>Hintergrundbild</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="674"/>
+        <location filename="../../common/text.py" line="682"/>
         <source>启用或禁用应用背景图片</source>
         <translation>Hintergrundbild der Anwendung aktivieren/deaktivieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="675"/>
+        <location filename="../../common/text.py" line="683"/>
         <source>选择背景图片</source>
         <translation>Hintergrundbild auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="676"/>
+        <location filename="../../common/text.py" line="684"/>
         <source>背景透明度</source>
         <translation>Hintergrundtransparenz</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="677"/>
+        <location filename="../../common/text.py" line="685"/>
         <source>调整背景图片的透明度</source>
         <translation>Transparenz des Hintergrundbilds anpassen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="678"/>
+        <location filename="../../common/text.py" line="686"/>
         <source>项目详情页数量</source>
         <translation>Anzahl der Projektdetailseiten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="679"/>
+        <location filename="../../common/text.py" line="687"/>
         <source>调整项目详情页项目数量</source>
         <translation>Anzahl der Elemente auf der Projektdetailseite anpassen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="680"/>
+        <location filename="../../common/text.py" line="688"/>
         <source>检测程序</source>
         <translation>Programm erkennen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="681"/>
+        <location filename="../../common/text.py" line="689"/>
         <source>自动检测并更新程序路径</source>
         <translation>Programm-Pfad automatisch erkennen und aktualisieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="682"/>
+        <location filename="../../common/text.py" line="690"/>
         <source>关于</source>
         <translation>Über</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="683"/>
+        <location filename="../../common/text.py" line="691"/>
         <source>检查更新</source>
         <translation>Auf Updates prüfen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="684"/>
+        <location filename="../../common/text.py" line="692"/>
         <source>Copyleft</source>
         <translation>Copyleft</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="685"/>
+        <location filename="../../common/text.py" line="693"/>
         <source>当前版本</source>
         <translation>Aktuelle Version</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="686"/>
+        <location filename="../../common/text.py" line="694"/>
         <source>查看新手引导</source>
         <translation>Einsteigeranleitung anzeigen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="687"/>
+        <location filename="../../common/text.py" line="695"/>
         <source>新手引导</source>
         <translation>Einsteigeranleitung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="688"/>
+        <location filename="../../common/text.py" line="696"/>
         <source>重新查看软件使用教程</source>
         <translation>Software-Tutorial erneut anzeigen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="689"/>
+        <location filename="../../common/text.py" line="697"/>
         <source>配置在重启软件后生效</source>
         <translation>Konfiguration wird nach Neustart der Software wirksam</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="690"/>
+        <location filename="../../common/text.py" line="698"/>
         <source>选择ytdlp文件</source>
         <translation>Ytdlp-Datei auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="691"/>
+        <location filename="../../common/text.py" line="699"/>
         <source>检测成功</source>
         <translation>Erkennung erfolgreich</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="692"/>
+        <location filename="../../common/text.py" line="700"/>
         <source>{}路径已设置为{}</source>
         <translation>{} Pfad wurde auf {} gesetzt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="693"/>
+        <location filename="../../common/text.py" line="701"/>
         <source>未检测到{}程序，是否要下载</source>
         <translation>{} Programm nicht erkannt, herunterladen?</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="694"/>
+        <location filename="../../common/text.py" line="702"/>
         <source>前往下载</source>
         <translation>Zum Download gehen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="695"/>
+        <location filename="../../common/text.py" line="703"/>
         <source>检测中...</source>
         <translation>Erkennung läuft...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="696"/>
+        <location filename="../../common/text.py" line="704"/>
         <source>显示/隐藏界面</source>
         <translation>Oberfläche anzeigen/ausblenden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="697"/>
+        <location filename="../../common/text.py" line="705"/>
         <source>退出</source>
         <translation>Beenden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="698"/>
+        <location filename="../../common/text.py" line="706"/>
         <source>程序已最小化到系统托盘</source>
         <translation>Programm wurde in die Taskleiste minimiert</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="699"/>
+        <location filename="../../common/text.py" line="707"/>
         <source>欢迎使用 Fairy Kekkai Workshop</source>
         <translation>Willkommen bei Fairy Kekkai Workshop</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="700"/>
+        <location filename="../../common/text.py" line="708"/>
         <source>这是一个专为东方Project视频翻译设计的工具，支持视频下载、OCR识别、语音识别、AI翻译、视频压制等功能。主页的「关于」卡片中还可以查看日志、一键清空日志或重置所有设置。</source>
         <translation>Dies ist ein speziell für Touhou-Projekt-Videoübersetzungen entwickeltes Tool, das Video-Download, OCR-Erkennung, Spracherkennung, KI-Übersetzung, Videokomprimierung und mehr unterstützt. Auf der Startseite im Kartenbereich „Über“ können Sie auch Protokolle anzeigen, Protokolle leeren oder alle Einstellungen zurücksetzen.</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="703"/>
+        <location filename="../../common/text.py" line="711"/>
         <source>点击「新建项目」创建新的翻译项目，或点击「导入项目」导入已有项目。每个项目对应一个视频系列。</source>
         <translation>Klicken Sie auf „Neues Projekt“, um ein neues Übersetzungsprojekt zu erstellen, oder auf „Projekt importieren“, um ein vorhandenes Projekt zu importieren. Jedes Projekt entspricht einer Videoserie.</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="706"/>
+        <location filename="../../common/text.py" line="714"/>
         <source>下载视频</source>
         <translation>Video herunterladen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="707"/>
+        <location filename="../../common/text.py" line="715"/>
         <source>在下载界面输入视频URL，支持YouTube、Bilibili等平台。可选择清晰度和下载格式。</source>
         <translation>Geben Sie im Download-Bereich die Video-URL ein. Unterstützt werden Plattformen wie YouTube und Bilibili. Wählen Sie Auflösung und Download-Format.</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="710"/>
+        <location filename="../../common/text.py" line="718"/>
         <source>OCR识别</source>
         <translation>OCR-Erkennung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="711"/>
+        <location filename="../../common/text.py" line="719"/>
         <source>在字幕界面选择视频文件，点击「开始OCR」进行字幕识别。需要配置PaddleOCR模型路径。</source>
         <translation>Wählen Sie im Untertitel-Bereich eine Videodatei aus und klicken Sie auf „OCR starten“, um Untertitel zu erkennen. Der PaddleOCR-Modellpfad muss konfiguriert werden.</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="714"/>
+        <location filename="../../common/text.py" line="722"/>
         <source>在识别界面选择视频或音频文件，使用 Whisper 模型将语音转写为字幕。可在设置中选择模型、语言、输出格式与 GPU 加速。</source>
         <translation>Wählen Sie im Erkennungsbereich eine Video- oder Audiodatei aus und verwenden Sie das Whisper-Modell, um Sprache in Untertitel umzuwandeln. In den Einstellungen können Sie Modell, Sprache, Ausgabeformat und GPU-Beschleunigung wählen.</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="717"/>
+        <location filename="../../common/text.py" line="725"/>
         <source>AI翻译</source>
         <translation>KI-Übersetzung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="718"/>
+        <location filename="../../common/text.py" line="726"/>
         <source>在翻译界面选择SRT文件，配置AI模型和API Key，点击「开始翻译」进行翻译。支持多轮对话保持上下文。</source>
         <translation>Wählen Sie im Übersetzungsbereich eine SRT-Datei aus, konfigurieren Sie KI-Modell und API-Key, und klicken Sie auf „Übersetzung starten“. Mehrere Dialogrunden zur Kontexterhaltung werden unterstützt.</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="721"/>
+        <location filename="../../common/text.py" line="729"/>
         <source>在压制界面选择视频文件，将字幕烤制进视频并压制输出。可在设置中调整编码器、CRF、分辨率等参数。</source>
         <translation>Wählen Sie im Komprimierungsbereich eine Videodatei aus, brennen Sie Untertitel in das Video ein und komprimieren Sie es. In den Einstellungen können Sie Encoder, CRF, Auflösung und andere Parameter anpassen.</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="724"/>
+        <location filename="../../common/text.py" line="732"/>
         <source>设置配置</source>
         <translation>Einstellungen konfigurieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="725"/>
+        <location filename="../../common/text.py" line="733"/>
         <source>在设置界面配置各种API Key、模型路径、下载参数等。首次使用请先完成基础配置。</source>
         <translation>Konfigurieren Sie im Einstellungsbereich verschiedene API-Keys, Modellpfade, Download-Parameter usw. Bei der ersten Nutzung bitte zuerst die Basiskonfiguration abschließen.</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="728"/>
+        <location filename="../../common/text.py" line="736"/>
         <source>上一步</source>
         <translation>Vorheriger Schritt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="729"/>
+        <location filename="../../common/text.py" line="737"/>
         <source>跳过</source>
         <translation>Überspringen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="730"/>
+        <location filename="../../common/text.py" line="738"/>
         <source>下一步</source>
         <translation>Nächster Schritt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="731"/>
+        <location filename="../../common/text.py" line="739"/>
         <source>完成</source>
         <translation>Fertig</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="732"/>
+        <location filename="../../common/text.py" line="740"/>
         <source>新建项目</source>
         <translation>Neues Projekt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="733"/>
+        <location filename="../../common/text.py" line="741"/>
         <source>导入项目</source>
         <translation>Projekt importieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="734"/>
+        <location filename="../../common/text.py" line="742"/>
         <source>根据视频列表创建项目</source>
         <translation>Projekt basierend auf Videoliste erstellen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="735"/>
+        <location filename="../../common/text.py" line="743"/>
         <source>翻译进度</source>
         <translation>Übersetzungsfortschritt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="736"/>
+        <location filename="../../common/text.py" line="744"/>
         <source>翻译文本将在这里显示...</source>
         <translation>Übersetzungstext wird hier angezeigt...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="737"/>
+        <location filename="../../common/text.py" line="745"/>
         <source>AI设置</source>
         <translation>KI-Einstellungen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="738"/>
+        <location filename="../../common/text.py" line="746"/>
         <source>AI参数</source>
         <translation>KI-Parameter</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="739"/>
+        <location filename="../../common/text.py" line="747"/>
         <source>AI温度</source>
         <translation>KI-Temperatur</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="740"/>
+        <location filename="../../common/text.py" line="748"/>
         <source>调整AI生成文本的温度(0~2)</source>
         <translation>Temperatur des KI-generierten Texts anpassen (0~2)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="741"/>
+        <location filename="../../common/text.py" line="749"/>
         <source>Prompt模板</source>
         <translation>Prompt-Vorlage</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="742"/>
+        <location filename="../../common/text.py" line="750"/>
         <source>设置你的Prompt模板</source>
         <translation>Ihre Prompt-Vorlage festlegen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="743"/>
+        <location filename="../../common/text.py" line="751"/>
         <source>Deepseek Api Key</source>
         <translation>Deepseek API-Key</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="744"/>
+        <location filename="../../common/text.py" line="752"/>
         <source>设置你的Deepseek Api Key</source>
         <translation>Ihren Deepseek API-Key festlegen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="745"/>
+        <location filename="../../common/text.py" line="753"/>
         <source>智谱 GLM-4.5-FLASH</source>
         <translation>Zhipu GLM-4.5-FLASH</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="746"/>
+        <location filename="../../common/text.py" line="754"/>
         <source>智谱 GLM-4.5-FLASH Api Key</source>
         <translation>Zhipu GLM-4.5-FLASH API-Schlüssel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="747"/>
+        <location filename="../../common/text.py" line="755"/>
         <source>设置你的GLM-4.5-FLASH Api Key</source>
         <translation>Legen Sie Ihren GLM-4.5-FLASH API-Schlüssel fest</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="748"/>
+        <location filename="../../common/text.py" line="756"/>
         <source>讯飞 Spark Lite</source>
         <translation>Xunfei Spark Lite</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="749"/>
+        <location filename="../../common/text.py" line="757"/>
         <source>讯飞 Spark Lite Api Password</source>
         <translation>Xunfei Spark Lite API-Passwort</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="750"/>
+        <location filename="../../common/text.py" line="758"/>
         <source>设置你的讯飞 Spark Lite Api Password</source>
         <translation>Legen Sie Ihr Xunfei Spark Lite API-Passwort fest</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="751"/>
+        <location filename="../../common/text.py" line="759"/>
         <source>腾讯混元 Api Key</source>
         <translation>Tencent Hunyuan API-Schlüssel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="752"/>
+        <location filename="../../common/text.py" line="760"/>
         <source>设置你的腾讯混元 Api Key</source>
         <translation>Legen Sie Ihren Tencent Hunyuan API-Schlüssel fest</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="753"/>
+        <location filename="../../common/text.py" line="761"/>
         <source>书生 Api Key</source>
         <translation>Shusheng API-Schlüssel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="754"/>
+        <location filename="../../common/text.py" line="762"/>
         <source>设置你的书生 Api Key</source>
         <translation>Legen Sie Ihren Shusheng API-Schlüssel fest</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="755"/>
+        <location filename="../../common/text.py" line="763"/>
         <source>百度ERNIE-Speed-128K (不推荐使用)</source>
         <translation>Baidu ERNIE-Speed-128K (nicht empfohlen)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="756"/>
+        <location filename="../../common/text.py" line="764"/>
         <source>百度ERNIE-Speed-128K Api Key</source>
         <translation>Baidu ERNIE-Speed-128K API-Schlüssel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="757"/>
+        <location filename="../../common/text.py" line="765"/>
         <source>设置你的百度ERNIE-Speed-128K Api Key</source>
         <translation>Legen Sie Ihren Baidu ERNIE-Speed-128K API-Schlüssel fest</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="758"/>
+        <location filename="../../common/text.py" line="766"/>
         <source>Gemini</source>
         <translation>Gemini</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="759"/>
+        <location filename="../../common/text.py" line="767"/>
         <source>Gemini 3.5 Flash Api Key</source>
         <translation>Gemini 3.5 Flash API-Schlüssel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="760"/>
+        <location filename="../../common/text.py" line="768"/>
         <source>设置你的Gemini 3.5 Flash Api Key</source>
         <translation>Legen Sie Ihren Gemini 3.5 Flash API-Schlüssel fest</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="761"/>
+        <location filename="../../common/text.py" line="769"/>
         <source>自定义模型 (支持OpenAI兼容API)</source>
         <translation>Benutzerdefiniertes Modell (unterstützt OpenAI-kompatible API)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="762"/>
+        <location filename="../../common/text.py" line="770"/>
         <source>启用自定义模型</source>
         <translation>Benutzerdefiniertes Modell aktivieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="763"/>
+        <location filename="../../common/text.py" line="771"/>
         <source>启用自定义模型支持</source>
         <translation>Unterstützung für benutzerdefiniertes Modell aktivieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="764"/>
+        <location filename="../../common/text.py" line="772"/>
         <source>模型名称</source>
         <translation>Modellname</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="765"/>
+        <location filename="../../common/text.py" line="773"/>
         <source>设置自定义模型名称</source>
         <translation>Benutzerdefinierten Modellnamen festlegen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="766"/>
+        <location filename="../../common/text.py" line="774"/>
         <source>API密钥</source>
         <translation>API-Schlüssel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="767"/>
+        <location filename="../../common/text.py" line="775"/>
         <source>设置自定义模型的API密钥</source>
         <translation>API-Schlüssel für benutzerdefiniertes Modell festlegen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="768"/>
+        <location filename="../../common/text.py" line="776"/>
         <source>API基础URL</source>
         <translation>API-Basis-URL</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="769"/>
+        <location filename="../../common/text.py" line="777"/>
         <source>设置自定义模型的API基础URL</source>
         <translation>API-Basis-URL für benutzerdefiniertes Modell festlegen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="770"/>
+        <location filename="../../common/text.py" line="778"/>
         <source>模型端点</source>
         <translation>Modell-Endpunkt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="771"/>
+        <location filename="../../common/text.py" line="779"/>
         <source>设置模型端点(可选，默认使用模型名称)</source>
         <translation>Modell-Endpunkt festlegen (optional, standardmäßig Modellname)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="772"/>
+        <location filename="../../common/text.py" line="780"/>
         <source>翻译中</source>
         <translation>Übersetzung läuft</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="773"/>
+        <location filename="../../common/text.py" line="781"/>
         <source>翻译完成</source>
         <translation>Übersetzung abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="774"/>
+        <location filename="../../common/text.py" line="782"/>
         <source>-{}- 翻译完成</source>
         <translation>-{}- Übersetzung abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="775"/>
+        <location filename="../../common/text.py" line="783"/>
         <source>翻译失败</source>
         <translation>Übersetzung fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="776"/>
+        <location filename="../../common/text.py" line="784"/>
         <source>原文语言</source>
         <translation>Ausgangssprache</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="777"/>
+        <location filename="../../common/text.py" line="785"/>
         <source>选择字幕文本的语言</source>
         <translation>Sprache des Untertiteltexts auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="778"/>
+        <location filename="../../common/text.py" line="786"/>
         <source>翻译语言</source>
         <translation>Zielsprache</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="779"/>
+        <location filename="../../common/text.py" line="787"/>
         <source>选择翻译后的语言</source>
         <translation>Sprache nach der Übersetzung auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="780"/>
+        <location filename="../../common/text.py" line="788"/>
         <source>AI模型</source>
         <translation>KI-Modell</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="781"/>
+        <location filename="../../common/text.py" line="789"/>
         <source>选择AI模型</source>
         <translation>KI-Modell auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="782"/>
+        <location filename="../../common/text.py" line="790"/>
         <source>启用上下文关联</source>
         <translation>Kontextbezug aktivieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="783"/>
+        <location filename="../../common/text.py" line="791"/>
         <source>开启后AI翻译将参考前后字幕，关闭则每批独立翻译</source>
         <translation>Bei Aktivierung berücksichtigt die KI-Übersetzung vorherige und nachfolgende Untertitel; bei Deaktivierung wird jeder Batch unabhängig übersetzt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="784"/>
+        <location filename="../../common/text.py" line="792"/>
         <source>Deepseek模型</source>
         <translation>Deepseek-Modell</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="785"/>
+        <location filename="../../common/text.py" line="793"/>
         <source>选择Deepseek模型版本</source>
         <translation>Deepseek-Modellversion auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="786"/>
+        <location filename="../../common/text.py" line="794"/>
         <source>深度思考</source>
         <translation>Tiefes Denken</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="787"/>
+        <location filename="../../common/text.py" line="795"/>
         <source>启用Deepseek深度思考模式</source>
         <translation>Deepseek-Modus für tiefes Denken aktivieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="788"/>
+        <location filename="../../common/text.py" line="796"/>
         <source>SRT 内容预览</source>
         <translation>SRT-Inhaltsvorschau</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="789"/>
+        <location filename="../../common/text.py" line="797"/>
         <source>共 0 条字幕</source>
         <translation>Insgesamt 0 Untertitel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="790"/>
+        <location filename="../../common/text.py" line="798"/>
         <source>序号</source>
         <translation>Nummer</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="791"/>
+        <location filename="../../common/text.py" line="799"/>
         <source>时间轴</source>
         <translation>Zeitachse</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="792"/>
+        <location filename="../../common/text.py" line="800"/>
         <source>内容</source>
         <translation>Inhalt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="793"/>
+        <location filename="../../common/text.py" line="801"/>
         <source>请先填写您的DeepSeek API Key</source>
         <translation>Bitte geben Sie zuerst Ihren DeepSeek API-Schlüssel ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="794"/>
+        <location filename="../../common/text.py" line="802"/>
         <source>请先填写您的GLM-4.5-FLASH API Key</source>
         <translation>Bitte geben Sie zuerst Ihren GLM-4.5-FLASH API-Schlüssel ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="795"/>
+        <location filename="../../common/text.py" line="803"/>
         <source>请先填写您的Spark-Lite API Key</source>
         <translation>Bitte geben Sie zuerst Ihren Spark-Lite API-Schlüssel ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="796"/>
+        <location filename="../../common/text.py" line="804"/>
         <source>请先填写您的腾讯混元 API Key</source>
         <translation>Bitte geben Sie zuerst Ihren Tencent Hunyuan API-Schlüssel ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="797"/>
+        <location filename="../../common/text.py" line="805"/>
         <source>请先填写您的书生 API Key</source>
         <translation>Bitte geben Sie zuerst Ihren Shusheng API-Schlüssel ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="798"/>
+        <location filename="../../common/text.py" line="806"/>
         <source>请先填写您的百度ERNIE-Speed-128K API Key</source>
         <translation>Bitte geben Sie zuerst Ihren Baidu ERNIE-Speed-128K API-Schlüssel ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="799"/>
+        <location filename="../../common/text.py" line="807"/>
         <source>请先填写您的Gemini 3.5 Flash API Key</source>
         <translation>Bitte geben Sie zuerst Ihren Gemini 3.5 Flash API-Schlüssel ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="800"/>
+        <location filename="../../common/text.py" line="808"/>
         <source>请先在设置中启用自定义模型</source>
         <translation>Bitte aktivieren Sie zuerst das benutzerdefinierte Modell in den Einstellungen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="801"/>
+        <location filename="../../common/text.py" line="809"/>
         <source>请先填写您的自定义模型API密钥</source>
         <translation>Bitte geben Sie zuerst den API-Schlüssel für Ihr benutzerdefiniertes Modell ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="802"/>
+        <location filename="../../common/text.py" line="810"/>
         <source>请先填写您的自定义模型API基础URL</source>
         <translation>Bitte geben Sie zuerst die API-Basis-URL für Ihr benutzerdefiniertes Modell ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="803"/>
+        <location filename="../../common/text.py" line="811"/>
         <source>请先填写您的自定义模型名称</source>
         <translation>Bitte geben Sie zuerst den Namen Ihres benutzerdefinierten Modells ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="804"/>
+        <location filename="../../common/text.py" line="812"/>
         <source>原语言和目标语言相同</source>
         <translation>Ausgangs- und Zielsprache sind identisch</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="805"/>
+        <location filename="../../common/text.py" line="813"/>
         <source>共 {} 条字幕</source>
         <translation>Insgesamt {} Untertitel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="806"/>
+        <location filename="../../common/text.py" line="814"/>
         <source>视频预览区域
 
 点击浏览按钮选择视频文件</source>
@@ -3821,87 +3821,87 @@ Bitte konfigurieren Sie den richtigen Pfad in den Einstellungen</translation>
 Klicken Sie auf die Schaltfläche „Durchsuchen“, um eine Videodatei auszuwählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="807"/>
+        <location filename="../../common/text.py" line="815"/>
         <source>框选区域</source>
         <translation>Auswahlbereich</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="808"/>
+        <location filename="../../common/text.py" line="816"/>
         <source>清除框选</source>
         <translation>Auswahl löschen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="809"/>
+        <location filename="../../common/text.py" line="817"/>
         <source>框选区域坐标: 未选择</source>
         <translation>Auswahlbereichskoordinaten: Nicht ausgewählt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="810"/>
+        <location filename="../../common/text.py" line="818"/>
         <source>框选区域坐标: 正在选择...</source>
         <translation>Auswahlbereichskoordinaten: Auswahl läuft...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="811"/>
+        <location filename="../../common/text.py" line="819"/>
         <source>无法加载视频帧</source>
         <translation>Videoframe kann nicht geladen werden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="812"/>
+        <location filename="../../common/text.py" line="820"/>
         <source>区域 {} 坐标</source>
         <translation>Bereich {} Koordinaten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="813"/>
+        <location filename="../../common/text.py" line="821"/>
         <source>宽度:</source>
         <translation>Breite:</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="814"/>
+        <location filename="../../common/text.py" line="822"/>
         <source>高度:</source>
         <translation>Höhe:</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="815"/>
+        <location filename="../../common/text.py" line="823"/>
         <source>应用</source>
         <translation>Anwenden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="816"/>
+        <location filename="../../common/text.py" line="824"/>
         <source>区域{}: x={}, y={}, w={}, h={}</source>
         <translation>Bereich{}: x={}, y={}, w={}, h={}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="817"/>
+        <location filename="../../common/text.py" line="825"/>
         <source>提取字幕</source>
         <translation>Untertitel extrahieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="818"/>
+        <location filename="../../common/text.py" line="826"/>
         <source>识别语言</source>
         <translation>Sprache erkennen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="819"/>
+        <location filename="../../common/text.py" line="827"/>
         <source>视频预览</source>
         <translation>Videovorschau</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="820"/>
+        <location filename="../../common/text.py" line="828"/>
         <source>帧: -/-</source>
         <translation>Frame: -/-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="821"/>
+        <location filename="../../common/text.py" line="829"/>
         <source>时间: -/-</source>
         <translation>Zeit: -/-</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="822"/>
+        <location filename="../../common/text.py" line="830"/>
         <source>处理日志将显示在这里...</source>
         <translation>Verarbeitungsprotokoll wird hier angezeigt...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="823"/>
+        <location filename="../../common/text.py" line="831"/>
         <source>参数调整建议：
 • 漏句 → 降低「跳过的帧数」，提高「SSIM阈值」，降低「最大图像宽度」至 720
 • 误识别多 → 提高「置信度阈值」至 0.5~0.7，过滤低质量识别结果
@@ -3914,594 +3914,594 @@ Klicken Sie auf die Schaltfläche „Durchsuchen“, um eine Videodatei auszuwä
 Diese Parameter werden in den „Erweiterten Einstellungen“ angepasst</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="826"/>
+        <location filename="../../common/text.py" line="834"/>
         <source>清空日志</source>
         <translation>Protokoll leeren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="827"/>
+        <location filename="../../common/text.py" line="835"/>
         <source>成功加载视频: {}</source>
         <translation>Video erfolgreich geladen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="828"/>
+        <location filename="../../common/text.py" line="836"/>
         <source>总帧数: {}, FPS: {:.2f}</source>
         <translation>Gesamtframes: {}, FPS: {:.2f}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="829"/>
+        <location filename="../../common/text.py" line="837"/>
         <source>加载视频失败: {}</source>
         <translation>Video laden fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="830"/>
+        <location filename="../../common/text.py" line="838"/>
         <source>帧: {}/{}</source>
         <translation>Frame: {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="831"/>
+        <location filename="../../common/text.py" line="839"/>
         <source>时间: {}/{}</source>
         <translation>Zeit: {}/{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="832"/>
+        <location filename="../../common/text.py" line="840"/>
         <source>paddleocr.exe不存在: {}</source>
         <translation>paddleocr.exe existiert nicht: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="833"/>
+        <location filename="../../common/text.py" line="841"/>
         <source>PaddleOCR路径 {} 不能包含中文字符</source>
         <translation>PaddleOCR-Pfad {} darf keine chinesischen Zeichen enthalten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="834"/>
+        <location filename="../../common/text.py" line="842"/>
         <source>支持文件夹路径 {} 不能包含中文字符</source>
         <translation>Unterstützungsordnerpfad {} darf keine chinesischen Zeichen enthalten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="835"/>
+        <location filename="../../common/text.py" line="843"/>
         <source>临时文件夹路径 {} 不能包含中文字符</source>
         <translation>Temporärer Ordnerpfad {} darf keine chinesischen Zeichen enthalten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="836"/>
+        <location filename="../../common/text.py" line="844"/>
         <source>PaddleOCR路径不存在: {}</source>
         <translation>PaddleOCR-Pfad existiert nicht: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="837"/>
+        <location filename="../../common/text.py" line="845"/>
         <source>支持文件夹路径不存在: {}</source>
         <translation>Unterstützungsordnerpfad existiert nicht: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="838"/>
+        <location filename="../../common/text.py" line="846"/>
         <source>请先选择视频文件</source>
         <translation>Bitte wählen Sie zuerst eine Videodatei aus</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="839"/>
+        <location filename="../../common/text.py" line="847"/>
         <source>请设置输出文件路径</source>
         <translation>Bitte legen Sie den Ausgabedateipfad fest</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="840"/>
+        <location filename="../../common/text.py" line="848"/>
         <source>请先框选字幕区域</source>
         <translation>Bitte wählen Sie zuerst den Untertitelbereich aus</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="841"/>
+        <location filename="../../common/text.py" line="849"/>
         <source>使用自定义区域: {}, {}, {}x{}</source>
         <translation>Benutzerdefinierten Bereich verwenden: {}, {}, {}x{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="842"/>
+        <location filename="../../common/text.py" line="850"/>
         <source>识别</source>
         <translation>Erkennung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="843"/>
+        <location filename="../../common/text.py" line="851"/>
         <source>选择要识别的语言</source>
         <translation>Sprache für die Erkennung auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="844"/>
+        <location filename="../../common/text.py" line="852"/>
         <source>输出格式</source>
         <translation>Ausgabeformat</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="845"/>
+        <location filename="../../common/text.py" line="853"/>
         <source>选择字幕输出格式</source>
         <translation>Untertitel-Ausgabeformat auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="846"/>
+        <location filename="../../common/text.py" line="854"/>
         <source>使用此功能前需&lt;a href=&quot;https://pan.xunlei.com/s/VOu1R3aOfz05uqcbNUBSnEFSA1?pwd=62cr#&quot; style=&quot;color: #0078d4;&quot;&gt;手动下载模型&lt;/a&gt;后设置模型路径。&lt;b&gt;注意&lt;/b&gt;: 若是超过10分钟的视频强烈建议更换medium模型，超过30分钟的视频更换large模型。更多模型可前往&lt;a href='https://huggingface.co/ggerganov/whisper.cpp/tree/main' style='color: #0078d4;'&gt;https://huggingface.co/ggerganov/whisper.cpp/tree/main&lt;/a&gt;下载，语音设置不推荐选择自动检测。目前模型存在幻觉，可能会生成一些重复文本，剪辑时请注意。</source>
         <translation>Vor der Nutzung dieser Funktion muss das Modell &amp;lt;a href=&amp;quot;https://pan.xunlei.com/s/VOu1R3aOfz05uqcbNUBSnEFSA1?pwd=62cr#&amp;quot; style=&amp;quot;color: #0078d4;&amp;quot;&amp;gt;manuell heruntergeladen&amp;lt;/a&amp;gt; und der Modellpfad festgelegt werden. &amp;lt;b&amp;gt;Hinweis&amp;lt;/b&amp;gt;: Bei Videos über 10 Minuten wird dringend empfohlen, auf das Medium-Modell zu wechseln, bei Videos über 30 Minuten auf das Large-Modell. Weitere Modelle können unter &amp;lt;a href='https://huggingface.co/ggerganov/whisper.cpp/tree/main' style='color: #0078d4;'&amp;gt;https://huggingface.co/ggerganov/whisper.cpp/tree/main&amp;lt;/a&amp;gt; heruntergeladen werden. Für Spracheinstellungen wird die automatische Erkennung nicht empfohlen. Das Modell kann Halluzinationen aufweisen und möglicherweise wiederholten Text generieren; bitte beim Schnitt darauf achten.</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="849"/>
+        <location filename="../../common/text.py" line="857"/>
         <source>Whisper CLI路径 {} 不存在</source>
         <translation>Whisper CLI-Pfad {} existiert nicht</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="850"/>
+        <location filename="../../common/text.py" line="858"/>
         <source>Whisper模型路径 {} 不存在</source>
         <translation>Whisper-Modellpfad {} existiert nicht</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="851"/>
+        <location filename="../../common/text.py" line="859"/>
         <source>语音识别进度</source>
         <translation>Spracherkennungsfortschritt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="852"/>
+        <location filename="../../common/text.py" line="860"/>
         <source>Whisper 语音识别设置</source>
         <translation>Whisper-Spracherkennungseinstellungen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="853"/>
+        <location filename="../../common/text.py" line="861"/>
         <source>模型路径</source>
         <translation>Modellpfad</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="854"/>
+        <location filename="../../common/text.py" line="862"/>
         <source>选择模型文件</source>
         <translation>Modelldatei auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="855"/>
+        <location filename="../../common/text.py" line="863"/>
         <source>程序路径</source>
         <translation>Programm-Pfad</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="856"/>
+        <location filename="../../common/text.py" line="864"/>
         <source>选择程序</source>
         <translation>Programm auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="857"/>
+        <location filename="../../common/text.py" line="865"/>
         <source>语言设置</source>
         <translation>Spracheinstellungen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="858"/>
+        <location filename="../../common/text.py" line="866"/>
         <source>GPU 加速</source>
         <translation>GPU-Beschleunigung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="859"/>
+        <location filename="../../common/text.py" line="867"/>
         <source>启用 GPU 加速</source>
         <translation>GPU-Beschleunigung aktivieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="860"/>
+        <location filename="../../common/text.py" line="868"/>
         <source>使用 GPU 加速语音识别</source>
         <translation>GPU-Beschleunigung für Spracherkennung verwenden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="861"/>
+        <location filename="../../common/text.py" line="869"/>
         <source>选择 Whisper 模型文件</source>
         <translation>Whisper-Modelldatei auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="862"/>
+        <location filename="../../common/text.py" line="870"/>
         <source>选择 Whisper main.exe 程序</source>
         <translation>Whisper main.exe-Programm auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="863"/>
+        <location filename="../../common/text.py" line="871"/>
         <source>识别中</source>
         <translation>Erkennung läuft</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="864"/>
+        <location filename="../../common/text.py" line="872"/>
         <source>YT-DLP 下载设置</source>
         <translation>YT-DLP-Download-Einstellungen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="865"/>
+        <location filename="../../common/text.py" line="873"/>
         <source>YT-DLP 路径</source>
         <translation>YT-DLP-Pfad</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="866"/>
+        <location filename="../../common/text.py" line="874"/>
         <source>下载格式与质量</source>
         <translation>Download-Format und -Qualität</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="867"/>
+        <location filename="../../common/text.py" line="875"/>
         <source>视频质量</source>
         <translation>Videoqualität</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="868"/>
+        <location filename="../../common/text.py" line="876"/>
         <source>选择视频分辨率</source>
         <translation>Videoauflösung auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="869"/>
+        <location filename="../../common/text.py" line="877"/>
         <source>4K (2160p)</source>
         <translation>4K (2160p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="870"/>
+        <location filename="../../common/text.py" line="878"/>
         <source>2K (1440p)</source>
         <translation>2K (1440p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="871"/>
+        <location filename="../../common/text.py" line="879"/>
         <source>全高清 (1080p)</source>
         <translation>Full HD (1080p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="872"/>
+        <location filename="../../common/text.py" line="880"/>
         <source>高清 (720p)</source>
         <translation>HD (720p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="873"/>
+        <location filename="../../common/text.py" line="881"/>
         <source>标清 (480p)</source>
         <translation>SD (480p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="874"/>
+        <location filename="../../common/text.py" line="882"/>
         <source>流畅 (360p)</source>
         <translation>Flüssig (360p)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="875"/>
+        <location filename="../../common/text.py" line="883"/>
         <source>最佳质量</source>
         <translation>Beste Qualität</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="876"/>
+        <location filename="../../common/text.py" line="884"/>
         <source>最差质量</source>
         <translation>Schlechteste Qualität</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="877"/>
+        <location filename="../../common/text.py" line="885"/>
         <source>代理设置</source>
         <translation>Proxy-Einstellungen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="878"/>
+        <location filename="../../common/text.py" line="886"/>
         <source>系统代理</source>
         <translation>System-Proxy</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="879"/>
+        <location filename="../../common/text.py" line="887"/>
         <source>是否启用系统默认代理</source>
         <translation>Systemstandard-Proxy aktivieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="880"/>
+        <location filename="../../common/text.py" line="888"/>
         <source>自定义代理</source>
         <translation>Benutzerdefinierter Proxy</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="881"/>
+        <location filename="../../common/text.py" line="889"/>
         <source>设置自定义的代理地址</source>
         <translation>Benutzerdefinierte Proxy-Adresse festlegen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="882"/>
+        <location filename="../../common/text.py" line="890"/>
         <source>字幕设置</source>
         <translation>Untertiteleinstellungen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="883"/>
+        <location filename="../../common/text.py" line="891"/>
         <source>下载字幕</source>
         <translation>Untertitel herunterladen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="884"/>
+        <location filename="../../common/text.py" line="892"/>
         <source>自动下载视频字幕</source>
         <translation>Video-Untertitel automatisch herunterladen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="885"/>
+        <location filename="../../common/text.py" line="893"/>
         <source>字幕语言</source>
         <translation>Untertitelsprache</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="886"/>
+        <location filename="../../common/text.py" line="894"/>
         <source>设置字幕语言，多个语言用逗号分隔</source>
         <translation>Untertitelsprache festlegen, mehrere Sprachen durch Komma trennen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="887"/>
+        <location filename="../../common/text.py" line="895"/>
         <source>内嵌字幕</source>
         <translation>Eingebettete Untertitel</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="888"/>
+        <location filename="../../common/text.py" line="896"/>
         <source>将字幕嵌入视频文件中</source>
         <translation>Untertitel in Videodatei einbetten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="889"/>
+        <location filename="../../common/text.py" line="897"/>
         <source>元数据与缩略图</source>
         <translation>Metadaten und Miniaturansichten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="890"/>
+        <location filename="../../common/text.py" line="898"/>
         <source>下载缩略图</source>
         <translation>Miniaturansicht herunterladen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="891"/>
+        <location filename="../../common/text.py" line="899"/>
         <source>下载视频缩略图</source>
         <translation>Video-Miniaturansicht herunterladen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="892"/>
+        <location filename="../../common/text.py" line="900"/>
         <source>内嵌缩略图</source>
         <translation>Eingebettete Miniaturansicht</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="893"/>
+        <location filename="../../common/text.py" line="901"/>
         <source>将缩略图嵌入视频文件中</source>
         <translation>Miniaturansicht in Videodatei einbetten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="894"/>
+        <location filename="../../common/text.py" line="902"/>
         <source>下载元数据</source>
         <translation>Metadaten herunterladen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="895"/>
+        <location filename="../../common/text.py" line="903"/>
         <source>下载视频元数据信息</source>
         <translation>Video-Metadateninformationen herunterladen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="896"/>
+        <location filename="../../common/text.py" line="904"/>
         <source>写入描述</source>
         <translation>Beschreibung schreiben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="897"/>
+        <location filename="../../common/text.py" line="905"/>
         <source>将视频描述写入单独文件</source>
         <translation>Videobeschreibung in separate Datei schreiben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="898"/>
+        <location filename="../../common/text.py" line="906"/>
         <source>写入信息JSON</source>
         <translation>Info-JSON schreiben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="899"/>
+        <location filename="../../common/text.py" line="907"/>
         <source>将视频信息写入JSON文件</source>
         <translation>Videoinformationen in JSON-Datei schreiben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="900"/>
+        <location filename="../../common/text.py" line="908"/>
         <source>写入注释</source>
         <translation>Kommentare schreiben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="901"/>
+        <location filename="../../common/text.py" line="909"/>
         <source>写入视频注释信息</source>
         <translation>Videokommentarinformationen schreiben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="902"/>
+        <location filename="../../common/text.py" line="910"/>
         <source>下载控制</source>
         <translation>Download-Steuerung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="903"/>
+        <location filename="../../common/text.py" line="911"/>
         <source>并发下载数量</source>
         <translation>Anzahl gleichzeitiger Downloads</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="904"/>
+        <location filename="../../common/text.py" line="912"/>
         <source>同时下载的最大视频数量</source>
         <translation>Maximale Anzahl gleichzeitig heruntergeladener Videos</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="905"/>
+        <location filename="../../common/text.py" line="913"/>
         <source>重试次数</source>
         <translation>Wiederholungsversuche</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="906"/>
+        <location filename="../../common/text.py" line="914"/>
         <source>下载失败时的重试次数</source>
         <translation>Anzahl der Wiederholungsversuche bei Fehlschlag</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="907"/>
+        <location filename="../../common/text.py" line="915"/>
         <source>下载超时(秒)</source>
         <translation>Download-Timeout (Sekunden)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="908"/>
+        <location filename="../../common/text.py" line="916"/>
         <source>下载超时时间设置</source>
         <translation>Download-Timeout-Einstellung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="909"/>
+        <location filename="../../common/text.py" line="917"/>
         <source>限速下载</source>
         <translation>Geschwindigkeitsbegrenzung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="910"/>
+        <location filename="../../common/text.py" line="918"/>
         <source>启用下载速率限制</source>
         <translation>Download-Geschwindigkeitsbegrenzung aktivieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="911"/>
+        <location filename="../../common/text.py" line="919"/>
         <source>最大下载速率</source>
         <translation>Maximale Download-Rate</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="912"/>
+        <location filename="../../common/text.py" line="920"/>
         <source>设置最大下载速率 (如: 10M, 1K)</source>
         <translation>Maximale Download-Rate festlegen (z. B. 10M, 1K)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="913"/>
+        <location filename="../../common/text.py" line="921"/>
         <source>跳过已存在文件</source>
         <translation>Vorhandene Dateien überspringen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="914"/>
+        <location filename="../../common/text.py" line="922"/>
         <source>避免重复下载已存在的文件</source>
         <translation>Doppelten Download vorhandener Dateien vermeiden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="915"/>
+        <location filename="../../common/text.py" line="923"/>
         <source>输出模板</source>
         <translation>Ausgabevorlage</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="916"/>
+        <location filename="../../common/text.py" line="924"/>
         <source>设置输出文件名模板</source>
         <translation>Ausgabedateinamenvorlage festlegen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="917"/>
+        <location filename="../../common/text.py" line="925"/>
         <source>使用Cookies</source>
         <translation>Cookies verwenden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="918"/>
+        <location filename="../../common/text.py" line="926"/>
         <source>使用cookies文件进行下载</source>
         <translation>Cookies-Datei für Download verwenden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="919"/>
+        <location filename="../../common/text.py" line="927"/>
         <source>选择Cookies文件</source>
         <translation>Cookies-Datei auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="920"/>
+        <location filename="../../common/text.py" line="928"/>
         <source>Text Files (*.txt);;All Files (*)</source>
         <translation>Textdateien (*.txt);;Alle Dateien (*)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="921"/>
+        <location filename="../../common/text.py" line="929"/>
         <source>等待中</source>
         <translation>Warten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="922"/>
+        <location filename="../../common/text.py" line="930"/>
         <source>正在取消...</source>
         <translation>Abbrechen...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="923"/>
+        <location filename="../../common/text.py" line="931"/>
         <source>程序错误</source>
         <translation>Programmfehler</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="924"/>
+        <location filename="../../common/text.py" line="932"/>
         <source>程序运行时发生未处理的错误</source>
         <translation>Unbehandelter Fehler während der Programmausführung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="925"/>
+        <location filename="../../common/text.py" line="933"/>
         <source>启动错误</source>
         <translation>Startfehler</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="926"/>
+        <location filename="../../common/text.py" line="934"/>
         <source>应用程序启动失败</source>
         <translation>Anwendungsstart fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="927"/>
+        <location filename="../../common/text.py" line="935"/>
         <source>已完成</source>
         <translation>Abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="928"/>
+        <location filename="../../common/text.py" line="936"/>
         <source>{}完成</source>
         <translation>{} abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="929"/>
+        <location filename="../../common/text.py" line="937"/>
         <source>置信度阈值</source>
         <translation>Konfidenzschwelle</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="930"/>
+        <location filename="../../common/text.py" line="938"/>
         <source>低于此置信度的OCR结果将被过滤 (0-100, 0=不过滤)</source>
         <translation>OCR-Ergebnisse unter dieser Konfidenz werden gefiltert (0-100, 0=kein Filter)</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="931"/>
+        <location filename="../../common/text.py" line="939"/>
         <source>已创建项目文件夹,正在下载封面</source>
         <translation>Projektordner erstellt, Cover wird heruntergeladen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="932"/>
+        <location filename="../../common/text.py" line="940"/>
         <source>封面下载完成,开始添加下载视频任务</source>
         <translation>Cover-Download abgeschlossen, füge Video-Download-Aufgaben hinzu</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="933"/>
+        <location filename="../../common/text.py" line="941"/>
         <source>已完成项目初始化！</source>
         <translation>Projektinitialisierung abgeschlossen!</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="934"/>
+        <location filename="../../common/text.py" line="942"/>
         <source>网址错误</source>
         <translation>URL-Fehler</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="935"/>
+        <location filename="../../common/text.py" line="943"/>
         <source>请求超时</source>
         <translation>Anforderungstimeout</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="936"/>
+        <location filename="../../common/text.py" line="944"/>
         <source>图片成功下载并保存到: {}</source>
         <translation>Bild erfolgreich heruntergeladen und gespeichert unter: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="937"/>
+        <location filename="../../common/text.py" line="945"/>
         <source>下载图片时出错: {}</source>
         <translation>Fehler beim Herunterladen des Bildes: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="938"/>
+        <location filename="../../common/text.py" line="946"/>
         <source>yt-dlp不存在: {}</source>
         <translation>yt-dlp existiert nicht: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="939"/>
+        <location filename="../../common/text.py" line="947"/>
         <source>压制已取消</source>
         <translation>Komprimierung abgebrochen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="940"/>
+        <location filename="../../common/text.py" line="948"/>
         <source>ffmpeg.exe不存在: {}</source>
         <translation>ffmpeg.exe existiert nicht: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="941"/>
+        <location filename="../../common/text.py" line="949"/>
         <source>正在取消OCR处理...
 </source>
         <translation>OCR-Verarbeitung wird abgebrochen...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="942"/>
+        <location filename="../../common/text.py" line="950"/>
         <source>OCR处理已取消</source>
         <translation>OCR-Verarbeitung abgebrochen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="943"/>
+        <location filename="../../common/text.py" line="951"/>
         <source>OCR处理完成
 </source>
         <translation>OCR-Verarbeitung abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="944"/>
+        <location filename="../../common/text.py" line="952"/>
         <source>已强制终止OCR进程及其子进程</source>
         <translation>OCR-Prozess und seine Unterprozesse wurden zwangsweise beendet</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="945"/>
+        <location filename="../../common/text.py" line="953"/>
         <source>OCR处理失败:
 {}
 </source>
@@ -4509,466 +4509,516 @@ Diese Parameter werden in den „Erweiterten Einstellungen“ angepasst</transla
 {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="946"/>
+        <location filename="../../common/text.py" line="954"/>
         <source>已清理临时目录: {}
 </source>
         <translation>Temporäres Verzeichnis bereinigt: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="947"/>
+        <location filename="../../common/text.py" line="955"/>
         <source>终止进程失败: {}</source>
         <translation>Prozessbeendigung fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="948"/>
+        <location filename="../../common/text.py" line="956"/>
         <source>清理临时目录失败: {}
 </source>
         <translation>Bereinigung des temporären Verzeichnisses fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="949"/>
+        <location filename="../../common/text.py" line="957"/>
         <source>Cookie 配置错误或已过期</source>
         <translation>Cookie-Konfiguration fehlerhaft oder abgelaufen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="950"/>
+        <location filename="../../common/text.py" line="958"/>
         <source>进程启动失败</source>
         <translation>Prozessstart fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="951"/>
+        <location filename="../../common/text.py" line="959"/>
         <source>进程崩溃</source>
         <translation>Prozess abgestürzt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="952"/>
+        <location filename="../../common/text.py" line="960"/>
         <source>进程超时</source>
         <translation>Prozess-Timeout</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="953"/>
+        <location filename="../../common/text.py" line="961"/>
         <source>写入错误</source>
         <translation>Schreibfehler</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="954"/>
+        <location filename="../../common/text.py" line="962"/>
         <source>读取错误</source>
         <translation>Lesefehler</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="955"/>
+        <location filename="../../common/text.py" line="963"/>
         <source>上传已取消</source>
         <translation>Upload abgebrochen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="956"/>
+        <location filename="../../common/text.py" line="964"/>
         <source>上传完成</source>
         <translation>Upload abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="957"/>
+        <location filename="../../common/text.py" line="965"/>
         <source>网络连接错误</source>
         <translation>Netzwerkverbindungsfehler</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="958"/>
+        <location filename="../../common/text.py" line="966"/>
         <source>正在准备上传...</source>
         <translation>Upload wird vorbereitet...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="959"/>
+        <location filename="../../common/text.py" line="967"/>
         <source>准备上传</source>
         <translation>Upload vorbereiten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="960"/>
+        <location filename="../../common/text.py" line="968"/>
         <source>视频文件不存在或格式错误</source>
         <translation>Videodatei existiert nicht oder Formatfehler</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="961"/>
+        <location filename="../../common/text.py" line="969"/>
         <source>进程错误: {}</source>
         <translation>Prozessfehler: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="962"/>
+        <location filename="../../common/text.py" line="970"/>
         <source>上传失败，错误码: {}</source>
         <translation>Upload fehlgeschlagen, Fehlercode: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="963"/>
+        <location filename="../../common/text.py" line="971"/>
         <source>预上传失败</source>
         <translation>Vorab-Upload fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="964"/>
+        <location filename="../../common/text.py" line="972"/>
         <source>upload-video.exe不存在: {}</source>
         <translation>upload-video.exe existiert nicht: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="965"/>
+        <location filename="../../common/text.py" line="973"/>
         <source>视频上传失败: {}</source>
         <translation>Video-Upload fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="966"/>
+        <location filename="../../common/text.py" line="974"/>
         <source>开始上传视频...</source>
         <translation>Video-Upload wird gestartet...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="967"/>
+        <location filename="../../common/text.py" line="975"/>
         <source>开始上传</source>
         <translation>Upload starten</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="968"/>
+        <location filename="../../common/text.py" line="976"/>
         <source>上传中</source>
         <translation>Upload läuft</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="969"/>
+        <location filename="../../common/text.py" line="977"/>
         <source>未知</source>
         <translation>Unbekannt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="970"/>
+        <location filename="../../common/text.py" line="978"/>
         <source>上传失败</source>
         <translation>Upload fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="971"/>
+        <location filename="../../common/text.py" line="979"/>
         <source>上传速度: {}</source>
         <translation>Upload-Geschwindigkeit: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="972"/>
+        <location filename="../../common/text.py" line="980"/>
         <source>上传中 {}%</source>
         <translation>Upload läuft {}%</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="973"/>
+        <location filename="../../common/text.py" line="981"/>
         <source>视频上传完成</source>
         <translation>Video-Upload abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="974"/>
+        <location filename="../../common/text.py" line="982"/>
         <source>正在提交信息...</source>
         <translation>Informationen werden übermittelt...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="975"/>
+        <location filename="../../common/text.py" line="983"/>
         <source>提交视频信息...</source>
         <translation>Video-Informationen übermitteln...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="976"/>
+        <location filename="../../common/text.py" line="984"/>
         <source>提交信息</source>
         <translation>Informationen übermitteln</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="977"/>
+        <location filename="../../common/text.py" line="985"/>
         <source>提交失败</source>
         <translation>Übermittlung fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="978"/>
+        <location filename="../../common/text.py" line="986"/>
         <source>上传成功</source>
         <translation>Upload erfolgreich</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="979"/>
+        <location filename="../../common/text.py" line="987"/>
         <source>任务已取消</source>
         <translation>Aufgabe abgebrochen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="980"/>
+        <location filename="../../common/text.py" line="988"/>
         <source>翻译进度: {}%</source>
         <translation>Übersetzungsfortschritt: {}%</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="981"/>
+        <location filename="../../common/text.py" line="989"/>
         <source>不支持的AI模型: {}</source>
         <translation>Nicht unterstütztes KI-Modell: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="982"/>
+        <location filename="../../common/text.py" line="990"/>
         <source>翻译失败: {}</source>
         <translation>Übersetzung fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="983"/>
+        <location filename="../../common/text.py" line="991"/>
         <source>后处理失败: {}</source>
         <translation>Nachbearbeitung fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="984"/>
+        <location filename="../../common/text.py" line="992"/>
         <source>转录已取消</source>
         <translation>Transkription abgebrochen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="985"/>
+        <location filename="../../common/text.py" line="993"/>
         <source>转录完成</source>
         <translation>Transkription abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="986"/>
+        <location filename="../../common/text.py" line="994"/>
         <source>main.exe 不存在: {}</source>
         <translation>main.exe existiert nicht: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="987"/>
+        <location filename="../../common/text.py" line="995"/>
         <source>-{}- 下载完成</source>
         <translation>-{}- Download abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="988"/>
+        <location filename="../../common/text.py" line="996"/>
         <source>压制中</source>
         <translation>Komprimierung läuft</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="989"/>
+        <location filename="../../common/text.py" line="997"/>
         <source>丹麦语</source>
         <translation>Dänisch</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="993"/>
+        <location filename="../../common/text.py" line="1001"/>
         <source>悬浮OCR</source>
         <translation>Schwebende OCR</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="994"/>
+        <location filename="../../common/text.py" line="1002"/>
         <source>选择OCR区域</source>
         <translation>OCR-Bereich auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="995"/>
+        <location filename="../../common/text.py" line="1003"/>
         <source>选择OCR区域...</source>
         <translation>OCR-Bereich auswählen...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="996"/>
+        <location filename="../../common/text.py" line="1004"/>
         <source>取消选择</source>
         <translation>Auswahl aufheben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="997"/>
+        <location filename="../../common/text.py" line="1005"/>
         <source>区域过小，请重新选择</source>
         <translation>Bereich zu klein, bitte neu auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="998"/>
+        <location filename="../../common/text.py" line="1006"/>
         <source>区域: ({},{}) {}x{}</source>
         <translation>Bereich: ({},{}) {}x{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="999"/>
+        <location filename="../../common/text.py" line="1007"/>
         <source>显示/隐藏区域</source>
         <translation>Bereich anzeigen/ausblenden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1000"/>
+        <location filename="../../common/text.py" line="1008"/>
         <source>区域显示: 开</source>
         <translation>Bereichsanzeige: Ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1001"/>
+        <location filename="../../common/text.py" line="1009"/>
         <source>区域显示: 关</source>
         <translation>Bereichsanzeige: Aus</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1002"/>
+        <location filename="../../common/text.py" line="1010"/>
         <source>单次OCR</source>
         <translation>Einmalige OCR</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1003"/>
+        <location filename="../../common/text.py" line="1011"/>
         <source>请先选择OCR区域</source>
         <translation>Bitte zuerst OCR-Bereich auswählen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1004"/>
+        <location filename="../../common/text.py" line="1012"/>
         <source>执行单次OCR...</source>
         <translation>Einmalige OCR ausführen...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1005"/>
+        <location filename="../../common/text.py" line="1013"/>
         <source>OCR进行中...</source>
         <translation>OCR läuft...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1006"/>
+        <location filename="../../common/text.py" line="1014"/>
         <source>OCR完成: {}</source>
         <translation>OCR abgeschlossen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1007"/>
+        <location filename="../../common/text.py" line="1015"/>
         <source>OCR失败: {}</source>
         <translation>OCR fehlgeschlagen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1008"/>
+        <location filename="../../common/text.py" line="1016"/>
         <source>复制结果</source>
         <translation>Ergebnis kopieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1009"/>
+        <location filename="../../common/text.py" line="1017"/>
         <source>暂无OCR结果可复制</source>
         <translation>Kein OCR-Ergebnis zum Kopieren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1010"/>
+        <location filename="../../common/text.py" line="1018"/>
         <source>已复制到剪贴板</source>
         <translation>In Zwischenablage kopiert</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1011"/>
+        <location filename="../../common/text.py" line="1019"/>
         <source>历史记录</source>
         <translation>Verlauf</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1012"/>
+        <location filename="../../common/text.py" line="1020"/>
         <source>暂无历史记录</source>
         <translation>Kein Verlauf vorhanden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1013"/>
+        <location filename="../../common/text.py" line="1021"/>
         <source>已从历史复制: {}</source>
         <translation>Aus Verlauf kopiert: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1014"/>
+        <location filename="../../common/text.py" line="1022"/>
         <source>绑定窗口</source>
         <translation>Fenster binden</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1015"/>
+        <location filename="../../common/text.py" line="1023"/>
         <source>绑定窗口: {}</source>
         <translation>Fenster binden: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1016"/>
+        <location filename="../../common/text.py" line="1024"/>
         <source>请点击要绑定的窗口...</source>
         <translation>Bitte klicken Sie auf das zu bindende Fenster...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1017"/>
+        <location filename="../../common/text.py" line="1025"/>
         <source>取消绑定</source>
         <translation>Bindung aufheben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1018"/>
+        <location filename="../../common/text.py" line="1026"/>
         <source>已绑定: {}</source>
         <translation>Gebunden: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1019"/>
+        <location filename="../../common/text.py" line="1027"/>
         <source>已取消绑定</source>
         <translation>Bindung aufgehoben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1020"/>
+        <location filename="../../common/text.py" line="1028"/>
         <source>区域跟随: ({},{}) {}x{}</source>
         <translation>Bereich folgt: ({},{}) {}x{}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1021"/>
+        <location filename="../../common/text.py" line="1029"/>
         <source>背景透明</source>
         <translation>Hintergrund transparent</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1022"/>
+        <location filename="../../common/text.py" line="1030"/>
         <source>背景透明: 开</source>
         <translation>Hintergrund transparent: Ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1023"/>
+        <location filename="../../common/text.py" line="1031"/>
         <source>背景透明: 关</source>
         <translation>Hintergrund transparent: Aus</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1024"/>
+        <location filename="../../common/text.py" line="1032"/>
         <source>锁定工具栏</source>
         <translation>Symbolleiste sperren</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1025"/>
+        <location filename="../../common/text.py" line="1033"/>
         <source>工具栏: 已锁定</source>
         <translation>Symbolleiste: Gesperrt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1026"/>
+        <location filename="../../common/text.py" line="1034"/>
         <source>工具栏: 已解锁</source>
         <translation>Symbolleiste: Entsperrt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1027"/>
+        <location filename="../../common/text.py" line="1035"/>
         <source>鼠标穿透</source>
         <translation>Mausdurchlässigkeit</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1028"/>
+        <location filename="../../common/text.py" line="1036"/>
         <source>鼠标穿透: 开</source>
         <translation>Mausdurchlässigkeit: Ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1029"/>
+        <location filename="../../common/text.py" line="1037"/>
         <source>鼠标穿透: 关</source>
         <translation>Mausdurchlässigkeit: Aus</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1030"/>
+        <location filename="../../common/text.py" line="1038"/>
         <source>取消置顶</source>
         <translation>Im Vordergrund aufheben</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1031"/>
+        <location filename="../../common/text.py" line="1039"/>
         <source>置顶: 开</source>
         <translation>Im Vordergrund: Ein</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1032"/>
+        <location filename="../../common/text.py" line="1040"/>
         <source>置顶: 关</source>
         <translation>Im Vordergrund: Aus</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1033"/>
+        <location filename="../../common/text.py" line="1041"/>
         <source>就绪</source>
         <translation>Bereit</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1034"/>
+        <location filename="../../common/text.py" line="1042"/>
         <source>一次翻译</source>
         <translation>Einmalige Übersetzung</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1035"/>
+        <location filename="../../common/text.py" line="1044"/>
         <source>暂无OCR结果可翻译</source>
         <translation>Kein OCR-Ergebnis zum Übersetzen</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1036"/>
+        <location filename="../../common/text.py" line="1045"/>
         <source>翻译中...</source>
         <translation>Übersetzung läuft...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1037"/>
+        <location filename="../../common/text.py" line="1046"/>
         <source>翻译完成: {}</source>
         <translation>Übersetzung abgeschlossen: {}</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1040"/>
+        <location filename="../../common/text.py" line="1050"/>
         <source>已添加下载任务到队列</source>
         <translation>Download-Aufgabe zur Warteschlange hinzugefügt</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1041"/>
+        <location filename="../../common/text.py" line="1051"/>
         <source>下载/更新yt-dlp中...</source>
         <translation>yt-dlp wird heruntergeladen/aktualisiert...</translation>
     </message>
     <message>
-        <location filename="../../common/text.py" line="1042"/>
+        <location filename="../../common/text.py" line="1052"/>
         <source>下载/更新yt-dlp</source>
         <translation>yt-dlp herunterladen/aktualisieren</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="467"/>
+        <source>发现新版本 {}，是否立即下载？</source>
+        <translation>Neue Version {} gefunden, jetzt herunterladen?</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="468"/>
+        <source>正在获取更新信息...</source>
+        <translation>Aktualisierungsinformationen werden abgerufen...</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="469"/>
+        <source>暂无更新日志</source>
+        <translation>Kein Änderungsprotokoll verfügbar</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="470"/>
+        <source>下载安装包</source>
+        <translation>Installationspaket herunterladen</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="471"/>
+        <source>下载中...</source>
+        <translation>Wird heruntergeladen...</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="472"/>
+        <source>下载失败: {}</source>
+        <translation>Download fehlgeschlagen: {}</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="473"/>
+        <source>已下载到: {}</source>
+        <translation>Heruntergeladen nach: {}</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="474"/>
+        <source>获取更新信息失败，请检查网络连接</source>
+        <translation>Aktualisierungsinformationen konnten nicht abgerufen werden. Bitte überprüfen Sie die Netzwerkverbindung</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="1043"/>
+        <source>OCR并翻译</source>
+        <translation>OCR und Übersetzung</translation>
+    </message>
+    <message>
+        <location filename="../../common/text.py" line="1047"/>
+        <source>该功能仅支持Windows系统</source>
+        <translation>Diese Funktion wird nur unter Windows unterstützt</translation>
     </message>
 </context>
 </TS>

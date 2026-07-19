@@ -6,7 +6,7 @@ AUTHOR = "baby2016"
 TEAM = "天机阁(Fairy-Oracle-Sanctuary)"
 VERSION = "2.5.0"
 YEAR = "2026"
-UPDATE_TIME = "2026-7-14"
+UPDATE_TIME = "2026-7-19"
 # CI 测试版本警告，设为空字符串不显示，填入文字则显示警告
 CI_BUILD_WARNING = ""
 if sys.platform == "win32":

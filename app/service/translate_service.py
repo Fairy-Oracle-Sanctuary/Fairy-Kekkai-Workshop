@@ -1,3 +1,4 @@
+import json
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -341,19 +342,21 @@ class TranslateThread(QThread):
 
             # 解析 SRT 文件
             srt_items = parse_srt(self.task.raw_content)
-            batch_size = 100
+            batch_size = 50  # 缩小批量，降低AI出错率
 
-            # 构建系统提示
+            # 构建系统提示（content占位防止用户自定义模板含 {content} 时报错）
             system_prompt = cfg.get(cfg.promptTemplate).format(
                 origin_lang=self.task.origin_lang,
                 target_lang=self.task.target_lang,
+                content="",
             )
 
             # 初始化对话历史
             messages = [{"role": "system", "content": system_prompt}]
 
             # 分批翻译
-            for i in range(0, len(srt_items), batch_size):
+            total_batches = (len(srt_items) + batch_size - 1) // batch_size
+            for batch_idx, i in enumerate(range(0, len(srt_items), batch_size)):
                 # 检查状态
                 if not self._is_running:
                     break
@@ -363,7 +366,8 @@ class TranslateThread(QThread):
                     f"{j + 1}. {item['text'].replace(chr(10), ' ')}"
                     for j, item in enumerate(batch)
                 ]
-                user_content = f"请翻译以下{len(batch)}句：\n" + "\n".join(batch_texts)
+                # JSON格式要求已在 promptTemplate 中配置
+                user_content = f"请翻译以下{len(batch)}句文本：\n" + "\n".join(batch_texts)
 
                 if cfg.get(cfg.useTranslateContext):
                     # 限制上下文：只保留最近两轮历史对话（1轮为 1对 user+assistant，共4条消息）
@@ -375,30 +379,61 @@ class TranslateThread(QThread):
                     # 只发 system prompt 和当前 user
                     messages = [messages[0], {"role": "user", "content": user_content}]
 
-                # 调用翻译
+                # 调用翻译（带重试机制，解析失败自动重试）
+                translated_texts = None
                 full_response = ""
-                for text_piece in service.translate_with_context(
-                    self.task.origin_lang,
-                    self.task.target_lang,
-                    messages,
-                    self.task.temperature,
-                ):
+                MAX_RETRIES = 2
+
+                for attempt in range(MAX_RETRIES + 1):
                     if not self._is_running:
                         break
-                    full_response += text_piece
 
-                # 添加助手回复到对话历史
-                messages.append({"role": "assistant", "content": full_response})
+                    full_response = ""
+                    for text_piece in service.translate_with_context(
+                        self.task.origin_lang,
+                        self.task.target_lang,
+                        messages,
+                        self.task.temperature,
+                    ):
+                        if not self._is_running:
+                            break
+                        full_response += text_piece
 
-                # 解析翻译结果
-                translated_texts = self._parse_translation_response(
-                    full_response, len(batch)
-                )
+                    if not self._is_running:
+                        break
 
-                # 更新 SRT 项目
-                for j, item in enumerate(batch):
-                    if j < len(translated_texts):
-                        item["text"] = translated_texts[j]
+                    translated_texts = self._parse_translation_response(
+                        full_response, len(batch)
+                    )
+
+                    # 严格校验：数量必须完全匹配
+                    if (
+                        translated_texts is not None
+                        and len(translated_texts) == len(batch)
+                    ):
+                        break
+
+                    # 解析失败，准备重试
+                    actual_count = len(translated_texts) if translated_texts else 0
+                    if attempt < MAX_RETRIES:
+                        self.logger.warning(
+                            f"批次 {batch_idx + 1}/{total_batches} 第 {attempt + 1} 次解析失败 "
+                            f"(期望 {len(batch)} 条，实际 {actual_count} 条)，重试中..."
+                        )
+                    else:
+                        self.logger.error(
+                            f"批次 {batch_idx + 1}/{total_batches} 重试 {MAX_RETRIES} 次仍失败 "
+                            f"(期望 {len(batch)} 条，实际 {actual_count} 条)，该批保留原文"
+                        )
+
+                # 添加助手回复到对话历史（维持上下文连贯，无论成功与否）
+                if full_response:
+                    messages.append({"role": "assistant", "content": full_response})
+
+                # 更新 SRT 项目（仅在解析成功时）
+                if translated_texts and len(translated_texts) == len(batch):
+                    for j, item in enumerate(batch):
+                        item["text"] = self._sanitize_text(translated_texts[j])
 
                 # 更新进度
                 progress = int((i + batch_size) / len(srt_items) * 100)
@@ -449,35 +484,122 @@ class TranslateThread(QThread):
 
     def _parse_translation_response(
         self, response: str, expected_count: int
-    ) -> list[str]:
-        """解析 AI 的翻译响应，提取翻译文本"""
-        # 按行分割
-        lines = response.strip().split("\n")
+    ):
+        """解析 AI 的翻译响应，多策略解析，返回None表示解析失败"""
+        response = remove_thinking_content(response)
 
-        # 过滤空行
-        lines = [line.strip() for line in lines if line.strip()]
+        # 策略1: JSON格式（优先，最可靠）
+        result = self._parse_json_response(response, expected_count)
+        if result is not None:
+            return result
 
-        # 尝试匹配 "1. 翻译文本" 格式
+        # 策略2: XML标签 <t>翻译</t>
+        result = self._parse_xml_response(response, expected_count)
+        if result is not None:
+            return result
+
+        # 策略3: 编号行解析（兼容旧格式，严格模式）
+        result = self._parse_numbered_response(response, expected_count)
+        if result is not None:
+            return result
+
+        # 全部失败
+        return None
+
+    def _parse_json_response(
+        self, response: str, expected_count: int
+    ):
+        """尝试从响应中提取JSON格式的翻译结果"""
+        # 尝试1: 直接解析整个响应
+        try:
+            data = json.loads(response)
+            translations = self._extract_translations_from_json(data)
+            if translations is not None and len(translations) == expected_count:
+                return [str(t) for t in translations]
+        except json.JSONDecodeError:
+            pass
+
+        # 尝试2: 提取代码块中的JSON ```json ... ```
+        code_block = re.search(r"```(?:json)?\s*(.*?)\s*```", response, re.DOTALL)
+        if code_block:
+            try:
+                data = json.loads(code_block.group(1))
+                translations = self._extract_translations_from_json(data)
+                if translations is not None and len(translations) == expected_count:
+                    return [str(t) for t in translations]
+            except json.JSONDecodeError:
+                pass
+
+        # 尝试3: 提取第一个 { 到最后一个 } 之间的内容
+        start = response.find("{")
+        end = response.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            try:
+                data = json.loads(response[start : end + 1])
+                translations = self._extract_translations_from_json(data)
+                if translations is not None and len(translations) == expected_count:
+                    return [str(t) for t in translations]
+            except json.JSONDecodeError:
+                pass
+
+        # 尝试4: 提取JSON数组 [ ... ]
+        start = response.find("[")
+        end = response.rfind("]")
+        if start != -1 and end != -1 and end > start:
+            try:
+                translations = json.loads(response[start : end + 1])
+                if isinstance(translations, list) and len(translations) == expected_count:
+                    return [str(t) for t in translations]
+            except json.JSONDecodeError:
+                pass
+
+        return None
+
+    @staticmethod
+    def _extract_translations_from_json(data):
+        """从解析后的JSON对象中提取翻译列表"""
+        if isinstance(data, dict):
+            # 常见键名：translations, result, data, items
+            for key in ("translations", "result", "data", "items"):
+                if key in data and isinstance(data[key], list):
+                    return data[key]
+            return None
+        if isinstance(data, list):
+            return data
+        return None
+
+    def _parse_xml_response(
+        self, response: str, expected_count: int
+    ):
+        """尝试从响应中提取XML标签格式的翻译结果 <t>翻译</t>"""
+        translations = re.findall(r"<t>(.*?)</t>", response, re.DOTALL)
+        if len(translations) == expected_count:
+            return [t.strip() for t in translations]
+        return None
+
+    def _parse_numbered_response(
+        self, response: str, expected_count: int
+    ):
+        """尝试解析编号行格式（严格模式：只收集有编号前缀的行）"""
         translations = []
-        for line in lines:
-            # 移除序号前缀（如 "1. ", "2. " 等）
+        for line in response.strip().split("\n"):
+            line = line.strip()
+            if not line:
+                continue
             match = re.match(r"^\d+\.\s*(.+)$", line)
             if match:
                 translations.append(match.group(1))
-            else:
-                # 如果没有序号，直接使用
-                translations.append(line)
+        if len(translations) == expected_count:
+            return translations
+        return None
 
-        # 如果数量不匹配，尝试其他解析方式
-        if len(translations) != expected_count:
-            # 尝试按行直接分割
-            translations = lines[:expected_count]
-
-        # 确保数量匹配
-        while len(translations) < expected_count:
-            translations.append("***")
-
-        return translations[:expected_count]
+    @staticmethod
+    def _sanitize_text(text: str) -> str:
+        """清洗翻译文本，防止破坏SRT结构"""
+        if not text:
+            return text
+        # 去除 \r，将双换行替换为单换行（防止SRT块断裂）
+        return text.replace("\r", "").replace("\n\n", "\n").strip()
 
     def _post_process_translation(self):
         """翻译后处理：去除思考内容"""
