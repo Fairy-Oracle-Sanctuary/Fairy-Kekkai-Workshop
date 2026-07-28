@@ -52,7 +52,7 @@ class Project:
                 if self.is_project(path):
                     self.isLink.append(True)
                     true_paths.append(path)
-                project_paths.append(Path(path))
+                    project_paths.append(Path(path))
             cfg.linkProject.set("project_link", true_paths)
         except Exception:
             logging.warning("读取外部项目链接失败", exc_info=True)
