@@ -248,7 +248,7 @@ class ProjectInterface(ScrollArea):
                     self.logger.error(f"导入新项目失败: {e}")
             else:
                 project_path = cfg.linkProject.get("project_link")
-                if folder_path in project_path or folder_path in project.project_path:
+                if str(folder_path) in project_path or folder_path in project.project_path:
                     event_bus.notification_service.show_error(
                         self.globalText.Error,
                         self.globalText.PathImported.format(folder_path),
@@ -644,6 +644,21 @@ class ProjectCard(CardWidget):
                 event_bus.notification_service.show_error(
                     self.globalText.Error, isSuccess_2[-1]
                 )
+
+            # 同步更新 project_order，用新路径替换旧路径，保持排序位置不变
+            old_path_str = str(self.path)
+            new_path_str = str(self.path.parent / dialog.nameInput.text())
+            proj_order = cfg.linkProject.get_project_order()
+            if old_path_str in proj_order and old_path_str != new_path_str:
+                proj_order[proj_order.index(old_path_str)] = new_path_str
+                cfg.linkProject.set_project_order(proj_order)
+
+            # 文件夹重命名后 refresh() 重建了 project_path，card_id 可能已失效
+            # 需按新路径重新定位，否则 change_icon 会操作到错误项目
+            for i, p in enumerate(project.project_path):
+                if str(p) == new_path_str:
+                    self.card_id = i
+                    break
 
             # 修改图标
             isSuccess_3 = project.change_icon(self.card_id, dialog.get_selected_icon())
