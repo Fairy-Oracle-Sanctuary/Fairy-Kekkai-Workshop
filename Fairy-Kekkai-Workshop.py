@@ -78,26 +78,3 @@ if __name__ == "__main__":
 
 # Fairy-Kekkai-Workshop
 
-"""
-## 更新日志
-- 修复：导入外部路径项目时，无效链接路径被加入项目列表导致启动崩溃的问题
-- 修复：导入项目时重复检测失效，同一路径可被重复导入的问题（Python 3.12+ 兼容性）
-- 修复：编辑项目名称后自定义拖拽排序位置重置到末尾的问题
-- 修复：编辑项目名称后修改图标可能操作到错误项目的问题
-
-## 下载提示
-- Windows10/11：
-  - CPU：
-    - [Fairy-Kekkai-Workshop-v2.5.1-CPU-v1.5.1-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.1/Fairy-Kekkai-Workshop-v2.5.1-CPU-v1.5.1-Windows-x86_64-Setup.exe)
-  - GPU：
-    - [Fairy-Kekkai-Workshop-v2.5.1-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.1/Fairy-Kekkai-Workshop-v2.5.1-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe) (Nvidia 10 Series graphics cards)
-    - [Fairy-Kekkai-Workshop-v2.5.1-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.1/Fairy-Kekkai-Workshop-v2.5.1-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe) (Nvidia 16 - 50 Series graphics cards)
-  - 如果你已安装过上个版本：
-    - [Fairy-Kekkai-Workshop-v2.5.1-Clear-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.1/Fairy-Kekkai-Workshop-v2.5.1-Clear-Windows-x86_64-Setup.exe)
-- mac版本无变动，直接下载上一个版本即可
-- 迅雷链接：https://pan.xunlei.com/s/VOl2n0KP6LH3zXUqcYX1iYUAA1?pwd=yzim#
-
-# Fairy Kekkai Workshop
-!OCRUPDATE!
-
-"""

@@ -31,6 +31,11 @@ jobs:
           - paddleocr_tag: PaddleOCR-GPU-v1.5.1-CUDA-12.9
             variant: GPU-v1.5.1-CUDA-12.9
             paddleocr_asset: PaddleOCR-GPU-v1.4.0-CUDA-12.9.7z
+          # Clear 增量升级包：仅供已安装旧版本的用户升级主程序，
+          # 不带 tools 与 PADDLEOCR 标识，直接打包为 iss
+          - paddleocr_tag: ""
+            variant: Clear
+            paddleocr_asset: ""
 
     steps:
       - name: Checkout
@@ -79,6 +84,8 @@ jobs:
       - name: Set PaddleOCR version marker
         # setting.py 在 nuitka 编译期读取根目录 PADDLEOCR 文件第一行并内联为常量，
         # 因此必须在 python deploy.py 之前写入对应版本的标识（纯 ASCII，避免 UTF-8 BOM）
+        # Clear 增量升级包不写标识，保持仓库文件原样
+        if: matrix.paddleocr_tag != ''
         run: |
           Set-Content -Path PADDLEOCR -Value "${{ matrix.paddleocr_tag }}" -Encoding ascii -NoNewline
           Write-Host "PADDLEOCR marker: $(Get-Content PADDLEOCR)"
@@ -86,6 +93,8 @@ jobs:
       - name: Download PaddleOCR engine
         # 引擎来自 timminator/PaddleOCR-Standalone 的 v1.4.0 Release，
         # 下载解压后重命名为 v1.5.1 目录名（与本地产物 tools/ 结构一致）
+        # Clear 增量升级包不下载
+        if: matrix.paddleocr_asset != ''
         run: |
           $asset = "${{ matrix.paddleocr_asset }}"
           $target = "tools\${{ matrix.paddleocr_tag }}"
@@ -103,6 +112,8 @@ jobs:
 
       - name: Download PaddleOCR support files
         # PP-OCRv5 推理模型，CPU/GPU 三个变体共用；同样来自 timminator v1.4.0
+        # Clear 增量升级包不下载
+        if: matrix.paddleocr_asset != ''
         run: |
           $asset = "PaddleOCR.PP-OCRv5.support.files.VideOCR.7z"
           $target = "tools\PaddleOCR.PP-OCRv5.support.files"
@@ -120,6 +131,8 @@ jobs:
 
       - name: Download videocr-cli and whisper
         # videocr-cli.exe 与 whisper 工具来自本项目历史 Release v2.0.0 的压缩包资产
+        # Clear 增量升级包不下载
+        if: matrix.paddleocr_asset != ''
         run: |
           New-Item -ItemType Directory -Force -Path downloads, tools\whisper | Out-Null
           $base = "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0"
@@ -138,6 +151,8 @@ jobs:
 
       - name: Download ffmpeg and yt-dlp
         # ffmpeg 从 gyan.dev 官方推荐源获取；yt-dlp 从其官方 Release 最新版获取
+        # Clear 增量升级包不下载
+        if: matrix.paddleocr_asset != ''
         run: |
           New-Item -ItemType Directory -Force -Path tools | Out-Null
           curl.exe -L -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
@@ -164,13 +179,16 @@ jobs:
           Write-Host "exe: $([math]::Round($exe.Length / 1MB, 1)) MB"
           $total = (Get-ChildItem dist\Fairy-Kekkai-Workshop.dist -Recurse -File | Measure-Object Length -Sum).Sum
           Write-Host "dist total: $([math]::Round($total / 1MB, 1)) MB"
-          # 与本地产物结构保持一致：把版本标识文件一并放进 dist
-          Copy-Item -Path PADDLEOCR -Destination dist\Fairy-Kekkai-Workshop.dist\PADDLEOCR -Force
-          Write-Host "dist marker: $(Get-Content dist\Fairy-Kekkai-Workshop.dist\PADDLEOCR)"
+          # 与本地产物结构保持一致：把版本标识文件一并放进 dist（Clear 增量升级包不带）
+          if ("${{ matrix.paddleocr_tag }}" -ne "") {
+            Copy-Item -Path PADDLEOCR -Destination dist\Fairy-Kekkai-Workshop.dist\PADDLEOCR -Force
+            Write-Host "dist marker: $(Get-Content dist\Fairy-Kekkai-Workshop.dist\PADDLEOCR)"
+          }
 
       - name: Copy tools into dist
         # 把下载好的 tools 一并放进 dist，由 .iss 的 recursesubdirs 递归打进安装包
-        # （Whisper.model 由用户自行下载，不包含）
+        # （Whisper.model 由用户自行下载，不包含；Clear 增量升级包不拷贝）
+        if: matrix.paddleocr_asset != ''
         run: |
           New-Item -ItemType Directory -Force -Path dist\Fairy-Kekkai-Workshop.dist\tools | Out-Null
           Copy-Item -Path tools\* -Destination dist\Fairy-Kekkai-Workshop.dist\tools -Recurse -Force

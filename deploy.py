@@ -48,7 +48,7 @@ def cleanup_dist(dist_dir: str):
 
 
 if sys.platform == "win32":
-    wv = VERSION[0:5]
+    wv = _windows_file_version(VERSION)
     print(wv)
     args = [
         sys.executable,
