@@ -1,0 +1,117 @@
+name: Deploy Windows
+
+# 仅当 push 的提交消息包含 [deploy win] 时才打包
+# 例：git commit -m "feat: 新增功能 [deploy win]"
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    name: Build Windows ${{ matrix.variant }} Installer
+    # 判断最新一条提交消息是否含 [deploy win]
+    if: contains(github.event.head_commit.message, '[deploy win]')
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # PADDLEOCR 标识文件第一行决定软件读取到的 OCR 版本（setting.py 编译期内联），
+          # variant 对应安装包文件名后缀（见 RELEASE_NOTES.md 命名约定）
+          - paddleocr_tag: PaddleOCR-CPU-v1.5.1
+            variant: CPU-v1.5.1
+          - paddleocr_tag: PaddleOCR-GPU-v1.5.1-CUDA-11.8
+            variant: GPU-v1.5.1-CUDA-11.8
+          - paddleocr_tag: PaddleOCR-GPU-v1.5.1-CUDA-12.9
+            variant: GPU-v1.5.1-CUDA-12.9
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9.13"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Download Inno Setup translations
+        # choco 装的官方 Inno Setup 只带部分翻译，缺简体中文等语言。
+        # 通过 GitHub API 拉取 issrc 仓库 Files/Languages 目录下的全部 .isl，
+        # 再把 Unofficial 子目录中不与根目录重名的 .isl 也拉下来，尽量支持更多语言。
+        # .iss 里的 EmitLanguagesSection 会自动包含它们
+        run: |
+          $langDir = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\Languages"
+          New-Item -ItemType Directory -Force -Path $langDir | Out-Null
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+          # 官方翻译（根目录）
+          $files = Invoke-RestMethod "https://api.github.com/repos/jrsoftware/issrc/contents/Files/Languages"
+          $islFiles = $files | Where-Object { $_.type -eq "file" -and $_.name -like "*.isl" }
+          foreach ($f in $islFiles) {
+            curl.exe -L -s -o (Join-Path $langDir $f.name) $f.download_url
+          }
+
+          # unofficial 翻译（Unofficial 子目录），跳过与根目录重名的文件
+          $unofficial = Invoke-RestMethod "https://api.github.com/repos/jrsoftware/issrc/contents/Files/Languages/Unofficial"
+          $existing = @($islFiles.name)
+          foreach ($f in $unofficial | Where-Object { $_.type -eq "file" -and $_.name -like "*.isl" }) {
+            if ($f.name -notin $existing) {
+              curl.exe -L -s -o (Join-Path $langDir $f.name) $f.download_url
+            }
+          }
+          Write-Host "Installed translations: $((Get-ChildItem $langDir -Filter *.isl).Count)"
+
+      - name: Set PaddleOCR version marker
+        # setting.py 在 nuitka 编译期读取根目录 PADDLEOCR 文件第一行并内联为常量，
+        # 因此必须在 python deploy.py 之前写入对应版本的标识（纯 ASCII，避免 UTF-8 BOM）
+        run: |
+          Set-Content -Path PADDLEOCR -Value "${{ matrix.paddleocr_tag }}" -Encoding ascii -NoNewline
+          Write-Host "PADDLEOCR marker: $(Get-Content PADDLEOCR)"
+
+      - name: Build
+        # deploy.py 执行 nuitka 打包，并在编译后自动调用 cleanup_dist 清理无用 Qt 插件
+        run: python deploy.py
+
+      - name: Verify bundled files
+        # 打包安装包前确认主 exe 已生成，缺失则立即失败并给出明确原因
+        run: |
+          if (-not (Test-Path dist\Fairy-Kekkai-Workshop.dist\Fairy-Kekkai-Workshop.exe)) {
+            Write-Error "dist 中缺少 Fairy-Kekkai-Workshop.exe，nuitka 打包失败"
+            exit 1
+          }
+          $exe = Get-Item dist\Fairy-Kekkai-Workshop.dist\Fairy-Kekkai-Workshop.exe
+          Write-Host "exe: $([math]::Round($exe.Length / 1MB, 1)) MB"
+          $total = (Get-ChildItem dist\Fairy-Kekkai-Workshop.dist -Recurse -File | Measure-Object Length -Sum).Sum
+          Write-Host "dist total: $([math]::Round($total / 1MB, 1)) MB"
+          # 与本地产物结构保持一致：把版本标识文件一并放进 dist
+          Copy-Item -Path PADDLEOCR -Destination dist\Fairy-Kekkai-Workshop.dist\PADDLEOCR -Force
+          Write-Host "dist marker: $(Get-Content dist\Fairy-Kekkai-Workshop.dist\PADDLEOCR)"
+
+      - name: Build installer (Inno Setup)
+        # 版本号与 OCR 变体通过 /D 传入，.iss 输出到 Output 子目录，文件名带版本号
+        run: |
+          $ver = python -c "from app.common.setting import VERSION; print(VERSION)"
+          Write-Host "Installer version: $ver, variant: ${{ matrix.variant }}"
+          $iscc = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            Write-Error "未找到 ISCC.exe: $iscc"
+            exit 1
+          }
+          & $iscc "/DMyAppVersion=$ver" "/DMyVariant=${{ matrix.variant }}" "Fairy-Kekkai-Workshop.iss"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fairy-Kekkai-Workshop-${{ matrix.variant }}-Windows-x86_64
+          path: Output/Fairy-Kekkai-Workshop-v*-Windows-x86_64-Setup.exe
+          retention-days: 30

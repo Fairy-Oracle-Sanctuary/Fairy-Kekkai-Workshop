@@ -1,3 +1,4 @@
+import os
 import re
 import subprocess
 import sys
@@ -11,6 +12,39 @@ def _windows_file_version(ver: str) -> str:
     while len(nums) < 4:
         nums.append("0")
     return ".".join(nums[:4])
+
+
+def cleanup_dist(dist_dir: str):
+    """Remove unneeded Qt plugins/dlls from dist (Nuitka plugin set is not precise)"""
+    removable = [
+        "qt6pdf.dll",
+        "qt6pdfwidgets.dll",
+        "pythoncom39.dll",
+        r"PySide6\qt-plugins\platforms\qdirect2d.dll",
+        r"PySide6\qt-plugins\imageformats\qwebp.dll",
+        r"PySide6\qt-plugins\imageformats\qtiff.dll",
+        r"PySide6\qt-plugins\imageformats\qicns.dll",
+        r"PySide6\qt-plugins\imageformats\qtga.dll",
+        r"PySide6\qt-plugins\imageformats\qwbmp.dll",
+        r"PySide6\qt-plugins\imageformats\qpdf.dll",
+        r"PySide6\qt-plugins\imageformats\qgif.dll",
+        r"PySide6\qt-plugins\sqldrivers\qsqlibase.dll",
+        r"PySide6\qt-plugins\sqldrivers\qsqloci.dll",
+        r"PySide6\qt-plugins\sqldrivers\qsqlodbc.dll",
+        r"PySide6\qt-plugins\sqldrivers\qsqlpsql.dll",
+        r"PySide6\qt-plugins\sqldrivers\qsqlmimer.dll",
+        r"PySide6\qt-plugins\tls\qcertonlybackend.dll",
+    ]
+    removed = 0
+    for rel in removable:
+        fp = os.path.join(dist_dir, rel)
+        if os.path.isfile(fp):
+            size = os.path.getsize(fp)
+            os.remove(fp)
+            removed += size
+            print(f"  Removed {rel} ({size / 1024:.0f} KB)")
+    if removed:
+        print(f"  Total cleaned {removed / 1024 / 1024:.1f} MB")
 
 
 if sys.platform == "win32":
@@ -28,6 +62,7 @@ if sys.platform == "win32":
         "--include-data-dir=app/resource=app/resource",
         "--assume-yes-for-downloads",
         "--mingw64",
+        "--lto=yes",
         "--show-memory",
         "--show-progress",
         "--windows-icon-from-ico=app/resource/images/logo.ico",
@@ -78,4 +113,11 @@ else:
 
 
 subprocess.run(args, check=True)
+
+# Windows 打包后清理 Nuitka 误收的多余 Qt 插件与 dll
+if sys.platform == "win32":
+    dist_dir = os.path.join("dist", "Fairy-Kekkai-Workshop.dist")
+    if os.path.isdir(dist_dir):
+        cleanup_dist(dist_dir)
+
 print("打包完成！")
