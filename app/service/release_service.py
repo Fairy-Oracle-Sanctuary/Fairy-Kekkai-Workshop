@@ -1,11 +1,9 @@
-# coding:utf-8
-
 import os
 
 from PySide6.QtCore import QObject, QProcess, QProcessEnvironment, Signal
 
-from ..common.config import cfg  # noqa
-from ..common.event_bus import event_bus  # noqa
+from ..common.config import cfg
+from ..common.event_bus import event_bus
 from ..common.logger import Logger
 from ..common.task_status import TaskStatus
 from ..common.text import Text
@@ -29,7 +27,7 @@ class ReleaseTask:
         self.source = args.get("source")
         self.recreate = args.get("recreate")
         self.delay_time = args.get("delay_time")
-        self.status = TaskStatus.WAITING
+        self.status = TaskStatus.Waiting
         self.progress = 0
         self.error_message = ""
         self.output_history = ""  # 存储完整输出历史
@@ -82,7 +80,7 @@ class ReleaseProcess(QObject):
 
     def start(self):
         """开始上传"""
-        self.task.status = TaskStatus.PROCESSING
+        self.task.status = TaskStatus.Processing
         try:
             # 获取upload-video.exe路径
             api_path = cfg.get(cfg.apiPath)
@@ -125,7 +123,7 @@ class ReleaseProcess(QObject):
                 if self.output_lines:
                     error_msg += "\n输出日志:\n" + "\n".join(self.output_lines[-10:])
 
-                self.task.status = TaskStatus.FAILED
+                self.task.status = TaskStatus.Failed
                 self.task.error_message = error_msg
 
                 self.finished_signal.emit(False, error_msg)
@@ -179,12 +177,12 @@ class ReleaseProcess(QObject):
     def handle_finished(self, exit_code, exit_status):
         """处理上传完成"""
         if self.is_cancelled:
-            self.task.status = TaskStatus.CANCELLED
+            self.task.status = TaskStatus.Cancelled
             self.finished_signal.emit(False, self.globalText.TextAuto033)
             self.cancelled_signal.emit()
             self.logger.info(f"上传已取消 -{self.task.input_file}-")
         elif exit_code == 0:
-            self.task.status = TaskStatus.DONE
+            self.task.status = TaskStatus.Succeeded
             self.task.progress = 100
             self.logger.info(f"上传完成 -{self.task.input_file}-")
 
@@ -200,7 +198,7 @@ class ReleaseProcess(QObject):
                 last_lines = "\n".join(self.output_lines[-5:])
                 error_message += f"\n最后输出:\n{last_lines}"
 
-            self.task.status = TaskStatus.FAILED
+            self.task.status = TaskStatus.Failed
             self.task.error_message = error_message
             self.finished_signal.emit(False, error_message)
             event_bus.release_finished_signal.emit(False, error_message)
@@ -267,7 +265,9 @@ class ReleaseProcess(QObject):
                 self.progress_signal.emit(0, self.globalText.TextAuto055, error_msg)
 
             elif event_type == "SUBMIT_SUCCESS":
-                self.progress_signal.emit(100, self.globalText.TextAuto034, self.globalText.TextAuto056)
+                self.progress_signal.emit(
+                    100, self.globalText.TextAuto034, self.globalText.TextAuto056
+                )
                 self.task.progress = 100
 
         except (json.JSONDecodeError, AttributeError):
@@ -279,7 +279,9 @@ class ReleaseProcess(QObject):
                 progress_match = re.search(r"(\d+)%", line)
                 if progress_match:
                     progress = int(progress_match.group(1))
-                    self.progress_signal.emit(progress, self.globalText.TextAuto046, line)
+                    self.progress_signal.emit(
+                        progress, self.globalText.TextAuto046, line
+                    )
                     self.task.progress = progress
             elif "error" in line.lower() or "fail" in line.lower():
                 self.task.error_message = line
@@ -316,7 +318,7 @@ class ReleaseProcess(QObject):
     def cancel(self):
         """取消上传"""
         self.is_cancelled = True
-        self.task.status = TaskStatus.CANCELLED
+        self.task.status = TaskStatus.Cancelled
         self.finished_signal.emit(False, self.globalText.TextAuto033)
         self.cancelled_signal.emit()
         self.logger.info(f"上传已取消 -{self.task.video_path}-")

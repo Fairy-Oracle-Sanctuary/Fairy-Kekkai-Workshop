@@ -1,4 +1,3 @@
-# coding: utf-8
 """
 启动错误处理器
 用于捕获和记录应用程序启动过程中的错误
@@ -52,6 +51,7 @@ class StartupErrorHandler:
         self.startup_logger.info(f"Fairy-Kekkai-Workshop 启动 - 版本: {VERSION}")
         try:
             from .setting import CI_BUILD_WARNING
+
             self.startup_logger.warning(f"!!! {CI_BUILD_WARNING} !!!")
         except ImportError:
             pass
@@ -142,21 +142,16 @@ def handle_startup_error():
 
                 # 尝试显示错误对话框
                 try:
-                    from PySide6.QtCore import QCoreApplication
                     from PySide6.QtWidgets import QApplication, QMessageBox
 
                     if not QApplication.instance():
                         app = QApplication([])  # noqa
                     msg_box = QMessageBox()
                     msg_box.setIcon(QMessageBox.Critical)
-                    msg_box.setWindowTitle(
-                        Text().TextAuto003
-                    )
-                    msg_box.setText(
-                        Text().TextAuto004
-                    )
+                    msg_box.setWindowTitle(Text().TextAuto003)
+                    msg_box.setText(Text().TextAuto004)
                     msg_box.setInformativeText(
-                        f"错误信息: {str(e)}\n\n详细日志已保存到:\n{startup_handler.startup_log_file}"
+                        f"错误信息: {e!s}\n\n详细日志已保存到:\n{startup_handler.startup_log_file}"
                     )
                     msg_box.exec()
                 except ImportError:
@@ -186,21 +181,16 @@ def setup_global_exception_handler():
 
         # 尝试显示错误对话框
         try:
-            from PySide6.QtCore import QCoreApplication
             from PySide6.QtWidgets import QApplication, QMessageBox
 
             app = QApplication.instance()
             if app:
                 msg_box = QMessageBox()
                 msg_box.setIcon(QMessageBox.Critical)
-                msg_box.setWindowTitle(
-                    Text().TextAuto001
-                )
-                msg_box.setText(
-                    Text().TextAuto002
-                )
+                msg_box.setWindowTitle(Text().TextAuto001)
+                msg_box.setText(Text().TextAuto002)
                 msg_box.setInformativeText(
-                    f"错误信息: {str(exc_value)}\n\n详细日志已保存到:\n{startup_handler.startup_log_file}"
+                    f"错误信息: {exc_value!s}\n\n详细日志已保存到:\n{startup_handler.startup_log_file}"
                 )
                 msg_box.exec()
         except Exception:

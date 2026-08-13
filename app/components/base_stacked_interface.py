@@ -1,6 +1,8 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
-from qfluentwidgets import Pivot
+
+from libs.qfluentwidgets_pro import Pivot
+
 from ..common.text import Text
 
 
@@ -55,7 +57,9 @@ class BaseStackedInterfaces(QWidget):
         if self.setting_interface_class:
             self.settingInterface = self.setting_interface_class()
             self.addSubInterface(
-                self.settingInterface, "settingInterface", self.globalText.AdvancedSettings
+                self.settingInterface,
+                "settingInterface",
+                self.globalText.AdvancedSettings,
             )
 
     def _setup_layout(self):

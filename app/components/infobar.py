@@ -1,7 +1,7 @@
 # services/notification_service.py
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QApplication, QWidget
-from qfluentwidgets import InfoBar, InfoBarPosition
+from libs.qfluentwidgets_pro import InfoBar, InfoBarPosition
 
 from ..common.event_bus import event_bus
 

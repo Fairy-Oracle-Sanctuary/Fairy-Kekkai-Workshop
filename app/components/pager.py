@@ -3,7 +3,7 @@
 from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QColor, QIcon, QIntValidator, QPainter
 from PySide6.QtWidgets import QHBoxLayout, QWidget
-from qfluentwidgets import (
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     FluentIcon,
     LineEdit,

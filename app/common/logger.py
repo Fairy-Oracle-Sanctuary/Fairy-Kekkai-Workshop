@@ -1,4 +1,3 @@
-# coding:utf-8
 import logging
 import re
 import time
@@ -57,7 +56,9 @@ class Logger:
         # Set UTF-8 encoding for console to support Chinese characters
         try:
             if hasattr(self.__consoleHandler.stream, "reconfigure"):
-                self.__consoleHandler.stream.reconfigure(encoding="utf-8", errors="replace")
+                self.__consoleHandler.stream.reconfigure(
+                    encoding="utf-8", errors="replace"
+                )
         except Exception:
             logging.warning("无法将控制台输出编码设置为 UTF-8")
         self.__fileHandler = logging.FileHandler(self.logFile, encoding="utf-8")
@@ -110,3 +111,34 @@ class Logger:
             self.log_name,
             f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} - {level.upper()} - {msg}\n",
         )
+
+    def close(self):
+        """关闭文件句柄并移除 handler（任务日志用，避免句柄占用导致无法删除）"""
+        file_handler = getattr(self, "_Logger__fileHandler", None)
+        if file_handler is not None:
+            try:
+                file_handler.close()
+            except Exception:
+                pass
+            self.__logger.removeHandler(file_handler)
+            self._Logger__fileHandler = None
+
+    def closeLogger(self):
+        """close 的别名，便于统一调用"""
+        self.close()
+
+
+def cleanOldLogs(retention_days: int = 30):
+    """删除超过保留天数的日志文件（启动时调用）"""
+    if not LOG_FOLDER.exists():
+        return 0
+    cutoff = time.time() - retention_days * 86400
+    removed = 0
+    for f in LOG_FOLDER.rglob("*.log"):
+        try:
+            if f.stat().st_mtime < cutoff:
+                f.unlink()
+                removed += 1
+        except OSError:
+            pass
+    return removed

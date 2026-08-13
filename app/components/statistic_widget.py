@@ -2,7 +2,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QVBoxLayout, QWidget
-from qfluentwidgets import BodyLabel, CaptionLabel, setFont
+from libs.qfluentwidgets_pro import BodyLabel, CaptionLabel, setFont
 
 
 class StatisticsWidget(QWidget):

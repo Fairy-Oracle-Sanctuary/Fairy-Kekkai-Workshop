@@ -1104,6 +1104,45 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 
 ---
 
+## 更新日志
+
+> **格式约定**：CI（`.github/workflows/release.yml`）会把仓库根目录的
+> `RELEASE_NOTES.md` 原样写入 GitHub Release body，`VersionService.getUpdateInfo()`
+> （`app/service/version_service.py`）再从 body 中按以下规则解析：
+>
+> - `## 更新日志`：展示在更新对话框中。**其后必须紧跟另一个 `## ` 二级标题**，
+>   解析正则为 `## 更新日志\n(.*?)(?=\n## )`，若作为末节会导致尾部 lookahead
+>   失败、内容无法被提取。
+> - `## 下载提示`：提取其中的 `[名称](URL)` Markdown 链接作为安装包下载源，
+>   正则 `## 下载提示\n(.*?)(?=\n# |\Z)` 含 `\Z` 兜底，可作为末节。
+> - 末尾可独占一行追加 `!OCRUPDATE!` 标记，触发按本地 `PADDLEOCR_VERSION`
+>   匹配对应 CPU/GPU 安装包的逻辑；不需要时省略。
+>
+> 发布新版本前，请同步更新本节与 `RELEASE_NOTES.md`，确保二级标题与上述约定一致。
+
+### v2.5.2（2026-08-13）
+
+#### 重构 / Refactored
+- Whisper 语音识别服务迁移至 `QRunnable` + `TaskInterface` 架构，统一任务调度与生命周期管理
+- 翻译服务迁移至 `TaskInterface` 模式，复用基类批量操作与事件总线收口
+- OCR 任务界面统一到 `TaskInterface` 基类，新增 `getTaskGeneratedFiles` 钩子供子类声明任务产物文件
+- `BaseTaskInterface` 收口任务调度、事件总线、批量操作与卡片清理逻辑
+- 国际化文案统一收敛到 `Text` 类（`app/common/text.py`），移除散落的 `self.tr()` 调用
+
+#### 新增 / Added
+- 空状态卡片组件 `EmptyStatusWidget`：任务列表为空时展示引导界面与 Logo
+- 跨平台文件操作工具 `app/common/utils.py`：封装 `showInFolder` / `openUrl`
+
+#### 修复 / Fixed
+- 修复基类 `_removeCard` 清理不一致导致布局与卡片映射泄漏的问题
+- 修复任务完成后「在文件夹中显示」功能（对齐 Easy-FFmpeg 实现，跨平台可用）
+
+#### 改进 / Improved
+- 完善各服务日志输出
+- 任务卡片按钮提示与确认对话框文案全部纳入国际化管理
+
+---
+
 ## 技术栈
 
 - **UI 框架**：PySide6 + QFluentWidgets (Modern UI)
@@ -1118,5 +1157,5 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 
 ---
 
-**最后更新**：2026 年 7 月 14 日  
+**最后更新**：2026 年 8 月 13 日  
 **维护者**：`Baby2016` `镀铬酸钾`

@@ -97,9 +97,13 @@ class DownloadListThread(QThread):
 
             video_url = item.get("webpage_url") or item.get("url")
             video_id = item.get("id")
-            if video_url and not str(video_url).startswith("http") and video_id:
-                video_url = f"https://www.youtube.com/watch?v={video_id}"
-            elif not video_url and video_id:
+            if (
+                video_url
+                and not str(video_url).startswith("http")
+                and video_id
+                or not video_url
+                and video_id
+            ):
                 video_url = f"https://www.youtube.com/watch?v={video_id}"
 
             if not video_url:

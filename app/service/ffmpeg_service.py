@@ -1,506 +1,313 @@
-# coding:utf-8
 import os
 import re
-import sys
-from datetime import datetime
+import time
 
-from PySide6.QtCore import QObject, QProcess, QTimer, Signal
+from PySide6.QtCore import QDateTime, QEventLoop, QProcess, QRunnable
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
 from ..common.task_status import TaskStatus
-from ..common.text import Text
+
+# 解析 ffmpeg 输出（对齐 Easy-FFmpeg）
+DURATION_RE = re.compile(r"Duration: (\d{2}):(\d{2}):(\d{2}\.\d+)")
+TIME_RE = re.compile(r"time=(\d{2}):(\d{2}):(\d{2}\.\d+)")
+SIZE_RE = re.compile(r"size=\s*(\S+)")
+BITRATE_RE = re.compile(r"bitrate=\s*(\S+)")
+SPEED_RE = re.compile(r"speed=\s*([\d.]+)")
 
 
 class FFmpegTask:
-    """FFmpeg压制任务类"""
+    """FFmpeg 压制任务纯数据类（字段对齐 Easy-FFmpeg）"""
 
     _id_counter = 0
 
-    def __init__(self, args):
-        self.args = args
-        self.input_file = args["video_path"]
-        self.output_file = args["output_path"]
-        self.status = TaskStatus.WAITING
-        self.progress = 0
-        self.error_message = ""
-        self.duration = 0  # 视频总时长（秒）
-        self.current_time = 0  # 当前处理时间（秒）
-        self.output_history = ""  # 存储完整输出历史
-
+    def __init__(self, video_path: str, output_path: str):
         FFmpegTask._id_counter += 1
-        self.id = FFmpegTask._id_counter
+        self.task_id = FFmpegTask._id_counter
+        self.videoPath = video_path
+        self.output_path = output_path
+        self.saveFolder = os.path.dirname(output_path)
+        self.outputName = os.path.basename(output_path)
+        self.fileName = os.path.basename(video_path)
+        self.logPath = None
+        self.createTime = QDateTime.currentDateTime()
 
 
-class FFmpegProcess(QObject):
-    """FFmpeg压制进程"""
-
-    progress_signal = Signal(int, str, str)  # 进度百分比, 速度, 状态信息
-    finished_signal = Signal(bool, str)  # 成功/失败, 消息
-    cancelled_signal = Signal()  # 取消完成信号
-
-    def __init__(self, task):
-        super().__init__()
-        self.globalText = Text()
-        self.logger = Logger("FFmpegProcess", "ffmpeg")
-        self.task = task
-        self.is_cancelled = False
-        self.process = None
-        self.output_lines = []  # 存储输出用于错误诊断
-        self._cancellation_timer = None
-
-    def build_ffmpeg_command(self):
-        """根据配置构建 FFmpeg 命令"""
-        cmd = [cfg.get(cfg.ffmpegPath)]
-
-        # 硬件加速
-        if cfg.ffmpegUseHardwareAcceleration.value:
-            accelerator = cfg.ffmpegHardwareAccelerator.value
-            if accelerator != "auto":
-                cmd.extend(["-hwaccel", accelerator])
-
-        # 输入视频
-        cmd.extend(["-i", self.task.input_file])
-
-        # 视频编码参数
-        cmd.extend(
-            [
-                "-c:v",
-                cfg.ffmpegVideoCodec.value,
-                "-crf",
-                str(cfg.ffmpegCrf.value),
-                "-preset",
-                cfg.ffmpegPreset.value,
-            ]
+def probe_has_audio(video_path: str) -> bool:
+    """检测输入文件是否有音频流"""
+    try:
+        process = QProcess()
+        process.start(cfg.get(cfg.ffmpegPath), ["-i", video_path])
+        process.waitForFinished(5000)
+        stderr_output = (
+            process.readAllStandardError().data().decode("utf-8", errors="ignore")
         )
+        return "Audio:" in stderr_output
+    except Exception:
+        return False
 
-        # x264高级参数（如果启用）
-        if cfg.ffmpegUseAdvanced.value:
-            x264_params = [
-                f"ref={cfg.ffmpegRefFrames.value}",
-                f"bframes={cfg.ffmpegBFrames.value}",
-                f"keyint={cfg.ffmpegKeyint.value}",
-                f"minkeyint={cfg.ffmpegMinkeyint.value}",
-                f"scenecut={cfg.ffmpegScenecut.value}",
-                f"qcomp={cfg.ffmpegQcomp.value}",
-                f"psy-rd={cfg.ffmpegPsyRd.value}",
-                f"aq-mode={cfg.ffmpegAqMode.value}",
-                f"aq-strength={cfg.ffmpegAqStrength.value}",
-            ]
-            cmd.extend(["-x264-params", ":".join(x264_params)])
 
-        # 音频处理
-        audio_mode = cfg.ffmpegAudioMode.value
-        if audio_mode == "none":
-            cmd.extend(["-an"])  # 无音频
-        elif audio_mode == "copy":
-            cmd.extend(["-c:a", "copy"])  # 直接复制
-        elif audio_mode == "encode" or audio_mode == "auto":
-            # 自动检测：如果输入文件没有音频流，则跳过音频编码
-            if self._has_audio_stream():
-                cmd.extend(
-                    [
-                        "-c:a",
-                        cfg.ffmpegAudioCodec.value,
-                        "-b:a",
-                        cfg.ffmpegAudioBitrate.value,
-                    ]
-                )
-            else:
-                cmd.extend(["-an"])  # 无音频流，不编码音频
+def adjust_output_format(output_file: str) -> str:
+    """根据配置修正输出文件扩展名（纯函数，无 I/O）"""
+    output_format = cfg.ffmpegOutputFormat.value
+    if output_format:
+        base_name = os.path.splitext(output_file)[0]
+        return f"{base_name}.{output_format}"
+    return output_file
 
-        # 视频缩放
-        scale_option = cfg.ffmpegScale.value
-        if scale_option != "none":
-            if scale_option == "custom":
-                if cfg.ffmpegCustomScale.value:
-                    cmd.extend(["-vf", f"scale={cfg.ffmpegCustomScale.value}"])
-            else:
-                resolution_map = {
-                    "720p": "1280:720",
-                    "1080p": "1920:1080",
-                    "1440p": "2560:1440",
-                    "2160p": "3840:2160",
-                }
-                if scale_option in resolution_map:
-                    cmd.extend(["-vf", f"scale={resolution_map[scale_option]}"])
 
-        # 帧率设置
-        fps_option = cfg.ffmpegFps.value
-        if fps_option != "source":
-            cmd.extend(["-r", fps_option])
+def build_ffmpeg_command(video_path: str, output_file: str, has_audio: bool):
+    """根据配置构建 FFmpeg 命令（纯函数，不做任何探测）
 
-        # 视频码率限制
-        if cfg.ffmpegVideoBitrate.value:
-            cmd.extend(["-b:v", cfg.ffmpegVideoBitrate.value])
+    has_audio 必须由调用方显式传入（在 Worker 线程内探测），
+    避免在主线程同步启动 ffmpeg 导致界面卡顿。
 
-        # 输出格式
-        output_format = cfg.ffmpegOutputFormat.value
-        if output_format:
-            # 确保输出文件扩展名匹配格式
-            base_name = os.path.splitext(self.task.output_file)[0]
-            self.task.output_file = f"{base_name}.{output_format}"
+    Returns:
+        (cmd, output_file)：cmd 为 ffmpeg 参数列表（不含可执行文件路径），
+        output_file 可能因输出格式设置被修正扩展名。
+    """
+    cmd = []
 
-        # 覆盖输出文件
-        if cfg.ffmpegOverwriteOutput.value:
-            cmd.append("-y")
+    # 硬件加速
+    if cfg.ffmpegUseHardwareAcceleration.value:
+        accelerator = cfg.ffmpegHardwareAccelerator.value
+        if accelerator != "auto":
+            cmd.extend(["-hwaccel", accelerator])
+
+    # 输入视频
+    cmd.extend(["-i", video_path])
+
+    # 视频编码参数
+    cmd.extend(
+        [
+            "-c:v",
+            cfg.ffmpegVideoCodec.value,
+            "-crf",
+            str(cfg.ffmpegCrf.value),
+            "-preset",
+            cfg.ffmpegPreset.value,
+        ]
+    )
+
+    # x264高级参数（如果启用）
+    if cfg.ffmpegUseAdvanced.value:
+        x264_params = [
+            f"ref={cfg.ffmpegRefFrames.value}",
+            f"bframes={cfg.ffmpegBFrames.value}",
+            f"keyint={cfg.ffmpegKeyint.value}",
+            f"minkeyint={cfg.ffmpegMinkeyint.value}",
+            f"scenecut={cfg.ffmpegScenecut.value}",
+            f"qcomp={cfg.ffmpegQcomp.value}",
+            f"psy-rd={cfg.ffmpegPsyRd.value}",
+            f"aq-mode={cfg.ffmpegAqMode.value}",
+            f"aq-strength={cfg.ffmpegAqStrength.value}",
+        ]
+        cmd.extend(["-x264-params", ":".join(x264_params)])
+
+    # 音频处理
+    audio_mode = cfg.ffmpegAudioMode.value
+    if audio_mode == "none":
+        cmd.extend(["-an"])  # 无音频
+    elif audio_mode == "copy":
+        cmd.extend(["-c:a", "copy"])  # 直接复制
+    elif audio_mode in ("encode", "auto"):
+        # 依据调用方传入的音频流探测结果决定是否编码音频（探测在 Worker 线程内完成）
+        if has_audio:
+            cmd.extend(
+                [
+                    "-c:a",
+                    cfg.ffmpegAudioCodec.value,
+                    "-b:a",
+                    cfg.ffmpegAudioBitrate.value,
+                ]
+            )
         else:
-            cmd.append("-n")
+            cmd.extend(["-an"])
 
-        # 添加进度报告
-        cmd.extend(["-progress", "pipe:1", "-stats_period", "0.5"])
+    # 视频缩放
+    scale_option = cfg.ffmpegScale.value
+    if scale_option != "none":
+        if scale_option == "custom":
+            if cfg.ffmpegCustomScale.value:
+                cmd.extend(["-vf", f"scale={cfg.ffmpegCustomScale.value}"])
+        else:
+            resolution_map = {
+                "720p": "1280:720",
+                "1080p": "1920:1080",
+                "1440p": "2560:1440",
+                "2160p": "3840:2160",
+            }
+            if scale_option in resolution_map:
+                cmd.extend(["-vf", f"scale={resolution_map[scale_option]}"])
 
-        # 输出文件 - 去掉引号
-        cmd.append(self.task.output_file)
+    # 帧率设置
+    fps_option = cfg.ffmpegFps.value
+    if fps_option != "source":
+        cmd.extend(["-r", fps_option])
 
-        return cmd
+    # 视频码率限制
+    if cfg.ffmpegVideoBitrate.value:
+        cmd.extend(["-b:v", cfg.ffmpegVideoBitrate.value])
 
-    def _has_audio_stream(self):
-        """检测输入文件是否有音频流"""
-        try:
-            ffmpeg_cmd = [cfg.get(cfg.ffmpegPath), "-i", self.task.input_file]
+    # 输出格式（修正输出文件扩展名）
+    output_file = adjust_output_format(output_file)
 
-            process = QProcess()
-            process.start(ffmpeg_cmd[0], ffmpeg_cmd[1:])
-            process.waitForFinished(5000)  # 5秒超时
+    # 覆盖输出文件
+    if cfg.ffmpegOverwriteOutput.value:
+        cmd.append("-y")
+    else:
+        cmd.append("-n")
 
-            stderr_output = (
-                process.readAllStandardError().data().decode("utf-8", errors="ignore")
-            )
+    # 输出文件
+    cmd.append(output_file)
 
-            # 从FFmpeg输出中解析时长信息
-            # 查找格式: Audio:
-            if "Audio:" in stderr_output:
-                return True
-            else:
-                return False
+    return cmd, output_file
 
-        except Exception as e:
-            try:
-                print(f"使用FFmpeg获取音频流失败: {str(e)}")
-            except UnicodeEncodeError:
-                pass
-            return False
 
-    def _get_video_duration(self):
-        """获取视频总时长"""
-        try:
-            ffmpeg_cmd = [cfg.get(cfg.ffmpegPath), "-i", self.task.input_file]
+class FFmpegWorker(QRunnable):
+    """FFmpeg 压制执行引擎（对齐 Easy-FFmpeg：QEventLoop 同步化 + event_bus 上报）"""
 
-            process = QProcess()
-            process.start(ffmpeg_cmd[0], ffmpeg_cmd[1:])
-            process.waitForFinished(5000)  # 5秒超时
+    def __init__(self, task: FFmpegTask):
+        super().__init__()
+        self.task = task
+        self.duration = 0.0
+        self._last_emit = 0.0
+        self.taskLogger = None
+        self.process = None
+        self._cancelled = False
+        # 编码开始前累积 stderr，供时长解析反复求和所有 Duration
+        self._stderr_buffer = ""
+        self._duration_frozen = False
 
-            stderr_output = (
-                process.readAllStandardError().data().decode("utf-8", errors="ignore")
-            )
-
-            # 从FFmpeg输出中解析时长信息
-            # 查找格式: Duration: 00:00:05.03
-            duration_match = re.search(
-                r"Duration:\s*(\d+):(\d+):(\d+\.\d+)", stderr_output
-            )
-            if duration_match:
-                hours = int(duration_match.group(1))
-                minutes = int(duration_match.group(2))
-                seconds = float(duration_match.group(3))
-                total_seconds = hours * 3600 + minutes * 60 + seconds
-                self.task.duration = total_seconds
-                try:
-                    print(f"获取视频时长成功: {self.task.duration}秒")
-                except UnicodeEncodeError:
-                    pass
-                return [True, None]
-            else:
-                return [False, "在FFmpeg输出中未找到时长信息"]
-
-        except Exception as e:
-            try:
-                print(f"使用FFmpeg获取时长失败: {str(e)}")
-            except UnicodeEncodeError:
-                pass
-            return [False, str(e)]
-
-    def start(self):
-        self.task.status = TaskStatus.PROCESSING
-        self.task.start_time = datetime.now()
-
-        try:
-            # 获取 ffmpeg 路径
-            ffmpeg_path = cfg.get(cfg.ffmpegPath)
-            if not os.path.exists(ffmpeg_path):
-                # Linux: 尝试通过 PATH 查找
-                if sys.platform == "linux":
-                    import shutil
-                    which_path = shutil.which("ffmpeg")
-                    if which_path:
-                        ffmpeg_path = which_path
-                        cfg.set(cfg.ffmpegPath, ffmpeg_path)
-                    else:
-                        self.finished_signal.emit(False, f"ffmpeg 不存在: {ffmpeg_path}\n请执行: sudo apt install ffmpeg")
-                        return
-                else:
-                    self.finished_signal.emit(False, f"ffmpeg 不存在: {ffmpeg_path}")
-                    return
-
-            # 确保输出目录存在
-            output_dir = os.path.dirname(self.task.output_file)
-            if output_dir:
-                os.makedirs(output_dir, exist_ok=True)
-
-            # 先获取视频总时长
-            duration = self._get_video_duration()
-            if not duration[0]:
-                self.finished_signal.emit(False, duration[1])
-                return
-
-            # 构建命令
-            cmd = self.build_ffmpeg_command()
-            try:
-                print(f"执行FFmpeg命令: {' '.join(cmd)}")
-            except UnicodeEncodeError:
-                pass
-
-            # 创建QProcess
-            self.process = QProcess()
-
-            # 连接信号
-            self.process.readyReadStandardOutput.connect(self.handle_stdout)
-            self.process.readyReadStandardError.connect(self.handle_stderr)
-            self.process.finished.connect(self.handle_finished)
-            self.process.errorOccurred.connect(self.handle_error)
-
-            # 设置程序和工作目录
-            self.process.setProgram(ffmpeg_path)
-            self.process.setArguments(cmd[1:])  # 去掉程序路径本身
-
-            # 启动进程
-            self.process.start()
-
-        except Exception as e:
-            if not self.is_cancelled:
-                error_msg = f"视频压制失败: {str(e)}"
-                if self.output_lines:
-                    error_msg += "\n输出日志:\n" + "\n".join(self.output_lines[-10:])
-
-                self.task.status = TaskStatus.FAILED
-                self.task.error_message = error_msg
-                self.task.end_time = datetime.now()
-                self.finished_signal.emit(False, error_msg)
-                event_bus.ffmpeg_finished_signal.emit(False, error_msg)
-
-    def handle_stdout(self):
-        """处理标准输出（进度信息）"""
-        if not self.process:
-            return
-
-        data = (
-            self.process.readAllStandardOutput().data().decode("utf-8", errors="ignore")
+    def run(self):
+        currentTime = self.task.createTime.toString("yyyy-MM-dd_hh-mm-ss")
+        self.taskLogger = Logger(
+            "Tasks/" + currentTime + f"_taskID-{self.task.task_id}", "ffmpeg"
         )
-        # 存储到任务输出历史
-        self.task.output_history += data
-        # 这里把data合并为一行发送
-        event_bus.ffmpeg_update_signal.emit(str(self.task.id), data.replace("\n", "-"))
-        lines = data.split("\n")
+        self.task.logPath = str(self.taskLogger.logFile.absolute())
 
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
+        # 在 Worker 线程内探测音频流并构建命令（不阻塞 UI 主线程）
+        has_audio = probe_has_audio(self.task.videoPath)
+        cmd, _ = build_ffmpeg_command(
+            self.task.videoPath, self.task.output_path, has_audio
+        )
+        self.taskLogger.info(f"args: {cfg.get(cfg.ffmpegPath)} {' '.join(cmd)}")
 
-            self.output_lines.append(line)
+        event_bus.updateTaskStatusSig.emit(
+            self.task.task_id,
+            0,
+            TaskStatus.Processing,
+            "0KiB",
+            0.0,
+            "0kbits/s",
+            0.0,
+        )
 
-            if self.is_cancelled:
-                return
+        if not self._run_stage(cmd):
+            self._finish(False)
+            return
+        success = self.process.exitCode() == 0 and not self._cancelled
+        self._finish(success)
 
-            # 解析进度信息
-            progress_info = self.parse_progress_line(line)
-            if progress_info:
-                key, value = progress_info
-                if key == "out_time_ms" and value != "N/A":
-                    # 将微秒转换为秒
-                    current_time = int(value) / 1000000
-                    self.task.current_time = current_time
+    def _run_stage(self, args) -> bool:
+        """执行单阶段 ffmpeg，返回是否成功启动
 
-                    # 计算进度百分比
-                    if self.task.duration > 0:
-                        progress = min(
-                            100, int((current_time / self.task.duration) * 100)
-                        )
-                        self.task.progress = progress
+        QEventLoop 阻塞同步化，规避 QRunnable 线程内 QProcess 信号投递丢失。
+        self.process 始终指向当前进程，便于取消时 kill。
+        """
+        self.duration = 0.0
+        self._last_emit = 0.0
+        self._stderr_buffer = ""
+        self._duration_frozen = False
+        self.process = QProcess()
+        self.process.readyReadStandardError.connect(self._handle_stderr)
+        loop = QEventLoop()
+        self.process.finished.connect(loop.quit)
+        self.process.start(cfg.get(cfg.ffmpegPath), args)
+        if not self.process.waitForStarted():
+            return False
+        loop.exec()
+        return True
 
-                        # 计算剩余时间
-                        elapsed = (
-                            datetime.now() - self.task.start_time
-                        ).total_seconds()
-                        if progress > 0:
-                            total_time = elapsed / (progress / 100)
-                            remaining = total_time - elapsed
-                            speed_info = f"剩余时间: {int(remaining)}秒"
-                        else:
-                            speed_info = "计算中..."
+    def cancel(self):
+        """取消任务：标记并 kill 当前进程
 
-                        self.progress_signal.emit(
-                            progress, speed_info, f"处理中: {progress}%"
-                        )
+        取消的任务不 emit finishTaskSig（状态已由任务界面设为 Cancelled）。
+        """
+        self._cancelled = True
+        if self.process:
+            self.process.kill()
 
-    def handle_stderr(self):
-        """处理标准错误输出"""
-        if not self.process:
+    def _try_parse_duration(self, data: str):
+        """解析视频总时长：多输入时累加所有 Duration 求和，time= 出现后冻结"""
+        matches = DURATION_RE.findall(data)
+        if matches:
+            self.duration = sum(
+                int(h) * 3600 + int(m) * 60 + float(s) for h, m, s in matches
+            )
+        if TIME_RE.search(data):
+            self._duration_frozen = True
+
+    def _parse_progress(self, data: str):
+        """解析当前压制进度，节流到每秒最多 4 次"""
+        if self.duration <= 0:
+            return
+        now = time.time()
+        if now - self._last_emit < 0.25:
+            return
+        match = TIME_RE.search(data)
+        if not match:
             return
 
+        self._last_emit = now
+        hours = int(match.group(1))
+        minutes = int(match.group(2))
+        seconds = float(match.group(3))
+        current = round(hours * 3600 + minutes * 60 + seconds, 2)
+        progress = min(100, int(current / self.duration * 100))
+
+        size = ""
+        size_match = SIZE_RE.search(data)
+        if size_match:
+            size = size_match.group(1)
+
+        bitrate = ""
+        bitrate_match = BITRATE_RE.search(data)
+        if bitrate_match:
+            bitrate = bitrate_match.group(1)
+
+        speed = 0.0
+        speed_match = SPEED_RE.search(data)
+        if speed_match:
+            speed = round(float(speed_match.group(1)), 2)
+
+        event_bus.updateTaskStatusSig.emit(
+            self.task.task_id,
+            progress,
+            TaskStatus.Processing,
+            size,
+            current,
+            bitrate,
+            speed,
+        )
+
+    def _handle_stderr(self):
+        """ffmpeg 全部输出到 stderr"""
         data = (
             self.process.readAllStandardError().data().decode("utf-8", errors="ignore")
         )
-        lines = data.split("\n")
+        # 编码开始前累积 stderr 用于时长解析；time= 出现后停止累积防内存增长
+        if not self._duration_frozen:
+            self._stderr_buffer += data
+            self._try_parse_duration(self._stderr_buffer)
+        self._parse_progress(data)
+        self.taskLogger.info(data)
 
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-
-            self.output_lines.append(line)
-
-            # 错误输出可能包含有用信息
-            if "frame=" in line and "fps=" in line:
-                # 这是FFmpeg的统计信息，可以解析帧率和速度
-                fps_match = re.search(r"fps= *(\d+)", line)
-                speed_match = re.search(r"speed= *([\d.]+)x", line)
-
-                if fps_match and speed_match:
-                    fps = fps_match.group(1)
-                    speed = speed_match.group(1)
-                    status_info = f"帧率: {fps} fps, 速度: {speed}x"
-                    self.progress_signal.emit(
-                        self.task.progress,
-                        f"剩余时间: {self._get_remaining_time()}秒",
-                        status_info,
-                    )
-
-    def parse_progress_line(self, line):
-        """解析进度信息行"""
-        # FFmpeg进度信息格式: key=value
-        match = re.match(r"(\w+)=(.+)", line)
-        if match:
-            return match.group(1), match.group(2)
-        return None
-
-    def _get_remaining_time(self):
-        """计算剩余时间"""
-        if self.task.progress <= 0 or self.task.progress >= 100:
-            return 0
-
-        elapsed = (datetime.now() - self.task.start_time).total_seconds()
-        total_estimated = elapsed / (self.task.progress / 100)
-        return int(total_estimated - elapsed)
-
-    def handle_finished(self, exit_code, exit_status):
-        """进程完成处理"""
-        if self.is_cancelled:
-            self.task.status = TaskStatus.CANCELLED
-            self.finished_signal.emit(False, self.globalText.TextAuto017)
-            self.cancelled_signal.emit()
-            self.logger.info(f"压制已取消 -{self.task.input_file}-")
-        elif exit_code == 0:
-            self.task.status = TaskStatus.DONE
-            self.task.progress = 100
-            self.task.end_time = datetime.now()
-            self.logger.info(f"压制完成 -{self.task.input_file}-")
-
-            # 检查输出文件是否存在
-            if os.path.exists(self.task.output_file):
-                file_size = os.path.getsize(self.task.output_file) / (1024 * 1024)  # MB
-                success_msg = f"压制完成 - 文件大小: {file_size:.2f}MB"
-            else:
-                success_msg = "压制完成"
-
-            self.finished_signal.emit(True, success_msg)
-            event_bus.ffmpeg_finished_signal.emit(True, str(self.task.output_file))
-        else:
-            error_message = f"压制失败，错误码: {exit_code}"
-
-            # 添加最后几行输出作为调试信息
-            if self.output_lines:
-                last_lines = "\n".join(self.output_lines[-5:])
-                error_message += f"\n最后输出:\n{last_lines}"
-
-            self.task.status = TaskStatus.FAILED
-            self.task.error_message = error_message
-            self.task.end_time = datetime.now()
-            self.finished_signal.emit(False, error_message)
-            event_bus.ffmpeg_finished_signal.emit(False, error_message)
-
-    def handle_error(self, error):
-        """处理进程错误"""
-        if self.is_cancelled:
+    def _finish(self, success: bool):
+        """任务结束统一处理：关日志、emit 完成信号（取消的任务不 emit）"""
+        if self.taskLogger:
+            self.taskLogger.close()
+        if self._cancelled:
             return
-
-        error_map = {
-            QProcess.ProcessError.FailedToStart: "进程启动失败",
-            QProcess.ProcessError.Crashed: "进程崩溃",
-            QProcess.ProcessError.Timedout: "进程超时",
-            QProcess.ProcessError.WriteError: "写入错误",
-            QProcess.ProcessError.ReadError: "读取错误",
-            QProcess.ProcessError.UnknownError: "未知错误",
-        }
-
-        error_msg = error_map.get(error, f"进程错误: {error}")
-        self.finished_signal.emit(False, error_msg)
-
-    def cancel(self):
-        """取消压制 - 异步非阻塞版本"""
-        if self.is_cancelled:
-            return
-
-        self.is_cancelled = True
-
-        try:
-            print("正在取消视频压制...")
-        except UnicodeEncodeError:
-            pass
-
-        if self.process and self.process.state() == QProcess.Running:
-            # 先尝试优雅地终止
-            self.process.terminate()
-
-            # 使用定时器异步检查进程状态，避免阻塞
-            self._cancellation_timer = QTimer()
-            self._cancellation_timer.timeout.connect(self._checkCancellationStatus)
-            self._cancellation_timer.start(100)  # 每100ms检查一次
-
-            # 设置超时保护，5秒后强制终止
-            QTimer.singleShot(5000, self._forceTerminateIfNeeded)
-        else:
-            # 如果没有进程在运行，直接发送取消完成信号
-            self.cancelled_signal.emit()
-
-    def _checkCancellationStatus(self):
-        """检查取消状态"""
-        if not self.process or self.process.state() != QProcess.Running:
-            # 进程已结束
-            if self._cancellation_timer:
-                self._cancellation_timer.stop()
-            self.cancelled_signal.emit()
-
-    def _forceTerminateIfNeeded(self):
-        """如果需要，强制终止进程"""
-        if self.process and self.process.state() == QProcess.Running:
-            try:
-                print("强制终止压制进程...")
-            except UnicodeEncodeError:
-                pass
-            self.process.kill()
-            # 等待一小段时间让进程终止
-            if self.process.waitForFinished(1000):
-                try:
-                    print("压制进程已强制终止")
-                except UnicodeEncodeError:
-                    pass
-                self.cancelled_signal.emit()
-            else:
-                try:
-                    print("警告: 进程终止可能未完成")
-                except UnicodeEncodeError:
-                    pass
-                self.cancelled_signal.emit()
+        event_bus.finishTaskSig.emit(self.task.task_id, success, self.task.logPath)

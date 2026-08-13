@@ -2,7 +2,8 @@ import os
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout, QWidget
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     CheckBox,
     ComboBox,
     LineEdit,
@@ -18,9 +19,9 @@ from qfluentwidgets import (
 )
 
 from ..common.event_bus import event_bus
+from ..common.text import Text
 from ..service.project_service import project
 from ..service.version_service import VersionService
-from ..common.text import Text
 
 
 class BaseInputDialog(MessageBoxBase):
@@ -128,9 +129,7 @@ class AddProjectFromPlaylist(BaseInputDialog):
 
     def __init__(self, parent=None):
         globalText = Text()
-        super().__init__(
-            globalText.ANPFP, min_width=450, parent=parent
-        )
+        super().__init__(globalText.ANPFP, min_width=450, parent=parent)
         self.globalText = globalText
         self.setup_ui()
 
@@ -261,8 +260,16 @@ class CustomDoubleMessageBox(BaseInputDialog):
     def validateInput(self):
         return self.validate_non_empty(
             [
-                (self.globalText.FirstInput, self.LineEdit_1.text().strip(), self.error1),
-                (self.globalText.SecondInput, self.LineEdit_2.text().strip(), self.error2),
+                (
+                    self.globalText.FirstInput,
+                    self.LineEdit_1.text().strip(),
+                    self.error1,
+                ),
+                (
+                    self.globalText.SecondInput,
+                    self.LineEdit_2.text().strip(),
+                    self.error2,
+                ),
             ]
         )
 
@@ -462,9 +469,13 @@ class ProjectProgressDialog(MessageBoxBase):
 
         self.label_cover = StrongBodyLabel(self.globalText.Cover, self)
         self.label_video = StrongBodyLabel(self.globalText.OriginalVideo, self)
-        self.label_translated_video = StrongBodyLabel(self.globalText.TranslatedVideo, self)
+        self.label_translated_video = StrongBodyLabel(
+            self.globalText.TranslatedVideo, self
+        )
         self.label_subtitle = StrongBodyLabel(self.globalText.OriginalSubtitle, self)
-        self.label_translated_subtitle = StrongBodyLabel(self.globalText.TranslatedSubtitle, self)
+        self.label_translated_subtitle = StrongBodyLabel(
+            self.globalText.TranslatedSubtitle, self
+        )
 
         rings = [
             self.ring_cover,
@@ -1005,9 +1016,7 @@ class UpdateDialog(MessageBoxBase):
 
     def setup_ui(self):
         version = self.versionService.lastestVersion
-        self.titleLabel = SubtitleLabel(
-            self.globalText.UpdateAvailable.format(version)
-        )
+        self.titleLabel = SubtitleLabel(self.globalText.UpdateAvailable.format(version))
         self.viewLayout.addWidget(self.titleLabel)
 
         # 更新日志
@@ -1060,9 +1069,7 @@ class UpdateDialog(MessageBoxBase):
         self.progressBar.setVisible(True)
         self.progressBar.setValue(0)
 
-        self.downloadThread, self.filepath = (
-            self.versionService.createDownloadThread()
-        )
+        self.downloadThread, self.filepath = self.versionService.createDownloadThread()
         self.downloadThread.progress.connect(self._on_progress)
         self.downloadThread.succeeded.connect(self._on_finished)
         self.downloadThread.error.connect(self._on_error)

@@ -1,12 +1,12 @@
 import json
+import os
 import re
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Generator
+from collections.abc import Generator
 from urllib.parse import urlparse
 
 from openai import OpenAI
-from PySide6.QtCore import QThread, Signal
+from PySide6.QtCore import QDateTime, QRunnable, QThread
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus
@@ -59,30 +59,29 @@ def remove_thinking_content(text: str) -> str:
     return cleaned_text
 
 
-@dataclass
 class TranslateTask:
-    args: dict
-    id: int = 0
-    status: str = TaskStatus.WAITING
-    progress: int = 0
-    error_message: str = ""
-    output_history: str = ""  # 存储完整输出历史
+    """翻译任务纯数据类（对齐 Easy-FFmpeg 链路）"""
 
     _id_counter = 0
 
-    def __post_init__(self):
+    def __init__(self, args):
         TranslateTask._id_counter += 1
-        self.id = TranslateTask._id_counter
-        self.input_file = self.args.get("srt_path")
-        self.output_file = self.args.get("output_path")
-        self.origin_lang = self.args.get("origin_lang")
-        self.target_lang = self.args.get("target_lang")
-        self.raw_content = self.args.get("raw_content", "")
-        self.AI = self.args.get("AI")
-        self.temperature = self.args.get("temperature", 0.7)
+        self.task_id = TranslateTask._id_counter
+        self.args = args
+        self.input_file = args.get("srt_path")
+        self.output_file = args.get("output_path")
+        self.origin_lang = args.get("origin_lang")
+        self.target_lang = args.get("target_lang")
+        self.raw_content = args.get("raw_content", "")
+        self.AI = args.get("AI")
+        self.temperature = args.get("temperature", 0.7)
         # Deepseek 专属参数
-        self.deepseek_model = self.args.get("deepseek_model", "deepseek-v4-flash")
-        self.deepseek_reasoning = self.args.get("deepseek_reasoning", False)
+        self.deepseek_model = args.get("deepseek_model", "deepseek-v4-flash")
+        self.deepseek_reasoning = args.get("deepseek_reasoning", False)
+        self.fileName = os.path.basename(self.input_file) if self.input_file else ""
+        self.outputName = os.path.basename(self.output_file) if self.output_file else ""
+        self.logPath = None
+        self.createTime = QDateTime.currentDateTime()
 
 
 class BaseTranslateService(ABC):
@@ -302,36 +301,47 @@ class CustomModelService(BaseTranslateService):
         return model_name
 
 
-class TranslateThread(QThread):
-    finished_signal = Signal(bool, str)
-    cancelled_signal = Signal()
+SERVICES = {
+    "deepseek": DeepseekService,
+    "glm-4.5-flash": GLMService,
+    "spark-lite": SparkLiteService,
+    "hunyuan-turbos-latest": HunyuanService,
+    "intern-latest": InternService,
+    "ernie-speed-128k": ErnieSpeedService,
+    "gemini-3.5-flash": GeminiService,
+    "custom-model": CustomModelService,
+}
 
-    SERVICES = {
-        "deepseek": DeepseekService,
-        "glm-4.5-flash": GLMService,
-        "spark-lite": SparkLiteService,
-        "hunyuan-turbos-latest": HunyuanService,
-        "intern-latest": InternService,
-        "ernie-speed-128k": ErnieSpeedService,
-        "gemini-3.5-flash": GeminiService,
-        "custom-model": CustomModelService,
-    }
+
+class TranslateWorker(QRunnable):
+    """翻译执行引擎（QThread → QRunnable，对齐 Easy-FFmpeg 链路）
+
+    取消通过 _cancelled 标记在批次边界生效；取消的任务不 emit 完成信号。
+    """
+
+    BATCH_SIZE = 50  # 缩小批量，降低AI出错率
+    MAX_RETRIES = 2
 
     def __init__(self, task: TranslateTask):
         super().__init__()
-        self.globalText = Text()
-        self.logger = Logger("TranslateProcess", "translate")
         self.task = task
-        self._is_running = True
+        self.globalText = Text()
+        self.taskLogger = None
+        self._cancelled = False
 
     def run(self):
+        currentTime = self.task.createTime.toString("yyyy-MM-dd_hh-mm-ss")
+        self.taskLogger = Logger(
+            "Tasks/" + currentTime + f"_taskID-{self.task.task_id}", "translate"
+        )
+        self.task.logPath = str(self.taskLogger.logFile.absolute())
+
         try:
-            service_cls = self.SERVICES.get(self.task.AI)
+            service_cls = SERVICES.get(self.task.AI)
             if not service_cls:
-                event_bus.translate_finished_signal.emit(
-                    False, self.globalText.TextAuto059.format(self.task.AI)
-                )
-                self.logger.error(f"不支持的AI模型: {self.task.AI}")
+                error_msg = self.globalText.TextAuto059.format(self.task.AI)
+                self.taskLogger.error(error_msg)
+                self._finish(False)
                 return
 
             service = (
@@ -340,9 +350,13 @@ class TranslateThread(QThread):
                 else service_cls()
             )
 
+            event_bus.updateTaskStatusSig.emit(
+                self.task.task_id, 0, TaskStatus.Processing, "", 0.0, "", 0.0
+            )
+
             # 解析 SRT 文件
             srt_items = parse_srt(self.task.raw_content)
-            batch_size = 50  # 缩小批量，降低AI出错率
+            batch_size = self.BATCH_SIZE
 
             # 构建系统提示（content占位防止用户自定义模板含 {content} 时报错）
             system_prompt = cfg.get(cfg.promptTemplate).format(
@@ -357,9 +371,8 @@ class TranslateThread(QThread):
             # 分批翻译
             total_batches = (len(srt_items) + batch_size - 1) // batch_size
             for batch_idx, i in enumerate(range(0, len(srt_items), batch_size)):
-                # 检查状态
-                if not self._is_running:
-                    break
+                if self._cancelled:
+                    return
 
                 batch = srt_items[i : i + batch_size]
                 batch_texts = [
@@ -367,7 +380,9 @@ class TranslateThread(QThread):
                     for j, item in enumerate(batch)
                 ]
                 # JSON格式要求已在 promptTemplate 中配置
-                user_content = f"请翻译以下{len(batch)}句文本：\n" + "\n".join(batch_texts)
+                user_content = f"请翻译以下{len(batch)}句文本：\n" + "\n".join(
+                    batch_texts
+                )
 
                 if cfg.get(cfg.useTranslateContext):
                     # 限制上下文：只保留最近两轮历史对话（1轮为 1对 user+assistant，共4条消息）
@@ -382,11 +397,10 @@ class TranslateThread(QThread):
                 # 调用翻译（带重试机制，解析失败自动重试）
                 translated_texts = None
                 full_response = ""
-                MAX_RETRIES = 2
 
-                for attempt in range(MAX_RETRIES + 1):
-                    if not self._is_running:
-                        break
+                for attempt in range(self.MAX_RETRIES + 1):
+                    if self._cancelled:
+                        return
 
                     full_response = ""
                     for text_piece in service.translate_with_context(
@@ -395,35 +409,42 @@ class TranslateThread(QThread):
                         messages,
                         self.task.temperature,
                     ):
-                        if not self._is_running:
-                            break
+                        if self._cancelled:
+                            return
                         full_response += text_piece
 
-                    if not self._is_running:
-                        break
+                    if self._cancelled:
+                        return
 
                     translated_texts = self._parse_translation_response(
                         full_response, len(batch)
                     )
 
                     # 严格校验：数量必须完全匹配
-                    if (
-                        translated_texts is not None
-                        and len(translated_texts) == len(batch)
+                    if translated_texts is not None and len(translated_texts) == len(
+                        batch
                     ):
                         break
 
                     # 解析失败，准备重试
                     actual_count = len(translated_texts) if translated_texts else 0
-                    if attempt < MAX_RETRIES:
-                        self.logger.warning(
+                    if attempt < self.MAX_RETRIES:
+                        warning_msg = (
                             f"批次 {batch_idx + 1}/{total_batches} 第 {attempt + 1} 次解析失败 "
                             f"(期望 {len(batch)} 条，实际 {actual_count} 条)，重试中..."
                         )
+                        self.taskLogger.warning(warning_msg)
+                        event_bus.taskLogSignal.emit(
+                            "translate", warning_msg, False, False
+                        )
                     else:
-                        self.logger.error(
-                            f"批次 {batch_idx + 1}/{total_batches} 重试 {MAX_RETRIES} 次仍失败 "
+                        error_msg = (
+                            f"批次 {batch_idx + 1}/{total_batches} 重试 {self.MAX_RETRIES} 次仍失败 "
                             f"(期望 {len(batch)} 条，实际 {actual_count} 条)，该批保留原文"
+                        )
+                        self.taskLogger.error(error_msg)
+                        event_bus.taskLogSignal.emit(
+                            "translate", error_msg, True, False
                         )
 
                 # 添加助手回复到对话历史（维持上下文连贯，无论成功与否）
@@ -436,55 +457,44 @@ class TranslateThread(QThread):
                         item["text"] = self._sanitize_text(translated_texts[j])
 
                 # 更新进度
-                progress = int((i + batch_size) / len(srt_items) * 100)
-                progress_msg = self.globalText.TextAuto058.format(min(progress, 100))
-                self.task.output_history += progress_msg + "\n"
-                event_bus.translate_update_signal.emit(str(self.task.id), progress_msg)
+                progress = min(100, int((i + batch_size) / len(srt_items) * 100))
+                progress_msg = self.globalText.TextAuto058.format(progress)
+                event_bus.updateTaskStatusSig.emit(
+                    self.task.task_id,
+                    progress,
+                    TaskStatus.Processing,
+                    "",
+                    0.0,
+                    "",
+                    0.0,
+                )
+                event_bus.taskLogSignal.emit("translate", progress_msg, False, True)
 
-            # 组装最终的 SRT
+            if self._cancelled:
+                return
+
+            # 组装最终的 SRT 并写入文件
             final_srt = assemble_srt(srt_items)
-
-            # 写入文件
             with open(self.task.output_file, "w", encoding="utf-8") as f:
                 f.write(final_srt)
 
-            # 正常运行结束或被拦截后的信号处理
-            if not self._is_running:
-                # 如果是因为取消而停止，发送取消信号
-                self.cancelled_signal.emit()
-                self.finished_signal.emit(False, self.globalText.TextAuto057)
-                self.logger.info(f"翻译任务已取消: {self.task.input_file}")
-            else:
-                # 翻译完成后进行后处理：去除思考内容
-                try:
-                    self._post_process_translation()
-                    self.finished_signal.emit(
-                        True, self.globalText.TranslationComplete2
-                    )
-                    event_bus.translate_finished_signal.emit(
-                        True, ["", self.task.output_file]
-                    )
-                    self.logger.info(f"翻译任务已完成: {self.task.input_file}")
-                except Exception as e:
-                    error_msg = self.globalText.TextAuto061.format(str(e))
-                    self.finished_signal.emit(False, error_msg)
-                    event_bus.translate_finished_signal.emit(False, [error_msg])
-                    self.logger.error(
-                        f"翻译后处理失败: {self.task.input_file} - {error_msg}"
-                    )
-
+            # 翻译完成后进行后处理：去除思考内容
+            try:
+                self._post_process_translation()
+                self.taskLogger.info(f"翻译任务已完成: {self.task.input_file}")
+                self._finish(True)
+            except Exception as e:
+                error_msg = self.globalText.TextAuto061.format(str(e))
+                self.taskLogger.error(
+                    f"翻译后处理失败: {self.task.input_file} - {error_msg}"
+                )
+                self._finish(False)
         except Exception as e:
-            # 如果是报错导致的线程停止，不再发取消信号，只发错误信号
             error_msg = BaseTranslateService.analysis_error(str(e))
-            self.finished_signal.emit(
-                False, self.globalText.TextAuto060.format(error_msg)
-            )
-            event_bus.translate_finished_signal.emit(False, [error_msg])
-            self.logger.error(f"翻译任务失败: {self.task.input_file} - {error_msg}")
+            self.taskLogger.error(f"翻译任务失败: {self.task.input_file} - {error_msg}")
+            self._finish(False)
 
-    def _parse_translation_response(
-        self, response: str, expected_count: int
-    ):
+    def _parse_translation_response(self, response: str, expected_count: int):
         """解析 AI 的翻译响应，多策略解析，返回None表示解析失败"""
         response = remove_thinking_content(response)
 
@@ -506,9 +516,7 @@ class TranslateThread(QThread):
         # 全部失败
         return None
 
-    def _parse_json_response(
-        self, response: str, expected_count: int
-    ):
+    def _parse_json_response(self, response: str, expected_count: int):
         """尝试从响应中提取JSON格式的翻译结果"""
         # 尝试1: 直接解析整个响应
         try:
@@ -548,7 +556,10 @@ class TranslateThread(QThread):
         if start != -1 and end != -1 and end > start:
             try:
                 translations = json.loads(response[start : end + 1])
-                if isinstance(translations, list) and len(translations) == expected_count:
+                if (
+                    isinstance(translations, list)
+                    and len(translations) == expected_count
+                ):
                     return [str(t) for t in translations]
             except json.JSONDecodeError:
                 pass
@@ -568,18 +579,14 @@ class TranslateThread(QThread):
             return data
         return None
 
-    def _parse_xml_response(
-        self, response: str, expected_count: int
-    ):
+    def _parse_xml_response(self, response: str, expected_count: int):
         """尝试从响应中提取XML标签格式的翻译结果 <t>翻译</t>"""
         translations = re.findall(r"<t>(.*?)</t>", response, re.DOTALL)
         if len(translations) == expected_count:
             return [t.strip() for t in translations]
         return None
 
-    def _parse_numbered_response(
-        self, response: str, expected_count: int
-    ):
+    def _parse_numbered_response(self, response: str, expected_count: int):
         """尝试解析编号行格式（严格模式：只收集有编号前缀的行）"""
         translations = []
         for line in response.strip().split("\n"):
@@ -614,21 +621,23 @@ class TranslateThread(QThread):
         if cleaned_content != content:
             with open(self.task.output_file, "w", encoding="utf-8") as f:
                 f.write(cleaned_content)
-            self.logger.info(f"已去除思考内容，文件已更新: {self.task.output_file}")
-            self.task.output_history = cleaned_content
-            event_bus.translate_update_signal.emit(str(self.task.id), cleaned_content)
+            self.taskLogger.info(f"已去除思考内容，文件已更新: {self.task.output_file}")
         else:
-            self.logger.info(f"未检测到思考内容，文件保持不变: {self.task.output_file}")
-
-    def _write_and_notify(self, chunk: str, file_handle):
-        file_handle.write(chunk)
-        file_handle.flush()
-        self.task.output_history += chunk
-        event_bus.translate_update_signal.emit(str(self.task.id), chunk)
+            self.taskLogger.info(
+                f"未检测到思考内容，文件保持不变: {self.task.output_file}"
+            )
 
     def cancel(self):
-        self._is_running = False
-        self.task.status = TaskStatus.CANCELLED
+        """取消翻译：标记（在批次边界生效，不 emit 完成信号）"""
+        self._cancelled = True
+
+    def _finish(self, success: bool):
+        """任务结束统一处理：关日志、emit 完成信号（取消的任务不 emit）"""
+        if self.taskLogger:
+            self.taskLogger.close()
+        if self._cancelled:
+            return
+        event_bus.finishTaskSig.emit(self.task.task_id, success, self.task.logPath)
 
 
 class ScreenTranslateThread(QThread):
@@ -646,7 +655,7 @@ class ScreenTranslateThread(QThread):
             target_lang = cfg.get(cfg.target_lang)
             temperature = float(cfg.get(cfg.aiTemperature))
 
-            service_cls = TranslateThread.SERVICES.get(ai_model)
+            service_cls = SERVICES.get(ai_model)
             if not service_cls:
                 event_bus.screen_translate_finished.emit(
                     False, f"不支持的AI模型: {ai_model}"

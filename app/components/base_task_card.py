@@ -1,21 +1,26 @@
-# coding:utf-8
 import os
 import platform
 import subprocess
 
-from PySide6.QtCore import QFileInfo, QUrl, Signal
-from PySide6.QtGui import QDesktopServices
+from PySide6.QtCore import QFileInfo, Qt, QUrl, Signal
+from PySide6.QtGui import QColor, QDesktopServices, QPainter, QPen
 from PySide6.QtWidgets import QFileIconProvider, QHBoxLayout, QVBoxLayout
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     CaptionLabel,
     CardWidget,
+    CheckBox,
     FluentIcon,
     ImageLabel,
     IndeterminateProgressBar,
     MessageBox,
+    MessageBoxBase,
     ProgressBar,
+    SubtitleLabel,
     TransparentToolButton,
+    isDarkTheme,
+    themeColor,
 )
 
 from ..common.event_bus import event_bus
@@ -68,25 +73,27 @@ class BaseItemWidget(CardWidget):
             self.progressBar = ProgressBar()
 
         self.statusLabel = CaptionLabel(
-            status_text(self.task.status, self.globalText.InProgress.format(self.task_type))
+            status_text(
+                self.task.status, self.globalText.InProgress.format(self.task_type)
+            )
         )
 
         self.openFolderBtn = TransparentToolButton(FluentIcon.FOLDER, self)
         self.openFolderBtn.setToolTip(self.globalText.OpenFolder)
-        self.openFolderBtn.setVisible(self.task.status == TaskStatus.DONE)
+        self.openFolderBtn.setVisible(self.task.status == TaskStatus.Succeeded)
         self.openFolderBtn.clicked.connect(self.openFolder)
 
         self.cancelBtn = TransparentToolButton(FluentIcon.CLOSE, self)
         self.cancelBtn.setToolTip(self.globalText.Cancel + str(self.task_type))
         self.cancelBtn.setVisible(
-            self.task.status == TaskStatus.PROCESSING
-            or self.task.status == TaskStatus.WAITING
+            self.task.status == TaskStatus.Processing
+            or self.task.status == TaskStatus.Waiting
         )
         self.cancelBtn.clicked.connect(self.cancelTranslate)
 
         self.retryBtn = TransparentToolButton(FluentIcon.SYNC, self)
         self.retryBtn.setToolTip(self.globalText.Retry + str(self.task_type))
-        self.retryBtn.setVisible(self.task.status == TaskStatus.FAILED)
+        self.retryBtn.setVisible(self.task.status == TaskStatus.Failed)
         self.retryBtn.clicked.connect(self.retryTranslate)
 
         self.removeBtn = TransparentToolButton(FluentIcon.DELETE, self)
@@ -115,13 +122,13 @@ class BaseItemWidget(CardWidget):
 
     def updateStatusStyle(self, statusPill):
         """更新状态标签样式"""
-        if self.task.status == TaskStatus.WAITING:
+        if self.task.status == TaskStatus.Waiting:
             statusPill.setProperty("isSecondary", True)
-        elif self.task.status == TaskStatus.PROCESSING:
+        elif self.task.status == TaskStatus.Processing:
             statusPill.setProperty("isPrimary", True)
-        elif self.task.status == TaskStatus.DONE:
+        elif self.task.status == TaskStatus.Succeeded:
             statusPill.setProperty("isSuccess", True)
-        elif self.task.status == TaskStatus.FAILED:
+        elif self.task.status == TaskStatus.Failed:
             statusPill.setProperty("isError", True)
         statusPill.setStyle(statusPill.style())
 
@@ -135,19 +142,19 @@ class BaseItemWidget(CardWidget):
         )
 
         # 显示/隐藏按钮
-        self.openFolderBtn.setVisible(status == TaskStatus.DONE)
-        self.cancelBtn.setVisible(status == TaskStatus.PROCESSING)
-        self.retryBtn.setVisible(status == TaskStatus.FAILED)
+        self.openFolderBtn.setVisible(status == TaskStatus.Succeeded)
+        self.cancelBtn.setVisible(status == TaskStatus.Processing)
+        self.retryBtn.setVisible(status == TaskStatus.Failed)
 
         # 设置按钮可用性
         self.removeBtn.setEnabled(
-            status == TaskStatus.DONE
-            or status == TaskStatus.FAILED
-            or status == TaskStatus.CANCELLED
+            status == TaskStatus.Succeeded
+            or status == TaskStatus.Failed
+            or status == TaskStatus.Cancelled
         )
 
         # 进度条
-        self.progressBar.setVisible(status == TaskStatus.PROCESSING)
+        self.progressBar.setVisible(status == TaskStatus.Processing)
 
     def updateProgress(self, progress, input_file):
         """更新进度"""
@@ -162,7 +169,9 @@ class BaseItemWidget(CardWidget):
 
         # 更新状态标签
         self.statusLabel.setText(
-            status_text(self.task.status, self.globalText.InProgress.format(self.task_type))
+            status_text(
+                self.task.status, self.globalText.InProgress.format(self.task_type)
+            )
         )
 
     def openFolder(self):
@@ -203,8 +212,8 @@ class BaseItemWidget(CardWidget):
                 self.task_thread.cancelled_signal.connect(self._onCancellationComplete)
 
                 # 立即更新UI状态，不等待线程结束
-                self.task.status = TaskStatus.CANCELLING
-                self.updateStatus(TaskStatus.CANCELLING)
+                self.task.status = TaskStatus.Cancelling
+                self.updateStatus(TaskStatus.Cancelling)
 
                 # 异步取消，不阻塞界面
                 self.task_thread.cancel()
@@ -231,10 +240,10 @@ class BaseItemWidget(CardWidget):
     def _completeCancellation(self):
         """完成取消操作"""
         # 更新任务状态
-        self.task.status = TaskStatus.CANCELLED
+        self.task.status = TaskStatus.Cancelled
 
         # 更新UI状态
-        self.updateStatus(TaskStatus.CANCELLED)
+        self.updateStatus(TaskStatus.Cancelled)
 
         # 恢复按钮状态
         self.removeBtn.setDisabled(False)
@@ -247,7 +256,9 @@ class BaseItemWidget(CardWidget):
         # 显示取消提示
         event_bus.notification_service.show_info(
             str(self.task_type) + self.globalText.Cancelled,
-            self.globalText.Task2 + f" '{self.task.input_file}' " + self.globalText.HasBeenCancelled,
+            self.globalText.Task2
+            + f" '{self.task.input_file}' "
+            + self.globalText.HasBeenCancelled,
         )
 
     def retryTranslate(self):
@@ -259,3 +270,110 @@ class BaseItemWidget(CardWidget):
         """移除任务"""
         # 发送移除任务信号
         self.removeTaskSignal.emit(self.task.id)
+
+
+class TaskCardBase(CardWidget):
+    """任务卡片基类
+
+    子类需实现 removeTask()，并调用 self._updateStatus() 完成布局后的状态初始化。
+    """
+
+    deleted = Signal()
+    checkedChanged = Signal(bool)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.checkBox = CheckBox()
+        self.checkBox.setFixedSize(23, 23)
+        self.setSelectionMode(False)
+
+        self.checkBox.stateChanged.connect(self._onCheckedChanged)
+
+    def setSelectionMode(self, enter: bool):
+        self.isSelectionMode = enter
+        self.checkBox.setVisible(enter)
+        if not enter:
+            self.checkBox.setChecked(False)
+
+        self.update()
+
+    def isChecked(self):
+        return self.checkBox.isChecked()
+
+    def setChecked(self, checked):
+        if checked == self.isChecked():
+            return
+
+        self.checkBox.setChecked(checked)
+        self.update()
+
+    def removeTask(self, deleteFile=False):
+        raise NotImplementedError
+
+    def mouseReleaseEvent(self, e):
+        super().mouseReleaseEvent(e)
+        if self.isSelectionMode:
+            self.setChecked(not self.isChecked())
+        else:
+            self.setSelectionMode(True)
+            self.setChecked(True)
+
+    def _onDeleteButtonClicked(self):
+        w = DeleteTaskDialog(self.window(), deleteOnClose=False)
+        w.deleteFileCheckBox.setChecked(False)
+
+        if w.exec():
+            self.removeTask(w.deleteFileCheckBox.isChecked())
+
+        w.deleteLater()
+
+    def _onCheckedChanged(self):
+        self.setChecked(self.checkBox.isChecked())
+        self.checkedChanged.emit(self.checkBox.isChecked())
+        self.update()
+
+    def paintEvent(self, e):
+        if not (self.isSelectionMode and self.isChecked()):
+            return super().paintEvent(e)
+
+        painter = QPainter(self)
+        painter.setRenderHints(QPainter.Antialiasing)
+
+        r = self.borderRadius
+        painter.setPen(QPen(themeColor(), 2))
+        painter.setBrush(
+            QColor(255, 255, 255, 15) if isDarkTheme() else QColor(0, 0, 0, 8)
+        )
+        painter.drawRoundedRect(self.rect().adjusted(2, 2, -2, -2), r, r)
+
+
+class DeleteTaskDialog(MessageBoxBase):
+    """删除任务确认对话框（对齐 Easy-FFmpeg）"""
+
+    def __init__(self, parent=None, showCheckBox=True, deleteOnClose=True):
+        super().__init__(parent)
+        self.globalText = Text()
+        self.titleLabel = SubtitleLabel(self.globalText.DeleteTask, self)
+        self.contentLabel = BodyLabel(self.globalText.ConfirmDeleteTask, self)
+        self.deleteFileCheckBox = CheckBox(self.globalText.DeleteFiles, self)
+
+        self.deleteFileCheckBox.setVisible(showCheckBox)
+
+        if deleteOnClose:
+            self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+
+        self._initWidgets()
+
+    def _initWidgets(self):
+        self.deleteFileCheckBox.setChecked(True)
+        self.widget.setMinimumWidth(330)
+
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(self.titleLabel)
+        layout.addSpacing(12)
+        layout.addWidget(self.contentLabel)
+        layout.addSpacing(10)
+        layout.addWidget(self.deleteFileCheckBox)
+        self.viewLayout.addLayout(layout)

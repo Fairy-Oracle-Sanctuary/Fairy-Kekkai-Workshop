@@ -1,7 +1,7 @@
 # widgets/system_tray.py
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QSystemTrayIcon
-from qfluentwidgets import Action, SystemTrayMenu
+from libs.qfluentwidgets_pro import Action, SystemTrayMenu
 
 from ..resource import resource_rc  # noqa: F401
 from ..common.text import Text

@@ -5,7 +5,7 @@ from datetime import datetime
 from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
-from qfluentwidgets import (
+from libs.qfluentwidgets_pro import (
     CaptionLabel,
     FluentIcon,
     IconWidget,
@@ -116,19 +116,19 @@ class DownloadItemWidget(SimpleCardWidget):
         btn_size = 26
         self.openFolderBtn = TransparentToolButton(FluentIcon.FOLDER, self)
         self.openFolderBtn.setToolTip(self.globalText.OpenFolder)
-        self.openFolderBtn.setVisible(self.task.status == TaskStatus.DONE)
+        self.openFolderBtn.setVisible(self.task.status == TaskStatus.Succeeded)
         self.openFolderBtn.setFixedSize(btn_size, btn_size)
         self.openFolderBtn.clicked.connect(self.openFolder)
 
         self.cancelBtn = TransparentToolButton(FluentIcon.CLOSE, self)
         self.cancelBtn.setToolTip(self.globalText.CancelDownload)
-        self.cancelBtn.setVisible(self.task.status == TaskStatus.PROCESSING)
+        self.cancelBtn.setVisible(self.task.status == TaskStatus.Processing)
         self.cancelBtn.setFixedSize(btn_size, btn_size)
         self.cancelBtn.clicked.connect(self.cancelDownload)
 
         self.retryBtn = TransparentToolButton(FluentIcon.SYNC, self)
         self.retryBtn.setToolTip(self.globalText.RetryDownload)
-        self.retryBtn.setVisible(self.task.status == TaskStatus.FAILED)
+        self.retryBtn.setVisible(self.task.status == TaskStatus.Failed)
         self.retryBtn.setFixedSize(btn_size, btn_size)
         self.retryBtn.clicked.connect(self.retryDownload)
 
@@ -155,13 +155,13 @@ class DownloadItemWidget(SimpleCardWidget):
 
     def updateStatusStyle(self, statusPill):
         """更新状态标签样式"""
-        if self.task.status == TaskStatus.WAITING:
+        if self.task.status == TaskStatus.Waiting:
             statusPill.setProperty("isSecondary", True)
-        elif self.task.status == TaskStatus.PROCESSING:
+        elif self.task.status == TaskStatus.Processing:
             statusPill.setProperty("isPrimary", True)
-        elif self.task.status == TaskStatus.DONE:
+        elif self.task.status == TaskStatus.Succeeded:
             statusPill.setProperty("isSuccess", True)
-        elif self.task.status == TaskStatus.FAILED:
+        elif self.task.status == TaskStatus.Failed:
             statusPill.setProperty("isError", True)
         statusPill.setStyle(statusPill.style())
 
@@ -195,13 +195,13 @@ class DownloadItemWidget(SimpleCardWidget):
         self.updateStatusStyle(self.statusPill)
 
         # 显示/隐藏按钮
-        self.openFolderBtn.setVisible(status == TaskStatus.DONE)
-        self.cancelBtn.setVisible(status == TaskStatus.PROCESSING)
-        self.retryBtn.setVisible(status == TaskStatus.FAILED)
+        self.openFolderBtn.setVisible(status == TaskStatus.Succeeded)
+        self.cancelBtn.setVisible(status == TaskStatus.Processing)
+        self.retryBtn.setVisible(status == TaskStatus.Failed)
 
-        if status == TaskStatus.DONE:
+        if status == TaskStatus.Succeeded:
             self.removeBtn.setDisabled(False)
-        if status == TaskStatus.FAILED:
+        if status == TaskStatus.Failed:
             self.removeBtn.setDisabled(False)
 
     def openFolder(self):
@@ -224,8 +224,8 @@ class DownloadItemWidget(SimpleCardWidget):
             # 如果任务正在下载，找到对应的下载线程并取消
             if self.download_thread:
                 # 立即更新UI状态，不等待线程结束
-                self.task.status = TaskStatus.CANCELLING
-                self.updateStatus(TaskStatus.CANCELLING)
+                self.task.status = TaskStatus.Cancelling
+                self.updateStatus(TaskStatus.Cancelling)
 
                 # 禁用取消按钮，避免重复点击
                 self.cancelBtn.setEnabled(False)
@@ -260,13 +260,13 @@ class DownloadItemWidget(SimpleCardWidget):
         self._is_cancelling = False
 
         # 更新任务状态
-        self.task.status = TaskStatus.CANCELLED
+        self.task.status = TaskStatus.Cancelled
         self.task.progress = 0
         self.task.speed = ""
         self.task.end_time = datetime.now()
 
         # 更新UI状态
-        self.updateStatus(TaskStatus.CANCELLED)
+        self.updateStatus(TaskStatus.Cancelled)
 
         # 恢复按钮状态
         self.removeBtn.setDisabled(False)

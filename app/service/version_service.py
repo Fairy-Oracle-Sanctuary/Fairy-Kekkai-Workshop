@@ -1,4 +1,3 @@
-# coding: utf-8
 import re
 import subprocess
 import sys
@@ -120,16 +119,12 @@ class VersionService:
             content = stripped[: -len("!OCRUPDATE!")].rstrip()
 
         # 解析更新日志
-        changelog_match = re.search(
-            r"## 更新日志\n(.*?)(?=\n## )", content, re.DOTALL
-        )
+        changelog_match = re.search(r"## 更新日志\n(.*?)(?=\n## )", content, re.DOTALL)
         if changelog_match:
             result["changelog"] = changelog_match.group(1).strip()
 
         # 解析下载链接
-        download_match = re.search(
-            r"## 下载提示\n(.*?)(?=\n# |\Z)", content, re.DOTALL
-        )
+        download_match = re.search(r"## 下载提示\n(.*?)(?=\n# |\Z)", content, re.DOTALL)
         if download_match:
             section = download_match.group(1)
             for name, link in re.findall(r"\[([^\]]+)\]\(([^)]+)\)", section):

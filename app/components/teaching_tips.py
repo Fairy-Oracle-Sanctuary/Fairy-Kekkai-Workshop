@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject, Qt, QTimer
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
-from qfluentwidgets import (
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     PillPushButton,
     SimpleCardWidget,

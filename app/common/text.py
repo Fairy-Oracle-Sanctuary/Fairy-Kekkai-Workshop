@@ -80,6 +80,41 @@ class Text(QObject):
         self.Failed = self.tr("-{}- 失败: {}")
         self.Failed2 = self.tr("{}失败")
         self.TaskFailed = self.tr("-{}- {}失败: {}")
+        self.TaskDone = self.tr("任务完成")
+        self.TaskFailedLog = self.tr("任务失败")
+        self.NoTasks = self.tr("目前没有任务")
+        # 任务卡片按钮/提示
+        self.ShowInFolder = self.tr("在文件夹中显示")
+        self.CancelTask = self.tr("取消任务")
+        self.RetryTask = self.tr("重试任务")
+        self.ViewLog = self.tr("查看日志")
+        self.RetryAction = self.tr("重试")
+        self.DeleteAction = self.tr("删除")
+        self.DeleteTask = self.tr("删除任务")
+        self.ConfirmDeleteTask = self.tr("确认删除任务吗？")
+        # 项目确认对话框
+        self.ConfirmDeleteProject = self.tr("确定要删除项目吗？此操作不可撤销。")
+        self.ConfirmCancelLink = self.tr("确认取消连接")
+        self.ConfirmCancelLinkContent = self.tr(
+            "确定要取消连接项目吗？此操作并不会删除文件。"
+        )
+        # OCR/检测提示
+        self.CannotOpenVideoFile = self.tr("无法打开视频文件")
+        self.FloatingWindow = self.tr("悬浮窗口")
+        self.DetectionParams = self.tr("检测参数")
+        self.DetectionParamsHint = self.tr("快速确认配置参数是否正确")
+        self.DetectionInProgress = self.tr("检测正在进行中，请稍候...")
+        self.DetectingTitle = self.tr("正在检测...")
+        self.VerifyingCustomModel = self.tr("正在验证自定义模型参数，请稍候...")
+        self.ModelFile = self.tr("模型文件")
+        self.ModelFileFilter = self.tr("模型文件 (*.bin);;所有文件 (*.*)")
+        # 发布界面提示
+        self.RepostPlaceholder = self.tr(
+            "转载视频请注明来源、时间、地点(例：转自https://www.xxxx.com/yyyy)，注明来源会更快地通过审核哦"
+        )
+        self.FillMoreInfo = self.tr(
+            "填写更全面的相关信息，让更多的人能找到你的视频吧"
+        )
         self.BatchDeleteFiles = self.tr("批量删除文件")
         self.SelectAll = self.tr("全选")
         self.DeselectAll = self.tr("取消全选")

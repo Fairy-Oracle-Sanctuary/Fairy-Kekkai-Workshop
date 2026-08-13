@@ -1,8 +1,6 @@
-# coding:utf-8
 import re
 import urllib.parse
 from pathlib import Path
-from typing import Optional
 
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import (
@@ -22,7 +20,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     CaptionLabel,
     ComboBox,
@@ -47,8 +46,8 @@ from qfluentwidgets import (
     qconfig,
     setFont,
 )
-from qfluentwidgets import FluentIcon as FIF
-from qfluentwidgets import SettingCardGroup as CardGroup
+from libs.qfluentwidgets_pro import FluentIcon as FIF
+from libs.qfluentwidgets_pro import SettingCardGroup as CardGroup
 
 from ..common.config import cfg
 from ..common.setting import IS_PADDLEOCR_CPU
@@ -1374,11 +1373,13 @@ class TranslateSettingInterface(ScrollArea):
         )
         self.customModelEndpointCard.lineEdit.setFixedWidth(350)
         self.detectionCard = DetectionCard(
-            FIF.SEARCH, "检测参数", "快速确认配置参数是否正确"
+            FIF.SEARCH,
+            self.globalText.DetectionParams,
+            self.globalText.DetectionParamsHint,
         )
 
         # 初始化检测线程
-        self.detection_thread: Optional[CustomModelDetectionThread] = None
+        self.detection_thread: CustomModelDetectionThread | None = None
 
         self.__initWidget()
 
@@ -1455,8 +1456,8 @@ class TranslateSettingInterface(ScrollArea):
         # 如果已有检测线程在运行，则不启动新的
         if self.detection_thread and self.detection_thread.isRunning():
             Flyout.create(
-                title="提示",
-                content="检测正在进行中，请稍候...",
+                title=self.globalText.Info,
+                content=self.globalText.DetectionInProgress,
                 target=self.detectionCard.openButton,
                 parent=self,
                 isClosable=True,
@@ -1483,8 +1484,8 @@ class TranslateSettingInterface(ScrollArea):
 
         # 显示正在检测的提示
         Flyout.create(
-            title="正在检测...",
-            content="正在验证自定义模型参数，请稍候...",
+            title=self.globalText.DetectingTitle,
+            content=self.globalText.VerifyingCustomModel,
             target=self.detectionCard.openButton,
             parent=self,
             isClosable=True,
@@ -1530,7 +1531,7 @@ class WhisperSettingInterface(ScrollArea):
         self.modelPathCard = PushSettingCard(
             self.globalText.SelectModelFile,
             FIF.DOCUMENT,
-            "模型文件",
+            self.globalText.ModelFile,
             cfg.get(cfg.whisperModelPath),
             self.modelPathGroup,
         )
@@ -1675,7 +1676,7 @@ class WhisperSettingInterface(ScrollArea):
             cfg.get(cfg.lastOpenPath)
             if cfg.get(cfg.lastOpenPath)
             else str(Path.home()),
-            "模型文件 (*.bin);;所有文件 (*.*)",
+            self.globalText.ModelFileFilter,
         )
 
         if file_path:

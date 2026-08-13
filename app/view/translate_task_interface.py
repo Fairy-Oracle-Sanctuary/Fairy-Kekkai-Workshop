@@ -1,113 +1,47 @@
-# coding:utf-8
-
-
-from PySide6.QtCore import Signal
-
 from ..common.event_bus import event_bus
-from ..common.task_status import TaskStatus
-from ..components.base_task_interface import BaseTaskInterface
-from ..components.task_card import TranslateItemWidget
-from ..service.translate_service import TranslateTask, TranslateThread
 from ..common.text import Text
+from ..components.base_task_interface import TaskInterface
+from ..components.task_card import TranslateTaskCard
+from ..service.translate_service import TranslateTask, TranslateWorker
 
 
-class TranslateTaskInterface(BaseTaskInterface):
-    """翻译字幕界面"""
-
-    returnTranslateTask = Signal(
-        bool, list, bool
-    )  # 是否重复的任务 任务路径列表 是否发送消息
+class TranslateTaskInterface(TaskInterface):
+    """翻译任务界面（继承通用 TaskInterface，对齐 OCR/FFmpeg/Whisper 链路）"""
 
     def __init__(self, parent=None):
-        globalText = Text()
-        super().__init__(
-            object_name="translateTaskInterface",
-            processing_text=globalText.Translating,
-            task_type=globalText.Translate,
-            parent=parent,
-        )
-        self.globalText = globalText
+        super().__init__(object_name="translateTaskInterface", parent=parent)
+        self.globalText = Text()
 
-        self.translate_paths = []  # 所有待翻译文件路径
+    # ---------- 子类扩展点 ----------
 
     def createTask(self, args):
-        task = TranslateTask(args)
+        return TranslateTask(args)
 
-        srt_path = task.input_file
-        if srt_path in self.translate_paths:
-            self.returnTranslateTask.emit(True, self.translate_paths, True)
-            return
-        else:
-            self.translate_paths.append(srt_path)
-            self.returnTranslateTask.emit(False, self.translate_paths, True)
-
-        return task
-
-    def createTaskItem(self, task: TranslateTask, parent):
-        return TranslateItemWidget(
-            task, progressBar_type="determinate", ai_model=task.AI, parent=parent
-        )
-
-    def createTaskThread(self, task: TranslateTask):
-        return TranslateThread(task)
-
-    def getTaskPath(self, task: TranslateTask):
+    def getTaskPath(self, task):
         return task.input_file
 
-    def onTaskFinished(self, task_id, success, message):
-        """任务完成"""
-        for task in self.tasks:
-            if task.id == task_id:
-                if success:
-                    task.status = TaskStatus.DONE
-                    event_bus.notification_service.show_success(
-                        self.globalText.TranslationComplete2,
-                        self.globalText.TranslationComplete3.format(task.input_file),
-                    )
-                else:
-                    task.status = TaskStatus.FAILED
-                    event_bus.notification_service.show_error(
-                        self.globalText.TranslationFailed2, message.strip()
-                    )
+    def createTaskCard(self, task, parent):
+        return TranslateTaskCard(task, parent)
 
-                # 从活动线程列表中移除对应线程引用
-                for thread in self.active_threads[:]:
-                    if thread.task.id == task_id:
-                        self.active_threads.remove(thread)
-                        break
+    def createWorker(self, task):
+        return TranslateWorker(task)
 
-                # 从 translate_paths 中移除已完成/被移除的路径，允许重新添加
-                try:
-                    if task.input_file in self.translate_paths:
-                        self.translate_paths.remove(task.input_file)
-                except Exception:
-                    pass
+    def getTaskTypeText(self):
+        return self.globalText.Translate
 
-                self.updateTaskUI(task_id)
+    def getTaskGeneratedFiles(self, task):
+        """任务生成的文件：翻译输出（译文.srt）"""
+        return [task.output_file] if task.output_file else []
 
-                # 开始下一个任务
-                self.startNextTask()
-                break
+    def getLogName(self, task=None):
+        """实时日志通道名（对齐 TranslateWorker 的 translate 通道）"""
+        return "translate"
+
+    def _emitLegacyFinished(self, success, card):
+        """兼容旧托盘通知通道"""
+        event_bus.translate_finished_signal.emit(
+            success, [card.task.output_file] if success else [""]
+        )
 
     def addTranslateTask(self, args):
         self.addTask(args)
-
-    def retryTranslate(self, task_id):
-        self.retryTask(task_id)
-
-    def removeTask(self, task_id):
-        """覆盖父类移除以同步 translate_paths"""
-        # 在父类删除任务前，尝试获取任务的路径以便从 translate_paths 中移除
-        path = None
-        for task in self.tasks:
-            if task.id == task_id:
-                path = getattr(task, "input_file", None)
-                break
-
-        super().removeTask(task_id)
-
-        if path and path in self.translate_paths:
-            try:
-                self.translate_paths.remove(path)
-            except ValueError:
-                pass

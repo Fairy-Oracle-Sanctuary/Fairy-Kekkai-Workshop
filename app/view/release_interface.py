@@ -1,5 +1,3 @@
-# coding:utf-8
-
 import time
 from pathlib import Path
 
@@ -13,7 +11,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     CheckBox,
     ComboBox,
@@ -30,7 +29,7 @@ from qfluentwidgets import (
     isDarkTheme,
     setFont,
 )
-from qfluentwidgets import FluentIcon as FIF
+from libs.qfluentwidgets_pro import FluentIcon as FIF
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus  # noqa
@@ -299,9 +298,7 @@ class ReleaseBaseSettingInterface(QWidget):
         self.repostLayout = QHBoxLayout()
 
         self.repostEdit = LineEdit(self)
-        self.repostEdit.setPlaceholderText(
-            "转载视频请注明来源、时间、地点(例：转自https://www.xxxx.com/yyyy)，注明来源会更快地通过审核哦"
-        )
+        self.repostEdit.setPlaceholderText(self.globalText.RepostPlaceholder)
         self.repostEdit.setVisible(False)
 
         self.repostLength = BodyLabel("0/200", self)
@@ -352,10 +349,12 @@ class ReleaseBaseSettingInterface(QWidget):
         self.tagsLayout.setSpacing(4)
 
         self.tagInputHint = LineEdit(self.tagContainer)
-        self.tagInputHint.setPlaceholderText("按回车键Enter创建标签")
+        self.tagInputHint.setPlaceholderText(self.globalText.PETCT)
         self.tagInputHint.setMinimumWidth(200)
 
-        self.tagCountLabel = BodyLabel("还可以添加10个标签", self.tagContainer)
+        self.tagCountLabel = BodyLabel(
+            self.globalText.YouCanAddMoreTags.format(10), self.tagContainer
+        )
 
         self.tagLayout.addSpacing(12)
         self.tagLayout.addWidget(tagLabel)
@@ -381,9 +380,7 @@ class ReleaseBaseSettingInterface(QWidget):
         descLabel = BodyLabel("  简介", self)
 
         self.descEdit = PlainTextEdit(self)
-        self.descEdit.setPlaceholderText(
-            "填写更全面的相关信息，让更多的人能找到你的视频吧"
-        )
+        self.descEdit.setPlaceholderText(self.globalText.FillMoreInfo)
         self.descEdit.setMinimumHeight(150)
         self.descEdit.textChanged.connect(
             lambda: descLength.setText(f"{len(self.descEdit.toPlainText())}/2000")

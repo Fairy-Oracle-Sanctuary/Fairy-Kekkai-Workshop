@@ -3,14 +3,15 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
     QVBoxLayout,
 )
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     CardWidget,
     ComboBoxSettingCard,
     SwitchSettingCard,
     TableWidget,
 )
-from qfluentwidgets import FluentIcon as FIF
+from libs.qfluentwidgets_pro import FluentIcon as FIF
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus
@@ -41,7 +42,7 @@ class TranslateStackedInterfaces(BaseStackedInterfaces):
 
         # 连接专用信号
         self.mainInterface.addTask.connect(self.taskInterface.addTranslateTask)
-        self.taskInterface.returnTranslateTask.connect(self.mainInterface.updateTask)
+        self.taskInterface.returnTask.connect(self.mainInterface.updateTask)
 
 
 class TranslationInterface(BaseFunctionInterface):

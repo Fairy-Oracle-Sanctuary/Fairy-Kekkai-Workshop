@@ -1,24 +1,23 @@
-# coding:utf-8
-
 import os
 
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QDesktopServices
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     ComboBoxSettingCard,
     Dialog,
 )
-from qfluentwidgets import FluentIcon as FIF
+from libs.qfluentwidgets_pro import FluentIcon as FIF
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
+from ..common.text import Text
 from ..components.base_function_interface import BaseFunctionInterface
 from ..components.base_stacked_interface import BaseStackedInterfaces
 from ..components.config_card import WhisperSettingInterface
 from ..view.whisper_task_interface import WhisperTaskInterface
-from ..common.text import Text
 
 
 class WhisperStackedInterfaces(BaseStackedInterfaces):
@@ -92,9 +91,7 @@ class WhisperInterface(BaseFunctionInterface):
         self.settingsGroup.addSettingCard(self.formatCard)
 
         # 模型说明提示卡片
-        hint_label = BodyLabel(
-            self.globalText.BeforeUsingThisFeatu
-        )
+        hint_label = BodyLabel(self.globalText.BeforeUsingThisFeatu)
         hint_label.setWordWrap(True)
         hint_label.linkActivated.connect(
             lambda url: QDesktopServices.openUrl(QUrl(url))

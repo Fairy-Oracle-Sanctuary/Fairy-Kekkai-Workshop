@@ -1,11 +1,11 @@
-# coding: utf-8
 import sys
 from pathlib import Path
 
 from PySide6.QtCore import QRect, QSettings, QSize, Qt, QTimer, QUrl
 from PySide6.QtGui import QColor, QDesktopServices, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import QApplication
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     InfoBarPosition,
     MessageBox,
@@ -17,11 +17,11 @@ from qfluentwidgets import (
     isDarkTheme,
     setTheme,
 )
-from qfluentwidgets import FluentIcon as FIF
+from libs.qfluentwidgets_pro import FluentIcon as FIF
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus
-from ..common.setting import GITHUB_URL, RELEASE_URL
+from ..common.setting import GITHUB_URL
 from ..common.task_status import TaskStatus
 from ..common.text import Text
 from ..components.dialog import UpdateDialog
@@ -88,11 +88,11 @@ class LoadingSplashScreen(SplashScreen):
 
 window_class = cfg.get(cfg.windowClass)
 if window_class == "MSFluentWindow":
-    from qfluentwidgets import MSFluentWindow as window
+    from libs.qfluentwidgets_pro import MSFluentWindow as window
 elif window_class == "FluentWindow":
-    from qfluentwidgets import FluentWindow as window
+    from libs.qfluentwidgets_pro import FluentWindow as window
 else:
-    from qfluentwidgets import MSFluentWindow as window
+    from libs.qfluentwidgets_pro import MSFluentWindow as window
 
 
 class MainWindow(window):
@@ -464,7 +464,7 @@ class MainWindow(window):
 
         if running_tasks:
             # 显示确认对话框
-            from qfluentwidgets import MessageBox
+            from libs.qfluentwidgets_pro import MessageBox
 
             message = self.globalText.TFTASRCA.format(running_tasks)
             dialog = MessageBox(self.globalText.ConfirmClose, message, self)
@@ -508,106 +508,36 @@ class MainWindow(window):
                         thread.cancel()
                     # 标记任务为已取消
                     if hasattr(thread, "task"):
-                        thread.task.status = TaskStatus.CANCELLED
+                        thread.task.status = TaskStatus.Cancelled
                 # 强制终止残留进程
                 if download_interface and hasattr(download_interface, "cleanup"):
                     download_interface.cleanup()
 
-        # 停止翻译任务
+        # 停止翻译任务（新链路：QThreadPool + event_bus，统一走 stopAll）
         if hasattr(self, "translateInterface"):
             translate_interface = getattr(
                 self.translateInterface, "taskInterface", None
             )
-            if translate_interface and hasattr(translate_interface, "active_threads"):
-                for thread in translate_interface.active_threads[:]:
-                    # 断开信号连接
-                    if hasattr(thread, "finished_signal"):
-                        try:
-                            thread.finished_signal.disconnect()
-                        except Exception:
-                            pass
-                    if hasattr(thread, "_is_running"):
-                        thread._is_running = False
-                    # 标记任务为已取消
-                    if hasattr(thread, "task"):
-                        thread.task.status = TaskStatus.CANCELLED
-                    if hasattr(thread, "wait"):
-                        thread.wait(1000)
+            if translate_interface and hasattr(translate_interface, "stopAll"):
+                translate_interface.stopAll()
 
-        # 停止OCR任务
+        # 停止OCR任务（新链路：QThreadPool + event_bus，统一走 stopAll）
         if hasattr(self, "videoCRInterface"):
             ocr_interface = getattr(self.videoCRInterface, "taskInterface", None)
-            if ocr_interface and hasattr(ocr_interface, "active_threads"):
-                from PySide6.QtCore import QProcess
+            if ocr_interface and hasattr(ocr_interface, "stopAll"):
+                ocr_interface.stopAll()
 
-                for thread in ocr_interface.active_threads[:]:
-                    # 断开信号连接
-                    if hasattr(thread, "finished_signal"):
-                        try:
-                            thread.finished_signal.disconnect()
-                        except Exception:
-                            pass
-                    if hasattr(thread, "_is_running"):
-                        thread._is_running = False
-                    # 标记任务为已取消
-                    if hasattr(thread, "task"):
-                        thread.task.status = TaskStatus.CANCELLED
-                    if hasattr(thread, "process") and thread.process:
-                        if thread.process.state() == QProcess.ProcessState.Running:
-                            thread.process.kill()
-                            thread.process.waitForFinished(1000)
-                    if hasattr(thread, "wait"):
-                        thread.wait(1000)
-
-        # 停止FFmpeg任务
+        # 停止FFmpeg任务（新链路：QThreadPool + event_bus，统一走 stopAll）
         if hasattr(self, "ffmpegInterface"):
             ffmpeg_interface = getattr(self.ffmpegInterface, "taskInterface", None)
-            if ffmpeg_interface and hasattr(ffmpeg_interface, "active_threads"):
-                from PySide6.QtCore import QProcess
+            if ffmpeg_interface and hasattr(ffmpeg_interface, "stopAll"):
+                ffmpeg_interface.stopAll()
 
-                for thread in ffmpeg_interface.active_threads[:]:
-                    # 断开信号连接
-                    if hasattr(thread, "finished_signal"):
-                        try:
-                            thread.finished_signal.disconnect()
-                        except Exception:
-                            pass
-                    if hasattr(thread, "_is_running"):
-                        thread._is_running = False
-                    # 标记任务为已取消
-                    if hasattr(thread, "task"):
-                        thread.task.status = TaskStatus.CANCELLED
-                    if hasattr(thread, "process") and thread.process:
-                        if thread.process.state() == QProcess.ProcessState.Running:
-                            thread.process.kill()
-                            thread.process.waitForFinished(1000)
-                    if hasattr(thread, "wait"):
-                        thread.wait(1000)
-
-        # 停止Whisper任务
-        if sys.platform == "win32" and hasattr(self, "whisperInterface"):
+        # 停止Whisper任务（新链路：QThreadPool + event_bus，统一走 stopAll）
+        if hasattr(self, "whisperInterface"):
             whisper_interface = getattr(self.whisperInterface, "taskInterface", None)
-            if whisper_interface and hasattr(whisper_interface, "active_threads"):
-                from PySide6.QtCore import QProcess
-
-                for thread in whisper_interface.active_threads[:]:
-                    # 断开信号连接
-                    if hasattr(thread, "finished_signal"):
-                        try:
-                            thread.finished_signal.disconnect()
-                        except Exception:
-                            pass
-                    if hasattr(thread, "_is_running"):
-                        thread._is_running = False
-                    # 标记任务为已取消
-                    if hasattr(thread, "task"):
-                        thread.task.status = TaskStatus.CANCELLED
-                    if hasattr(thread, "process") and thread.process:
-                        if thread.process.state() == QProcess.ProcessState.Running:
-                            thread.process.kill()
-                            thread.process.waitForFinished(1000)
-                    if hasattr(thread, "wait"):
-                        thread.wait(1000)
+            if whisper_interface and hasattr(whisper_interface, "stopAll"):
+                whisper_interface.stopAll()
 
     def check_running_tasks(self):
         """检查是否有运行中的任务"""
@@ -625,41 +555,57 @@ class MainWindow(window):
                         self.globalText.DownloadTasks.format(active_count)
                     )
 
-        # 检查翻译任务
+        # 检查翻译任务（新链路：统计运行中状态的任务卡片）
         if hasattr(self, "translateInterface"):
             translate_interface = getattr(
                 self.translateInterface, "taskInterface", None
             )
-            if translate_interface and hasattr(translate_interface, "active_threads"):
-                active_count = len(translate_interface.active_threads)
+            if translate_interface and hasattr(translate_interface, "cards"):
+                active_count = sum(
+                    1
+                    for card in translate_interface.cards
+                    if card.status == TaskStatus.Processing
+                )
                 if active_count > 0:
                     running_tasks.append(
                         self.globalText.TranslationTasks.format(active_count)
                     )
 
-        # 检查OCR任务
+        # 检查OCR任务（新链路：统计运行中状态的任务卡片）
         if hasattr(self, "videoCRInterface"):
             ocr_interface = getattr(self.videoCRInterface, "taskInterface", None)
-            if ocr_interface and hasattr(ocr_interface, "active_threads"):
-                active_count = len(ocr_interface.active_threads)
+            if ocr_interface and hasattr(ocr_interface, "cards"):
+                active_count = sum(
+                    1
+                    for card in ocr_interface.cards
+                    if card.status == TaskStatus.Processing
+                )
                 if active_count > 0:
                     running_tasks.append(self.globalText.OCRTasks.format(active_count))
 
-        # 检查FFmpeg任务
+        # 检查FFmpeg任务（新链路：统计运行中状态的任务卡片）
         if hasattr(self, "ffmpegInterface"):
             ffmpeg_interface = getattr(self.ffmpegInterface, "taskInterface", None)
-            if ffmpeg_interface and hasattr(ffmpeg_interface, "active_threads"):
-                active_count = len(ffmpeg_interface.active_threads)
+            if ffmpeg_interface and hasattr(ffmpeg_interface, "cards"):
+                active_count = sum(
+                    1
+                    for card in ffmpeg_interface.cards
+                    if card.status == TaskStatus.Processing
+                )
                 if active_count > 0:
                     running_tasks.append(
                         self.globalText.EncodingTasks.format(active_count)
                     )
 
-        # 检查Whisper任务
-        if sys.platform == "win32" and hasattr(self, "whisperInterface"):
+        # 检查Whisper任务（新链路：统计运行中状态的任务卡片）
+        if hasattr(self, "whisperInterface"):
             whisper_interface = getattr(self.whisperInterface, "taskInterface", None)
-            if whisper_interface and hasattr(whisper_interface, "active_threads"):
-                active_count = len(whisper_interface.active_threads)
+            if whisper_interface and hasattr(whisper_interface, "cards"):
+                active_count = sum(
+                    1
+                    for card in whisper_interface.cards
+                    if card.status == TaskStatus.Processing
+                )
                 if active_count > 0:
                     running_tasks.append(
                         self.globalText.TranscriptionTasks.format(active_count)

@@ -25,14 +25,14 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from qfluentwidgets import (
+from libs.qfluentwidgets_pro import (
     CaptionLabel,
     StrongBodyLabel,
     TransparentToolButton,
     isDarkTheme,
     qconfig,
 )
-from qfluentwidgets import (
+from libs.qfluentwidgets_pro import (
     FluentIcon as FIF,
 )
 
@@ -534,7 +534,7 @@ class FloatingWindow(QWidget):
         if not self._ocr_history:
             self._set_status(self.t.FWNoHistory)
             return
-        from qfluentwidgets import Action, RoundMenu
+        from libs.qfluentwidgets_pro import Action, RoundMenu
 
         menu = RoundMenu(parent=self)
         for i, text in enumerate(reversed(self._ocr_history)):

@@ -1,11 +1,11 @@
-from qfluentwidgets import FluentIcon as FIF
+from libs.qfluentwidgets_pro import FluentIcon as FIF
 
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
+from ..common.text import Text
 from ..components.base_function_interface import BaseFunctionInterface
 from ..components.base_stacked_interface import BaseStackedInterfaces
 from ..components.config_card import FFmpegSettingInterface
-from ..common.text import Text
 
 
 class FFmpegStackedInterfaces(BaseStackedInterfaces):
@@ -25,7 +25,7 @@ class FFmpegStackedInterfaces(BaseStackedInterfaces):
         self.globalText = globalText
 
         # 连接专用信号
-        self.mainInterface.addTask.connect(self.taskInterface.addFFmpegTask)
+        self.mainInterface.addTask.connect(self.taskInterface.addTask)
         self.taskInterface.returnTask.connect(self.mainInterface.updateTask)
 
 
@@ -51,7 +51,6 @@ class FFmpegInterface(BaseFunctionInterface):
 
     def _create_settings_cards(self):
         """创建基础设置卡片"""
-        pass
 
     def _connect_signals(self):
         """连接信号槽"""

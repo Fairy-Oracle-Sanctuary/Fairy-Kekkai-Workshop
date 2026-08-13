@@ -1,4 +1,3 @@
-# coding:utf-8
 import json
 import os
 import shutil
@@ -16,7 +15,9 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from qfluentwidgets import (
+
+from app.common.config import cfg
+from libs.qfluentwidgets_pro import (
     FluentIcon,
     Pivot,
     PrimaryPushButton,
@@ -24,8 +25,6 @@ from qfluentwidgets import (
     ScrollArea,
     SegmentedWidget,
 )
-
-from app.common.config import cfg
 
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
@@ -136,18 +135,18 @@ class DownloadInterface(ScrollArea):
         )
         self.segmentedWidget.addItem(
             self.downloadingTab,
-            status_text(TaskStatus.PROCESSING, self.globalText.Downloading),
-            lambda: self.filterTasks(TaskStatus.PROCESSING),
+            status_text(TaskStatus.Processing, self.globalText.Downloading),
+            lambda: self.filterTasks(TaskStatus.Processing),
         )
         self.segmentedWidget.addItem(
             self.completedTab,
-            status_text(TaskStatus.DONE),
-            lambda: self.filterTasks(TaskStatus.DONE),
+            status_text(TaskStatus.Succeeded),
+            lambda: self.filterTasks(TaskStatus.Succeeded),
         )
         self.segmentedWidget.addItem(
             self.failedTab,
-            status_text(TaskStatus.FAILED),
-            lambda: self.filterTasks(TaskStatus.FAILED),
+            status_text(TaskStatus.Failed),
+            lambda: self.filterTasks(TaskStatus.Failed),
         )
 
         self.segmentedWidget.setCurrentItem(self.allTab)
@@ -175,19 +174,19 @@ class DownloadInterface(ScrollArea):
         self.max_concurrent_downloads = value
         # 如果当前活跃下载数超过新的限制，需要停止一些任务
         active_count = len(
-            [t for t in self.download_tasks if t.status == TaskStatus.PROCESSING]
+            [t for t in self.download_tasks if t.status == TaskStatus.Processing]
         )
         if active_count > self.max_concurrent_downloads:
             # 停止超出限制的任务
             excess_count = active_count - self.max_concurrent_downloads
             stopped = 0
             for task in reversed(self.download_tasks):
-                if task.status == TaskStatus.PROCESSING and stopped < excess_count:
+                if task.status == TaskStatus.Processing and stopped < excess_count:
                     # 找到对应的线程并停止
                     for thread in self.active_downloads:
                         if thread.task.id == task.id:
                             thread.cancel()
-                            task.status = TaskStatus.WAITING
+                            task.status = TaskStatus.Waiting
                             self.updateTaskUI(task.id)
                             stopped += 1
                             break
@@ -258,7 +257,7 @@ class DownloadInterface(ScrollArea):
         """开始下一个下载任务"""
         # 检查当前活跃下载数
         active_count = len(
-            [t for t in self.download_tasks if t.status == TaskStatus.PROCESSING]
+            [t for t in self.download_tasks if t.status == TaskStatus.Processing]
         )
 
         if active_count >= self.max_concurrent_downloads:
@@ -266,7 +265,7 @@ class DownloadInterface(ScrollArea):
 
         # 查找等待中的任务
         waiting_tasks = [
-            t for t in self.download_tasks if t.status == TaskStatus.WAITING
+            t for t in self.download_tasks if t.status == TaskStatus.Waiting
         ]
 
         if waiting_tasks:
@@ -290,7 +289,7 @@ class DownloadInterface(ScrollArea):
                 self.globalText.ConfigurationError,
                 self.globalText.YDPDNEPCTCPIS.format(ytdlp_path),
             )
-            task.status = TaskStatus.FAILED
+            task.status = TaskStatus.Failed
             self.updateTaskUI(task.id)
             return
 
@@ -317,7 +316,7 @@ class DownloadInterface(ScrollArea):
         self.active_downloads.append(download_thread)
 
         # 更新任务状态
-        task.status = TaskStatus.PROCESSING
+        task.status = TaskStatus.Processing
 
         # 更新UI
         self.updateTaskUI(task.id)
@@ -342,7 +341,7 @@ class DownloadInterface(ScrollArea):
         for task in self.download_tasks:
             if task.id == task_id:
                 if success:
-                    task.status = TaskStatus.DONE
+                    task.status = TaskStatus.Succeeded
                     event_bus.notification_service.show_success(
                         self.globalText.DownloadCompleted,
                         self.globalText.TextAuto065.format(task.filename),
@@ -351,7 +350,7 @@ class DownloadInterface(ScrollArea):
                         f"下载完成: -{task.filename}- 路径: {task.download_path}"
                     )
                 else:
-                    task.status = TaskStatus.FAILED
+                    task.status = TaskStatus.Failed
                     event_bus.notification_service.show_error(
                         self.globalText.DownloadFailed, message.strip()
                     )
@@ -400,11 +399,11 @@ class DownloadInterface(ScrollArea):
         if current == self.allTab:
             return "all"
         elif current == self.downloadingTab:
-            return TaskStatus.PROCESSING
+            return TaskStatus.Processing
         elif current == self.completedTab:
-            return TaskStatus.DONE
+            return TaskStatus.Succeeded
         elif current == self.failedTab:
-            return TaskStatus.FAILED
+            return TaskStatus.Failed
         return "all"
 
     def filterTasks(self, filter_type):
@@ -421,7 +420,7 @@ class DownloadInterface(ScrollArea):
         """重新下载任务"""
         for task in self.download_tasks:
             if task.id == task_id:
-                task.status = TaskStatus.WAITING
+                task.status = TaskStatus.Waiting
                 task.progress = 0
                 task.speed = ""
                 task.error_message = ""
@@ -599,7 +598,7 @@ class UpdateYtDlpThread(QThread):
             self.finished_signal.emit(True, f"yt-dlp更新成功: {target_path}")
 
         except Exception as e:
-            self.finished_signal.emit(False, f"yt-dlp更新失败: {str(e)}")
+            self.finished_signal.emit(False, f"yt-dlp更新失败: {e!s}")
 
     def cancel(self):
         """Cancel the download"""

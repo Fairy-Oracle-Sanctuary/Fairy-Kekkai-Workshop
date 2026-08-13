@@ -1,4 +1,3 @@
-# coding:utf-8
 import os
 import re
 import sys
@@ -34,7 +33,7 @@ class DownloadTask:
         self.quality = quality
         self.project_name = project_name
         self.episode_num = episode_num
-        self.status = TaskStatus.WAITING
+        self.status = TaskStatus.Waiting
         self.progress = 0
         self.speed = ""
         self.filename = ""
@@ -159,6 +158,7 @@ class DownloadProcess(QObject):
             # Linux 下优先使用系统 ffmpeg，避免 IDE 自带的 ffmpeg
             if sys.platform == "linux":
                 import shutil
+
                 # 检查当前路径是否为非系统路径（如 IDE 自带）
                 if not ffmpeg_path.startswith(("/usr/bin/", "/usr/local/bin/")):
                     # 尝试查找系统 ffmpeg
@@ -168,7 +168,9 @@ class DownloadProcess(QObject):
                             break
                     else:
                         which_path = shutil.which("ffmpeg")
-                        if which_path and which_path.startswith(("/usr/bin/", "/usr/local/bin/")):
+                        if which_path and which_path.startswith(
+                            ("/usr/bin/", "/usr/local/bin/")
+                        ):
                             ffmpeg_path = which_path
             cmd.extend(["--ffmpeg-location", ffmpeg_path])
 
@@ -208,7 +210,7 @@ class DownloadProcess(QObject):
         #     self.finished_signal.emit(False, f"检测网络连接时发生未知错误: {str(e)}")
         #     return
 
-        self.task.status = TaskStatus.PROCESSING
+        self.task.status = TaskStatus.Processing
         self.task.start_time = datetime.now()
 
         try:
@@ -254,11 +256,11 @@ class DownloadProcess(QObject):
 
         except Exception as e:
             if not self.is_cancelled:
-                error_msg = f"下载失败: {str(e)}"
+                error_msg = f"下载失败: {e!s}"
                 if self.output_lines:
                     error_msg += "\n输出日志:\n" + "\n".join(self.output_lines[-10:])
 
-                self.task.status = TaskStatus.FAILED
+                self.task.status = TaskStatus.Failed
                 self.task.error_message = error_msg
                 self.task.end_time = datetime.now()
                 self.finished_signal.emit(False, error_msg)
@@ -313,12 +315,12 @@ class DownloadProcess(QObject):
         """进程完成处理"""
         self.cleanup()
         if self.is_cancelled:
-            self.task.status = TaskStatus.CANCELLED
+            self.task.status = TaskStatus.Cancelled
             self.finished_signal.emit(False, self.globalText.DownloadCancelled)
             self.cancelled_signal.emit()
             self.logger.info(f"下载任务已取消: {self.task.url}")
         elif exit_code == 0:
-            self.task.status = TaskStatus.DONE
+            self.task.status = TaskStatus.Succeeded
             self.task.progress = 100
             self.task.end_time = datetime.now()
             self.finished_signal.emit(True, self.globalText.DownloadCompleted)
@@ -336,7 +338,7 @@ class DownloadProcess(QObject):
                 last_lines = "\n".join(self.output_lines[-5:])
                 error_message += f"\n最后输出:\n{last_lines}"
 
-            self.task.status = TaskStatus.FAILED
+            self.task.status = TaskStatus.Failed
             self.task.error_message = error_message
             self.task.end_time = datetime.now()
             self.finished_signal.emit(False, error_message)

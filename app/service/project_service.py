@@ -516,6 +516,7 @@ class Project:
 
 class _ProjectProxy:
     """延迟初始化的 Project 代理，import 时不触发文件扫描"""
+
     _instance = None
 
     def __getattr__(self, name):
