@@ -1,4 +1,3 @@
-# coding:utf-8
 import os
 import platform
 import shutil
@@ -16,7 +15,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     CardWidget,
     IconWidget,
@@ -33,7 +33,7 @@ from qfluentwidgets import (
     TitleLabel,
     TransparentToolButton,
 )
-from qfluentwidgets import FluentIcon as FIF
+from libs.qfluentwidgets_pro import FluentIcon as FIF
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus
@@ -406,7 +406,7 @@ class ProjectDetailInterface(ScrollArea):
             self.topPipsPager = PipsPager(self)
             self.topPipsPager.setPageNumber(total_pages)
             self.topPipsPager.setCurrentIndex(self.current_page - 1)
-            self.topPipsPager.setVisibleNumber(total_pages if total_pages <= 5 else 5)
+            self.topPipsPager.setVisibleNumber(min(total_pages, 5))
             self.topPipsPager.setNextButtonDisplayMode(
                 PipsScrollButtonDisplayMode.ALWAYS
             )
@@ -430,7 +430,7 @@ class ProjectDetailInterface(ScrollArea):
 
         # 创建底部PipsPager分页控件
         if self.total_episodes > self.items_per_page:
-            max_visible = total_pages if total_pages <= 5 else 5
+            max_visible = min(total_pages, 5)
             self.bottomPipsPager = Pager(total_pages, max_visible, self)
             self.bottomPipsPager.setCurrentPage(self.current_page)
             self.bottomPipsPager.currentPageChanged.connect(self.on_page_changed)

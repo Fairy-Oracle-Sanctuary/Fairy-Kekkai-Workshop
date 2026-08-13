@@ -63,50 +63,28 @@ if sys.platform == "win32":
         "--assume-yes-for-downloads",
         "--mingw64",
         "--lto=yes",
+        # 排除未使用的重型 Qt 模块与第三方库，防止 nuitka 误打包导致体积剧增
+        # （qfluentwidgets_pro 已不导出 chart_widget/acrylic_label，这里是兜底防御）
+        "--nofollow-import-to=pyqtgraph",
+        "--nofollow-import-to=colorthief",
+        "--nofollow-import-to=pythoncom",
+        "--nofollow-import-to=PySide6.QtWebChannel",
+        "--nofollow-import-to=PySide6.QtWebEngineCore",
+        "--nofollow-import-to=PySide6.QtWebEngineWidgets",
+        "--nofollow-import-to=PySide6.QtPositioning",
+        "--nofollow-import-to=PySide6.QtQml",
+        "--nofollow-import-to=PySide6.QtQmlModels",
+        "--nofollow-import-to=PySide6.QtQuick",
+        "--nofollow-import-to=PySide6.QtQuickWidgets",
+        "--nofollow-import-to=PySide6.QtPrintSupport",
+        "--nofollow-import-to=PySide6.QtOpenGL",
+        "--nofollow-import-to=PySide6.QtPdf",
         "--show-memory",
         "--show-progress",
         "--windows-icon-from-ico=app/resource/images/logo.ico",
         f"--windows-file-version={wv}",
         f"--windows-product-version={wv}",
         '--windows-file-description="Fairy Kekkai Workshop"',
-        "--output-dir=dist",
-        "Fairy-Kekkai-Workshop.py",
-    ]
-elif sys.platform == "darwin":
-    args = [
-        sys.executable,
-        "-m",
-        "nuitka",
-        "--standalone",
-        "--plugin-enable=pyside6",
-        "--show-memory",
-        "--show-progress",
-        "--macos-create-app-bundle",
-        "--assume-yes-for-download",
-        "--macos-disable-console",
-        "--include-data-dir=tools=tools",
-        f"--macos-app-version={VERSION}",
-        '--macos-app-name="Fairy Kekkai Workshop"',
-        "--macos-app-icon=app/resource/images/logo.ico",
-        "--noinclude-data-file=**/*.so",
-        "--lto=yes",
-        f"--jobs={N_JOBS}",
-        "--output-dir=dist",
-        "Fairy-Kekkai-Workshop.py",
-    ]
-else:
-    args = [
-        sys.executable,
-        "-m",
-        "nuitka",
-        "--standalone",
-        "--plugin-enable=pyside6",
-        "--show-memory",
-        "--show-progress",
-        "--assume-yes-for-download",
-        "--include-data-dir=tools=tools",
-        "--lto=yes",
-        f"--jobs={N_JOBS}",
         "--output-dir=dist",
         "Fairy-Kekkai-Workshop.py",
     ]
@@ -119,4 +97,3 @@ if sys.platform == "win32":
     dist_dir = os.path.join("dist", "Fairy-Kekkai-Workshop.dist")
     if os.path.isdir(dist_dir):
         cleanup_dist(dist_dir)
-

@@ -13,11 +13,11 @@ import sys
 
 from PySide6.QtCore import QFile, QLocale, QSharedMemory, QTranslator
 from PySide6.QtWidgets import QApplication
-from qfluentwidgets import FluentTranslator
 
 from app.common.config import Language, cfg
 from app.common.setting import TEAM, VERSION
 from app.view.main_window import MainWindow
+from libs.qfluentwidgets_pro import FluentTranslator
 
 
 def is_app_running():
@@ -77,4 +77,3 @@ if __name__ == "__main__":
     sys.exit(main())
 
 # Fairy-Kekkai-Workshop
-

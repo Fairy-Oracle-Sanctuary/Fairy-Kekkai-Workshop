@@ -1,5 +1,4 @@
 # videocr_task_interface.py
-# coding:utf-8
 
 
 import os
@@ -11,7 +10,8 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QVBoxLayout,
 )
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     CaptionLabel,
     Dialog,
@@ -21,7 +21,7 @@ from qfluentwidgets import (
     StrongBodyLabel,
     TextEdit,
 )
-from qfluentwidgets import FluentIcon as FIF
+from libs.qfluentwidgets_pro import FluentIcon as FIF
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus
@@ -49,10 +49,17 @@ class VideocrStackedInterfaces(BaseStackedInterfaces):
         self.globalText = globalText
 
         # 连接专用信号
-        self.mainInterface.addTask.connect(self.taskInterface.addOcrTask)
-        self.taskInterface.log_signal.connect(self.mainInterface._log_message)
+        self.mainInterface.addTask.connect(self.taskInterface.addTask)
         self.taskInterface.returnTask.connect(self.mainInterface.updateTask)
         self.settingInterface.changeSelectionSignal.connect(self.changeSelection)
+        # OCR Worker 通过 taskLogSignal 输出带语义的日志（进度行刷新/错误红色），
+        # 转发到主界面日志框
+        event_bus.taskLogSignal.connect(self._forward_ocr_log)
+
+    def _forward_ocr_log(self, log_name, message, is_error, is_flush):
+        """将 videocr 实时日志转发到主界面日志框"""
+        if log_name == "videocr":
+            self.mainInterface._log_message(message, is_error, is_flush)
 
     def changeSelection(self, isUseDualZone):
         if isUseDualZone:
@@ -321,7 +328,7 @@ class VideocrInterface(BaseFunctionInterface):
 
             self.video_capture = cv2.VideoCapture(video_path)
             if not self.video_capture.isOpened():
-                raise Exception("无法打开视频文件")
+                raise Exception(self.globalText.CannotOpenVideoFile)
 
             self.total_frames = int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
             self.fps = self.video_capture.get(cv2.CAP_PROP_FPS)

@@ -1,7 +1,6 @@
 # models/events.py
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Optional
 
 
 class DownloadType(Enum):
@@ -25,7 +24,7 @@ class DownloadRequest:
     quality: str = "best"
     project_name: str = ""
     episode_num: int = 0
-    metadata: Optional[Dict] = None
+    metadata: dict = None
 
 
 @dataclass

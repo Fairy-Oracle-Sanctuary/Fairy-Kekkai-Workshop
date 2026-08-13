@@ -4,8 +4,8 @@ import sys
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QVBoxLayout, QWidget
-from qfluentwidgets import FluentIcon as FIF
-from qfluentwidgets import ScrollArea
+from libs.qfluentwidgets_pro import FluentIcon as FIF
+from libs.qfluentwidgets_pro import ScrollArea
 
 from ..common.event_bus import event_bus
 from ..common.text import Text

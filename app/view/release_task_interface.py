@@ -1,11 +1,9 @@
-# coding:utf-8
-
 from PySide6.QtCore import Signal
 
+from ..common.text import Text
 from ..components.base_task_interface import BaseTaskInterface
 from ..components.task_card import ReleaseItemWidget
 from ..service.release_service import ReleaseProcess, ReleaseTask
-from ..common.text import Text
 
 
 class ReleaseTaskInterface(BaseTaskInterface):

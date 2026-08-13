@@ -1,12 +1,11 @@
-# coding:utf-8
-
 import math
 
 import cv2
 from PySide6.QtCore import QRect, Qt, Signal
 from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QVBoxLayout, QWidget
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     CaptionLabel,
     FlowLayout,
@@ -55,7 +54,9 @@ class VideoPreview(SimpleCardWidget):
         self.control_layout = QHBoxLayout()
         self.select_btn = PushButton(FluentIcon.MOVE, self.globalText.SelectArea)
         self.select_btn.setEnabled(False)
-        self.clear_selection_btn = PushButton(FluentIcon.CANCEL, self.globalText.ClearSelection)
+        self.clear_selection_btn = PushButton(
+            FluentIcon.CANCEL, self.globalText.ClearSelection
+        )
         self.clear_selection_btn.setEnabled(False)
 
         self.control_layout.addWidget(self.select_btn)
@@ -564,7 +565,9 @@ class VideoPreview(SimpleCardWidget):
 
         # 标题
         title_layout = QHBoxLayout()
-        title_label = CaptionLabel(self.globalText.AreaCoordinates.format(zone_index + 1))
+        title_label = CaptionLabel(
+            self.globalText.AreaCoordinates.format(zone_index + 1)
+        )
         title_layout.addWidget(title_label)
         title_layout.addStretch()
 

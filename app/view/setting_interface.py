@@ -10,7 +10,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt, QThread, QUrl
 from PySide6.QtGui import QDesktopServices, QFont
 from PySide6.QtWidgets import QFileDialog, QWidget
-from qfluentwidgets import (
+from libs.qfluentwidgets_pro import (
     ComboBoxSettingCard,
     Dialog,
     ExpandLayout,
@@ -25,8 +25,8 @@ from qfluentwidgets import (
     setTheme,
     setThemeColor,
 )
-from qfluentwidgets import FluentIcon as FIF
-from qfluentwidgets import SettingCardGroup as CardGroup
+from libs.qfluentwidgets_pro import FluentIcon as FIF
+from libs.qfluentwidgets_pro import SettingCardGroup as CardGroup
 from qframelesswindow.utils import getSystemAccentColor
 
 from ..common.config import cfg, get_default_exe_path

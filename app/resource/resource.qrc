@@ -2,6 +2,16 @@
     <qresource prefix="/app">
         <file>images/logo.png</file>
         <file>images/logo/FFmpeg.svg</file>
+        <file>images/logo/Face01.svg</file>
+        <file>images/logo/Face02.svg</file>
+        <file>images/logo/Face03.svg</file>
+        <file>images/logo/Face04.svg</file>
+        <file>images/logo/Face05.svg</file>
+        <file>images/logo/Face06.svg</file>
+        <file>images/logo/Face07.svg</file>
+        <file>images/logo/Face08.svg</file>
+        <file>images/logo/Face09.svg</file>
+        <file>images/logo/Face10.svg</file>
         <file>images/logo/ytdlp.svg</file>
         <file>images/logo/Paddle.svg</file>
         <file>images/icons/deepseek.svg</file>

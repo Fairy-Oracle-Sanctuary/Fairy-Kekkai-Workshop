@@ -1,76 +1,192 @@
 # ocr_service.py
 
 import os
+import re
+import shutil
 import subprocess
 import tempfile
 
-from PySide6.QtCore import QObject, QProcess, QThread, Signal
+from PySide6.QtCore import QDateTime, QEventLoop, QProcess, QRunnable, QThread
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
 from ..common.task_status import TaskStatus
-from ..common.text import Text
 
 NO_WINDOW_KWARGS = (
     {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
 )
 
+# 进度解析正则
+STEP1_CURRENT_RE = re.compile(r"Current:\s+(\d+:\d+:\d+)\s+/\s+(\d+:\d+:\d+)")
+STEP2_DETECT_RE = re.compile(r"Performing Text-Detection on image\s+(\d+)\s+of\s+(\d+)")
+ANALYZE_FRAME_RE = re.compile(r"Analyzing frame\s+(\d+)\s+of\s+(\d+)")
+STEP3_OCR_RE = re.compile(r"Performing OCR on image\s+(\d+)\s+of\s+(\d+)")
+
+
+def _time_to_seconds(time_str: str) -> int:
+    """将 HH:MM:SS / MM:SS 时间字符串转换为秒"""
+    parts = time_str.split(":")
+    try:
+        if len(parts) == 3:
+            return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
+        elif len(parts) == 2:
+            return int(parts[0]) * 60 + int(parts[1])
+    except ValueError:
+        return 0
+    return 0
+
 
 class OCRTask:
-    """OCR任务类"""
+    """OCR 字幕提取任务（纯数据类）"""
 
     _id_counter = 0
 
     def __init__(self, args):
-        self.args = args
-        self.status = TaskStatus.WAITING
-        self.progress = 0
-        self.error_message = ""
-        self.input_file = args.get("video_path")
-        self.output_file = args.get("file_path")
-        self.temp_dir = args.get("temp_dir")
-
         OCRTask._id_counter += 1
-        self.id = OCRTask._id_counter
+        self.task_id = OCRTask._id_counter
+        self.args = args
+        self.videoPath = args.get("video_path")
+        self.outputFile = args.get("file_path")
+        self.temp_dir = args.get("temp_dir")
+        self.fileName = os.path.basename(self.videoPath) if self.videoPath else ""
+        self.outputName = os.path.basename(self.outputFile) if self.outputFile else ""
+        self.logPath = None
+        self.createTime = QDateTime.currentDateTime()
 
 
-class OCRProcess(QObject):
-    """OCR处理进程"""
+class OCRWorker(QRunnable):
+    """OCR 字幕提取 Worker（对齐 Easy-FFmpeg：QEventLoop 同步化 + event_bus 上报）
 
-    progress_signal = Signal(int, int, int)  # 进度百分比, 当前帧, 总帧数
-    finished_signal = Signal(bool, str)  # 成功/失败, 消息
-    log_signal = Signal(str, bool, bool)  # 日志信息
-    print_signal = Signal(str)  # 捕获print输出
-    cancelled_signal = Signal()  # 取消完成信号
+    取消使用 taskkill 强杀进程树（videocr-cli 会派生子进程）。
+    """
 
     def __init__(self, task: OCRTask):
         super().__init__()
-        self.globalText = Text()
-        self.logger = Logger("OCRProcess", "videocr")
         self.task = task
-        self.is_cancelled = False
         self.process = None
+        self._cancelled = False
         self.output_lines = []  # 存储输出用于错误诊断
-        self._cancellation_timer = None
+        self.taskLogger = None
         self._last_step1_progress = None
+        self._last_progress = -1
 
-    def cleanup(self):
-        """清理子进程资源，由各完成/错误/取消路径显式调用"""
-        if self.process:
-            if self.process.state() == QProcess.Running:
-                self.process.kill()
-                self.process.waitForFinished(1000)
-            self.process = None
-        if self._cancellation_timer:
-            self._cancellation_timer.stop()
-            self._cancellation_timer = None
+    def run(self):
+        currentTime = self.task.createTime.toString("yyyy-MM-dd_hh-mm-ss")
+        self.taskLogger = Logger(
+            "Tasks/" + currentTime + f"_taskID-{self.task.task_id}", "videocr"
+        )
+        self.task.logPath = str(self.taskLogger.logFile.absolute())
+
+        try:
+            # 清理临时目录
+            if self.task.temp_dir and os.path.exists(self.task.temp_dir):
+                try:
+                    shutil.rmtree(self.task.temp_dir)
+                except Exception as e:
+                    self.taskLogger.error(f"清理临时目录失败: {e!s}")
+
+            # 构建命令并检查可执行文件
+            cmd_path, cmd_args = self.build_ocr_command()
+            if not os.path.exists(cmd_path):
+                self.taskLogger.error(f"videocr-cli.exe 不存在: {cmd_path}")
+                self._finish(False)
+                return
+
+            # 确保输出目录存在
+            output_dir = os.path.dirname(self.task.outputFile)
+            if output_dir:
+                os.makedirs(output_dir, exist_ok=True)
+
+            self.taskLogger.info(f"args: {cmd_path} {' '.join(cmd_args)}")
+
+            event_bus.updateTaskStatusSig.emit(
+                self.task.task_id, 0, TaskStatus.Processing, "", 0.0, "", 0.0
+            )
+
+            # QEventLoop 阻塞同步化，规避 QRunnable 线程内 QProcess 信号投递丢失
+            self.process = QProcess()
+            self.process.setProcessChannelMode(QProcess.MergedChannels)
+            self.process.readyReadStandardOutput.connect(self._handle_stdout)
+            loop = QEventLoop()
+            self.process.finished.connect(loop.quit)
+            self.process.start(cmd_path, cmd_args)
+            if not self.process.waitForStarted():
+                self._finish(False)
+                return
+            loop.exec()
+
+            if self._cancelled:
+                return  # 取消的任务不 emit 完成信号
+
+            success = self.process.exitCode() == 0
+            if success:
+                # 自动复制到 原文.srt（设为当前活动原文）
+                self._activate_as_current(self.task.outputFile, self.task.videoPath)
+                self.taskLogger.info(
+                    f"OCR处理完成: -{self.task.videoPath}- 输出: {self.task.outputFile}"
+                )
+            else:
+                error_msg = f"OCR处理失败，错误码: {self.process.exitCode()}"
+                if self.output_lines:
+                    error_msg += "\n最后输出:\n" + "\n".join(self.output_lines[-5:])
+                self.taskLogger.error(f"{error_msg}")
+            self._finish(success)
+        except Exception as e:
+            self.taskLogger.error(f"OCR处理失败: {e!s}")
+            self._finish(False)
+
+    def build_ocr_command(self):
+        """根据配置构建 videocr-cli 命令"""
+        args = self.task.args
+        cmd_path = cfg.get(cfg.videocrCliPath)
+
+        cmd_args = []
+        cmd_args.extend(["--video_path", args["video_path"]])
+        cmd_args.extend(["--output", args["file_path"]])
+        cmd_args.extend(["--lang", args["lang"]])
+        cmd_args.extend(["--time_start", args["time_start"]])
+        if args["time_end"]:
+            cmd_args.extend(["--time_end", args["time_end"]])
+        cmd_args.extend(["--sim_threshold", str(args["sim_threshold"])])
+        cmd_args.extend(["--max_merge_gap", str(args["max_merge_gap_sec"])])
+        cmd_args.extend(["--use_fullframe", str(args["use_fullframe"]).lower()])
+        cmd_args.extend(["--use_gpu", str(args["use_gpu"]).lower()])
+        cmd_args.extend(["--use_angle_cls", str(args["use_angle_cls"]).lower()])
+        cmd_args.extend(["--use_server_model", str(args["use_server_model"]).lower()])
+        cmd_args.extend(["--ssim_threshold", str(args["ssim_threshold"])])
+        cmd_args.extend(["--subtitle_position", args["subtitle_position"]])
+        cmd_args.extend(["--frames_to_skip", str(args["frames_to_skip"])])
+        cmd_args.extend(["--ocr_image_max_width", str(args["ocr_image_max_width"])])
+        cmd_args.extend(["--post_processing", str(args["post_processing"]).lower()])
+        cmd_args.extend(
+            ["--min_subtitle_duration", str(args["min_subtitle_duration_sec"])]
+        )
+        cmd_args.extend(["--conf_threshold", str(args["confidence_threshold"])])
+
+        if args.get("paddleocr_path"):
+            cmd_args.extend(["--paddleocr_path", args["paddleocr_path"]])
+        if args.get("supportFilesPath"):
+            cmd_args.extend(["--supportFilesPath", args["supportFilesPath"]])
+        if args.get("temp_dir"):
+            cmd_args.extend(["--tempDir", args["temp_dir"]])
+
+        # 裁剪区域
+        cmd_args.extend(["--crop_x", str(args["--crop_x"])])
+        cmd_args.extend(["--crop_y", str(args["--crop_y"])])
+        cmd_args.extend(["--crop_width", str(args["--crop_width"])])
+        cmd_args.extend(["--crop_height", str(args["--crop_height"])])
+        if args["use_dual_zone"]:
+            cmd_args.extend(["--crop_x2", str(args["--crop_x2"])])
+            cmd_args.extend(["--crop_y2", str(args["--crop_y2"])])
+            cmd_args.extend(["--crop_width2", str(args["--crop_width2"])])
+            cmd_args.extend(["--crop_height2", str(args["--crop_height2"])])
+
+        return cmd_path, cmd_args
 
     @staticmethod
     def _activate_as_current(output_file: str, input_file: str = None):
         """将提取结果复制为 原文.srt（作为当前活动原文）"""
-        import shutil
-
         parent_dir = os.path.dirname(output_file)
         current_file = os.path.join(parent_dir, "原文.srt")
 
@@ -94,134 +210,8 @@ class OCRProcess(QObject):
         except Exception:
             pass
 
-    def build_ocr_command(self):
-        """根据配置构建 ocr 命令"""
-        args = self.task.args
-
-        cmd_path = cfg.get(cfg.videocrCliPath)
-
-        # 构建命令参数
-        cmd_args = []
-
-        # 添加参数
-        cmd_args.extend(["--video_path", args["video_path"]])
-        cmd_args.extend(["--output", args["file_path"]])
-        # cmd_args.extend(["--ocr_engine", args["paddleocr"]])
-        cmd_args.extend(["--lang", args["lang"]])
-        cmd_args.extend(["--time_start", args["time_start"]])
-        if args["time_end"]:
-            cmd_args.extend(["--time_end", args["time_end"]])
-        cmd_args.extend(["--sim_threshold", str(args["sim_threshold"])])
-        cmd_args.extend(["--max_merge_gap", str(args["max_merge_gap_sec"])])
-        cmd_args.extend(["--use_fullframe", str(args["use_fullframe"]).lower()])
-        cmd_args.extend(["--use_gpu", str(args["use_gpu"]).lower()])
-        cmd_args.extend(["--use_angle_cls", str(args["use_angle_cls"]).lower()])
-        cmd_args.extend(["--use_server_model", str(args["use_server_model"]).lower()])
-        cmd_args.extend(["--ssim_threshold", str(args["ssim_threshold"])])
-        cmd_args.extend(["--subtitle_position", args["subtitle_position"]])
-        cmd_args.extend(["--frames_to_skip", str(args["frames_to_skip"])])
-        cmd_args.extend(["--ocr_image_max_width", str(args["ocr_image_max_width"])])
-        cmd_args.extend(["--post_processing", str(args["post_processing"]).lower()])
-        cmd_args.extend(
-            ["--min_subtitle_duration", str(args["min_subtitle_duration_sec"])]
-        )
-        cmd_args.extend(["--conf_threshold", str(args["confidence_threshold"])])
-
-        # # 处理paddleocr_path参数
-        if "paddleocr_path" in args and args["paddleocr_path"]:
-            cmd_args.extend(["--paddleocr_path", args["paddleocr_path"]])
-
-        # # 处理supportFilesPath参数
-        if "supportFilesPath" in args and args["supportFilesPath"]:
-            cmd_args.extend(["--supportFilesPath", args["supportFilesPath"]])
-
-        # 处理tempDir参数
-        if "temp_dir" in args and args["temp_dir"]:
-            cmd_args.extend(["--tempDir", args["temp_dir"]])
-
-        # 处理crop_zones参数
-        cmd_args.extend(["--crop_x", str(args["--crop_x"])])
-        cmd_args.extend(["--crop_y", str(args["--crop_y"])])
-        cmd_args.extend(["--crop_width", str(args["--crop_width"])])
-        cmd_args.extend(["--crop_height", str(args["--crop_height"])])
-        if args["use_dual_zone"]:
-            cmd_args.extend(["--crop_x2", str(args["--crop_x2"])])
-            cmd_args.extend(["--crop_y2", str(args["--crop_y2"])])
-            cmd_args.extend(["--crop_width2", str(args["--crop_width2"])])
-            cmd_args.extend(["--crop_height2", str(args["--crop_height2"])])
-
-        return cmd_path, cmd_args
-
-    def start(self):
-        """启动OCR处理进程"""
-        self.task.status = TaskStatus.PROCESSING
-
-        try:
-            # 清理临时目录
-            if self.task.temp_dir and os.path.exists(self.task.temp_dir):
-                import shutil
-
-                try:
-                    shutil.rmtree(self.task.temp_dir)
-                    self.log_signal.emit(
-                        self.globalText.TextAuto024.format(self.task.temp_dir),
-                        False,
-                        False,
-                    )
-                except Exception as e:
-                    self.log_signal.emit(
-                        self.globalText.TextAuto026.format(str(e)), True, False
-                    )
-
-            # 获取videocr-cli.exe路径
-            cmd_path, cmd_args = self.build_ocr_command()
-
-            if not os.path.exists(cmd_path):
-                error_msg = f"videocr-cli.exe不存在: {cmd_path}"
-                self.task.status = TaskStatus.FAILED
-                self.task.error_message = error_msg
-                self.finished_signal.emit(False, error_msg)
-                event_bus.ocr_finished_signal.emit(False, error_msg)
-                return
-
-            # 确保输出目录存在
-            output_dir = os.path.dirname(self.task.output_file)
-            if output_dir:
-                os.makedirs(output_dir, exist_ok=True)
-
-            print(f"执行OCR命令: {cmd_path} {' '.join(cmd_args)}")
-
-            # 创建QProcess
-            self.process = QProcess()
-
-            # 合并 stdout 和 stderr 到一个通道，确保所有输出都能被实时捕获
-            self.process.setProcessChannelMode(QProcess.MergedChannels)
-
-            # 连接信号
-            self.process.readyReadStandardOutput.connect(self.handle_stdout)
-            self.process.finished.connect(self.handle_finished)
-            self.process.errorOccurred.connect(self.handle_error)
-
-            # 设置程序和参数
-            self.process.setProgram(cmd_path)
-            self.process.setArguments(cmd_args)
-
-            # 启动进程
-            self.process.start()
-
-        except Exception as e:
-            if not self.is_cancelled:
-                error_msg = f"OCR处理失败: {str(e)}"
-                print(error_msg)
-                self.task.status = TaskStatus.FAILED
-                self.task.error_message = error_msg
-                self.finished_signal.emit(False, error_msg)
-                event_bus.ocr_finished_signal.emit(False, error_msg)
-                self.logger.error(
-                    f"OCR处理失败: -{self.task.input_file}- 错误信息: {str(e)}"
-                )
-
-    def _should_emit_line(self, line):
+    def _should_emit_line(self, line: str) -> bool:
+        """Step 1/3 相同进度行去重"""
         if "Step 1/3" in line and "Current:" in line:
             current_part = line.split("Current:", 1)[-1].split("/", 1)[0].strip()
             if current_part == self._last_step1_progress:
@@ -229,8 +219,8 @@ class OCRProcess(QObject):
             self._last_step1_progress = current_part
         return True
 
-    def handle_stdout(self):
-        """处理标准输出"""
+    def _handle_stdout(self):
+        """处理标准输出（进度 + 日志）"""
         if not self.process:
             return
 
@@ -243,125 +233,97 @@ class OCRProcess(QObject):
             line = line.strip()
             if not line:
                 continue
-
             self.output_lines.append(line)
+            self.taskLogger.info(line)
 
-            # 如果已取消，不再发送print信号
-            if self.is_cancelled:
+            if self._cancelled:
                 continue
-
             if not self._should_emit_line(line):
                 continue
 
-            # 发射print信号，由videocr_task_interface.py中的onPrintOutput处理
-            self.print_signal.emit(line)
+            # 进度行 → 刷新式日志（覆盖上一行）+ 进度上报
+            progress = self._parse_progress(line)
+            if progress is not None:
+                if progress != self._last_progress:
+                    self._last_progress = progress
+                    event_bus.updateTaskStatusSig.emit(
+                        self.task.task_id,
+                        progress,
+                        TaskStatus.Processing,
+                        "",
+                        0.0,
+                        "",
+                        0.0,
+                    )
+                event_bus.taskLogSignal.emit("videocr", line, False, True)
+                continue
 
-    def handle_stderr(self):
-        """处理标准错误"""
-        if not self.process:
-            return
+            # 错误行 → 红色错误日志
+            if self._is_error_line(line):
+                event_bus.taskLogSignal.emit("videocr", line, True, False)
+                continue
 
-        data = (
-            self.process.readAllStandardError().data().decode("utf-8", errors="ignore")
+            # 普通日志
+            event_bus.taskLogSignal.emit("videocr", line, False, False)
+
+    @staticmethod
+    def _is_error_line(line: str) -> bool:
+        """判断是否为错误输出行"""
+        return any(
+            k in line
+            for k in (
+                "找不到PaddleOCR路径",
+                "无法找到PaddleOCR可执行文件",
+                "Error: PaddleOCR failed",
+            )
         )
-        lines = data.replace("\r\n", "\n").replace("\r", "\n").split("\n")
 
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
+    def _parse_progress(self, line: str):
+        """解析 OCR 三段式输出并映射为 0-100 进度"""
+        # Step 1/3: Processing video... Current: HH:MM:SS / HH:MM:SS (0-33)
+        if "Step 1/3" in line:
+            m = STEP1_CURRENT_RE.search(line)
+            if m:
+                total = _time_to_seconds(m.group(2))
+                if total > 0:
+                    current = _time_to_seconds(m.group(1))
+                    return min((current / total) * 33, 33)
 
-            self.output_lines.append(line)
+        # Step 2/3: Text-Detection (33-53)
+        elif "Step 2/3" in line and "Text-Detection" in line:
+            m = STEP2_DETECT_RE.search(line)
+            if m:
+                total = int(m.group(2))
+                if total > 0:
+                    current = int(m.group(1))
+                    return min(33 + (current / total) * 20, 53)
 
-            # 如果已取消，不再发送print信号
-            if self.is_cancelled:
-                continue
+        # Analyzing frame (53-66)
+        elif "Analyzing frame" in line:
+            m = ANALYZE_FRAME_RE.search(line)
+            if m:
+                total = int(m.group(2))
+                if total > 0:
+                    current = int(m.group(1))
+                    return min(53 + ((current - 1) / total) * 13, 66)
 
-            if not self._should_emit_line(line):
-                continue
+        # Step 3/3: Performing OCR (66-100)
+        elif "Step 3/3" in line and "Performing OCR" in line:
+            m = STEP3_OCR_RE.search(line)
+            if m:
+                total = int(m.group(2))
+                if total > 0:
+                    current = int(m.group(1))
+                    return min(66 + (current / total) * 34, 100)
 
-            # 发射print信号，由videocr_task_interface.py中的onPrintOutput处理
-            self.print_signal.emit(line)
-
-    def handle_finished(self, exit_code, exit_status):
-        """进程完成处理"""
-        if self.is_cancelled:
-            self.task.status = TaskStatus.CANCELLED
-            self.finished_signal.emit(False, self.globalText.TextAuto020)
-            self.cancelled_signal.emit()
-            self.logger.info(f"OCR处理已取消: -{self.task.input_file}-")
-        elif exit_code == 0:
-            self.task.status = TaskStatus.DONE
-            self.task.progress = 100
-
-            # 检查输出文件是否存在
-            if os.path.exists(self.task.output_file):
-                file_size = os.path.getsize(self.task.output_file) / (1024 * 1024)  # MB
-                success_msg = f"OCR处理完成 - 文件大小: {file_size:.2f}MB"
-            else:
-                success_msg = "OCR处理完成"
-
-            # 自动复制到 原文.srt（设为当前活动原文）
-            self._activate_as_current(self.task.output_file, self.task.input_file)
-
-            self.finished_signal.emit(True, success_msg)
-            self.log_signal.emit(self.globalText.TextAuto021, False, False)
-            event_bus.ocr_finished_signal.emit(True, str(self.task.output_file))
-            self.logger.info(
-                f"OCR处理完成: -{self.task.input_file}- 输出文件: {self.task.output_file}"
-            )
-        else:
-            error_message = f"OCR处理失败，错误码: {exit_code}"
-
-            # 添加最后几行输出作为调试信息
-            if self.output_lines:
-                last_lines = "\n".join(self.output_lines[-5:])
-                error_message += f"\n最后输出:\n{last_lines}"
-
-            self.task.status = TaskStatus.FAILED
-            self.task.error_message = error_message
-            self.finished_signal.emit(False, error_message)
-            self.log_signal.emit(
-                self.globalText.TextAuto023.format(error_message), False, False
-            )
-            event_bus.ocr_finished_signal.emit(False, error_message)
-            self.logger.error(
-                f"OCR处理失败: -{self.task.input_file}- 错误信息: {error_message}"
-            )
-
-    def handle_error(self, error):
-        """处理进程错误"""
-        if self.is_cancelled:
-            return
-
-        error_map = {
-            QProcess.FailedToStart: "进程启动失败",
-            QProcess.Crashed: "进程崩溃",
-            QProcess.Timedout: "进程超时",
-            QProcess.WriteError: "写入错误",
-            QProcess.ReadError: "读取错误",
-            QProcess.UnknownError: "未知错误",
-        }
-
-        error_msg = error_map.get(error, f"进程错误: {error}")
-        self.finished_signal.emit(False, error_msg)
+        return None
 
     def cancel(self):
-        """取消OCR处理 - 异步非阻塞版本"""
-        if self.is_cancelled:
-            return
-
-        self.is_cancelled = True
-
-        # 立即发送取消日志，不等待进程结束
-        self.log_signal.emit(self.globalText.TextAuto019, False, False)
-
+        """取消 OCR 处理：标记 + taskkill 强杀进程树（videocr 有子进程）"""
+        self._cancelled = True
         if self.process and self.process.state() == QProcess.Running:
-            # 获取进程ID
             pid = self.process.processId()
-
             if os.name == "nt":
-                # 使用taskkill强制终止进程树（包括子进程）
                 try:
                     subprocess.run(
                         ["taskkill", "/F", "/T", "/PID", str(pid)],
@@ -369,24 +331,19 @@ class OCRProcess(QObject):
                         timeout=2,
                         **NO_WINDOW_KWARGS,
                     )
-                    self.log_signal.emit(self.globalText.TextAuto022, False, False)
-                except Exception as e:
-                    self.log_signal.emit(
-                        self.globalText.TextAuto025.format(str(e)), True, False
-                    )
-                    # 如果taskkill失败，尝试使用QProcess的kill
+                except Exception:
                     self.process.kill()
             else:
                 self.process.kill()
+            self.process.waitForFinished(2000)
 
-            # 等待进程结束
-            if self.process.waitForFinished(2000):
-                self.cancelled_signal.emit()
-            else:
-                self.cancelled_signal.emit()
-        else:
-            # 如果没有进程在运行，直接发送取消完成信号
-            self.cancelled_signal.emit()
+    def _finish(self, success: bool):
+        """任务结束统一处理：关日志、emit 完成信号（取消的任务不 emit）"""
+        if self.taskLogger:
+            self.taskLogger.close()
+        if self._cancelled:
+            return
+        event_bus.finishTaskSig.emit(self.task.task_id, success, self.task.logPath)
 
 
 class ScreenOCRThread(QThread):
@@ -527,7 +484,6 @@ class ScreenOCRThread(QThread):
 
             # 5. 解析 ppocr INFO 输出，提取文本
             import ast
-            import re
 
             texts = []
             for line in stdout_lines:
@@ -551,13 +507,11 @@ class ScreenOCRThread(QThread):
             event_bus.screen_ocr_finished.emit(True, result_text)
 
         except Exception as e:
-            self.logger.error(f"屏幕OCR失败: {str(e)}")
-            event_bus.screen_ocr_finished.emit(False, f"屏幕OCR失败: {str(e)}")
+            self.logger.error(f"屏幕OCR失败: {e!s}")
+            event_bus.screen_ocr_finished.emit(False, f"屏幕OCR失败: {e!s}")
         finally:
             # 清理临时目录
             try:
-                import shutil
-
                 if os.path.exists(temp_dir):
                     shutil.rmtree(temp_dir, ignore_errors=True)
             except Exception:

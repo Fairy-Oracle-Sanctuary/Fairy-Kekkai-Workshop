@@ -12,7 +12,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     CaptionLabel,
     CardWidget,
@@ -27,7 +28,7 @@ from qfluentwidgets import (
     SimpleCardWidget,
     TransparentToolButton,
 )
-from qfluentwidgets import FluentIcon as FIF
+from libs.qfluentwidgets_pro import FluentIcon as FIF
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus
@@ -248,7 +249,10 @@ class ProjectInterface(ScrollArea):
                     self.logger.error(f"导入新项目失败: {e}")
             else:
                 project_path = cfg.linkProject.get("project_link")
-                if str(folder_path) in project_path or folder_path in project.project_path:
+                if (
+                    str(folder_path) in project_path
+                    or folder_path in project.project_path
+                ):
                     event_bus.notification_service.show_error(
                         self.globalText.Error,
                         self.globalText.PathImported.format(folder_path),
@@ -781,8 +785,8 @@ class CustomFlyoutView(FlyoutViewBase):
         if self.flyout:
             self.flyout.hide()  # 先关闭Flyout
 
-        title = "确认删除"
-        content = "确定要删除项目吗？此操作不可撤销。"
+        title = self.globalText.ConfirmDelete
+        content = self.globalText.ConfirmDeleteProject
 
         # 获取应用程序的顶级窗口
         main_window = None
@@ -804,8 +808,8 @@ class CustomFlyoutView(FlyoutViewBase):
         if self.flyout:
             self.flyout.hide()  # 先关闭Flyout
 
-        title = "确认取消连接"
-        content = "确定要取消连接项目吗？此操作并不会删除文件。"
+        title = self.globalText.ConfirmCancelLink
+        content = self.globalText.ConfirmCancelLinkContent
 
         # 获取应用程序的顶级窗口
         main_window = None

@@ -1,4 +1,3 @@
-# coding:utf-8
 import logging
 import os
 import sys
@@ -6,7 +5,8 @@ import sys
 from PySide6.QtCore import QProcess, QSize, Qt, QUrl
 from PySide6.QtGui import QColor, QDesktopServices, QIcon
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import (
     BodyLabel,
     FluentIcon,
     HyperlinkLabel,
@@ -25,6 +25,7 @@ from ..common.setting import (
     CONFIG_FILE,
     GITHUB_URL,
     OFFICIAL_WEBSITE,
+    PADDLEOCR_VERSION,
     UPDATE_TIME,
     VERSION,
 )
@@ -64,6 +65,7 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
         self.updateTimeWidget = StatisticsWidget(
             self.globalText.UpdateTime, UPDATE_TIME, self
         )
+        self.ocrVersiuonWidget = StatisticsWidget("OCR", PADDLEOCR_VERSION, self)
 
         self.descriptionLabel = BodyLabel(
             self.globalText.FairyKekkaiWorkshop2,
@@ -86,7 +88,7 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
         self.resetButton = TransparentToolButton(FluentIcon.SYNC, self)
         self.resetButton.setToolTip(self.globalText.RASAR)
         self.floatingButton = PrimaryPushButton(FluentIcon.PIN, "OCR")
-        self.floatingButton.setToolTip("悬浮窗口")
+        self.floatingButton.setToolTip(self.globalText.FloatingWindow)
 
         self.hBoxLayout = QHBoxLayout(self)
         self.vBoxLayout = QVBoxLayout()
@@ -155,6 +157,8 @@ class FairyKekkaiWorkshopInfoCard(SimpleCardWidget):
         self.statisticsLayout.addWidget(self.versionWidget)
         self.statisticsLayout.addWidget(VerticalSeparator())
         self.statisticsLayout.addWidget(self.updateTimeWidget)
+        self.statisticsLayout.addWidget(VerticalSeparator())
+        self.statisticsLayout.addWidget(self.ocrVersiuonWidget)
         self.statisticsLayout.setAlignment(Qt.AlignLeft)
 
         # CI 测试版本警告

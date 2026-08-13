@@ -1,46 +1,44 @@
-# coding:utf-8
-
-from PySide6.QtCore import Signal
-
 from ..common.config import cfg
-from ..components.base_task_interface import BaseTaskInterface
-from ..components.task_card import FFmpegItemWidget
-from ..service.ffmpeg_service import FFmpegProcess, FFmpegTask
+from ..common.event_bus import event_bus
 from ..common.text import Text
+from ..components.base_task_interface import TaskInterface
+from ..components.task_card import FFmpegTaskCard
+from ..service.ffmpeg_service import FFmpegTask, FFmpegWorker, adjust_output_format
 
 
-class FFmpegTaskInterface(BaseTaskInterface):
-    """提取字幕界面"""
-
-    log_signal = Signal(str, bool, bool)
+class FFmpegTaskInterface(TaskInterface):
+    """FFmpeg 压制任务界面（继承通用 TaskInterface，配置 FFmpeg 专属部分）"""
 
     def __init__(self, parent=None):
-        globalText = Text()
         super().__init__(
-            object_name="ocrTaskInterface",
-            processing_text=globalText.TextAuto066,
-            task_type=globalText.Encode,
-            max_concurrent_tasks=3,
+            max_concurrent_item=cfg.concurrentEncodes,
+            object_name="ffmpegTaskInterface",
             parent=parent,
         )
-        self.globalText = globalText
-        # 监听配置变化，更新最大并发数
-        cfg.concurrentEncodes.valueChanged.connect(self._updateMaxConcurrentTasks)
+        self.globalText = Text()
+
+    # ---------- 子类扩展点 ----------
 
     def createTask(self, args):
-        return FFmpegTask(args)
+        """由参数创建压制任务（修正输出扩展名；音频流探测在 Worker 线程内完成）"""
+        video_path = args["video_path"]
+        output_path = args["output_path"]
+        return FFmpegTask(video_path, adjust_output_format(output_path))
 
-    def createTaskItem(self, task: FFmpegTask, parent):
-        return FFmpegItemWidget(task, parent)
+    def getTaskPath(self, task):
+        return task.videoPath
 
-    def createTaskThread(self, task: FFmpegTask):
-        return FFmpegProcess(task)
+    def createTaskCard(self, task, parent):
+        return FFmpegTaskCard(task, parent)
 
-    def getTaskPath(self, task: FFmpegTask):
-        return task.input_file
+    def createWorker(self, task):
+        return FFmpegWorker(task)
 
-    def addFFmpegTask(self, args):
-        self.addTask(args)
+    def getTaskTypeText(self):
+        return self.globalText.Encode
 
-    def retryFFmpeg(self, task_id):
-        self.retryTask(task_id)
+    def _emitLegacyFinished(self, success, card):
+        """兼容旧托盘通知通道"""
+        event_bus.ffmpeg_finished_signal.emit(
+            success, card.task.output_path if success else ""
+        )

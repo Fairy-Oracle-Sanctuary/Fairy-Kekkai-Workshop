@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
     QTableView,
     QWidget,
 )
-from qfluentwidgets import FluentStyleSheet
+from libs.qfluentwidgets_pro import FluentStyleSheet
 
 from .screen import getCurrentScreenGeometry
 

@@ -1,11 +1,10 @@
-# coding:utf-8
-
 from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout, QWidget
-from qfluentwidgets import FluentIcon as FIF
-from qfluentwidgets import (
+
+from libs.qfluentwidgets_pro import FluentIcon as FIF
+from libs.qfluentwidgets_pro import (
     PrimaryPushButton,
     PushButton,
     ScrollArea,
@@ -14,9 +13,9 @@ from qfluentwidgets import (
 
 from ..common.config import cfg
 from ..common.event_bus import event_bus
+from ..common.text import Text
 from ..components.config_card import ChooseFileSettingCard
 from ..service.project_service import Project
-from ..common.text import Text
 
 
 class BaseFunctionInterface(ScrollArea):
@@ -53,7 +52,9 @@ class BaseFunctionInterface(ScrollArea):
         self.main_layout = QVBoxLayout(self.view)
 
         # 文件选择卡片组
-        self.fileSelectionGroup = SettingCardGroup(self.globalText.FileSelection, self.view)
+        self.fileSelectionGroup = SettingCardGroup(
+            self.globalText.FileSelection, self.view
+        )
         self._create_file_selection_cards()
         self.main_layout.addWidget(self.fileSelectionGroup)
 
@@ -101,7 +102,7 @@ class BaseFunctionInterface(ScrollArea):
 
     def create_preview_card(self):
         """创建内容预览卡片 - 子类实现"""
-        return None
+        return
 
     def _create_button_layout(self, main_layout):
         """创建操作按钮区域"""
@@ -173,7 +174,9 @@ class BaseFunctionInterface(ScrollArea):
 
             # 检查扩展名是否在允许列表中
             if file_extension not in allow_extensions:
-                self.show_error_message(self.globalText.FilesAreNotSupported.format(file_extension))
+                self.show_error_message(
+                    self.globalText.FilesAreNotSupported.format(file_extension)
+                )
                 event.ignore()
                 return
 
@@ -232,9 +235,7 @@ class BaseFunctionInterface(ScrollArea):
     def _browse_output_file(self):
         """浏览输出文件"""
         if not self.file_path:
-            self.show_error_message(
-                self.globalText.PSTOFF.format(self.file_extension)
-            )
+            self.show_error_message(self.globalText.PSTOFF.format(self.file_extension))
             return
 
         file_path, _ = QFileDialog.getSaveFileName(
@@ -257,7 +258,6 @@ class BaseFunctionInterface(ScrollArea):
 
     def load_file_content(self, file_path):
         """加载文件内容 - 子类实现"""
-        pass
 
     def eventFilter(self, obj, event):
         """事件过滤器，用于监听键盘事件"""

@@ -21,6 +21,21 @@ class GlobalEventBus(QObject):
     project_interface = None
     project_detail_interface = None
 
+    # 通用任务信号（对齐 Easy-FFmpeg：任务卡片/任务界面统一收口）
+    updateTaskStatusSig = Signal(
+        int, int, object, str, float, str, float
+    )  # task_id, progress, status, size, time, bitrate, speed
+    finishTaskSig = Signal(int, bool, str)  # task_id, success, log_path
+    deleteTaskSig = Signal(int, bool)  # task_id, delete_file
+    cancelTaskSig = Signal(int)  # task_id
+    retryTaskSig = Signal(int)  # task_id
+    taskStageChangedSig = Signal(int, str)  # task_id, stage_text
+    taskCountChanged = Signal(int)  # 任务总数
+    hasFailedTasks = Signal(bool)
+    # 任务实时日志（log_name, message, is_error, is_flush）
+    # is_flush=True 表示覆盖式刷新（如进度行）；is_error=True 以错误样式显示
+    taskLogSignal = Signal(str, str, bool, bool)
+
     # 下载相关事件
     download_requested = Signal(
         dict

@@ -1,7 +1,7 @@
 # coding:utf-8
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
-from qfluentwidgets import (
+from libs.qfluentwidgets_pro import (
     CardWidget,
     FlowLayout,
     IconWidget,
