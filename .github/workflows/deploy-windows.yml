@@ -19,13 +19,18 @@ jobs:
       matrix:
         include:
           # PADDLEOCR 标识文件第一行决定软件读取到的 OCR 版本（setting.py 编译期内联），
-          # variant 对应安装包文件名后缀（见 RELEASE_NOTES.md 命名约定）
+          # variant 对应安装包文件名后缀（见 RELEASE_NOTES.md 命名约定），
+          # paddleocr_asset 是 timminator/PaddleOCR-Standalone 实际发布的资产名
+          # （timminator 最新公开版为 v1.4.0，下载解压后重命名为 v1.5.1 目录名）
           - paddleocr_tag: PaddleOCR-CPU-v1.5.1
             variant: CPU-v1.5.1
+            paddleocr_asset: PaddleOCR-CPU-v1.4.0.7z
           - paddleocr_tag: PaddleOCR-GPU-v1.5.1-CUDA-11.8
             variant: GPU-v1.5.1-CUDA-11.8
+            paddleocr_asset: PaddleOCR-GPU-v1.4.0-CUDA-11.8.7z
           - paddleocr_tag: PaddleOCR-GPU-v1.5.1-CUDA-12.9
             variant: GPU-v1.5.1-CUDA-12.9
+            paddleocr_asset: PaddleOCR-GPU-v1.4.0-CUDA-12.9.7z
 
     steps:
       - name: Checkout
@@ -78,6 +83,72 @@ jobs:
           Set-Content -Path PADDLEOCR -Value "${{ matrix.paddleocr_tag }}" -Encoding ascii -NoNewline
           Write-Host "PADDLEOCR marker: $(Get-Content PADDLEOCR)"
 
+      - name: Download PaddleOCR engine
+        # 引擎来自 timminator/PaddleOCR-Standalone 的 v1.4.0 Release，
+        # 下载解压后重命名为 v1.5.1 目录名（与本地产物 tools/ 结构一致）
+        run: |
+          $asset = "${{ matrix.paddleocr_asset }}"
+          $target = "tools\${{ matrix.paddleocr_tag }}"
+          New-Item -ItemType Directory -Force -Path downloads, tools | Out-Null
+          curl.exe -L -o "downloads\$asset" "https://github.com/timminator/PaddleOCR-Standalone/releases/download/v1.4.0/$asset"
+          & "C:\Program Files\7-Zip\7z.exe" x "downloads\$asset" "-odownloads\paddle" -y | Out-Null
+          $items = @(Get-ChildItem downloads\paddle -Force)
+          if ($items.Count -eq 1 -and $items[0].PSIsContainer) {
+            Move-Item $items[0].FullName $target -Force
+          } else {
+            New-Item -ItemType Directory -Force -Path $target | Out-Null
+            Get-ChildItem downloads\paddle -Force | Move-Item -Destination $target -Force
+          }
+          Write-Host "PaddleOCR engine installed at $target"
+
+      - name: Download PaddleOCR support files
+        # PP-OCRv5 推理模型，CPU/GPU 三个变体共用；同样来自 timminator v1.4.0
+        run: |
+          $asset = "PaddleOCR.PP-OCRv5.support.files.VideOCR.7z"
+          $target = "tools\PaddleOCR.PP-OCRv5.support.files"
+          New-Item -ItemType Directory -Force -Path downloads | Out-Null
+          curl.exe -L -o "downloads\$asset" "https://github.com/timminator/PaddleOCR-Standalone/releases/download/v1.4.0/$asset"
+          & "C:\Program Files\7-Zip\7z.exe" x "downloads\$asset" "-odownloads\support" -y | Out-Null
+          $items = @(Get-ChildItem downloads\support -Force)
+          if ($items.Count -eq 1 -and $items[0].PSIsContainer) {
+            Move-Item $items[0].FullName $target -Force
+          } else {
+            New-Item -ItemType Directory -Force -Path $target | Out-Null
+            Get-ChildItem downloads\support -Force | Move-Item -Destination $target -Force
+          }
+          Write-Host "Support files installed at $target"
+
+      - name: Download videocr-cli and whisper
+        # videocr-cli.exe 与 whisper 工具来自本项目历史 Release v2.0.0 的压缩包资产
+        run: |
+          New-Item -ItemType Directory -Force -Path downloads, tools\whisper | Out-Null
+          $base = "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0"
+          curl.exe -L -o downloads\videocr-cli.zip "$base/videocr-cli.zip"
+          curl.exe -L -o downloads\whisper.zip "$base/whisper.zip"
+          Expand-Archive downloads\videocr-cli.zip -DestinationPath downloads\videocr -Force
+          $videocr = Get-ChildItem downloads\videocr -Recurse -Filter videocr-cli.exe | Select-Object -First 1
+          if (-not $videocr) { Write-Error "videocr-cli.zip 中未找到 videocr-cli.exe"; exit 1 }
+          Move-Item $videocr.FullName tools\videocr-cli.exe -Force
+          Expand-Archive downloads\whisper.zip -DestinationPath downloads\whisper -Force
+          Get-ChildItem downloads\whisper -Recurse -File | ForEach-Object {
+            Copy-Item $_.FullName "tools\whisper\$($_.Name)" -Force
+          }
+          Write-Host "tools\whisper: $((Get-ChildItem tools\whisper -File | ForEach-Object { $_.Name }) -join ', ')"
+          Write-Host "videocr-cli.exe: $([math]::Round((Get-Item tools\videocr-cli.exe).Length / 1MB, 1)) MB"
+
+      - name: Download ffmpeg and yt-dlp
+        # ffmpeg 从 gyan.dev 官方推荐源获取；yt-dlp 从其官方 Release 最新版获取
+        run: |
+          New-Item -ItemType Directory -Force -Path tools | Out-Null
+          curl.exe -L -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+          Expand-Archive ffmpeg.zip -DestinationPath ffmpeg-extracted -Force
+          $ff = Get-ChildItem ffmpeg-extracted -Recurse -Filter ffmpeg.exe | Select-Object -First 1
+          Copy-Item $ff.FullName tools\ffmpeg.exe -Force
+          Remove-Item ffmpeg.zip, ffmpeg-extracted -Recurse -Force
+          curl.exe -L -o tools\yt-dlp.exe https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
+          Write-Host "ffmpeg.exe: $([math]::Round((Get-Item tools\ffmpeg.exe).Length / 1MB, 1)) MB"
+          Write-Host "yt-dlp.exe: $([math]::Round((Get-Item tools\yt-dlp.exe).Length / 1MB, 1)) MB"
+
       - name: Build
         # deploy.py 执行 nuitka 打包，并在编译后自动调用 cleanup_dist 清理无用 Qt 插件
         run: python deploy.py
@@ -96,6 +167,18 @@ jobs:
           # 与本地产物结构保持一致：把版本标识文件一并放进 dist
           Copy-Item -Path PADDLEOCR -Destination dist\Fairy-Kekkai-Workshop.dist\PADDLEOCR -Force
           Write-Host "dist marker: $(Get-Content dist\Fairy-Kekkai-Workshop.dist\PADDLEOCR)"
+
+      - name: Copy tools into dist
+        # 把下载好的 tools 一并放进 dist，由 .iss 的 recursesubdirs 递归打进安装包
+        # （Whisper.model 由用户自行下载，不包含）
+        run: |
+          New-Item -ItemType Directory -Force -Path dist\Fairy-Kekkai-Workshop.dist\tools | Out-Null
+          Copy-Item -Path tools\* -Destination dist\Fairy-Kekkai-Workshop.dist\tools -Recurse -Force
+          Write-Host "dist tools: $((Get-ChildItem dist\Fairy-Kekkai-Workshop.dist\tools -Force | ForEach-Object { $_.Name }) -join ', ')"
+          $toolsTotal = (Get-ChildItem dist\Fairy-Kekkai-Workshop.dist\tools -Recurse -File | Measure-Object Length -Sum).Sum
+          Write-Host "dist tools total: $([math]::Round($toolsTotal / 1MB, 1)) MB"
+          # 释放下载临时文件，避免磁盘占用过高
+          Remove-Item downloads -Recurse -Force -ErrorAction SilentlyContinue
 
       - name: Build installer (Inno Setup)
         # 版本号与 OCR 变体通过 /D 传入，.iss 输出到 Output 子目录，文件名带版本号
