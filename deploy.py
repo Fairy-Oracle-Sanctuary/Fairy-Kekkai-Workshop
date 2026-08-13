@@ -120,4 +120,3 @@ if sys.platform == "win32":
     if os.path.isdir(dist_dir):
         cleanup_dist(dist_dir)
 
-print("打包完成！")
