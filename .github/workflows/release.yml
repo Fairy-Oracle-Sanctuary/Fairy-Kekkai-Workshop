@@ -148,17 +148,68 @@ jobs:
           Write-Host "videocr-cli.exe: $([math]::Round((Get-Item tools\videocr-cli.exe).Length / 1MB, 1)) MB"
 
       - name: Download ffmpeg and yt-dlp
-        # ffmpeg 从 gyan.dev 官方推荐源获取；yt-dlp 从其官方 Release 最新版获取
+        # ffmpeg 优先从 gyan.dev 获取（GitHub Actions 数据中心可能被 Cloudflare 拦截，
+        # 失败时自动重试并回退到 BtbN 的 GitHub Release 镜像）；yt-dlp 从其官方 Release 获取
         # Clear 增量升级包不下载
         if: matrix.paddleocr_asset != ''
         run: |
           New-Item -ItemType Directory -Force -Path tools | Out-Null
-          curl.exe -L -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+
+          function Download-WithRetry {
+              param(
+                  [string]$Url,
+                  [string]$OutFile,
+                  [int]$Attempts = 3,
+                  [int]$MinBytes = 1MB
+              )
+              for ($i = 1; $i -le $Attempts; $i++) {
+                  Write-Host "[$i/$Attempts] Downloading $Url"
+                  curl.exe -L --fail -o $OutFile $Url
+                  if (Test-Path $OutFile) {
+                      $size = (Get-Item $OutFile).Length
+                      if ($size -ge $MinBytes) {
+                          Write-Host "OK: $([math]::Round($size / 1MB, 1)) MB"
+                          return $true
+                      }
+                      Write-Host "File too small ($size bytes), likely an error page; retrying..."
+                      Remove-Item $OutFile -Force -ErrorAction SilentlyContinue
+                  }
+                  Start-Sleep -Seconds 5
+              }
+              Write-Host "FAILED: $Url"
+              return $false
+          }
+
+          # ffmpeg：gyan.dev 为主源，BtbN GitHub Release 为回退源
+          $ffmpegOk = $false
+          foreach ($src in @(
+              "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip",
+              "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
+          )) {
+              if (Download-WithRetry -Url $src -OutFile ffmpeg.zip -MinBytes 10MB) {
+                  $ffmpegOk = $true
+                  break
+              }
+          }
+          if (-not $ffmpegOk) {
+              Write-Error "ffmpeg 下载失败：gyan.dev 与 BtbN 镜像均不可用"
+              exit 1
+          }
           Expand-Archive ffmpeg.zip -DestinationPath ffmpeg-extracted -Force
           $ff = Get-ChildItem ffmpeg-extracted -Recurse -Filter ffmpeg.exe | Select-Object -First 1
+          if (-not $ff) {
+              Write-Error "ffmpeg 压缩包中未找到 ffmpeg.exe"
+              exit 1
+          }
           Copy-Item $ff.FullName tools\ffmpeg.exe -Force
           Remove-Item ffmpeg.zip, ffmpeg-extracted -Recurse -Force
-          curl.exe -L -o tools\yt-dlp.exe https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
+
+          # yt-dlp：官方 Release，失败重试
+          if (-not (Download-WithRetry -Url "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" -OutFile tools\yt-dlp.exe -MinBytes 5MB)) {
+              Write-Error "yt-dlp 下载失败"
+              exit 1
+          }
+
           Write-Host "ffmpeg.exe: $([math]::Round((Get-Item tools\ffmpeg.exe).Length / 1MB, 1)) MB"
           Write-Host "yt-dlp.exe: $([math]::Round((Get-Item tools\yt-dlp.exe).Length / 1MB, 1)) MB"
 
