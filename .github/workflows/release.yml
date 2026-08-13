@@ -1,18 +1,16 @@
-name: Deploy Windows
+name: Release
 
-# 仅当 push 的提交消息包含 [deploy win] 时才打包
-# 例：git commit -m "feat: 新增功能 [deploy win]"
+# 打 tag 时发布 GitHub Release（tag 名即版本号，如 v2.5.1）
+# 例：git tag v2.5.1 && git push origin v2.5.1
+# 发布说明从仓库根 RELEASE_NOTES.md 读取，缺失时使用自动生成内容
 on:
   push:
-    branches:
-      - main
-      - master
+    tags:
+      - 'v*'
 
 jobs:
-  build:
+  build-windows:
     name: Build Windows ${{ matrix.variant }} Installer
-    # 判断最新一条提交消息是否含 [deploy win]
-    if: contains(github.event.head_commit.message, '[deploy win]')
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -32,7 +30,7 @@ jobs:
             variant: GPU-v1.5.1-CUDA-12.9
             paddleocr_asset: PaddleOCR-GPU-v1.4.0-CUDA-12.9.7z
           # Clear 增量升级包：仅供已安装旧版本的用户升级主程序，
-          # 不带 tools 与 PADDLEOCR 标识，直接打包为 iss
+          # 不向构建目录复制 tools 与 PADDLEOCR，直接打包为 iss
           - paddleocr_tag: ""
             variant: Clear
             paddleocr_asset: ""
@@ -214,5 +212,58 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Fairy-Kekkai-Workshop-${{ matrix.variant }}-Windows-x86_64
+          # ISCC 输出到 .iss 中 OutputDir 指定的 Output 子目录，文件名带版本号
           path: Output/Fairy-Kekkai-Workshop-v*-Windows-x86_64-Setup.exe
-          retention-days: 30
+          retention-days: 7
+
+  release:
+    name: Publish GitHub Release
+    needs: [build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify version matches tag
+        # 防止 tag 与 app/common/setting.py 的 VERSION 不一致导致产物版本错乱
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          APP_VERSION=$(python3 -c "from app.common.setting import VERSION; print(VERSION)")
+          if [ "$TAG_VERSION" != "$APP_VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME (version $TAG_VERSION) does not match app VERSION ($APP_VERSION). Update app/common/setting.py and re-tag."
+            exit 1
+          fi
+          echo "Version OK: $APP_VERSION"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Prepare release notes
+        # 读取仓库根 RELEASE_NOTES.md；文件缺失时用自动生成内容，避免发布失败
+        run: |
+          if [ -f RELEASE_NOTES.md ]; then
+            cp RELEASE_NOTES.md /tmp/RELEASE_NOTES.md
+            echo "Using RELEASE_NOTES.md"
+          else
+            {
+              echo "## Fairy Kekkai Workshop $GITHUB_REF_NAME"
+              echo ""
+              echo "此 Release 未提供 RELEASE_NOTES.md，已使用自动生成的发布说明。"
+            } > /tmp/RELEASE_NOTES.md
+            echo "RELEASE_NOTES.md not found, using auto-generated notes"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Fairy Kekkai Workshop ${{ github.ref_name }}
+          body_path: /tmp/RELEASE_NOTES.md
+          files: release-assets/**
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
