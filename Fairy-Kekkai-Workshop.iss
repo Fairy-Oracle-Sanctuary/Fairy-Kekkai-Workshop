@@ -2,7 +2,12 @@
 ; 有关创建 Inno Setup 脚本文件的详细信息，请参阅帮助文档！
 
 #define MyAppName "Fairy Kekkai Workshop"
-#define MyAppVersion "2.5.1"
+#ifndef MyAppVersion
+  #define MyAppVersion "2.5.1"
+#endif
+#ifndef MyVariant
+  #define MyVariant "CPU-v1.5.1"
+#endif
 #define MyAppPublisher "Fairy Oracle Sanctuary"
 #define MyAppURL "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop"
 #define MyAppExeName "Fairy-Kekkai-Workshop.exe"
@@ -33,16 +38,17 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
-LicenseFile=D:\CODE\Fairy-Kekkai-Workshop\LICENSE
+LicenseFile=LICENSE
 ; 取消注释以下行以在非管理员安装模式下运行 (仅为当前用户安装)。
 PrivilegesRequired=admin
-OutputBaseFilename=Fairy-Kekkai-Workshop
+OutputBaseFilename=Fairy-Kekkai-Workshop-v{#MyAppVersion}-{#MyVariant}-Windows-x86_64-Setup
+OutputDir=Output
 SolidCompression=yes
 WizardStyle=modern
-SetupIconFile=D:\CODE\Fairy-Kekkai-Workshop\app\resource\images\logo.ico
+SetupIconFile=app\resource\images\logo.ico
 
 [Languages]
-Name: "chinesesimp"; MessagesFile: "compiler:Default.isl"
+#expr EmitLanguagesSection
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -52,8 +58,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ;Type: filesandordirs; Name: "{app}\*"
 
 [Files]
-Source: "C:\Users\ZHANGBaoHang\Desktop\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\CODE\Fairy-Kekkai-Workshop\dist\Fairy-Kekkai-Workshop.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "dist\Fairy-Kekkai-Workshop.dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\Fairy-Kekkai-Workshop.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; 注意：不要在任何共享系统文件上使用 "Flags: ignoreversion" 
 
 [Registry]
