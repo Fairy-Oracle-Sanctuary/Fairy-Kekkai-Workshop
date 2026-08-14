@@ -11,6 +11,7 @@ from PySide6.QtCore import QDateTime, QEventLoop, QProcess, QRunnable, QThread
 from ..common.config import cfg
 from ..common.event_bus import event_bus
 from ..common.logger import Logger
+from ..common.paddleocr import resolve_model_dirs
 from ..common.task_status import TaskStatus
 
 NO_WINDOW_KWARGS = (
@@ -397,9 +398,7 @@ class ScreenOCRThread(QThread):
             support_files_path = cfg.get(cfg.supportFilesPath)
 
             # 解析模型目录
-            from .CLI.videocr import utils
-
-            det_model_dir, rec_model_dir, cls_model_dir = utils.resolve_model_dirs(
+            det_model_dir, rec_model_dir, cls_model_dir = resolve_model_dirs(
                 lang, use_server_model, support_files_path
             )
 

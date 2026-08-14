@@ -59,7 +59,6 @@ if sys.platform == "win32":
         "--windows-disable-console",
         "--plugin-enable=pyside6",
         "--include-qt-plugins=sensible,sqldrivers,imageformats,platforms,styles,iconengines",
-        "--include-data-dir=app/resource=app/resource",
         "--assume-yes-for-downloads",
         "--mingw64",
         "--lto=yes",
