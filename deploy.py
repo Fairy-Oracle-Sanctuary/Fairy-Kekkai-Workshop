@@ -56,7 +56,7 @@ if sys.platform == "win32":
         "nuitka",
         "--standalone",
         "--windows-uac-admin",
-        #"--windows-disable-console",
+        "--windows-disable-console",
         "--plugin-enable=pyside6",
         "--include-qt-plugins=sensible,sqldrivers,imageformats,platforms,styles,iconengines",
         "--assume-yes-for-downloads",
