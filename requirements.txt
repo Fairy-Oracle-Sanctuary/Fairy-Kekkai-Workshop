@@ -30,3 +30,5 @@ wakepy>=0.8.0
 # Packaging (dev)
 nuitka>=4.1.2
 ImageIO>=2.37.2
+
+#
