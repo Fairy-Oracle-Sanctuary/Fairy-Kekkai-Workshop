@@ -89,8 +89,3 @@ if sys.platform == "win32":
 
 subprocess.run(args, check=True)
 
-# Windows 打包后清理 Nuitka 误收的多余 Qt 插件与 dll
-# if sys.platform == "win32":
-#     dist_dir = os.path.join("dist", "Fairy-Kekkai-Workshop.dist")
-#     if os.path.isdir(dist_dir):
-#         cleanup_dist(dist_dir)
