@@ -56,10 +56,6 @@ class TaskInterface(ScrollArea):
         self.object_name = object_name
 
         self.segmentedWidget = SegmentedWidget(self)
-        self.allTab = QWidget()
-        self.processingTab = QWidget()
-        self.completedTab = QWidget()
-        self.failedTab = QWidget()
         self.taskListContainer = QWidget(self)
         self.taskListLayout = QVBoxLayout(self.taskListContainer)
 
@@ -150,24 +146,24 @@ class TaskInterface(ScrollArea):
         self.enableTransparentBackground()
 
         self.segmentedWidget.addItem(
-            self.allTab, self.globalText.All, lambda: self.filterTasks("all")
+            "allTab", self.globalText.All, lambda: self.filterTasks("all")
         )
         self.segmentedWidget.addItem(
-            self.processingTab,
+            "processingTab",
             status_text(TaskStatus.Processing),
             lambda: self.filterTasks(TaskStatus.Processing),
         )
         self.segmentedWidget.addItem(
-            self.completedTab,
+            "completedTab",
             status_text(TaskStatus.Succeeded),
             lambda: self.filterTasks(TaskStatus.Succeeded),
         )
         self.segmentedWidget.addItem(
-            self.failedTab,
+            "failedTab",
             status_text(TaskStatus.Failed),
             lambda: self.filterTasks(TaskStatus.Failed),
         )
-        self.segmentedWidget.setCurrentItem(self.allTab)
+        self.segmentedWidget.setCurrentItem("allTab")
         self.segmentedWidget.setMaximumHeight(30)
 
         self.taskListLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -538,31 +534,27 @@ class BaseTaskInterface(ScrollArea):
 
         # 创建分段控件
         self.segmentedWidget = SegmentedWidget(self)
-        self.allTab = QWidget()
-        self.processingTab = QWidget()
-        self.completedTab = QWidget()
-        self.failedTab = QWidget()
 
         self.segmentedWidget.addItem(
-            self.allTab, self.globalText.All, lambda: self.filterTasks("all")
+            "allTab", self.globalText.All, lambda: self.filterTasks("all")
         )
         self.segmentedWidget.addItem(
-            self.processingTab,
+            "processingTab",
             status_text(TaskStatus.Processing, self.tr(self.processing_text)),
             lambda: self.filterTasks(TaskStatus.Processing),
         )
         self.segmentedWidget.addItem(
-            self.completedTab,
+            "completedTab",
             status_text(TaskStatus.Succeeded),
             lambda: self.filterTasks(TaskStatus.Succeeded),
         )
         self.segmentedWidget.addItem(
-            self.failedTab,
+            "failedTab",
             status_text(TaskStatus.Failed),
             lambda: self.filterTasks(TaskStatus.Failed),
         )
 
-        self.segmentedWidget.setCurrentItem(self.allTab)
+        self.segmentedWidget.setCurrentItem("allTab")
         self.segmentedWidget.setMaximumHeight(30)
 
         # 创建任务列表容器
@@ -789,14 +781,12 @@ class BaseTaskInterface(ScrollArea):
 
     def _currentFilter(self):
         """根据当前选中的标签页返回对应的过滤条件"""
-        current = self.segmentedWidget.currentItem()
-        if current == self.allTab:
-            return "all"
-        elif current == self.processingTab:
+        current = self.segmentedWidget.currentRouteKey()
+        if current == "processingTab":
             return TaskStatus.Processing
-        elif current == self.completedTab:
+        elif current == "completedTab":
             return TaskStatus.Succeeded
-        elif current == self.failedTab:
+        elif current == "failedTab":
             return TaskStatus.Failed
         return "all"
 

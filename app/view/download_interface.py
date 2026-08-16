@@ -125,31 +125,27 @@ class DownloadInterface(ScrollArea):
 
         # 创建分段控件
         self.segmentedWidget = SegmentedWidget(self)
-        self.allTab = QWidget()
-        self.downloadingTab = QWidget()
-        self.completedTab = QWidget()
-        self.failedTab = QWidget()
 
         self.segmentedWidget.addItem(
-            self.allTab, self.globalText.All, lambda: self.filterTasks("all")
+            "allTab", self.globalText.All, lambda: self.filterTasks("all")
         )
         self.segmentedWidget.addItem(
-            self.downloadingTab,
+            "downloadingTab",
             status_text(TaskStatus.Processing, self.globalText.Downloading),
             lambda: self.filterTasks(TaskStatus.Processing),
         )
         self.segmentedWidget.addItem(
-            self.completedTab,
+            "completedTab",
             status_text(TaskStatus.Succeeded),
             lambda: self.filterTasks(TaskStatus.Succeeded),
         )
         self.segmentedWidget.addItem(
-            self.failedTab,
+            "failedTab",
             status_text(TaskStatus.Failed),
             lambda: self.filterTasks(TaskStatus.Failed),
         )
 
-        self.segmentedWidget.setCurrentItem(self.allTab)
+        self.segmentedWidget.setCurrentItem("allTab")
         self.segmentedWidget.setMaximumHeight(30)
 
         # 创建任务列表容器
@@ -395,14 +391,12 @@ class DownloadInterface(ScrollArea):
 
     def _currentFilter(self):
         """根据当前选中的标签页返回对应的过滤条件"""
-        current = self.segmentedWidget.currentItem()
-        if current == self.allTab:
-            return "all"
-        elif current == self.downloadingTab:
+        current = self.segmentedWidget.currentRouteKey()
+        if current == "downloadingTab":
             return TaskStatus.Processing
-        elif current == self.completedTab:
+        elif current == "completedTab":
             return TaskStatus.Succeeded
-        elif current == self.failedTab:
+        elif current == "failedTab":
             return TaskStatus.Failed
         return "all"
 

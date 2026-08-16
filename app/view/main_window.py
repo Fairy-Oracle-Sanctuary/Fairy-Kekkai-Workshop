@@ -386,6 +386,7 @@ class MainWindow(window):
     def _connectSignalToSlot(self):
         """连接信号到槽"""
         self.system_tray.messageClicked.connect(self.on_tray_message_clicked)
+        event_bus.appMessageSig.connect(self._onAppMessage)
         event_bus.checkUpdateSig.connect(self.checkUpdate)
         event_bus.switchToSampleCard.connect(self.switchToSample)
         event_bus.openUrl.connect(self.openUrl)
@@ -612,6 +613,12 @@ class MainWindow(window):
                     )
 
         return "\n".join(running_tasks) if running_tasks else None
+
+    def _onAppMessage(self, message):
+        """收到其他实例的消息时激活窗口"""
+        self.show()
+        self.raise_()
+        self.activateWindow()
 
     def checkUpdate(self):
         if self.versionManager.hasNewVersion():

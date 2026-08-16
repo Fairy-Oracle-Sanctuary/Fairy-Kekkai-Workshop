@@ -12,15 +12,12 @@ class SystemTray(QSystemTrayIcon):
         super().__init__(parent=parent)
         self.globalText = Text()
         self.main_window = main_window
-        self.setup_tray()
 
-    def setup_tray(self):
-        """设置系统托盘"""
         # 设置托盘图标（可以使用应用图标）
         self.setIcon(self.main_window.windowIcon())
 
         # 创建托盘菜单
-        self.menu = SystemTrayMenu()
+        self.menu = SystemTrayMenu(parent=parent)
 
         # 添加菜单项
         self.menu.addActions(

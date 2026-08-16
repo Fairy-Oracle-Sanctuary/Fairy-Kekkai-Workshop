@@ -396,6 +396,8 @@ class ScreenOCRThread(QThread):
                 return
 
             support_files_path = cfg.get(cfg.supportFilesPath)
+            if support_files_path:
+                support_files_path = os.path.normpath(support_files_path)
 
             # 解析模型目录
             det_model_dir, rec_model_dir, cls_model_dir = resolve_model_dirs(
