@@ -11,44 +11,31 @@ Fairy-Kekkai-Workshop/deploy.py
 import os
 import sys
 
-from PySide6.QtCore import QFile, QLocale, QSharedMemory, QTranslator
-from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QFile, QLocale, QTranslator, QtMsgType, qInstallMessageHandler
 
+from app.common.application import SingletonApplication
 from app.common.config import Language, cfg
 from app.common.setting import TEAM, VERSION
 from app.view.main_window import MainWindow
 from libs.qfluentwidgets_pro import FluentTranslator
 
 
-def is_app_running():
-    """检查应用程序是否已经在运行"""
-    # 使用共享内存或系统信号量来确保单例
-    app_id = "Fairy-Kekkai-Workshop"
-    shared_memory = QSharedMemory(app_id)
-
-    if shared_memory.attach():
-        # 已经有一个实例在运行
-        return True
-    else:
-        # 这是第一个实例
-        shared_memory.create(1)
-        return False
+def _filter_font_warnings(msg_type, context, message):
+    """过滤 qfluentwidgets 内部的 QFont::setPointSize(-1) 无害警告"""
+    if msg_type == QtMsgType.QtWarningMsg and "QFont::setPointSize" in message:
+        return
+    print(message, file=sys.stderr)
 
 
 def main():
-    # 检查是否已经有实例在运行
-    if is_app_running():
-        # 可以尝试激活已运行的实例
-        print("应用程序已经在运行中")
-        return 1
-
     # 界面缩放
     if cfg.get(cfg.dpiScale) != "Auto":
         os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
         os.environ["QT_SCALE_FACTOR"] = str(cfg.get(cfg.dpiScale))
 
-    # 创建应用程序实例
-    app = QApplication(sys.argv)
+    # 创建应用程序实例（SingletonApplication 内部处理单例检测）
+    app = SingletonApplication(sys.argv, "Fairy-Kekkai-Workshop")
+    qInstallMessageHandler(_filter_font_warnings)
     app.setApplicationName("Fairy-Kekkai-Workshop")
     app.setApplicationVersion(VERSION)
     app.setOrganizationName(TEAM)

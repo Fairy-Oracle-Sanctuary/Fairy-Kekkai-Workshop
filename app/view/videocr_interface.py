@@ -521,8 +521,9 @@ class VideocrInterface(BaseFunctionInterface):
         args["min_subtitle_duration_sec"] = cfg.get(cfg.minSubtitleDuration)
         args["confidence_threshold"] = cfg.get(cfg.confidenceThreshold)
         args["paddleocr_path"] = cfg.get(cfg.paddleocrPath)
-        args["supportFilesPath"] = cfg.get(cfg.supportFilesPath)
-
+        args["supportFilesPath"] = (
+            os.path.normpath(p) if (p := cfg.get(cfg.supportFilesPath)) else p
+        )
         return args
 
     def _clear_log(self):

@@ -5,6 +5,9 @@ from PySide6.QtCore import QObject, Signal
 class GlobalEventBus(QObject):
     """全局事件总线，负责组件间通信"""
 
+    # 单例应用消息（第二个实例启动时发给主实例）
+    appMessageSig = Signal(str)
+
     # 从主页切换页面
     switchToSampleCard = Signal(str, int)
 

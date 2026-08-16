@@ -9,24 +9,36 @@
   OCR task interface unified under TaskInterface base class with getTaskGeneratedFiles hook
 - 国际化文案统一收敛到 Text 类，移除散落的 self.tr() 调用
   i18n strings consolidated into the Text class, removing scattered self.tr() calls
+- 主程序与 videocr CLI 依赖隔离，新建 paddleocr 副本断开 import 牵连，避免打包时带入 av/fast_ssim/scipy 等重型依赖
+  Isolated main app from videocr CLI dependencies via a paddleocr copy, preventing av/fast_ssim/scipy from being pulled into the build
 
 ### 新增 / Added
 - 空状态卡片组件：任务列表为空时展示引导界面
   Empty status card component showing guidance when the task list is empty
 - 跨平台文件操作工具，封装 showInFolder / openUrl
   Cross-platform file utility wrapping showInFolder / openUrl
+- SingletonApplication 单例机制：基于 QSharedMemory + QLocalServer 实现进程间通信，第二个实例启动时自动激活主窗口
+  SingletonApplication via QSharedMemory + QLocalServer: second instance activates the main window through IPC
 
 ### 修复 / Fixed
 - 修复基类 _removeCard 清理不一致导致布局与卡片映射泄漏的问题
   Fixed layout and card mapping leak caused by inconsistent _removeCard cleanup
 - 修复任务完成后「在文件夹中显示」功能
   Fixed "Show in Folder" after task completion
+- 修复 PaddleOCR 模型路径正反斜杠混合导致找不到模型文件的问题
+  Fixed PaddleOCR model path not found due to mixed forward/backward slashes
+- 修复 SegmentedWidget 误传 QWidget 作为 routeKey 触发 Shiboken copy-convert 警告
+  Fixed Shiboken copy-convert warning caused by passing QWidget as routeKey to SegmentedWidget
+- 修复 _currentFilter 用 currentItem() 与 QWidget 比较永远为 False 导致标签页过滤失效的问题
+  Fixed tab filter always returning "all" due to currentItem() vs QWidget comparison always being False
 
 ### 改进 / Improved
 - 完善各服务日志输出
   Improved logging across services
 - 任务卡片按钮提示与确认对话框文案全部纳入国际化管理
   Task card tooltips and confirmation dialogs fully internationalized
+- 过滤 qfluentwidgets 内部 QFont::setPointSize(-1) 无害警告，保持控制台输出整洁
+  Filter qfluentwidgets internal QFont::setPointSize(-1) harmless warnings for cleaner console output
 
 ## 下载提示
 
