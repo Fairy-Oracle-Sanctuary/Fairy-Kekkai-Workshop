@@ -213,8 +213,10 @@ try {
     Pop-Location
 }
 
-$setup = Join-Path (Join-Path $repo 'Output') "Fairy-Kekkai-Workshop-v$version-$Variant-Windows-x86_64-Setup.exe"
-if (-not (Test-Path $setup)) { throw "未找到安装包产物: $setup" }
+# 注意：局部变量不要与上面的参数同名——PowerShell 变量名大小写不敏感，
+# 例如 $setup 会命中 [switch]$Setup，把字符串赋给 [switch] 会抛类型转换错误，故用 $setupPath。
+$setupPath = Join-Path (Join-Path $repo 'Output') "Fairy-Kekkai-Workshop-v$version-$Variant-Windows-x86_64-Setup.exe"
+if (-not (Test-Path $setupPath)) { throw "未找到安装包产物: $setupPath" }
 Write-Host ''
-Write-Host "安装包: $setup"
-Write-Host "体积: $([math]::Round((Get-Item -LiteralPath $setup).Length / 1MB, 1)) MB"
+Write-Host "安装包: $setupPath"
+Write-Host "体积: $([math]::Round((Get-Item -LiteralPath $setupPath).Length / 1MB, 1)) MB"
