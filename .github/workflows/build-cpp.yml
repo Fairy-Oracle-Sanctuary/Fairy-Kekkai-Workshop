@@ -1,31 +1,90 @@
-name: Build C++ Windows Installer
+name: Release (C++ Windows Installer)
 
-# C++ 重写版的打包流程：手工选择一个 OCR 变体 -> 编译 Release -> 生成 Setup 安装包。
-# 与 release.yml（Python 版）完全独立，互不影响。
-# 待 C++ 版正式发布时，把 on 改成 tag 触发（tags: ['v*']），并复用 release.yml 的
-# release job 校验 tag 与 cpp/resources/setting_data.json 的 VERSION 一致后发布 Release 即可。
+# C++ 原生版唯一的发布管线：打 tag（v3.0.0 形式）即自动完成
+#   预检（版本号 / 发布说明契约）-> 四变体并行构建 -> 校验产物 -> 发布 GitHub Release。
+# Python 版的两条旧管线（release.yml / deploy-windows.yml）已下线，不再存在。
+#
+# 也可以 workflow_dispatch 手工触发：只构建并上传 artifact，不会发布 Release。
+#
+# 发布前需要满足的契约（细节见 DEVELOPMENT.md「发布与更新约定」）：
+#   1. tag 版本号 == cpp/resources/setting_data.json 的 VERSION；
+#   2. RELEASE_NOTES.md 含 `## 更新日志`（后面还有别的 `## ` 标题）与 `## 下载提示`，
+#      下载提示里 CPU / GPU CUDA 11.8 / GPU CUDA 12.9 / Clear 四个安装包链接齐全；
+#   3. 若本次更换了 OCR 引擎，正文末尾必须独占一行 !OCRUPDATE!。
+# 前两条由 scripts/check-release-notes.py 校验，第三条由它联网比对上一次 Release
+# 的引擎代次自动判定，任何一条不满足都会在编译前直接失败（省掉一次半小时的构建）。
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
-    inputs:
-      variant:
-        description: 'OCR 变体（Clear 是不携带 tools 的增量升级包）'
-        required: true
-        default: 'CPU-v3.7.0'
-        type: choice
-        options:
+
+# 同一 tag 的发布不并发；手工触发按 ref 各自独立
+concurrency:
+  group: cpp-release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    name: Preflight checks
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Resolve version from setting_data.json
+        # C++ 版版本号的唯一来源；安装包文件名与程序内显示都取自它
+        id: version
+        run: |
+          VERSION=$(python3 -c "import json; print(json.load(open('cpp/resources/setting_data.json', encoding='utf-8-sig'))['VERSION'])")
+          if [ -z "$VERSION" ]; then
+            echo "::error::无法从 cpp/resources/setting_data.json 读取 VERSION"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "C++ 版版本号: $VERSION"
+
+      - name: Verify tag matches version
+        # 防止 tag 与源码里的版本号不一致，导致发布出的安装包版本错乱
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ "$TAG_VERSION" != "${{ steps.version.outputs.version }}" ]; then
+            echo "::error::tag $GITHUB_REF_NAME 与 cpp/resources/setting_data.json 的 VERSION（${{ steps.version.outputs.version }}）不一致，请先改版本号再打 tag"
+            exit 1
+          fi
+          echo "版本号校验通过: $TAG_VERSION"
+
+      - name: Verify RELEASE_NOTES.md contract
+        # 客户端「检查更新」直接解析 Release 正文，格式是有约束的接口：
+        # 结构 / 四个安装包链接 / 链接版本号 / 换引擎必须带 !OCRUPDATE!
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/check-release-notes.py \
+            --version "${{ steps.version.outputs.version }}" \
+            --check-ocr-update
+
+  build:
+    name: Build ${{ matrix.variant }}
+    needs: [preflight]
+    runs-on: windows-2022
+    strategy:
+      # 四个变体互相独立，一个失败不影响其余，最后统一判定
+      fail-fast: false
+      matrix:
+        variant:
           - CPU-v3.7.0
           - GPU-v3.7.0-CUDA-11.8
           - GPU-v3.7.0-CUDA-12.9
           - Clear
-
-jobs:
-  build-cpp:
-    name: Build C++ ${{ inputs.variant }} Installer
-    # windows-latest 已于 2026-06 迁移到 VS2026 镜像（只装 VS 2026，没有 VS 2022），
-    # 本项目与 Qt 6.7.3 msvc2019_64 是在 VS 2022 上验证的，所以固定用 windows-2022。
-    # 若该镜像退役：改回 windows-latest 即可，下面的探测步骤会自动切到 VS2026 生成器
-    # （'Visual Studio 18 2026' 需要 CMake >= 4.2，VS2026 镜像自带 CMake 4.4）。
-    runs-on: windows-2022
     env:
       # OpenCV 用项目自己 Release 上备用的预编译包（world 版，解压后为 build\）
       OPENCV_ASSET_URL: https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0/opencv-4.12.0-windows-x64.zip
@@ -100,7 +159,7 @@ jobs:
         # 变体名与 PaddleOCR-Standalone 资产名同构：PaddleOCR-<variant> / PaddleOCR-<variant>.7z
         # Clear 增量升级包不下载也不写 OCR 标识
         run: |
-          $variant = "${{ inputs.variant }}"
+          $variant = "${{ matrix.variant }}"
           $tag = ''
           if ($variant -ne 'Clear') { $tag = "PaddleOCR-$variant" }
           "PADDLEOCR_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
@@ -271,7 +330,7 @@ jobs:
             '-Generator', $env:CMAKE_GENERATOR,
             '-Setup'
           )
-          if ("${{ inputs.variant }}" -eq 'Clear') {
+          if ("${{ matrix.variant }}" -eq 'Clear') {
             # Clear 增量升级包：不带 tools 与 OCR 标识，仅升级主程序
             $params += @('-NoTools', '-Variant', 'Clear')
           } else {
@@ -280,19 +339,125 @@ jobs:
           & powershell.exe @params
           if ($LASTEXITCODE -ne 0) { Write-Error 'C++ 打包失败'; exit 1 }
 
-      - name: Verify installer
+      - name: Verify installer and staged payload
+        # 三件事：(1) 产物名与版本号/变体严格一致；(2) 非 Clear 包必须带 PADDLEOCR 标识
+        # 且第一行内容与变体一致（程序运行期据此定位 tools\<tag> 与机型）；
+        # (3) Clear 包必须不带 tools 与 PADDLEOCR，否则会覆盖用户已装好的引擎。
         run: |
-          $setup = Get-ChildItem Output -Filter 'Fairy-Kekkai-Workshop-v*-Windows-x86_64-Setup.exe' |
-            Sort-Object LastWriteTime -Descending | Select-Object -First 1
-          if (-not $setup) { Write-Error '未生成安装包'; exit 1 }
-          Write-Host "Installer: $($setup.Name) ($([math]::Round($setup.Length / 1MB, 1)) MB)"
-          $stage = (Get-ChildItem dist-cpp -Directory | Select-Object -First 1).FullName
+          $version = "${{ needs.preflight.outputs.version }}"
+          $variant = "${{ matrix.variant }}"
+          $setup = "Output\Fairy-Kekkai-Workshop-v$version-$variant-Windows-x86_64-Setup.exe"
+          if (-not (Test-Path $setup)) {
+            Write-Error "未生成预期安装包: $setup（产物名必须与版本号/变体一致）"
+            exit 1
+          }
+          Write-Host "Installer: $setup ($([math]::Round((Get-Item $setup).Length / 1MB, 1)) MB)"
+
+          $stage = 'dist-cpp\Fairy-Kekkai-Workshop.dist'
+          if (-not (Test-Path $stage)) {
+            $stage = (Get-ChildItem dist-cpp -Directory -ErrorAction SilentlyContinue |
+              Select-Object -First 1).FullName
+          }
+          if (-not $stage -or -not (Test-Path $stage)) {
+            Write-Error '未找到待打包目录 dist-cpp\*，打包步骤可能没有执行成功'
+            exit 1
+          }
           $stageSize = (Get-ChildItem $stage -Recurse -File | Measure-Object Length -Sum).Sum
-          Write-Host "Staged payload: $([math]::Round($stageSize / 1MB, 1)) MB"
+          Write-Host "Staged payload: $stage ($([math]::Round($stageSize / 1MB, 1)) MB)"
+
+          $marker = Join-Path $stage 'PADDLEOCR'
+          $tools = Join-Path $stage 'tools'
+          if ($variant -eq 'Clear') {
+            if (Test-Path $marker) { Write-Error 'Clear 增量包不应携带 PADDLEOCR 标识文件'; exit 1 }
+            if (Test-Path $tools) { Write-Error 'Clear 增量包不应携带 tools 目录'; exit 1 }
+            Write-Host 'Clear 增量包校验通过：不含 PADDLEOCR 与 tools'
+          } else {
+            $expected = "PaddleOCR-$variant"
+            if (-not (Test-Path $marker)) { Write-Error "缺少 PADDLEOCR 标识文件: $marker"; exit 1 }
+            $first = (Get-Content $marker -TotalCount 1).Trim()
+            if ($first -ne $expected) {
+              Write-Error "PADDLEOCR 第一行是 '$first'，应为 '$expected'"
+              exit 1
+            }
+            foreach ($item in @("tools\$expected", "tools\$env:SUPPORT_DIR",
+                                'tools\videocr-cli.exe', 'tools\ffmpeg.exe', 'tools\yt-dlp.exe')) {
+              if (-not (Test-Path (Join-Path $stage $item))) {
+                Write-Error "待打包目录缺少 $item"; exit 1
+              }
+            }
+            Write-Host "PADDLEOCR 标识校验通过：$first"
+          }
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: Fairy-Kekkai-Workshop-Cpp-${{ inputs.variant }}-Windows-x86_64
+          name: Fairy-Kekkai-Workshop-${{ matrix.variant }}-Windows-x86_64
           path: Output/Fairy-Kekkai-Workshop-v*-Windows-x86_64-Setup.exe
           retention-days: 30
+
+  release:
+    name: Publish GitHub Release
+    needs: [preflight, build]
+    # 只有打 tag 才发布；workflow_dispatch 手工触发只产出 artifact
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all installers
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Verify release assets
+        # 发布说明里列出的安装包必须与实际上传的产物完全一致（多一个少一个都会 404），
+        # 并且四个变体各一个、体积不能小得可疑（防止下载到错误页/指针文件）
+        run: |
+          set -e
+          version="${{ needs.preflight.outputs.version }}"
+          find release-assets -type f -name '*-Windows-x86_64-Setup.exe' -printf '%f\n' | sort -u > /tmp/actual.txt
+          grep -o 'Fairy-Kekkai-Workshop-v[0-9A-Za-z.-]*-Windows-x86_64-Setup\.exe' RELEASE_NOTES.md | sort -u > /tmp/expected.txt
+          echo "RELEASE_NOTES.md 中列出的安装包："; cat /tmp/expected.txt
+          echo "实际构建出的安装包："; cat /tmp/actual.txt
+          if ! diff -u /tmp/expected.txt /tmp/actual.txt; then
+            echo "::error::RELEASE_NOTES.md 的下载链接与实际上传的安装包不一致"
+            exit 1
+          fi
+
+          check() {
+            local pattern="$1" label="$2" count
+            count=$(find release-assets -type f -name "$pattern" | wc -l)
+            if [ "$count" -ne 1 ]; then
+              echo "::error::$label 期望 1 个安装包，实际 $count 个（pattern: $pattern）"
+              exit 1
+            fi
+            echo "$label OK"
+          }
+          check "Fairy-Kekkai-Workshop-v${version}-CPU-v*-Windows-x86_64-Setup.exe" "CPU"
+          check "Fairy-Kekkai-Workshop-v${version}-GPU-v*-CUDA-11.8-Windows-x86_64-Setup.exe" "GPU CUDA 11.8"
+          check "Fairy-Kekkai-Workshop-v${version}-GPU-v*-CUDA-12.9-Windows-x86_64-Setup.exe" "GPU CUDA 12.9"
+          check "Fairy-Kekkai-Workshop-v${version}-Clear-Windows-x86_64-Setup.exe" "Clear"
+
+          tiny=$(find release-assets -type f -name '*-Setup.exe' -size -1M | wc -l)
+          if [ "$tiny" -ne 0 ]; then
+            echo "::error::有 $tiny 个安装包小于 1MB，疑似无效产物"
+            exit 1
+          fi
+          ls -lh release-assets
+
+      - name: Create GitHub Release
+        # 正文即 RELEASE_NOTES.md，客户端「检查更新」直接解析它；
+        # 预检已确认它满足契约，这里再传一次是为了防止构建期间文件被改动
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Fairy Kekkai Workshop ${{ github.ref_name }}
+          body_path: RELEASE_NOTES.md
+          files: release-assets/*-Setup.exe
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true

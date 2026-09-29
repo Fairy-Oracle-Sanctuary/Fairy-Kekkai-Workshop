@@ -24,11 +24,12 @@ QString humanSize(qint64 bytes) {
 
 StartupMaintenanceWorker::StartupMaintenanceWorker(QStringList projectSources,
                                                    QString projectTarget, bool cleanOcr,
-                                                   QObject* parent)
+                                                   bool cleanLegacy, QObject* parent)
     : QObject(parent),
       projectSources_(std::move(projectSources)),
       projectTarget_(std::move(projectTarget)),
-      cleanOcr_(cleanOcr) {}
+      cleanOcr_(cleanOcr),
+      cleanLegacy_(cleanLegacy) {}
 
 void StartupMaintenanceWorker::run() {
     // 第一阶段：搬迁软件目录里的老项目
@@ -56,30 +57,49 @@ void StartupMaintenanceWorker::run() {
         const ocr::CleanupResult& result = cleaner.result();
         emit ocrFinished(result.removed.size(), result.failed.size(), result.freedBytes);
     }
+    // 第三阶段：清理上一代 Python 版遗留在安装目录里的依赖
+    if (cleanLegacy_) {
+        emit legacyScanStarted();
+        legacy::ResidueCleaner cleaner;
+        connect(&cleaner, &legacy::ResidueCleaner::itemStarted, this,
+                &StartupMaintenanceWorker::legacyItemStarted);
+        connect(&cleaner, &legacy::ResidueCleaner::progressed, this,
+                &StartupMaintenanceWorker::legacyProgressed);
+        connect(&cleaner, &legacy::ResidueCleaner::itemFinished, this,
+                &StartupMaintenanceWorker::legacyItemFinished);
+        cleaner.run();
+        const legacy::ResidueResult& result = cleaner.result();
+        emit legacyFinished(result.removed.size(), result.failed.size(), result.freedBytes);
+    }
     emit done();
 }
 
 StartupMaintenanceDialog::StartupMaintenanceDialog(const QStringList& projectSources,
                                                    const QString& projectTarget, bool cleanOcr,
-                                                   QWidget* parent)
+                                                   bool cleanLegacy, QWidget* parent)
     : BaseInputDialog(trText("正在整理运行环境"), 640, parent),
       sources_(projectSources),
       cleanOcr_(cleanOcr),
+      cleanLegacy_(cleanLegacy),
       total_(projectSources.size()) {
     report_.target = projectTarget;
     setClosableOnMaskClicked(false);
     heading_ = qobject_cast<qfw::SubtitleLabel*>(viewLayout->itemAt(0)->widget());
 
-    // 两个阶段都要跑时给项目搬迁留出前半段进度，避免后半段长期停在 0
+    // 按实际要跑的阶段数均分进度条，避免靠后的阶段长期停在 0
     const bool hasProjects = !projectSources.isEmpty();
-    if (hasProjects && cleanOcr) {
-        projectWindow_ = {0, 55};
-        ocrWindow_ = {55, 100};
-    } else if (hasProjects) {
-        projectWindow_ = {0, 100};
-    } else {
-        ocrWindow_ = {0, 100};
-    }
+    int stageCount = 0;
+    if (hasProjects) ++stageCount;
+    if (cleanOcr) ++stageCount;
+    if (cleanLegacy) ++stageCount;
+    if (stageCount == 0) stageCount = 1;
+    int stageIndex = 0;
+    const auto stageWindow = [stageCount](int index) {
+        return QPair<int, int>{index * 100 / stageCount, (index + 1) * 100 / stageCount};
+    };
+    if (hasProjects) projectWindow_ = stageWindow(stageIndex++);
+    if (cleanOcr) ocrWindow_ = stageWindow(stageIndex++);
+    if (cleanLegacy) legacyWindow_ = stageWindow(stageIndex++);
 
     if (hasProjects) {
         auto* tip = new qfw::BodyLabel(
@@ -97,6 +117,13 @@ StartupMaintenanceDialog::StartupMaintenanceDialog(const QStringList& projectSou
             trText("同时清除软件目录里旧版本的 PaddleOCR 与识别模型，回收磁盘空间。"), this);
         ocrTip->setWordWrap(true);
         viewLayout->addWidget(ocrTip);
+    }
+    if (cleanLegacy) {
+        auto* legacyTip = new qfw::BodyLabel(
+            trText("并清除上一代 Python 版遗留在安装目录里的运行库与依赖，它们已不再被使用。"),
+            this);
+        legacyTip->setWordWrap(true);
+        viewLayout->addWidget(legacyTip);
     }
 
     currentLabel_ = new qfw::BodyLabel(
@@ -125,7 +152,8 @@ StartupMaintenanceDialog::~StartupMaintenanceDialog() {
 
 void StartupMaintenanceDialog::start() {
     thread_ = new QThread(this);
-    auto* worker = new StartupMaintenanceWorker(sources_, report_.target, cleanOcr_);
+    auto* worker = new StartupMaintenanceWorker(sources_, report_.target, cleanOcr_,
+                                                cleanLegacy_);
     worker->moveToThread(thread_);
     connect(thread_, &QThread::started, worker, &StartupMaintenanceWorker::run);
 
@@ -173,6 +201,29 @@ void StartupMaintenanceDialog::start() {
         ocrFailed_ = failed;
         ocrFreedBytes_ = freedBytes;
     });
+
+    connect(worker, &StartupMaintenanceWorker::legacyScanStarted, this, [this] {
+        currentLabel_->setText(trText("正在统计上一代残留文件…"));
+        setProgress(legacyWindow_, 0);
+    });
+    connect(worker, &StartupMaintenanceWorker::legacyItemStarted, this,
+            [this](const QString& name, int index, int total) {
+        currentLabel_->setText(trText("正在清理上一代残留：%1（%2/%3）").arg(name).arg(index).arg(total));
+    });
+    connect(worker, &StartupMaintenanceWorker::legacyProgressed, this,
+            [this](int percent) { setProgress(legacyWindow_, percent); });
+    connect(worker, &StartupMaintenanceWorker::legacyItemFinished, this,
+            [this](const QString& path, bool ok, const QString& reason) {
+        const QString name = QFileInfo(path).fileName();
+        if (ok) appendLog(trText("已清理 %1（%2）").arg(name, reason));
+        else appendLog(trText("%1 清理失败（%2），文件被占用或权限不足").arg(name, reason));
+    });
+    connect(worker, &StartupMaintenanceWorker::legacyFinished, this,
+            [this](int removed, int failed, qint64 freedBytes) {
+        legacyRemoved_ = removed;
+        legacyFailed_ = failed;
+        legacyFreedBytes_ = freedBytes;
+    });
     connect(worker, &StartupMaintenanceWorker::done, this, &StartupMaintenanceDialog::finish);
     connect(thread_, &QThread::finished, worker, &QObject::deleteLater);
     thread_->start();
@@ -217,9 +268,17 @@ void StartupMaintenanceDialog::finish() {
         if (ocrFailed_ > 0)
             summary << trText("有 %1 项清理失败，可在关闭占用后重试").arg(ocrFailed_);
     }
+    if (cleanLegacy_) {
+        if (legacyRemoved_ > 0)
+            summary << trText("已清理 %1 项上一代残留，释放 %2")
+                           .arg(legacyRemoved_)
+                           .arg(humanSize(legacyFreedBytes_));
+        if (legacyFailed_ > 0)
+            summary << trText("有 %1 项上一代残留清理失败").arg(legacyFailed_);
+    }
     if (summary.isEmpty()) summary << trText("没有需要处理的内容");
 
-    const bool partiallyFailed = failed_ > 0 || ocrFailed_ > 0;
+    const bool partiallyFailed = failed_ > 0 || ocrFailed_ > 0 || legacyFailed_ > 0;
     if (heading_)
         heading_->setText(partiallyFailed ? trText("运行环境整理完成，部分内容失败")
                                           : trText("运行环境整理完成"));
@@ -232,13 +291,20 @@ void StartupMaintenanceDialog::finish() {
 projects::RelocateReport runStartupMaintenance(QWidget* parent) {
     const QString projectTarget = projects::root();
     // 项目目录本身就在软件目录里时不做搬迁，否则等于原地搬运
-    const QStringList legacy = insideSoftwareFolder(projectTarget)
-        ? QStringList()
-        : projects::projectsIn(sourceRoot());
+    QStringList legacyProjects;
+    if (!insideSoftwareFolder(projectTarget)) {
+        // 软件目录可能不止一个：发行版看 exe 所在目录，开发构建的 exe 旁边与编译期源码根都要看，
+        // 否则用户放在 exe 同级的项目会被整片漏掉
+        for (const QString& folder : softwareRoots())
+            for (const QString& path : projects::projectsIn(folder))
+                if (!legacyProjects.contains(path)) legacyProjects << path;
+    }
     const bool cleanOcr = ocr::hasObsoleteResources();
-    if (legacy.isEmpty() && !cleanOcr) return {};
+    // 上一代 Python 版残留：覆盖安装后仍留在安装目录里，同样顺手清掉
+    const bool cleanLegacy = legacy::hasLegacyResidue();
+    if (legacyProjects.isEmpty() && !cleanOcr && !cleanLegacy) return {};
 
-    StartupMaintenanceDialog dialog(legacy, projectTarget, cleanOcr, parent);
+    StartupMaintenanceDialog dialog(legacyProjects, projectTarget, cleanOcr, cleanLegacy, parent);
     dialog.start();
     dialog.exec();
     return dialog.report();

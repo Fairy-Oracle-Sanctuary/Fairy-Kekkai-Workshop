@@ -1,12 +1,12 @@
 #include "view/home_interface.h"
 
 #include <QIcon>
-#include <QMessageBox>
 #include <QVBoxLayout>
 #include <tuple>
 
 #include "common/app_data.h"
 #include "common/event_bus.h"
+#include "components/floating_window.h"
 #include "components/info_card.h"
 #include "components/sample_card.h"
 
@@ -30,9 +30,14 @@ namespace fkw
                 this, &HomeInterface::logRequested);
         connect(info, &FairyKekkaiWorkshopInfoCard::restartRequested,
                 this, &HomeInterface::restartRequested);
-        connect(info, &FairyKekkaiWorkshopInfoCard::floatingWindowRequested, this, [this]()
-                { QMessageBox::information(this, trText("悬浮窗口"),
-                                           QStringLiteral("OCR 悬浮窗口将在界面移植阶段完成。")); });
+        connect(info, &FairyKekkaiWorkshopInfoCard::floatingWindowRequested, this, []() {
+            // 对齐 Python info_card.__onFloatingButtonClicked：每次新建一个无父窗口的
+            // 置顶悬浮窗；窗口带 WA_DeleteOnClose，关闭后由 ocr_window_closed 恢复入口按钮。
+            auto *floating = new FloatingWindow();
+            floating->show();
+            floating->raise();
+            floating->activateWindow();
+        });
         connect(info, &FairyKekkaiWorkshopInfoCard::updateRequested,
                 &GlobalEventBus::instance(), &GlobalEventBus::checkUpdateSig);
         auto *features = new SampleCardView(trText("功能一览"), view);

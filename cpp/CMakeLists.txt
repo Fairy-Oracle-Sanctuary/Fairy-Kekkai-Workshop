@@ -48,6 +48,10 @@ add_executable(Fairy-Kekkai-Workshop-Cpp WIN32
     resources/app_assets.qrc
     ${FKW_APP_RC}
 )
+# 产物名与 Python 版保持一致（Fairy-Kekkai-Workshop.exe）：两代共用同一个 AppId 与安装目录，
+# 名字统一后安装包/快捷方式/关联项都能直接沿用。
+# target 名保留 Fairy-Kekkai-Workshop-Cpp，脚本里的 --target 与 $<TARGET_FILE_DIR:...> 都不用改。
+set_target_properties(Fairy-Kekkai-Workshop-Cpp PROPERTIES OUTPUT_NAME "Fairy-Kekkai-Workshop")
 target_include_directories(Fairy-Kekkai-Workshop-Cpp PRIVATE src ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(Fairy-Kekkai-Workshop-Cpp PRIVATE qtfluentwidgets Qt6::Widgets Qt6::Svg Qt6::Network ${OpenCV_LIBS})
 target_compile_definitions(Fairy-Kekkai-Workshop-Cpp PRIVATE

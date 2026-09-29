@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QUrl>
+#include <functional>
 
 #include "common/app_data.h"
 #include "common/event_bus.h"
@@ -33,7 +34,10 @@ FileItemWidget::FileItemWidget(const QString& fileName, const QString& filePath,
                     formatText(Text::instance().FailedToOpenFile, {filePath_}), this);
             return;
         }
-        const QString source = QFileDialog::getOpenFileName(this, trText("选择文件"));
+        const QString source = QFileDialog::getOpenFileName(this, trText("选择文件"),
+            QString(),
+            QFileInfo(filePath_).fileName() + QStringLiteral(" (*") +
+                QFileInfo(filePath_).suffix() + QStringLiteral(")"));
         if (source.isEmpty()) return;
         if (!QFile::copy(source, filePath_))
             NotificationService::error(Text::instance().Error,
@@ -57,16 +61,14 @@ FileItemWidget::FileItemWidget(const QString& fileName, const QString& filePath,
     status->setStyleSheet(exists ? QStringLiteral("color: green; font-weight: bold;")
                                  : QStringLiteral("color: red; font-weight: bold;"));
     row->addWidget(status);
-    auto addPending = [this, row](bool visible, qfw::FluentIconEnum action,
-                                  const char* label) {
+    auto addQuickTask = [this, row](bool visible, qfw::FluentIconEnum action,
+                                    const QString& tooltip,
+                                    const std::function<void()>& onClick) {
         if (!visible) return;
         auto* button = new qfw::TransparentToolButton(action, this);
         button->setFixedSize(32, 32);
-        button->setToolTip(trText(label));
-        connect(button, &QPushButton::clicked, this, [this, label]() {
-            NotificationService::warning(Text::instance().Info,
-                trText(label) + QStringLiteral("：功能尚未接入。"), this);
-        });
+        button->setToolTip(tooltip);
+        connect(button, &QPushButton::clicked, this, onClick);
         row->addWidget(button);
     };
     if (!exists && canDownload && QFileInfo(filePath_).suffix().compare(
@@ -102,9 +104,44 @@ FileItemWidget::FileItemWidget(const QString& fileName, const QString& filePath,
         });
         row->addWidget(download);
     }
-    addPending(exists && canExtract, qfw::FluentIconEnum::Alignment, "OCR提取字幕");
-    addPending(exists && canExtract, qfw::FluentIconEnum::Microphone, "语音识别");
-    addPending(!exists && canTranslate, qfw::FluentIconEnum::Globe, "翻译字幕");
+    // 每张小卡片的「快速加任务」按钮（对齐 Python FileItemWidget.extractSubtitle /
+    // extractWhisper / translateSubtitle）：直接投递任务，无需先切页再选文件
+    addQuickTask(exists && canExtract, qfw::FluentIconEnum::Alignment,
+                 Text::instance().OCRExtractSubtitles, [this]() {
+        // 对齐 Python：先让字幕界面装载该视频，再切到字幕页
+        // （Python 为 add_video_signal + switchToSampleCard，
+        //  C++ 用 add_video_signal + navigation_requested 路由实现同一效果）
+        emit GlobalEventBus::instance().add_video_signal(filePath_);
+        emit GlobalEventBus::instance().navigation_requested(
+            QJsonObject{{QStringLiteral("target"), QStringLiteral("ocr")}});
+    });
+    addQuickTask(exists && canExtract, qfw::FluentIconEnum::Microphone,
+                 Text::instance().SRES, [this]() {
+        // 对齐 Python extractWhisper：同目录 原文_Whisper.srt 作为输出
+        const QFileInfo info(filePath_);
+        emit GlobalEventBus::instance().whisper_requested(
+            info.absoluteFilePath(),
+            info.dir().filePath(QStringLiteral("原文_Whisper.srt")));
+    });
+    addQuickTask(!exists && canTranslate, qfw::FluentIconEnum::Globe,
+                 Text::instance().TranslateSubtitles, [this]() {
+        // 对齐 Python translateSubtitle：译文.srt 卡片上以同目录原文字幕为输入
+        const QFileInfo info(filePath_);
+        QString source = info.dir().filePath(QStringLiteral("原文.srt"));
+        if (!QFileInfo::exists(source)) {
+            // 原文.srt 缺失时回退到实际存在的原文（与批量任务 dispatchTask 一致，
+            // 避免投递指向不存在文件的翻译任务）
+            for (const char* name : {"原文_OCR.srt", "原文_Whisper.srt"}) {
+                const QString candidate = info.dir().filePath(QString::fromUtf8(name));
+                if (QFileInfo::exists(candidate)) {
+                    source = candidate;
+                    break;
+                }
+            }
+        }
+        emit GlobalEventBus::instance().translate_requested(
+            source, info.absoluteFilePath());
+    });
     if (canEncode) {
         auto* encode = new qfw::TransparentToolButton(qfw::FluentIconEnum::Video, this);
         encode->setToolTip(trText("视频压制"));

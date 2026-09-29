@@ -11,7 +11,7 @@
     # 编译缓存目录（相对仓库根）
     [string]$BuildDir = 'build-cpp-release',
     # 待打包目录（相对仓库根）；安装包整体收录该目录
-    [string]$StageDir = 'dist-cpp\Fairy-Kekkai-Workshop-Cpp.dist',
+    [string]$StageDir = 'dist-cpp\Fairy-Kekkai-Workshop.dist',
     # 额外用 Inno Setup 生成安装包
     [switch]$Setup,
     # ISCC.exe 路径；留空则自动查找
@@ -35,8 +35,10 @@ $ErrorActionPreference = 'Stop'
 # 因此 AppId / 安装目录 / 快捷方式与 Python 版保持一致，可直接覆盖升级旧版。
 $repo = $PSScriptRoot
 $source = Join-Path $repo 'cpp'
+# CMake target 名（--target 用）；产物名由 CMake 的 OUTPUT_NAME 指定为 Fairy-Kekkai-Workshop.exe，
+# 与 Python 版同名，覆盖升级时安装包能直接替换。
 $target = 'Fairy-Kekkai-Workshop-Cpp'
-$exeName = $target + '.exe'
+$exeName = 'Fairy-Kekkai-Workshop.exe'
 $issName = 'Fairy-Kekkai-Workshop.iss'
 
 if (-not (Test-Path (Join-Path $OpenCVDir 'OpenCVConfig.cmake'))) {

@@ -17,8 +17,8 @@
 namespace fkw::ocr {
 namespace {
 
-// ── 上个版本的资源名（口径来自 GitHub 工作流）──────────────────────────
-// .github/workflows/deploy-windows.yml（release.yml 同源）中：
+// ── 上个版本的资源名（口径来自 Python 版的历史发布管线）────────────────
+// 已下线的 .github/workflows/deploy-windows.yml（release.yml 同源）中：
 //   引擎：下载 timminator/PaddleOCR-Standalone v1.4.0 的资产
 //        PaddleOCR-CPU-v1.4.0.7z / PaddleOCR-GPU-v1.4.0-CUDA-{11.8,12.9}.7z，
 //        解压后重命名并落位为 tools\PaddleOCR-*-v1.5.1*；
@@ -70,6 +70,22 @@ const QRegularExpression& modelDirPattern() {
     return pattern;
 }
 
+// 更早历史版本的兜底：引擎压缩包形如 PaddleOCR-CPU-v1.4.0.7z / PaddleOCR-GPU-v1.4.0-CUDA-11.8.7z
+const QRegularExpression& engineArchivePattern() {
+    static const QRegularExpression pattern(
+        QStringLiteral("^PaddleOCR-(?:CPU|GPU)-.+\\.7z$"),
+        QRegularExpression::CaseInsensitiveOption);
+    return pattern;
+}
+
+// 更早历史版本的兜底：模型压缩包形如 PaddleOCR.PP-OCRv5.support.files.VideOCR.7z
+const QRegularExpression& modelArchivePattern() {
+    static const QRegularExpression pattern(
+        QStringLiteral("^PaddleOCR\\.PP-OCRv\\d+\\.support\\.files.*\\.7z$"),
+        QRegularExpression::CaseInsensitiveOption);
+    return pattern;
+}
+
 // 新版不再需要的字体支持目录（旧版 utils.py 会去 program_dir 下找它）
 const QString kFontSupportDir = QStringLiteral("PaddleOCR.font.support.files");
 
@@ -86,6 +102,24 @@ bool isLegacyModel(const QString& name, const QString& currentSupportFiles) {
     if (name.compare(currentSupportFiles, Qt::CaseInsensitive) == 0) return false;
     return legacyModelDirs().contains(name, Qt::CaseInsensitive)
         || modelDirPattern().match(name).hasMatch();
+}
+
+// 是否属于旧版 OCR 压缩包。
+// 清单只覆盖到 v1.4.0，所以额外用模式兜底：这样下一次换引擎时，
+// 上一代的 PaddleOCR-*-vX.Y.Z.7z 不需要再改代码就能被清掉。
+// 去扩展名后若与当前版本/当前模型同代，则保留（可能是刚下载的同代备份）。
+bool isLegacyArchive(const QString& name, const QString& currentVersion,
+                     const QString& currentSupportFiles) {
+    QString stem = name;
+    if (stem.endsWith(QStringLiteral(".7z"), Qt::CaseInsensitive)) stem.chop(3);
+    if (!currentVersion.isEmpty() && stem.startsWith(currentVersion, Qt::CaseInsensitive))
+        return false;
+    if (!currentSupportFiles.isEmpty()
+        && stem.startsWith(currentSupportFiles, Qt::CaseInsensitive))
+        return false;
+    return legacyArchives().contains(name, Qt::CaseInsensitive)
+        || engineArchivePattern().match(name).hasMatch()
+        || modelArchivePattern().match(name).hasMatch();
 }
 
 // 统一成带正斜杠的路径，便于做「是否位于软件目录内」的前缀判断
@@ -129,8 +163,10 @@ QString obsoleteReason(const QString& name, const QString& currentVersion,
         return legacyModelDirs().contains(name, Qt::CaseInsensitive)
             ? QStringLiteral("上个版本的识别模型（PP-OCRv5）")
             : QStringLiteral("旧版识别模型");
-    if (legacyArchives().contains(name, Qt::CaseInsensitive))
-        return QStringLiteral("上个版本的 OCR 压缩包");
+    if (isLegacyArchive(name, currentVersion, currentSupportFiles))
+        return legacyArchives().contains(name, Qt::CaseInsensitive)
+            ? QStringLiteral("上个版本的 OCR 压缩包")
+            : QStringLiteral("旧版 OCR 压缩包");
     if (name.compare(kFontSupportDir, Qt::CaseInsensitive) == 0)
         return QStringLiteral("已废弃的字体支持目录");
     return {};
@@ -141,25 +177,29 @@ QString obsoleteReason(const QString& name, const QString& currentVersion,
 QFileInfoList obsoleteEntries(const QString& currentVersion,
                               const QString& currentSupportFiles) {
     QFileInfoList hits;
-    const QString root = normalizedPath(sourceRoot());
-    const QStringList folders = {root, root + QStringLiteral("/tools"),
-                                 root + QStringLiteral("/downloads")};
     QSet<QString> seen;
-    for (const QString& folder : folders) {
-        const QDir dir(folder);
-        if (!dir.exists()) continue;
-        const QFileInfoList entries =
-            dir.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
-        for (const QFileInfo& entry : entries) {
-            const QString path = normalizedPath(entry.absoluteFilePath());
-            // 只处理软件目录内部的条目，防止误删外部同名目录
-            if (!path.startsWith(root + QLatin1Char('/'), Qt::CaseInsensitive)) continue;
-            const QString key = path.toLower();
-            if (seen.contains(key)) continue;
-            seen.insert(key);
-            if (obsoleteReason(entry.fileName(), currentVersion, currentSupportFiles).isEmpty())
-                continue;
-            hits.append(entry);
+    // 软件目录可能不止一个：发行版就是 exe 所在目录，开发构建的 exe 落在 build 输出目录里，
+    // 此时编译期源码根与 exe 所在目录都要扫，否则放在 exe 同级的旧版 PaddleOCR 会被漏掉
+    for (const QString& rawRoot : softwareRoots()) {
+        const QString root = normalizedPath(rawRoot);
+        const QStringList folders = {root, root + QStringLiteral("/tools"),
+                                     root + QStringLiteral("/downloads")};
+        for (const QString& folder : folders) {
+            const QDir dir(folder);
+            if (!dir.exists()) continue;
+            const QFileInfoList entries =
+                dir.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
+            for (const QFileInfo& entry : entries) {
+                const QString path = normalizedPath(entry.absoluteFilePath());
+                // 只处理软件目录内部的条目，防止误删外部同名目录
+                if (!path.startsWith(root + QLatin1Char('/'), Qt::CaseInsensitive)) continue;
+                const QString key = path.toLower();
+                if (seen.contains(key)) continue;
+                seen.insert(key);
+                if (obsoleteReason(entry.fileName(), currentVersion, currentSupportFiles).isEmpty())
+                    continue;
+                hits.append(entry);
+            }
         }
     }
     return hits;

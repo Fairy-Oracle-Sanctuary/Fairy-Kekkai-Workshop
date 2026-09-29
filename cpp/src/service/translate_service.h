@@ -1,8 +1,10 @@
 #pragma once
 
 #include <QList>
+#include <QRunnable>
 #include <QSharedPointer>
 #include <QString>
+#include <atomic>
 #include <memory>
 
 #include "common/logger.h"
@@ -71,6 +73,23 @@ private:
 
     std::shared_ptr<TranslateTask> task_;
     QSharedPointer<Logger> taskLogger_;
+};
+
+// 屏幕翻译一次性任务（对应 Python translate_service.ScreenTranslateThread）：把悬浮窗
+// 当前的 OCR 文本整体交给所选 AI 模型流式翻译，结果经 event_bus 上报。由 QThreadPool
+// 调度，run() 结束自动 deleteLater()（外部持有引用请用 QPointer）。
+class ScreenTranslateRunner : public QObject, public QRunnable {
+    Q_OBJECT
+public:
+    explicit ScreenTranslateRunner(const QString& text, QObject* parent = nullptr);
+    ~ScreenTranslateRunner() override;
+
+    void run() override;
+    void cancel();
+
+private:
+    QString text_;
+    std::atomic<bool> cancelled_{false};
 };
 
 }  // namespace fkw

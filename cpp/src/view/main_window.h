@@ -8,11 +8,34 @@
 
 class QCloseEvent;
 class QPaintEvent;
+class QResizeEvent;
 
 namespace fkw {
 class LogWindow;
 class SystemTray;
 class VersionService;
+
+/** 带加载进度条与状态文字的启动页（对应 Python 的 LoadingSplashScreen）。 */
+class LoadingSplashScreen : public qfw::SplashScreen {
+    Q_OBJECT
+
+public:
+    explicit LoadingSplashScreen(const QIcon& icon, QWidget* parent = nullptr);
+
+    /** 更新加载进度和状态文字。 */
+    void setProgress(int value, const QString& text = QString());
+
+protected:
+    void resizeEvent(QResizeEvent* event) override;
+
+private:
+    /** 将进度条与状态文字放置在图标下方居中。 */
+    void repositionExtras();
+
+    qfw::ProgressBar* progressBar_ = nullptr;
+    qfw::BodyLabel* statusLabel_ = nullptr;
+};
+
 class MainWindowHandle {
 public:
     virtual ~MainWindowHandle() = default;
@@ -39,6 +62,7 @@ private:
     void updateThemeButtonIcon();
     void checkUpdate();
     void refreshBackground();
+    QPointer<LoadingSplashScreen> splashScreen_;
     VersionService* versionService_ = nullptr;
     qfw::TransparentToolButton* themeButton_ = nullptr;
     SystemTray* tray_ = nullptr;

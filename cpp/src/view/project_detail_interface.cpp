@@ -304,10 +304,6 @@ namespace fkw
         connect(back, &QPushButton::clicked, this, &ProjectDetailInterface::backToProjectList);
         connect(refresh, &QPushButton::clicked, this, [this]()
                 { reloadCurrentProject(true); });
-        const auto pending = [this](const QString &title)
-        {
-            NotificationService::warning(title, trText("功能尚未接入。"), this);
-        };
         connect(batchTask, &QPushButton::clicked, this,
                 [this, entries, document]() {
             if (entries.isEmpty()) {

@@ -91,8 +91,19 @@ FairyKekkaiWorkshopInfoCard::FairyKekkaiWorkshopInfoCard(QWidget* parent)
     actions->addWidget(website);
     vertical->addLayout(actions);
     connect(log, &QPushButton::clicked, this, &FairyKekkaiWorkshopInfoCard::logRequested);
-    connect(floating, &QPushButton::clicked, this,
-            &FairyKekkaiWorkshopInfoCard::floatingWindowRequested);
+    // 对齐 Python info_card.__onFloatingButtonClicked：点击后立即禁用入口，等悬浮窗
+    // 关闭（ocr_window_closed）再恢复，避免同时开出多个悬浮窗。
+    connect(floating, &QPushButton::clicked, this, [this, floating]() {
+        floating->setEnabled(false);
+        emit floatingWindowRequested();
+    });
+#ifndef Q_OS_WIN
+    // 屏幕框选 / 窗口绑定依赖 Win32，非 Windows 平台直接禁用入口。
+    floating->setEnabled(false);
+#else
+    connect(&GlobalEventBus::instance(), &GlobalEventBus::ocr_window_closed, this,
+            [floating]() { floating->setEnabled(true); });
+#endif
     connect(update, &QPushButton::clicked, this,
             &FairyKekkaiWorkshopInfoCard::updateRequested);
     connect(clear, &QPushButton::clicked, this, [this]() {

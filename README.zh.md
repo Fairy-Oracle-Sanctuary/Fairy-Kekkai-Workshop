@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  完整的项目管理、支持1800+网站视频下载、对于YouTube额外支持根据视频列表一键创建项目、基于VideOCR的视频OCR（支持PaddleOCR与Google Lens引擎）、Whisper语音识别、可自定义接入AI的字幕文件翻译、基于FFmpeg的视频压制。
+  完整的项目管理、支持1800+网站视频下载、对于YouTube额外支持根据视频列表一键创建项目、基于VideOCR的视频OCR（支持PaddleOCR与Google Lens引擎）、Whisper语音识别、可自定义接入AI的字幕文件翻译、屏幕悬浮取词翻译、基于FFmpeg的视频压制。
 </p>
 
 <p align="center">
@@ -24,7 +24,11 @@
   </a>
 
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/Python-3.9.13-yellow" alt="Python 3.9.13"/>
+    <img src="https://img.shields.io/badge/C%2B%2B-17-blue" alt="C++17"/>
+  </a>
+
+  <a style="text-decoration:none">
+    <img src="https://img.shields.io/badge/Qt-6-green" alt="Qt 6"/>
   </a>
 
   <a style="text-decoration:none">
@@ -64,6 +68,7 @@
 - 项目进度自动追踪（封面、原视频、熟肉、原字幕、译文）
 - 批量任务智能筛选和派发
 - 支持从视频播放列表一键创建项目（支持所有 yt-dlp 支持的网站）
+- 首次启动自动把散落在软件目录的项目迁移到独立数据目录
 
 ### 📥 视频下载
 - 基于 yt-dlp，支持1800+视频网站
@@ -94,6 +99,12 @@
 - 实时翻译进度显示
 - 支持流式输出
 
+### 🔍 屏幕悬浮取词翻译（新增）
+- 屏幕任意区域框选后即可 OCR 并调用 AI 翻译，无需切换窗口
+- 支持窗口绑定：框选区域可锁定到指定窗口，随窗口移动、缩放自动跟随
+- 支持置顶、锁定、鼠标穿透、背景透明、圆角等显示模式
+- 内置历史记录，可回看并复制此前的识别 / 翻译结果
+
 ### 🎬 视频压制
 - 基于FFmpeg，支持自定义编码参数
 - 支持硬件加速（CUDA、VideoToolbox）
@@ -101,7 +112,7 @@
 - 实时输出日志
 
 ### 🎨 界面特性
-- 现代化UI设计（PySide6 + QFluentWidgets）
+- 现代化UI设计（Qt 6 + Qt-Fluent-Widgets，原生 C++ 实现）
 - 标题栏快捷主题切换（深色/浅色模式）
 - 带进度条和状态文字的启动页
 - 相邻文件快速导航
@@ -113,49 +124,60 @@
 ## 系统要求
 
 - **操作系统**：Windows 10/11（推荐）
-  - OCR和语音识别功能仅支持Windows
+  - OCR、语音识别与屏幕悬浮取词仅支持Windows
   - 其他功能支持macOS/Linux
-- **Python**：3.9+
+- **运行方式**：
+  - 直接使用安装包：**无需安装 Python**，安装包已包含全部运行依赖
+  - 从源码构建：C++17 编译器（MSVC 2022）、CMake 3.21+、Qt 6（Widgets/Svg/Network）、OpenCV 4.12
 - **硬件**：
   - GPU（可选）：用于OCR、Whisper、视频压制加速
   - 内存：建议8GB以上
+
+> 3.0.0 起主程序已由 Python + PySide6 全量重写为 C++ + Qt 6 原生程序；仓库中的 `app/` 目录保留旧版 Python 实现，仅作参考，不再随安装包分发。
 
 ---
 
 ## 快速开始
 
-### 1. 克隆仓库
+### 方式一：直接安装（推荐）
+
+从 [Releases](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases) 页面下载对应显卡的安装包，按向导完成安装即可，无需任何开发环境。
+
+- CPU：适用于无独立显卡 / 不支持 CUDA 的设备
+- GPU (CUDA 11.8)：适用于 Nvidia 10 系列
+- GPU (CUDA 12.9)：适用于 Nvidia 16 - 50 系列
+
+### 方式二：从源码构建（C++）
+
+#### 1. 克隆仓库
 
 ```bash
 git clone https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop.git
 cd Fairy-Kekkai-Workshop
 ```
 
-### 2. 创建虚拟环境（推荐使用 uv）
+#### 2. 准备依赖
+
+- Qt 6（含 Widgets / Svg / Network 模块）
+- OpenCV 4.12（core、videoio）
+- CMake 3.21+ 与 Visual Studio 2022
+
+#### 3. 构建
 
 ```bash
-uv venv
-# Windows
-.venv\Scripts\activate
-# Unix/macOS
-source .venv/bin/activate
+cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release
+cmake --build cpp/build --config Release
 ```
 
-### 3. 安装依赖
+也可使用一键打包脚本完成「构建 + 依赖收集 + 生成安装包」：
 
-```bash
-uv pip install -r requirements.txt
+```powershell
+.\package-cpp-release.ps1
 ```
 
-### 4. 准备外部工具
+#### 4. 准备外部工具
 
 从 [Releases](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases) 页面下载 `tools.zip`，解压到项目根目录的 `tools/` 文件夹下即可，无需手动编译或单独安装各外部工具。
-
-### 5. 运行应用
-
-```bash
-python Fairy-Kekkai-Workshop.py
-```
 
 ---
 
@@ -173,6 +195,7 @@ python Fairy-Kekkai-Workshop.py
 - **OCR**：从视频中提取硬字幕（仅Windows）
 - **语音识别**：从视频中提取语音转字幕（仅Windows）
 - **翻译**：使用AI模型翻译字幕
+- **屏幕悬浮取词**：在屏幕上框选区域直接识别并翻译（仅Windows）
 - **压制**：使用FFmpeg压制视频
 - **设置**：配置应用参数和外部工具路径
 
@@ -183,6 +206,13 @@ python Fairy-Kekkai-Workshop.py
 3. **批量任务**：选择任务类型，智能筛选符合条件的剧集
 4. **执行任务**：通过事件总线自动派发到对应功能界面
 5. **进度追踪**：自动更新项目进度，可视化展示
+
+### 屏幕悬浮取词
+
+1. 在主页点击「屏幕悬浮取词」按钮，打开悬浮窗
+2. 点击框选按钮，在屏幕上拖拽选择需要识别的区域
+3. 识别完成后选择目标语言并触发翻译，结果直接显示在悬浮窗中
+4. 可通过工具栏切换置顶、锁定、鼠标穿透、背景透明等模式，历史记录按钮可回看此前的识别结果
 
 ### 主题切换
 
@@ -237,15 +267,24 @@ python Fairy-Kekkai-Workshop.py
 
 ## 开发文档
 
-详细的开发文档请参阅 [DEVELOPMENT.md](DEVELOPMENT.md)
+- 通用开发文档：[DEVELOPMENT.md](DEVELOPMENT.md)
+- C++ 版移植进度对照表：[cpp/PORTING_MATRIX.md](cpp/PORTING_MATRIX.md)
 
 ---
 
 ## 常见问题
 
-### Q: 应用启动时显示 Shiboken 警告
+### Q: 应用启动时显示 Shiboken 警告（仅旧版 Python 实现）
 
-A: 这是 PySide6 的正常警告，不影响功能。可以安全忽略。
+A: 这是 PySide6 的正常警告，不影响功能。可以安全忽略。3.0.0 起主程序已不再使用 Python。
+
+### Q: 从源码构建 C++ 版失败
+
+A:
+1. 确认 CMake 能找到 Qt 6（必要时设置 `CMAKE_PREFIX_PATH` 指向 Qt 安装目录）
+2. 确认 `OpenCV_DIR` 指向 OpenCV 的 `build` 目录，或把 OpenCV 解压到 `D:/CODE/opencv-4.12.0/build`
+3. 确认使用 Visual Studio 2022 工具链并支持 C++17
+4. 如缺少 `opencv_world4120.dll`，检查 OpenCV 版本是否为 4.12
 
 ### Q: 字幕提取失败
 
@@ -264,6 +303,13 @@ A:
 3. 确保Whisper模型文件存在于 `tools/Whisper.model/` 目录
 4. 语言设置为 `auto` 时，CLI会自动检测语言
 5. 检查GPU驱动是否支持DirectML（如使用GPU）
+
+### Q: 屏幕悬浮取词无法框选
+
+A:
+1. 该功能仅支持 Windows，且需要以管理员权限运行（安装包启动时会自动请求提权）
+2. 框选依赖 Win32 窗口接口，部分以管理员权限运行的窗口可能无法绑定
+3. 若开启了鼠标穿透模式，请先点击工具栏对应按钮关闭后再框选
 
 ### Q: 翻译功能不可用
 
@@ -290,6 +336,7 @@ A:
 | 字幕提取 | ✅ | 基于 VideOCR，支持 PaddleOCR/Google Lens 引擎，仅 Windows |
 | 语音识别 | ✅ | WhisperNet，仅Windows，支持实时进度 |
 | 翻译 | ✅ | 多AI模型支持，部分SDK不兼容 |
+| 屏幕悬浮取词 | ✅ | 仅Windows，支持窗口绑定与跟随 |
 | 视频压制 | ✅ | 基于FFmpeg，支持多种编码器 |
 | B站上传 | ⚠️ | 功能已实现但因API问题未正式启用 |
 | 批量处理 | ✅ | 支持批量任务，智能筛选 |
@@ -298,14 +345,18 @@ A:
 
 ## 技术栈
 
-- **UI框架**：PySide6 + QFluentWidgets (Modern UI)
+- **主程序**：C++17 + Qt 6 + Qt-Fluent-Widgets（原生桌面程序）
+- **图像处理**：OpenCV 4.12
 - **视频处理**：FFmpeg + yt-dlp
 - **字幕识别**：[VideOCR](https://github.com/timminator/VideOCR)（PaddleOCR / Google Lens）
 - **语音识别**：[Const-me/Whisper](https://github.com/Const-me/Whisper)
 - **翻译**：多个云API（OpenAI、Deepseek、腾讯混元等）
+- **JSON 处理**：nlohmann/json（header-only）
 - **配置存储**：JSON
-- **日志**：内置Logger
-- **包管理**：uv（推荐）
+- **构建系统**：CMake 3.21+ / MSVC 2022
+- **打包**：windeployqt + Inno Setup（`package-cpp-release.ps1`）；发布由 GitHub Actions 驱动，打 tag 即自动构建并发布四个变体（`.github/workflows/build-cpp.yml`）
+
+> 仓库的 `app/` 目录保留了旧版 Python + PySide6 实现（VideOCR CLI 等外部工具的构建脚本仍在此处），仅供移植对照参考。
 
 ---
 
@@ -343,7 +394,7 @@ A:
 <a href="https://www.star-history.com/?repos=Fairy-Oracle-Sanctuary%2FFairy-Kekkai-Workshop&type=date&legend=top-left">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop&type=date&theme=light&legend=top-left" />
    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop&type=date&legend=top-left" />
  </picture>
 </a>

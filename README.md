@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  Complete project management, support for 1800+ video download sites, one-click project creation from video playlists (supports all yt-dlp supported sites), VideOCR-based video OCR (supporting PaddleOCR and Google Lens engines), Whisper speech recognition, customizable AI subtitle translation, and FFmpeg-based video compression.
+  Complete project management, support for 1800+ video download sites, one-click project creation from video playlists (supports all yt-dlp supported sites), VideOCR-based video OCR (supporting PaddleOCR and Google Lens engines), Whisper speech recognition, customizable AI subtitle translation, floating on-screen capture translation, and FFmpeg-based video compression.
 </p>
 
 <p align="center">
@@ -24,7 +24,11 @@
   </a>
 
   <a style="text-decoration:none">
-    <img src="https://img.shields.io/badge/Python-3.9.13-yellow" alt="Python 3.9.13"/>
+    <img src="https://img.shields.io/badge/C%2B%2B-17-blue" alt="C++17"/>
+  </a>
+
+  <a style="text-decoration:none">
+    <img src="https://img.shields.io/badge/Qt-6-green" alt="Qt 6"/>
   </a>
 
   <a style="text-decoration:none">
@@ -64,6 +68,7 @@
 - Automatic project progress tracking (cover, raw video, cooked video, original subtitles, translated subtitles)
 - Intelligent batch task filtering and dispatch
 - Support for one-click project creation from video playlists (all yt-dlp supported sites)
+- Automatic migration of projects scattered in the install directory to a dedicated data directory on first launch
 
 ### 📥 Video Download
 - Based on yt-dlp, supports 1800+ video sites
@@ -94,6 +99,12 @@
 - Real-time translation progress display
 - Support for streaming output
 
+### 🔍 Floating Screen Capture Translation (New)
+- Select any region on screen to OCR and translate with AI without leaving the current window
+- Window binding: lock the selected region to a target window and follow its move/resize automatically
+- Always-on-top, lock, click-through, transparent background and rounded-corner display modes
+- Built-in history to review and copy previous OCR / translation results
+
 ### 🎬 Video Compression
 - Based on FFmpeg with custom encoding parameters
 - Hardware acceleration support (CUDA, VideoToolbox)
@@ -101,61 +112,72 @@
 - Real-time log output
 
 ### 🎨 Interface Features
-- Modern UI design (PySide6 + QFluentWidgets)
+- Modern UI design (Qt 6 + Qt-Fluent-Widgets, native C++ implementation)
 - Title bar quick theme switching (dark/light mode)
 - Splash screen with progress bar and status text
 - Quick navigation between adjacent files
 - Visual project progress display
-- Multi-language support (Chinese, English)
+- Multi-language support (9 languages)
 
 ---
 
 ## System Requirements
 
 - **Operating System**: Windows 10/11 (recommended)
-  - OCR and speech recognition features are Windows-only
+  - OCR, speech recognition and floating screen capture are Windows-only
   - Other features support macOS/Linux
-- **Python**: 3.9+
+- **How to run**:
+  - Using the installer: **no Python required**, all runtime dependencies are bundled
+  - Building from source: C++17 compiler (MSVC 2022), CMake 3.21+, Qt 6 (Widgets/Svg/Network), OpenCV 4.12
 - **Hardware**:
   - GPU (optional): For OCR, Whisper, and video compression acceleration
   - Memory: 8GB or more recommended
+
+> Since 3.0.0 the main application has been fully rewritten from Python + PySide6 to a native C++ + Qt 6 program. The `app/` directory keeps the legacy Python implementation for reference only and is no longer shipped in the installer.
 
 ---
 
 ## Quick Start
 
-### 1. Clone the repository
+### Option 1: Install directly (recommended)
+
+Download the installer matching your GPU from the [Releases](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases) page and follow the setup wizard. No development environment is required.
+
+- CPU: for machines without a discrete GPU / without CUDA support
+- GPU (CUDA 11.8): for Nvidia 10 series
+- GPU (CUDA 12.9): for Nvidia 16 - 50 series
+
+### Option 2: Build from source (C++)
+
+#### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop.git
 cd Fairy-Kekkai-Workshop
 ```
 
-### 2. Create virtual environment (uv recommended)
+#### 2. Prepare dependencies
+
+- Qt 6 (with Widgets / Svg / Network modules)
+- OpenCV 4.12 (core, videoio)
+- CMake 3.21+ and Visual Studio 2022
+
+#### 3. Build
 
 ```bash
-uv venv
-# Windows
-.venv\Scripts\activate
-# Unix/macOS
-source .venv/bin/activate
+cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release
+cmake --build cpp/build --config Release
 ```
 
-### 3. Install dependencies
+You can also use the one-click packaging script to build, collect dependencies and produce the installer:
 
-```bash
-uv pip install -r requirements.txt
+```powershell
+.\package-cpp-release.ps1
 ```
 
-### 4. Prepare external tools
+#### 4. Prepare external tools
 
 Download `tools.zip` from the [Releases](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases) page and extract it into the `tools/` directory at the project root. No manual compilation or separate installation of external tools is required.
-
-### 5. Run the application
-
-```bash
-python Fairy-Kekkai-Workshop.py
-```
 
 ---
 
@@ -173,6 +195,7 @@ On first run, a tutorial will be displayed introducing the main features and usa
 - **OCR**: Extract hard subtitles from videos (Windows only)
 - **Speech Recognition**: Extract speech-to-subtitles from videos (Windows only)
 - **Translation**: Translate subtitles using AI models
+- **Floating Screen Capture**: Select a region on screen to OCR and translate directly (Windows only)
 - **Compression**: Compress videos using FFmpeg
 - **Settings**: Configure application parameters and external tool paths
 
@@ -183,6 +206,13 @@ On first run, a tutorial will be displayed introducing the main features and usa
 3. **Batch Tasks**: Select task type, intelligently filter eligible episodes
 4. **Execute Tasks**: Automatically dispatch to corresponding feature interfaces via event bus
 5. **Progress Tracking**: Automatically update project progress with visual display
+
+### Floating Screen Capture
+
+1. Click the "Floating Screen Capture" button on the home page to open the floating window
+2. Click the select button and drag to choose the region to recognize on screen
+3. After recognition completes, pick the target language and trigger translation; the result shows directly in the floating window
+4. Use the toolbar to toggle always-on-top, lock, click-through and transparent background modes; the history button reviews previous results
 
 ### Theme Switching
 
@@ -237,15 +267,24 @@ Main configuration items can be modified in the settings page:
 
 ## Development Documentation
 
-For detailed development documentation, please refer to [DEVELOPMENT.md](DEVELOPMENT.md)
+- General development guide: [DEVELOPMENT.md](DEVELOPMENT.md)
+- C++ porting progress matrix: [cpp/PORTING_MATRIX.md](cpp/PORTING_MATRIX.md)
 
 ---
 
 ## FAQ
 
-### Q: Application shows Shiboken warning on startup
+### Q: Application shows Shiboken warning on startup (legacy Python build only)
 
-A: This is a normal PySide6 warning and does not affect functionality. It can be safely ignored.
+A: This is a normal PySide6 warning and does not affect functionality. It can be safely ignored. Since 3.0.0 the main application no longer uses Python.
+
+### Q: Building the C++ version from source fails
+
+A:
+1. Make sure CMake can locate Qt 6 (set `CMAKE_PREFIX_PATH` to your Qt installation if needed)
+2. Make sure `OpenCV_DIR` points to the OpenCV `build` directory, or extract OpenCV to `D:/CODE/opencv-4.12.0/build`
+3. Make sure you are using the Visual Studio 2022 toolchain with C++17 support
+4. If `opencv_world4120.dll` is missing, check that your OpenCV version is 4.12
 
 ### Q: Subtitle extraction failed
 
@@ -264,6 +303,13 @@ A:
 3. Ensure Whisper model files exist in the `tools/Whisper.model/` directory
 4. When language is set to `auto`, CLI will automatically detect language
 5. Check if GPU driver supports DirectML (if using GPU)
+
+### Q: Floating screen capture cannot select a region
+
+A:
+1. The feature is Windows-only and requires administrator privileges (the installer requests elevation on launch)
+2. Region selection relies on Win32 window APIs; windows running elevated may not be bindable
+3. If click-through mode is enabled, turn it off via the toolbar before selecting a region
 
 ### Q: Translation function unavailable
 
@@ -290,6 +336,7 @@ A:
 | Subtitle Extraction | ✅ | Based on VideOCR, supports PaddleOCR/Google Lens engines, Windows only |
 | Speech Recognition | ✅ | WhisperNet, Windows only, real-time progress support |
 | Translation | ✅ | Multi-AI model support, some SDKs incompatible |
+| Floating Screen Capture | ✅ | Windows only, supports window binding and following |
 | Video Compression | ✅ | Based on FFmpeg, supports multiple encoders |
 | Bilibili Upload | ⚠️ | Feature implemented but not officially enabled due to API issues |
 | Batch Processing | ✅ | Supports batch tasks with intelligent filtering |
@@ -298,14 +345,18 @@ A:
 
 ## Tech Stack
 
-- **UI Framework**: PySide6 + QFluentWidgets (Modern UI)
+- **Main Application**: C++17 + Qt 6 + Qt-Fluent-Widgets (native desktop app)
+- **Image Processing**: OpenCV 4.12
 - **Video Processing**: FFmpeg + yt-dlp
 - **Subtitle Recognition**: [VideOCR](https://github.com/timminator/VideOCR) (PaddleOCR / Google Lens)
 - **Speech Recognition**: [Const-me/Whisper](https://github.com/Const-me/Whisper)
 - **Translation**: Multiple cloud APIs (OpenAI, Deepseek, Tencent Hunyuan, etc.)
+- **JSON**: nlohmann/json (header-only)
 - **Configuration Storage**: JSON
-- **Logging**: Built-in Logger
-- **Package Management**: uv (recommended)
+- **Build System**: CMake 3.21+ / MSVC 2022
+- **Packaging**: windeployqt + Inno Setup (`package-cpp-release.ps1`); releases are published by GitHub Actions, which builds and ships all four variants on tag push (`.github/workflows/build-cpp.yml`)
+
+> The `app/` directory keeps the legacy Python + PySide6 implementation (build scripts for external tools such as the VideOCR CLI still live there) for porting reference only.
 
 ---
 
@@ -343,7 +394,7 @@ This project is licensed under the GPL license. See the LICENSE file in the repo
 <a href="https://www.star-history.com/?repos=Fairy-Oracle-Sanctuary%2FFairy-Kekkai-Workshop&type=date&legend=top-left">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop&type=date&theme=light&legend=top-left" />
    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop&type=date&legend=top-left" />
  </picture>
 </a>

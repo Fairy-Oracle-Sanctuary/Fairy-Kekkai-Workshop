@@ -63,6 +63,13 @@ VideocrInterface::VideocrInterface(QWidget* parent)
         "*.mp4;*.flv;*.mkv;*.avi;*.wmv;*.m2ts;*.ts;*.mov;*.webm"));
     setSpecialFilenameMapping(
         {{QStringLiteral("生肉.mp4"), QStringLiteral("原文_OCR.srt")}});
+    // 项目详情小卡片的「OCR提取字幕」快速任务（对齐 Python
+    // VideocrInterface.loadVideoFromProject）：回填输入/输出路径，
+    // 视频预览由输入框 textChanged 的防抖逻辑随后装载
+    connect(&GlobalEventBus::instance(), &GlobalEventBus::add_video_signal,
+            this, [this](const QString& videoPath) {
+        if (!videoPath.isEmpty()) setInputPath(videoPath);
+    });
     const QStringList languageCodes = {
         QStringLiteral("ch"),
         QStringLiteral("chinese_cht"),

@@ -593,4 +593,65 @@ bool TranslateWorker::postProcess() {
     return true;
 }
 
+// ---------- 屏幕翻译（对应 Python ScreenTranslateThread） ----------
+ScreenTranslateRunner::ScreenTranslateRunner(const QString& text, QObject* parent)
+    : QObject(parent), text_(text) {
+    // 与 ScreenOcrRunner 一致：交给调用方的 QThreadPool 调度，run() 末尾自回收
+    setAutoDelete(false);
+}
+
+ScreenTranslateRunner::~ScreenTranslateRunner() = default;
+
+void ScreenTranslateRunner::cancel() { cancelled_.store(true); }
+
+void ScreenTranslateRunner::run() {
+    const auto& cfg = AppConfig::instance();
+    const QString ai = cfg.value(ConfigKeys::ai_model).toString();
+    const QString originLang = cfg.value(ConfigKeys::origin_lang).toString();
+    const QString targetLang = cfg.value(ConfigKeys::target_lang).toString();
+    const double temperature = cfg.value(ConfigKeys::aiTemperature).toDouble();
+
+    TranslateProvider provider;
+    QString providerError;
+    if (!resolveProvider(ai, &providerError, &provider)) {
+        emit GlobalEventBus::instance().screen_translate_finished(false, providerError);
+        deleteLater();
+        return;
+    }
+    // Deepseek 的 model 与深度思考开关来自配置（对齐 Python DeepseekService.get_model_name）
+    if (ai == QStringLiteral("deepseek")) {
+        const QString deepseekModel = cfg.value(ConfigKeys::deepseekModel).toString();
+        if (!deepseekModel.isEmpty()) provider.model = deepseekModel;
+        provider.reasoning = cfg.value(ConfigKeys::deepseekReasoning).toBool();
+    }
+
+    // prompt 与 Python ScreenTranslateThread 逐字对齐（单轮 user 消息，无系统提示）
+    const QString prompt =
+        QStringLiteral("你是一个专业的%1翻译助手。\n请将以下%2文本翻译为%3，"
+                       "保持原意流畅自然，直接输出翻译结果：\n\n%4")
+            .arg(targetLang)
+            .arg(originLang)
+            .arg(targetLang)
+            .arg(text_);
+    const QJsonArray messages{QJsonObject{{QStringLiteral("role"), QStringLiteral("user")},
+                                          {QStringLiteral("content"), prompt}}};
+
+    QString fullResponse;
+    const StreamOutcome outcome = postStreamingChat(
+        provider, messages, temperature, &cancelled_,
+        [&fullResponse](const QString& piece) { fullResponse += piece; });
+
+    if (cancelled_.load()) {
+        emit GlobalEventBus::instance().screen_translate_finished(false,
+                                                                  QStringLiteral("已取消"));
+    } else if (!outcome.ok) {
+        emit GlobalEventBus::instance().screen_translate_finished(
+            false, analysisAiError(outcome.error));
+    } else {
+        emit GlobalEventBus::instance().screen_translate_finished(
+            true, removeThinkingContent(fullResponse));
+    }
+    deleteLater();
+}
+
 }  // namespace fkw
