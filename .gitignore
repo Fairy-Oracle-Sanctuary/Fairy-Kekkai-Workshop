@@ -247,7 +247,10 @@ obj/
 temp/
 temp1/
 test/
-scripts/
+scripts/*
+# 发布说明契约校验脚本由 CI（build-cpp.yml 预检）调用，必须入库；
+# 其余 scripts/ 下的本地辅助脚本继续忽略
+!scripts/check-release-notes.py
 .upstream_videocr/
 CPP_REWRITE_PLAN.md
 videocr_text_mask_filter_plan.md
