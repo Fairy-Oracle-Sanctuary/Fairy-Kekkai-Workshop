@@ -1,0 +1,266 @@
+name: Build C++ Windows Installer
+
+# C++ 重写版的打包流程：手工选择一个 OCR 变体 -> 编译 Release -> 生成 Setup 安装包。
+# 与 release.yml（Python 版）完全独立，互不影响。
+# 待 C++ 版正式发布时，把 on 改成 tag 触发（tags: ['v*']），并复用 release.yml 的
+# release job 校验 tag 与 cpp/resources/setting_data.json 的 VERSION 一致后发布 Release 即可。
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'OCR 变体（Clear 是不携带 tools 的增量升级包）'
+        required: true
+        default: 'CPU-v3.7.0'
+        type: choice
+        options:
+          - CPU-v3.7.0
+          - GPU-v3.7.0-CUDA-11.8
+          - GPU-v3.7.0-CUDA-12.9
+          - Clear
+
+jobs:
+  build-cpp:
+    name: Build C++ ${{ inputs.variant }} Installer
+    runs-on: windows-latest
+    env:
+      # OpenCV 用项目自己 Release 上备用的预编译包（world 版，解压后为 build\）
+      OPENCV_ASSET_URL: https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0/opencv-4.12.0-windows-x64.zip
+      # OCR 引擎与推理模型来自 timminator/PaddleOCR-Standalone，与本机 tools 的 v3.7.0 布局一致
+      PADDLEOCR_BASE_URL: https://github.com/timminator/PaddleOCR-Standalone/releases/download/v3.7.0
+      SUPPORT_ASSET: PaddleOCR.PP-OCRv6.support.files.VideOCR.7z
+      SUPPORT_DIR: PaddleOCR.PP-OCRv6.support.files
+      # videocr-cli.exe 与 whisper 工具来自本项目历史 Release v2.0.0 的压缩包资产
+      TOOLS_BASE_URL: https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Qt
+        # Qt 6.7.3 只有 msvc2019_64 归档，与 runner 上的 MSVC 2022 二进制兼容；
+        # Qt6::Svg 属于独立归档 qtsvg，qtfluentwidgets 依赖它，必须显式安装。
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.3'
+          arch: win64_msvc2019_64
+          modules: 'qtsvg'
+          cache: true
+
+      - name: Locate Qt
+        # 由 PATH 里的 qmake 反推 Qt 根目录（windeployqt 在 <root>\bin 下），
+        # 避免依赖 install-qt-action 的环境变量命名。
+        run: |
+          $qmake = (Get-Command qmake -ErrorAction SilentlyContinue).Source
+          if (-not $qmake) { $qmake = (Get-Command qmake6 -ErrorAction SilentlyContinue).Source }
+          $qtRoot = ''
+          if ($qmake) { $qtRoot = Split-Path (Split-Path $qmake -Parent) -Parent }
+          if (-not $qtRoot -and $env:QT_ROOT_DIR) { $qtRoot = $env:QT_ROOT_DIR }
+          if (-not $qtRoot) { Write-Error '无法定位 Qt 根目录'; exit 1 }
+          if (-not (Test-Path (Join-Path $qtRoot 'bin\windeployqt.exe'))) {
+            Write-Error "Qt 根目录下没有 windeployqt.exe: $qtRoot"; exit 1
+          }
+          "QT_ROOT=$qtRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Qt root: $qtRoot"
+
+      - name: Resolve OCR variant
+        # 变体名与 PaddleOCR-Standalone 资产名同构：PaddleOCR-<variant> / PaddleOCR-<variant>.7z
+        # Clear 增量升级包不下载也不写 OCR 标识
+        run: |
+          $variant = "${{ inputs.variant }}"
+          $tag = ''
+          if ($variant -ne 'Clear') { $tag = "PaddleOCR-$variant" }
+          "PADDLEOCR_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "OCR variant: $variant, marker: $tag"
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Download Inno Setup translations
+        # choco 装的官方 Inno Setup 只带部分翻译，缺简体中文等语言。
+        # 通过 GitHub API 拉取 issrc 仓库 Files/Languages 目录下的全部 .isl，
+        # 再把 Unofficial 子目录中不与根目录重名的 .isl 也拉下来，尽量支持更多语言。
+        # .iss 里的 EmitLanguagesSection 会自动包含它们
+        run: |
+          $langDir = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\Languages"
+          New-Item -ItemType Directory -Force -Path $langDir | Out-Null
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+          $files = Invoke-RestMethod "https://api.github.com/repos/jrsoftware/issrc/contents/Files/Languages"
+          $islFiles = $files | Where-Object { $_.type -eq "file" -and $_.name -like "*.isl" }
+          foreach ($f in $islFiles) {
+            curl.exe -L -s -o (Join-Path $langDir $f.name) $f.download_url
+          }
+
+          $unofficial = Invoke-RestMethod "https://api.github.com/repos/jrsoftware/issrc/contents/Files/Languages/Unofficial"
+          $existing = @($islFiles.name)
+          foreach ($f in $unofficial | Where-Object { $_.type -eq "file" -and $_.name -like "*.isl" }) {
+            if ($f.name -notin $existing) {
+              curl.exe -L -s -o (Join-Path $langDir $f.name) $f.download_url
+            }
+          }
+          Write-Host "Installed translations: $((Get-ChildItem $langDir -Filter *.isl).Count)"
+
+      - name: Download OpenCV
+        # 解压后是 build\ 目录，其中含根 OpenCVConfig.cmake、include、x64\vc16\{bin,lib}
+        run: |
+          New-Item -ItemType Directory -Force -Path downloads | Out-Null
+          curl.exe -L --fail -o downloads\opencv.zip "$env:OPENCV_ASSET_URL"
+          if ($LASTEXITCODE -ne 0) { Write-Error 'OpenCV 压缩包下载失败'; exit 1 }
+          & "C:\Program Files\7-Zip\7z.exe" x downloads\opencv.zip "-oopencv" -y | Out-Null
+          if (-not (Test-Path 'opencv\build\OpenCVConfig.cmake')) {
+            Write-Error 'OpenCV 解压结果缺少 build\OpenCVConfig.cmake'; exit 1
+          }
+          "OPENCV_DIR=$((Get-Location).Path)\opencv\build" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "OpenCV: $((Get-Location).Path)\opencv\build"
+
+      - name: Download PaddleOCR engine
+        # 引擎解压后重命名为 PADDLEOCR 标识对应的目录名（tools\<tag>），与程序运行期查找路径一致
+        if: env.PADDLEOCR_TAG != ''
+        run: |
+          $tag = $env:PADDLEOCR_TAG
+          $asset = "$tag.7z"
+          $target = "tools\$tag"
+          New-Item -ItemType Directory -Force -Path downloads, tools | Out-Null
+          curl.exe -L --fail -o "downloads\$asset" "$env:PADDLEOCR_BASE_URL/$asset"
+          if ($LASTEXITCODE -ne 0) { Write-Error "PaddleOCR 引擎下载失败: $asset"; exit 1 }
+          & "C:\Program Files\7-Zip\7z.exe" x "downloads\$asset" "-odownloads\paddle" -y | Out-Null
+          $items = @(Get-ChildItem downloads\paddle -Force)
+          if ($items.Count -eq 1 -and $items[0].PSIsContainer) {
+            Move-Item $items[0].FullName $target -Force
+          } else {
+            New-Item -ItemType Directory -Force -Path $target | Out-Null
+            Get-ChildItem downloads\paddle -Force | Move-Item -Destination $target -Force
+          }
+          Write-Host "PaddleOCR engine installed at $target"
+
+      - name: Download PaddleOCR support files
+        # PP-OCRv6 推理模型（VideOCR 版），CPU/GPU 三个变体共用
+        if: env.PADDLEOCR_TAG != ''
+        run: |
+          New-Item -ItemType Directory -Force -Path downloads | Out-Null
+          curl.exe -L --fail -o "downloads\$env:SUPPORT_ASSET" "$env:PADDLEOCR_BASE_URL/$env:SUPPORT_ASSET"
+          if ($LASTEXITCODE -ne 0) { Write-Error "推理模型下载失败: $env:SUPPORT_ASSET"; exit 1 }
+          & "C:\Program Files\7-Zip\7z.exe" x "downloads\$env:SUPPORT_ASSET" "-odownloads\support" -y | Out-Null
+          $target = "tools\$env:SUPPORT_DIR"
+          $items = @(Get-ChildItem downloads\support -Force)
+          if ($items.Count -eq 1 -and $items[0].PSIsContainer) {
+            Move-Item $items[0].FullName $target -Force
+          } else {
+            New-Item -ItemType Directory -Force -Path $target | Out-Null
+            Get-ChildItem downloads\support -Force | Move-Item -Destination $target -Force
+          }
+          Write-Host "Support files installed at $target"
+
+      - name: Download videocr-cli and whisper
+        if: env.PADDLEOCR_TAG != ''
+        run: |
+          New-Item -ItemType Directory -Force -Path downloads, tools\whisper | Out-Null
+          curl.exe -L --fail -o downloads\videocr-cli.zip "$env:TOOLS_BASE_URL/videocr-cli.zip"
+          curl.exe -L --fail -o downloads\whisper.zip "$env:TOOLS_BASE_URL/whisper.zip"
+          if ($LASTEXITCODE -ne 0) { Write-Error 'videocr-cli / whisper 下载失败'; exit 1 }
+          Expand-Archive downloads\videocr-cli.zip -DestinationPath downloads\videocr -Force
+          $videocr = Get-ChildItem downloads\videocr -Recurse -Filter videocr-cli.exe | Select-Object -First 1
+          if (-not $videocr) { Write-Error 'videocr-cli.zip 中未找到 videocr-cli.exe'; exit 1 }
+          Move-Item $videocr.FullName tools\videocr-cli.exe -Force
+          Expand-Archive downloads\whisper.zip -DestinationPath downloads\whisper -Force
+          Get-ChildItem downloads\whisper -Recurse -File | ForEach-Object {
+            Copy-Item $_.FullName "tools\whisper\$($_.Name)" -Force
+          }
+          Write-Host "tools\whisper: $((Get-ChildItem tools\whisper -File | ForEach-Object { $_.Name }) -join ', ')"
+
+      - name: Download ffmpeg and yt-dlp
+        # ffmpeg 优先从 gyan.dev 获取（GitHub Actions 数据中心可能被 Cloudflare 拦截，
+        # 失败时自动重试并回退到 BtbN 的 GitHub Release 镜像）；yt-dlp 从其官方 Release 获取
+        if: env.PADDLEOCR_TAG != ''
+        run: |
+          New-Item -ItemType Directory -Force -Path tools | Out-Null
+
+          function Download-WithRetry {
+              param(
+                  [string]$Url,
+                  [string]$OutFile,
+                  [int]$Attempts = 3,
+                  [int]$MinBytes = 1MB
+              )
+              for ($i = 1; $i -le $Attempts; $i++) {
+                  Write-Host "[$i/$Attempts] Downloading $Url"
+                  curl.exe -L --fail -o $OutFile $Url
+                  if (Test-Path $OutFile) {
+                      $size = (Get-Item $OutFile).Length
+                      if ($size -ge $MinBytes) {
+                          Write-Host "OK: $([math]::Round($size / 1MB, 1)) MB"
+                          return $true
+                      }
+                      Write-Host "File too small ($size bytes), likely an error page; retrying..."
+                      Remove-Item $OutFile -Force -ErrorAction SilentlyContinue
+                  }
+                  Start-Sleep -Seconds 5
+              }
+              Write-Host "FAILED: $Url"
+              return $false
+          }
+
+          $ffmpegOk = $false
+          foreach ($src in @(
+              "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip",
+              "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
+          )) {
+              if (Download-WithRetry -Url $src -OutFile ffmpeg.zip -MinBytes 10MB) {
+                  $ffmpegOk = $true
+                  break
+              }
+          }
+          if (-not $ffmpegOk) {
+              Write-Error "ffmpeg 下载失败：gyan.dev 与 BtbN 镜像均不可用"
+              exit 1
+          }
+          Expand-Archive ffmpeg.zip -DestinationPath ffmpeg-extracted -Force
+          $ff = Get-ChildItem ffmpeg-extracted -Recurse -Filter ffmpeg.exe | Select-Object -First 1
+          if (-not $ff) { Write-Error 'ffmpeg 压缩包中未找到 ffmpeg.exe'; exit 1 }
+          Copy-Item $ff.FullName tools\ffmpeg.exe -Force
+          Remove-Item ffmpeg.zip, ffmpeg-extracted -Recurse -Force
+
+          if (-not (Download-WithRetry -Url "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" -OutFile tools\yt-dlp.exe -MinBytes 5MB)) {
+              Write-Error "yt-dlp 下载失败"
+              exit 1
+          }
+          Write-Host "tools: $((Get-ChildItem tools -Force | ForEach-Object { $_.Name }) -join ', ')"
+
+      - name: Build Release and create installer
+        # 编译与打包都由 package-cpp-release.ps1 完成：
+        # 配置/编译 Release -> windeployqt + OpenCV/tools -> ISCC 出 Setup
+        run: |
+          $params = @(
+            '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', '.\package-cpp-release.ps1',
+            '-QtRoot', $env:QT_ROOT,
+            '-OpenCVDir', $env:OPENCV_DIR,
+            '-Generator', 'Visual Studio 17 2022',
+            '-Setup'
+          )
+          if ("${{ inputs.variant }}" -eq 'Clear') {
+            # Clear 增量升级包：不带 tools 与 OCR 标识，仅升级主程序
+            $params += @('-NoTools', '-Variant', 'Clear')
+          } else {
+            $params += @('-PaddleOcrTag', $env:PADDLEOCR_TAG)
+          }
+          & powershell.exe @params
+          if ($LASTEXITCODE -ne 0) { Write-Error 'C++ 打包失败'; exit 1 }
+
+      - name: Verify installer
+        run: |
+          $setup = Get-ChildItem Output -Filter 'Fairy-Kekkai-Workshop-v*-Windows-x86_64-Setup.exe' |
+            Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if (-not $setup) { Write-Error '未生成安装包'; exit 1 }
+          Write-Host "Installer: $($setup.Name) ($([math]::Round($setup.Length / 1MB, 1)) MB)"
+          $stage = (Get-ChildItem dist-cpp -Directory | Select-Object -First 1).FullName
+          $stageSize = (Get-ChildItem $stage -Recurse -File | Measure-Object Length -Sum).Sum
+          Write-Host "Staged payload: $([math]::Round($stageSize / 1MB, 1)) MB"
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fairy-Kekkai-Workshop-Cpp-${{ inputs.variant }}-Windows-x86_64
+          path: Output/Fairy-Kekkai-Workshop-v*-Windows-x86_64-Setup.exe
+          retention-days: 30

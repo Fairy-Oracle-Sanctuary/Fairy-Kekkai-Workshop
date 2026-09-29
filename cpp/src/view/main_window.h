@@ -1,0 +1,56 @@
+#pragma once
+
+#include <QMap>
+#include <QPointer>
+#include <QPixmap>
+#include <memory>
+#include <qtfluentwidgets.h>
+
+class QCloseEvent;
+class QPaintEvent;
+
+namespace fkw {
+class LogWindow;
+class SystemTray;
+class VersionService;
+class MainWindowHandle {
+public:
+    virtual ~MainWindowHandle() = default;
+    virtual QWidget* widget() = 0;
+    virtual void openRoute(const QString& route) = 0;
+    virtual void setAppTheme(qfw::Theme theme, bool persist = true) = 0;
+    virtual void quitFromTray() = 0;
+};
+
+std::unique_ptr<MainWindowHandle> createMainWindow();
+
+template<class WindowType>
+class MainWindowT : public WindowType, public MainWindowHandle {
+public:
+    explicit MainWindowT(QWidget* parent = nullptr);
+    QWidget* widget() override { return this; }
+    void openRoute(const QString& route) override;
+    void setAppTheme(qfw::Theme theme, bool persist = true) override;
+    void quitFromTray() override;
+protected:
+    void closeEvent(QCloseEvent* event) override;
+    void paintEvent(QPaintEvent* event) override;
+private:
+    void updateThemeButtonIcon();
+    void checkUpdate();
+    void refreshBackground();
+    VersionService* versionService_ = nullptr;
+    qfw::TransparentToolButton* themeButton_ = nullptr;
+    SystemTray* tray_ = nullptr;
+    bool reallyQuit_ = false;
+    bool showBackground_ = false;
+    bool recoveringBackground_ = false;
+    int backgroundShade_ = 0;
+    QString backgroundPath_;
+    QPixmap backgroundPixmap_;
+    QPixmap scaledBackground_;
+    QSize backgroundTargetSize_;
+    QMap<QString, QWidget*> routes_;
+    QPointer<LogWindow> logWindow_;
+};
+} // namespace fkw

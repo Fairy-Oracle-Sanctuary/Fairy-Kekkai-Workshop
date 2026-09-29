@@ -10,8 +10,8 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from collections.abc import Callable
 from contextlib import nullcontext
-from typing import Callable
 
 from videocr import save_subtitles_to_file, utils
 from videocr.lang_dictionaries import GOOGLE_LENS_LANGS, PADDLEOCR_LANGS
@@ -193,8 +193,8 @@ def main() -> None:
     parser.add_argument(
         "--ssim_threshold",
         type=restricted_int(0, 100),
-        default=92,
-        help="SSIM similarity threshold for initial frame filtering in Step 1 (default: 92)",
+        default=94,
+        help="SSIM similarity threshold for initial frame filtering in Step 1 (default: 94)",
     )
     parser.add_argument(
         "--subtitle_position",
@@ -231,6 +231,12 @@ def main() -> None:
         type=restricted_int(min_val=1),
         default=720,
         help="Maximum image width used for OCR (default: 720)",
+    )
+    parser.add_argument(
+        "--disable_stitching",
+        type=lambda x: x.lower() == "true",
+        default=False,
+        help="Disable frame stitching for the detection pass, processing one frame at a time for maximum accuracy at the cost of speed (default: false)",
     )
     parser.add_argument(
         "--crop_x", type=int, default=None, help="(Zone 1) Crop start X"
@@ -382,6 +388,7 @@ def main() -> None:
                 post_processing=args.post_processing,
                 min_subtitle_duration_sec=args.min_subtitle_duration,
                 ocr_image_max_width=args.ocr_image_max_width,
+                disable_stitching=args.disable_stitching,
                 subtitle_alignments=[args.subtitle_alignment, args.subtitle_alignment2],
                 paddleocr_path=args.paddleocr_path or None,
                 support_files_path=args.supportFilesPath or None,

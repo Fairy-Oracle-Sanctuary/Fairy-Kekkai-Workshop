@@ -6,7 +6,11 @@ PySide6-Fluent-Widgets>=1.6.0
 opencv-python>=4.8.0
 Pillow>=10.0.0
 av>=12.0.0
-fast_ssim>=0.2.0
+# VideOCR 1.6.x 的 ssim(channels=...) API 需要 fast-ssim >= 1.4.0（1.0.2 为旧签名，运行时报错）
+fast-ssim>=1.4.0
+# videocr-cli JPEG 编解码（VideOCR 1.6.x 新依赖；需 timminator fork 的 cp39 wheel，
+# 原版 PyPI simplejpeg 不支持 decode_jpeg(output='bytes') API）
+simplejpeg @ https://github.com/timminator/simplejpeg/releases/download/v1.9.1/simplejpeg-1.9.1-cp39-cp39-win_amd64.whl
 
 # Numerical Computing
 numpy>=1.24.0
@@ -21,8 +25,10 @@ openai>=1.0.0
 srt>=3.5.3
 
 # NLP / Text Processing
-thefuzz>=0.22.0
 wordninja-enhanced>=1.0.0
+
+# CPU instruction detection (videocr-cli hardware check)
+cpuid>=0.1.1
 
 # System Utilities
 wakepy>=0.8.0

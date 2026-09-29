@@ -1,0 +1,1103 @@
+{
+  "MainWindow": {
+    "MicaEnabled": {
+      "member": "micaEnabled",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false,
+      "boolean": true
+    },
+    "DpiScale": {
+      "member": "dpiScale",
+      "kind": "OptionsConfigItem",
+      "default": "Auto",
+      "dynamicDefault": false,
+      "restart": true,
+      "options": [
+        1,
+        1.25,
+        1.5,
+        1.75,
+        2,
+        "Auto"
+      ]
+    },
+    "Language": {
+      "member": "language",
+      "kind": "OptionsConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": true,
+      "dynamicOptions": true
+    },
+    "AccentColor": {
+      "member": "accentColor",
+      "kind": "OptionsConfigItem",
+      "default": "#009faa",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "#009faa",
+        "Auto"
+      ]
+    },
+    "WindowClass": {
+      "member": "windowClass",
+      "kind": "OptionsConfigItem",
+      "default": "MSFluentWindow",
+      "dynamicDefault": false,
+      "restart": true,
+      "options": [
+        "MSFluentWindow",
+        "FluentWindow",
+        "SplitFluentWindow"
+      ]
+    },
+    "CloseDirectly": {
+      "member": "closeDirectly",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "ShowBackground": {
+      "member": "showBackground",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": true,
+      "boolean": true
+    },
+    "BackgroundPath": {
+      "member": "backgroundPath",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    },
+    "BackgroundRect": {
+      "member": "backgroundRect",
+      "kind": "RangeConfigItem",
+      "default": 0,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0,
+        200
+      ]
+    },
+    "IsFirstRun": {
+      "member": "isFirstRun",
+      "kind": "ConfigItem",
+      "default": true,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    }
+  },
+  "Project": {
+    "DetailProjectItemNum": {
+      "member": "detailProjectItemNum",
+      "kind": "RangeConfigItem",
+      "default": 5,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        1,
+        10
+      ]
+    },
+    "LastOpenPath": {
+      "member": "lastOpenPath",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    }
+  },
+  "Download": {
+    "YTDLPPath": {
+      "member": "ytdlpPath",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    }
+  },
+  "YTDLP": {
+    "DownloadFormat": {
+      "member": "downloadFormat",
+      "kind": "OptionsConfigItem",
+      "default": "mp4",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "mp4",
+        "best",
+        "worst",
+        "bestvideo",
+        "bestaudio"
+      ]
+    },
+    "DownloadQuality": {
+      "member": "downloadQuality",
+      "kind": "OptionsConfigItem",
+      "default": "1080",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "2160",
+        "1440",
+        "1080",
+        "720",
+        "480",
+        "360",
+        "best",
+        "worst"
+      ]
+    },
+    "SystemProxy": {
+      "member": "systemProxy",
+      "kind": "ConfigItem",
+      "default": true,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "ProxyUrl": {
+      "member": "proxyUrl",
+      "kind": "ConfigItem",
+      "default": "http://127.0.0.1:1080",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "DownloadSubtitles": {
+      "member": "downloadSubtitles",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "SubtitleLanguages": {
+      "member": "subtitleLanguages",
+      "kind": "ConfigItem",
+      "default": "en,zh,zh-Hans",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "EmbedSubtitles": {
+      "member": "embedSubtitles",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "DownloadThumbnail": {
+      "member": "downloadThumbnail",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "EmbedThumbnail": {
+      "member": "embedThumbnail",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "DownloadMetadata": {
+      "member": "downloadMetadata",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "ConcurrentDownloads": {
+      "member": "concurrentDownloads",
+      "kind": "RangeConfigItem",
+      "default": 3,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        1,
+        10
+      ]
+    },
+    "RetryAttempts": {
+      "member": "retryAttempts",
+      "kind": "RangeConfigItem",
+      "default": 3,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0,
+        10
+      ]
+    },
+    "DownloadTimeout": {
+      "member": "downloadTimeout",
+      "kind": "RangeConfigItem",
+      "default": 300,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        60,
+        3600
+      ]
+    },
+    "OutputTemplate": {
+      "member": "outputTemplate",
+      "kind": "ConfigItem",
+      "default": "%(title)s.%(ext)s",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "UseCookies": {
+      "member": "useCookies",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "CookiesFile": {
+      "member": "cookiesFile",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "LimitDownloadRate": {
+      "member": "limitDownloadRate",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "MaxDownloadRate": {
+      "member": "maxDownloadRate",
+      "kind": "ConfigItem",
+      "default": "10M",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "SkipExistingFiles": {
+      "member": "skipExistingFiles",
+      "kind": "ConfigItem",
+      "default": true,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "WriteDescription": {
+      "member": "writeDescription",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "WriteInfoJson": {
+      "member": "writeInfoJson",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "WriteAnnotations": {
+      "member": "writeAnnotations",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "AudioFormat": {
+      "member": "audioFormat",
+      "kind": "OptionsConfigItem",
+      "default": "best",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "best",
+        "aac",
+        "flac",
+        "mp3",
+        "m4a",
+        "opus",
+        "vorbis",
+        "wav"
+      ]
+    },
+    "VideoCodec": {
+      "member": "videoCodec",
+      "kind": "OptionsConfigItem",
+      "default": "h265",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "h264",
+        "h265",
+        "vp9",
+        "av1",
+        "mp4v"
+      ]
+    },
+    "AudioCodec": {
+      "member": "audioCodec",
+      "kind": "OptionsConfigItem",
+      "default": "aac",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "aac",
+        "flac",
+        "mp3",
+        "opus",
+        "vorbis"
+      ]
+    }
+  },
+  "OCR": {
+    "VideocrCliPath": {
+      "member": "videocrCliPath",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    },
+    "PaddleocrPath": {
+      "member": "paddleocrPath",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    },
+    "supportFilesPath": {
+      "member": "supportFilesPath",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    },
+    "TempDir": {
+      "member": "tempDir",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    },
+    "TimeStart": {
+      "member": "timeStart",
+      "kind": "ConfigItem",
+      "default": "0:00",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "TimeEnd": {
+      "member": "timeEnd",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "Lang": {
+      "member": "ocr_lang",
+      "kind": "OptionsConfigItem",
+      "default": "japan",
+      "dynamicDefault": false,
+      "restart": false,
+      "dynamicOptions": true
+    },
+    "SimThreshold": {
+      "member": "simThreshold",
+      "kind": "RangeConfigItem",
+      "default": 65,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0,
+        100
+      ]
+    },
+    "MaxMergeGap": {
+      "member": "maxMergeGap",
+      "kind": "RangeConfigItem",
+      "default": 0.1,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0.1,
+        10.0
+      ]
+    },
+    "BrightnessThreshold": {
+      "member": "brightnessThreshold",
+      "kind": "RangeConfigItem",
+      "default": 0,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0,
+        255
+      ]
+    },
+    "SsimThreshold": {
+      "member": "ssimThreshold",
+      "kind": "RangeConfigItem",
+      "default": 90,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0,
+        100
+      ]
+    },
+    "OcrImageMaxWidth": {
+      "member": "ocrImageMaxWidth",
+      "kind": "RangeConfigItem",
+      "default": 1280,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        100,
+        4096
+      ]
+    },
+    "FramesToSkip": {
+      "member": "framesToSkip",
+      "kind": "RangeConfigItem",
+      "default": 2,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0,
+        100
+      ]
+    },
+    "MinSubtitleDuration": {
+      "member": "minSubtitleDuration",
+      "kind": "RangeConfigItem",
+      "default": 0.2,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0.1,
+        10.0
+      ]
+    },
+    "ConfidenceThreshold": {
+      "member": "confidenceThreshold",
+      "kind": "RangeConfigItem",
+      "default": 30,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        1,
+        100
+      ]
+    },
+    "UseGpu": {
+      "member": "useGpu",
+      "kind": "ConfigItem",
+      "default": true,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "UseDualZone": {
+      "member": "useDualZone",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "UseAngleCls": {
+      "member": "useAngleCls",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "PostProcessing": {
+      "member": "postProcessing",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "UseServerModel": {
+      "member": "useServerModel",
+      "kind": "ConfigItem",
+      "default": true,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    }
+  },
+  "Translate": {
+    "OriginLang": {
+      "member": "origin_lang",
+      "kind": "OptionsConfigItem",
+      "default": "ja",
+      "dynamicDefault": false,
+      "restart": false,
+      "dynamicOptions": true
+    },
+    "TargetLang": {
+      "member": "target_lang",
+      "kind": "OptionsConfigItem",
+      "default": "zh",
+      "dynamicDefault": false,
+      "restart": false,
+      "dynamicOptions": true
+    },
+    "PromptTemplate": {
+      "member": "promptTemplate",
+      "kind": "ConfigItem",
+      "default": "你是一个专业的{target_lang}翻译助手。\n请将以下{origin_lang}文本翻译为{target_lang}，并满足以下要求：\n- 翻译提供的文本内容，保持原意流畅自然\n- 若文本中出现人名，优先参照《东方Project》官方或相关常见译名进行匹配与统一，如果出现了非东方人物的名字，则照常翻译\n- 保持术语一致性，上下文连贯\n- 严格按JSON格式输出 {{\"translations\": [\"翻译1\", \"翻译2\", ...]}}，不要输出任何其他内容\n- 如因 OCR 识别错误导致语句无法理解或无法翻译，请将该句替换为 ***",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "UseTranslateContext": {
+      "member": "useTranslateContext",
+      "kind": "ConfigItem",
+      "default": true,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "AiModel": {
+      "member": "ai_model",
+      "kind": "OptionsConfigItem",
+      "default": "deepseek",
+      "dynamicDefault": false,
+      "restart": false,
+      "dynamicOptions": true
+    },
+    "DeepseekApiKey": {
+      "member": "deepseekApiKey",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "DeepseekModel": {
+      "member": "deepseekModel",
+      "kind": "OptionsConfigItem",
+      "default": "deepseek-v4-flash",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "deepseek-v4-flash",
+        "deepseek-v4-pro"
+      ]
+    },
+    "DeepseekReasoning": {
+      "member": "deepseekReasoning",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "GlmApiKey": {
+      "member": "glmApiKey",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "SparkApiKey": {
+      "member": "sparkApiKey",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "HunyuanApiKey": {
+      "member": "hunyuanApiKey",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "InternApiKey": {
+      "member": "internApiKey",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "ErnieSpeedApiKey": {
+      "member": "ernieSpeedApiKey",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "GeminiApiKey": {
+      "member": "geminiApiKey",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "CustomModelEnabled": {
+      "member": "customModelEnabled",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "CustomModelName": {
+      "member": "customModelName",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "CustomModelApiKey": {
+      "member": "customModelApiKey",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "CustomModelBaseUrl": {
+      "member": "customModelBaseUrl",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "CustomModelEndpoint": {
+      "member": "customModelEndpoint",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "AiTemperature": {
+      "member": "aiTemperature",
+      "kind": "ConfigItem",
+      "default": "0.7",
+      "dynamicDefault": false,
+      "restart": false
+    }
+  },
+  "Whisper": {
+    "ModelPath": {
+      "member": "whisperModelPath",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    },
+    "CliPath": {
+      "member": "whisperCliPath",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    },
+    "Language": {
+      "member": "whisperLanguage",
+      "kind": "OptionsConfigItem",
+      "default": "ja",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "auto",
+        "zh",
+        "ja",
+        "en",
+        "ko",
+        "fr",
+        "de",
+        "es"
+      ]
+    },
+    "OutputFormat": {
+      "member": "whisperOutputFormat",
+      "kind": "OptionsConfigItem",
+      "default": "srt",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "srt",
+        "txt",
+        "json"
+      ]
+    },
+    "UseGpu": {
+      "member": "whisperUseGpu",
+      "kind": "ConfigItem",
+      "default": true,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "Gpu": {
+      "member": "whisperGpu",
+      "kind": "OptionsConfigItem",
+      "default": "自动检测",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "自动检测",
+        "NVIDIA GeForce RTX 4090",
+        "NVIDIA GeForce RTX 4080",
+        "NVIDIA GeForce RTX 4070",
+        "NVIDIA GeForce RTX 4060",
+        "NVIDIA GeForce RTX 3060",
+        "NVIDIA GeForce RTX 3050",
+        "NVIDIA GeForce RTX 2080",
+        "NVIDIA GeForce RTX 2070",
+        "NVIDIA GeForce RTX 2060",
+        "NVIDIA GeForce GTX 1660",
+        "NVIDIA GeForce GTX 1060"
+      ]
+    }
+  },
+  "FFmpeg": {
+    "FFmpegPath": {
+      "member": "ffmpegPath",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    },
+    "ConcurrentEncodes": {
+      "member": "concurrentEncodes",
+      "kind": "RangeConfigItem",
+      "default": 2,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        1,
+        5
+      ]
+    },
+    "VideoCodec": {
+      "member": "ffmpegVideoCodec",
+      "kind": "OptionsConfigItem",
+      "default": "libx264",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "libx264",
+        "libx265",
+        "libvpx-vp9",
+        "copy"
+      ]
+    },
+    "Crf": {
+      "member": "ffmpegCrf",
+      "kind": "RangeConfigItem",
+      "default": 24,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0,
+        51
+      ]
+    },
+    "Preset": {
+      "member": "ffmpegPreset",
+      "kind": "OptionsConfigItem",
+      "default": "medium",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "ultrafast",
+        "superfast",
+        "veryfast",
+        "faster",
+        "fast",
+        "medium",
+        "slow",
+        "slower",
+        "veryslow"
+      ]
+    },
+    "AudioMode": {
+      "member": "ffmpegAudioMode",
+      "kind": "OptionsConfigItem",
+      "default": "auto",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "auto",
+        "encode",
+        "none",
+        "copy"
+      ]
+    },
+    "AudioCodec": {
+      "member": "ffmpegAudioCodec",
+      "kind": "OptionsConfigItem",
+      "default": "aac",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "aac",
+        "libmp3lame",
+        "opus",
+        "copy"
+      ]
+    },
+    "AudioBitrate": {
+      "member": "ffmpegAudioBitrate",
+      "kind": "OptionsConfigItem",
+      "default": "128k",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "64k",
+        "96k",
+        "128k",
+        "192k",
+        "256k",
+        "320k"
+      ]
+    },
+    "RefFrames": {
+      "member": "ffmpegRefFrames",
+      "kind": "RangeConfigItem",
+      "default": 6,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        1,
+        16
+      ]
+    },
+    "BFrames": {
+      "member": "ffmpegBFrames",
+      "kind": "RangeConfigItem",
+      "default": 6,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0,
+        16
+      ]
+    },
+    "Keyint": {
+      "member": "ffmpegKeyint",
+      "kind": "RangeConfigItem",
+      "default": 250,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        1,
+        1000
+      ]
+    },
+    "Minkeyint": {
+      "member": "ffmpegMinkeyint",
+      "kind": "RangeConfigItem",
+      "default": 1,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        1,
+        100
+      ]
+    },
+    "Scenecut": {
+      "member": "ffmpegScenecut",
+      "kind": "RangeConfigItem",
+      "default": 60,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0,
+        100
+      ]
+    },
+    "Qcomp": {
+      "member": "ffmpegQcomp",
+      "kind": "RangeConfigItem",
+      "default": 0.5,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0.0,
+        1.0
+      ]
+    },
+    "PsyRd": {
+      "member": "ffmpegPsyRd",
+      "kind": "ConfigItem",
+      "default": "0.3,0",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "AqMode": {
+      "member": "ffmpegAqMode",
+      "kind": "OptionsConfigItem",
+      "default": 2,
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "AqStrength": {
+      "member": "ffmpegAqStrength",
+      "kind": "RangeConfigItem",
+      "default": 0.8,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0.0,
+        2.0
+      ]
+    },
+    "UseAdvanced": {
+      "member": "ffmpegUseAdvanced",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "OutputFormat": {
+      "member": "ffmpegOutputFormat",
+      "kind": "OptionsConfigItem",
+      "default": "mp4",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "mp4",
+        "mkv",
+        "avi",
+        "mov",
+        "webm"
+      ]
+    },
+    "OverwriteOutput": {
+      "member": "ffmpegOverwriteOutput",
+      "kind": "ConfigItem",
+      "default": true,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "Scale": {
+      "member": "ffmpegScale",
+      "kind": "OptionsConfigItem",
+      "default": "none",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "none",
+        "720p",
+        "1080p",
+        "1440p",
+        "2160p",
+        "custom"
+      ]
+    },
+    "CustomScale": {
+      "member": "ffmpegCustomScale",
+      "kind": "ConfigItem",
+      "default": "1920:1080",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "Fps": {
+      "member": "ffmpegFps",
+      "kind": "OptionsConfigItem",
+      "default": "source",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "source",
+        "24",
+        "25",
+        "30",
+        "50",
+        "60"
+      ]
+    },
+    "VideoBitrate": {
+      "member": "ffmpegVideoBitrate",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "UseHardwareAcceleration": {
+      "member": "ffmpegUseHardwareAcceleration",
+      "kind": "ConfigItem",
+      "default": false,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "HardwareAccelerator": {
+      "member": "ffmpegHardwareAccelerator",
+      "kind": "OptionsConfigItem",
+      "default": "auto",
+      "dynamicDefault": false,
+      "restart": false,
+      "options": [
+        "auto",
+        "cuda",
+        "qsv",
+        "dxva2",
+        "videotoolbox"
+      ]
+    }
+  },
+  "Bilibili": {
+    "ApiPath": {
+      "member": "apiPath",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    },
+    "Sessdata": {
+      "member": "bilibiliSessdata",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "BiliJct": {
+      "member": "bilibiliBiliJct",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    },
+    "Buvid3": {
+      "member": "bilibiliBuvid3",
+      "kind": "ConfigItem",
+      "default": "",
+      "dynamicDefault": false,
+      "restart": false
+    }
+  }
+}

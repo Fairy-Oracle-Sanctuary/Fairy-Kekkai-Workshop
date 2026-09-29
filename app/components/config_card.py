@@ -50,7 +50,7 @@ from libs.qfluentwidgets_pro import FluentIcon as FIF
 from libs.qfluentwidgets_pro import SettingCardGroup as CardGroup
 
 from ..common.config import cfg
-from ..common.setting import IS_PADDLEOCR_CPU
+from ..common.setting import IS_PADDLEOCR_CPU, PADDLEOCR_VERSION
 from ..common.text import Text
 
 
@@ -985,6 +985,11 @@ class OCRSettingInterface(ScrollArea):
         if IS_PADDLEOCR_CPU:
             cfg.set(cfg.useGpu, False)
             self.useGpuCard.setChecked(False)
+            self.useGpuCard.setEnabled(False)
+        elif "GPU" in PADDLEOCR_VERSION.upper():
+            # PaddleOCR 3.7.0 GPU 版在 CPU 模式下无法推理 PP-OCRv6，强制启用 GPU
+            cfg.set(cfg.useGpu, True)
+            self.useGpuCard.setChecked(True)
             self.useGpuCard.setEnabled(False)
         # self.useFullframeCard = SwitchSettingCard(
         #     FIF.FULL_SCREEN,

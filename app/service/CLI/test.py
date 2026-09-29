@@ -28,6 +28,6 @@ save_subtitles_to_file(
     post_processing=False,
     min_subtitle_duration_sec=0.2,
     # ── 路径 ──
-    paddleocr_path=r"D:\Program Files\VideOCR\PaddleOCR-GPU-v1.4.0-CUDA-12.9\paddleocr.exe",
-    support_files_path=r"D:\Program Files\VideOCR\PaddleOCR.PP-OCRv5.support.files",
+    paddleocr_path=r"D:\CODE\Fairy-Kekkai-Workshop\tools\PaddleOCR-GPU-v3.7.0-CUDA-12.9\paddleocr.exe",
+    support_files_path=r"D:\CODE\Fairy-Kekkai-Workshop\tools\PaddleOCR.PP-OCRv6.support.files",
 )

@@ -224,6 +224,10 @@ tools/
 AppData/
 
 # C++ build artifacts
+/build-cpp-release/
+/work/
+/dist-cpp/
+/opencv/
 x64/
 .vs/
 *.obj
@@ -244,3 +248,6 @@ temp/
 temp1/
 test/
 scripts/
+.upstream_videocr/
+CPP_REWRITE_PLAN.md
+videocr_text_mask_filter_plan.md

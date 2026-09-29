@@ -4,15 +4,14 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from typing import Any
 
-import wordninja_enhanced as wordninja  # type: ignore
-from thefuzz import fuzz  # type: ignore
+import wordninja_enhanced as wordninja
 
 from . import utils
 
 
 @dataclass
 class PredictedText:
-    __slots__ = "bounding_box", "confidence", "text"
+    __slots__ = 'bounding_box', 'confidence', 'text'
     bounding_box: list[list[float]]
     confidence: float
     text: str
@@ -25,18 +24,9 @@ class PredictedFrames:
     lines: list[list[PredictedText]]
     confidence: float  # total confidence of all words
     text: str
-    _converter = None
 
-    def __init__(
-        self,
-        ocr_engine: str,
-        index: int,
-        pred_data: list[list[Any]],
-        conf_threshold: float,
-        zone_index: int,
-        lang: str,
-        normalize_to_simplified_chinese: bool,
-    ) -> None:
+    def __init__(self, ocr_engine: str, index: int, pred_data: list[list[Any]], conf_threshold: float,
+                 zone_index: int, lang: str, normalize_to_simplified_chinese: bool) -> None:
         self.start_index = index
         self.end_index = index
         self.zone_index = zone_index
@@ -55,7 +45,7 @@ class PredictedFrames:
 
         if not all_words:
             self.confidence = 100 if not pred_data[0] else 0
-            self.text = ""
+            self.text = ''
             return
 
         lines_of_words: list[list[PredictedText]] = []
@@ -72,10 +62,7 @@ class PredictedFrames:
         lines_of_words.sort(key=lambda line: min(p[1] for p in line[0].bounding_box))
 
         for line in lines_of_words:
-            line.sort(
-                key=lambda word: word.bounding_box[0][0],
-                reverse=utils.is_language_rtl(lang),
-            )
+            line.sort(key=lambda word: word.bounding_box[0][0], reverse=utils.is_language_rtl(lang))
 
         self.lines = lines_of_words
 
@@ -87,14 +74,11 @@ class PredictedFrames:
             self.confidence = 0
 
         if ocr_engine == "google_lens":
-            self.text = "\n".join(
-                "".join(word.text for word in line) for line in self.lines
-            )
+            self.text = '\n'.join(''.join(word.text for word in line) for line in self.lines)
         else:
-            self.text = "\n".join(
-                " ".join(word.text for word in line) for line in self.lines
-            )
+            self.text = '\n'.join(' '.join(word.text for word in line) for line in self.lines)
 
+        # FKW: OpenCC 繁转简已禁用（bug 太多），normalize_to_simplified_chinese 参数保留但不生效
         # if normalize_to_simplified_chinese and lang in ("ch", "zh-CN") and self.text:
         #     self.text = self._converter.convert(self.text)
 
@@ -107,14 +91,7 @@ class PredictedSubtitle:
     lang: str
     _language_model: wordninja.LanguageModel | None
 
-    def __init__(
-        self,
-        frames: list[PredictedFrames],
-        zone_index: int,
-        sim_threshold: int,
-        lang: str,
-        language_model: wordninja.LanguageModel | None,
-    ):
+    def __init__(self, frames: list[PredictedFrames], zone_index: int, sim_threshold: int, lang: str, language_model: wordninja.LanguageModel | None):
         self.frames = [f for f in frames if f.confidence > 0]
         self.frames.sort(key=lambda frame: frame.start_index)
         self.zone_index = zone_index
@@ -125,7 +102,7 @@ class PredictedSubtitle:
         if self.frames:
             self.text = max(self.frames, key=lambda f: f.confidence).text
         else:
-            self.text = ""
+            self.text = ''
 
     @property
     def index_start(self) -> int:
@@ -140,10 +117,7 @@ class PredictedSubtitle:
         return 0
 
     def is_similar_to(self, other: PredictedSubtitle) -> bool:
-        return (
-            fuzz.ratio(self.text.replace(" ", ""), other.text.replace(" ", ""))
-            >= self.sim_threshold
-        )  # type: ignore
+        return utils.levenshtein_ratio(self.text.replace(' ', ''), other.text.replace(' ', ''), self.sim_threshold) >= self.sim_threshold
 
     def finalize_text(self, post_processing: bool) -> None:
         text_counts: Counter[str] = Counter()
@@ -161,25 +135,18 @@ class PredictedSubtitle:
         else:
             final_text = max(
                 candidates,
-                key=lambda t: sum(text_confidences[t]) / len(text_confidences[t]),
+                key=lambda t: sum(text_confidences[t]) / len(text_confidences[t])
             )
 
         if post_processing:
-            if self._language_model is not None and self.lang in (
-                "en",
-                "fr",
-                "german",
-                "it",
-                "es",
-                "pt",
-            ):
+            if self._language_model is not None and self.lang in ("en", "fr", "german", "it", "es", "pt"):
                 final_text = self._language_model.rejoin(final_text)
             elif self.lang == "ch":
                 segments = utils.extract_non_chinese_segments(final_text)
-                rebuilt_text = ""
+                rebuilt_text = ''
 
                 for typ, seg in segments:
-                    if typ == "non_chinese":
+                    if typ == 'non_chinese':
                         rebuilt_text += wordninja.rejoin(seg)
                     else:
                         rebuilt_text += seg
