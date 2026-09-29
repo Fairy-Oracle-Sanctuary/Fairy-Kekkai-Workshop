@@ -403,7 +403,7 @@ class Config(QConfig):
     supportFilesPath = ConfigItem(
         "OCR",
         "supportFilesPath",
-        str(Path("tools/PaddleOCR.PP-OCRv5.support.files").absolute()),
+        str(Path("tools/PaddleOCR.PP-OCRv6.support.files").absolute()),
     )
 
     tempDir = ConfigItem(

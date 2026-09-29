@@ -3,14 +3,22 @@
 
 #define MyAppName "Fairy Kekkai Workshop"
 #ifndef MyAppVersion
-  #define MyAppVersion "2.5.1"
+  #define MyAppVersion "3.0.0"
 #endif
 #ifndef MyVariant
-  #define MyVariant "CPU-v1.5.1"
+  #define MyVariant "CPU-v3.7.0"
 #endif
 #define MyAppPublisher "Fairy Oracle Sanctuary"
 #define MyAppURL "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop"
-#define MyAppExeName "Fairy-Kekkai-Workshop.exe"
+; 主程序名与待打包目录允许打包脚本用 /D 覆盖，同一个脚本同时服务两代程序：
+;   Python 版（默认）：Fairy-Kekkai-Workshop.exe + dist\Fairy-Kekkai-Workshop.dist
+;   C++ 版：           Fairy-Kekkai-Workshop-Cpp.exe + dist-cpp\Fairy-Kekkai-Workshop-Cpp.dist
+#ifndef MyAppExeName
+  #define MyAppExeName "Fairy-Kekkai-Workshop.exe"
+#endif
+#ifndef MySourceDir
+  #define MySourceDir "dist\Fairy-Kekkai-Workshop.dist"
+#endif
 #define MyAppAssocName MyAppName + "文件"
 #define MyAppAssocExt ".myp"
 #define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt
@@ -53,13 +61,18 @@ SetupIconFile=app\resource\images\logo.ico
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
-;[InstallDelete]
+[InstallDelete]
 ; 安装前删除旧版本的所有文件和子目录
 ;Type: filesandordirs; Name: "{app}\*"
+; C++ 版沿用同一 AppId 覆盖安装 Python 版时两代主程序文件名不同，旧 exe 不会被自动替换，
+; 因此在复制文件前显式删除（仅当打包脚本传入 /DMyRemoveLegacyExe=1 时生效）。
+#ifdef MyRemoveLegacyExe
+Type: files; Name: "{app}\Fairy-Kekkai-Workshop.exe"
+#endif
 
 [Files]
-Source: "dist\Fairy-Kekkai-Workshop.dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "dist\Fairy-Kekkai-Workshop.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MySourceDir}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#MySourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; 注意：不要在任何共享系统文件上使用 "Flags: ignoreversion" 
 
 [Registry]

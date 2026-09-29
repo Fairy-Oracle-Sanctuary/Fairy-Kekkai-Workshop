@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 import os
 import re
@@ -7,29 +9,116 @@ import sys
 import tempfile
 import threading
 from collections.abc import Iterator
+from dataclasses import dataclass
 from typing import IO, Any
 
 import av
-import fast_ssim  # type: ignore
-import numpy as np
+import fast_ssim
+import simplejpeg
 from cpuid import cpuid, xgetbv  # type: ignore
-from PIL import Image
 
 from .lang_dictionaries import PADDLEOCR_LANGS
 from .models import PredictedText
 
 ALIGNMENT_MAP = {
-    "bottom-left": "an1",
-    "bottom-center": "an2",
-    "bottom-right": "an3",
-    "middle-left": "an4",
-    "middle-center": "an5",
-    "middle-right": "an6",
-    "top-left": "an7",
-    "top-center": "an8",
-    "top-right": "an9",
+    'bottom-left': 'an1', 'bottom-center': 'an2', 'bottom-right': 'an3',
+    'middle-left': 'an4', 'middle-center': 'an5', 'middle-right': 'an6',
+    'top-left': 'an7', 'top-center': 'an8', 'top-right': 'an9',
 }
 VALID_ALIGNMENT_NAMES = set(ALIGNMENT_MAP.keys())
+
+
+@dataclass
+class Frame:
+    """Thin wrapper around a packed HxWx3 uint8 buffer (flat, row-major:
+    len(data) == height * width * 3)."""
+    data: bytes | bytearray | memoryview
+    height: int
+    width: int
+
+    def _row_bytes(self) -> int:
+        """Calculates the total number of bytes in a single row."""
+        return self.width * 3
+
+    def row(self, r: int) -> memoryview:
+        """Extracts a single row of pixels as a memoryview."""
+        rb = self._row_bytes()
+        return memoryview(self.data)[r * rb:(r + 1) * rb]
+
+    def crop_columns(self, x0: int, x1: int) -> Frame:
+        """Crops the image vertically, returning a new Frame containing columns from x0 to x1."""
+        rb = self._row_bytes()
+        crop_w_bytes = (x1 - x0) * 3
+        mv = memoryview(self.data)
+        out = bytearray(crop_w_bytes * self.height)
+
+        for r in range(self.height):
+            src_off = r * rb + x0 * 3
+            dst_off = r * crop_w_bytes
+            out[dst_off:dst_off + crop_w_bytes] = mv[src_off:src_off + crop_w_bytes]
+
+        return Frame(out, self.height, x1 - x0)
+
+    def crop_rect(self, x0: int, y0: int, x1: int, y1: int) -> Frame:
+        """Extracts a specific rectangular region and returns it as a new Frame."""
+        rb = self._row_bytes()
+        crop_w = max(0, x1 - x0)
+        crop_h = max(0, y1 - y0)
+        crop_w_bytes = crop_w * 3
+        mv = memoryview(self.data)
+        out = bytearray(crop_w_bytes * crop_h)
+
+        for row_idx, r in enumerate(range(y0, y1)):
+            src_off = r * rb + x0 * 3
+            dst_off = row_idx * crop_w_bytes
+            out[dst_off:dst_off + crop_w_bytes] = mv[src_off:src_off + crop_w_bytes]
+
+        return Frame(out, crop_h, crop_w)
+
+    def copy(self) -> Frame:
+        """Returns a deep copy of the frame's buffer."""
+        return Frame(bytes(self.data), self.height, self.width)
+
+
+def video_frame_to_frame(frame: av.VideoFrame) -> Frame:
+    """Converts an RGB24 frame to a contiguous Frame, removing any row-stride padding."""
+    plane = frame.planes[0]
+    stride = plane.line_size
+    width_bytes = frame.width * 3
+    mv = memoryview(plane)
+
+    if stride == width_bytes:
+        data = bytes(mv)
+    else:
+        rows = [mv[r * stride: r * stride + width_bytes] for r in range(frame.height)]
+        data = b''.join(rows)
+
+    return Frame(data, frame.height, frame.width)
+
+
+def blit(canvas: memoryview, canvas_w: int, img: Frame, x: int, y: int) -> None:
+    """Copies an RGB frame into the canvas at (x, y) in place."""
+    row_bytes = img.width * 3
+    canvas_stride = canvas_w * 3
+    src_mv = memoryview(img.data)
+
+    for row in range(img.height):
+        dst_off = (y + row) * canvas_stride + x * 3
+        src_off = row * row_bytes
+        canvas[dst_off:dst_off + row_bytes] = src_mv[src_off:src_off + row_bytes]
+
+
+def encode_frame_to_jpeg(canvas: memoryview, canvas_w: int, canvas_h: int, quality: int) -> bytes:
+    """Encodes a flat memoryview buffer to JPEG."""
+    mv = canvas.cast('B', shape=(canvas_h, canvas_w, 3))
+    return simplejpeg.encode_jpeg(mv, quality=quality, colorspace='RGB')
+
+
+def decode_jpeg_to_frame(g_file: str) -> tuple[str, Frame]:
+    """Decodes an RGB JPEG file into a Frame."""
+    with open(g_file, 'rb') as f:
+        data, h, w, _ = simplejpeg.decode_jpeg(f.read(), colorspace='RGB', output='bytes')
+    return g_file, Frame(data, h, w)
 
 
 def get_ms_from_time_str(time_str: str) -> float:
@@ -50,7 +139,7 @@ def get_srt_timestamp(frame_index: int, fps: float, offset_ms: float = 0.0) -> s
     ms = td.microseconds // 1000
     m, s = divmod(td.seconds, 60)
     h, m = divmod(m, 60)
-    return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
+    return f'{h:02d}:{m:02d}:{s:02d},{ms:03d}'
 
 
 def get_srt_timestamp_from_ms(ms: float) -> str:
@@ -59,21 +148,7 @@ def get_srt_timestamp_from_ms(ms: float) -> str:
     minutes, seconds = divmod(td.seconds, 60)
     hours, minutes = divmod(minutes, 60)
     milliseconds = td.microseconds // 1000
-    return f"{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
-
-
-def frame_to_array(frame: av.VideoFrame, fmt: str) -> np.ndarray[Any, Any]:
-    """Converts a frame to an array, safely falls back if threads arg is unsupported."""
-    if not hasattr(frame_to_array, "supports_threads"):
-        frame_to_array.supports_threads = True  # type: ignore
-
-    if frame_to_array.supports_threads:  # type: ignore
-        try:
-            return frame.to_ndarray(format=fmt, threads=1)
-        except TypeError:
-            frame_to_array.supports_threads = False  # type: ignore
-
-    return frame.to_ndarray(format=fmt)
+    return f'{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}'
 
 
 def is_on_same_line(word1: PredictedText, word2: PredictedText) -> bool:
@@ -99,22 +174,22 @@ def is_language_rtl(lang: str) -> bool:
 def extract_non_chinese_segments(text: str) -> list[tuple[str, str]]:
     """Extracts non chinese segments out of the detected text for post processing."""
     segments: list[tuple[str, str]] = []
-    current_segment = ""
+    current_segment = ''
 
     def is_chinese(char: str) -> bool:
-        return "\u4e00" <= char <= "\u9fff"
+        return '\u4e00' <= char <= '\u9fff'
 
     for char in text:
         if is_chinese(char):
             if current_segment:
-                segments.append(("non_chinese", current_segment))
-                current_segment = ""
-            segments.append(("chinese", char))
+                segments.append(('non_chinese', current_segment))
+                current_segment = ''
+            segments.append(('chinese', char))
         else:
             current_segment += char
 
     if current_segment:
-        segments.append(("non_chinese", current_segment))
+        segments.append(('non_chinese', current_segment))
 
     return segments
 
@@ -131,51 +206,52 @@ def find_executable(program_name: str) -> str:
             if os.path.isfile(path):
                 return path
 
-    raise FileNotFoundError(
-        f"Could not find {executable_name} in any folder starting with '{program_name}'"
-    )
+    raise FileNotFoundError(f"Could not find {executable_name} in any folder starting with '{program_name}'")
 
 
-def resolve_model_dirs(
-    lang: str, use_server_model: bool, support_files_path
-) -> tuple[str, str, str]:
+def resolve_model_dirs(lang: str, use_server_model: bool, support_files_path: str | None = None) -> tuple[str, str, str]:
     """Resolves the model directory for the specified language and mode."""
     program_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-    base_path = support_files_path or os.path.join(
-        program_dir, "PaddleOCR.PP-OCRv5.support.files"
-    )
+    base_path = support_files_path or os.path.join(program_dir, "PaddleOCR.PP-OCRv6.support.files")
 
     det_path = os.path.join(base_path, "det")
     rec_path = os.path.join(base_path, "rec")
     cls_path = os.path.join(base_path, "cls", "PP-LCNet_x1_0_textline_ori")
 
-    mode = "server" if use_server_model else "mobile"
+    v6_mode = "medium" if use_server_model else "small"
+    legacy_mode = "server" if use_server_model else "mobile"
 
-    # DET
-    if lang == "ka":
-        det_sub = "PP-OCRv3_mobile_det"
+    is_v6_supported = lang in ("ch", "chinese_cht", "en", "japan") or (lang in PADDLEOCR_LANGS["latin"] and lang != "pi")
+
+    if is_v6_supported:
+        det_sub = f"PP-OCRv6_{v6_mode}_det"
+        rec_sub = f"PP-OCRv6_{v6_mode}_rec"
     else:
-        det_sub = f"PP-OCRv5_{mode}_det"
+        if lang == "ka":
+            det_sub = "PP-OCRv3_mobile_det"
+        else:
+            det_sub = f"PP-OCRv5_{legacy_mode}_det"
 
-    # REC
-    if lang in ("ch", "chinese_cht", "japan"):
-        rec_sub = f"PP-OCRv5_{mode}_rec"
-    elif lang in PADDLEOCR_LANGS["latin"]:
-        rec_sub = "latin_PP-OCRv5_mobile_rec"
-    elif lang in PADDLEOCR_LANGS["arabic"]:
-        rec_sub = "arabic_PP-OCRv5_mobile_rec"
-    elif lang in PADDLEOCR_LANGS["eslav"]:
-        rec_sub = "eslav_PP-OCRv5_mobile_rec"
-    elif lang in PADDLEOCR_LANGS["cyrillic"]:
-        rec_sub = "cyrillic_PP-OCRv5_mobile_rec"
-    elif lang in PADDLEOCR_LANGS["devanagari"]:
-        rec_sub = "devanagari_PP-OCRv5_mobile_rec"
-    elif lang in ("en", "korean", "th", "el", "te", "ta"):
-        rec_sub = f"{lang}_PP-OCRv5_mobile_rec"
-    elif lang == "ka":
-        rec_sub = "ka_PP-OCRv3_mobile_rec"
+        if lang in PADDLEOCR_LANGS["latin"]:
+            rec_sub = "latin_PP-OCRv5_mobile_rec"
+        elif lang in PADDLEOCR_LANGS["arabic"]:
+            rec_sub = "arabic_PP-OCRv5_mobile_rec"
+        elif lang in PADDLEOCR_LANGS["eslav"]:
+            rec_sub = "eslav_PP-OCRv5_mobile_rec"
+        elif lang in PADDLEOCR_LANGS["cyrillic"]:
+            rec_sub = "cyrillic_PP-OCRv5_mobile_rec"
+        elif lang in PADDLEOCR_LANGS["devanagari"]:
+            rec_sub = "devanagari_PP-OCRv5_mobile_rec"
+        elif lang in ("korean", "th", "el", "te", "ta"):
+            rec_sub = f"{lang}_PP-OCRv5_mobile_rec"
+        elif lang == "ka":
+            rec_sub = "ka_PP-OCRv3_mobile_rec"
 
-    return (os.path.join(det_path, det_sub), os.path.join(rec_path, rec_sub), cls_path)
+    return (
+        os.path.join(det_path, det_sub),
+        os.path.join(rec_path, rec_sub),
+        cls_path
+    )
 
 
 def perform_hardware_check(paddleocr_path: str, use_gpu: bool) -> None:
@@ -203,14 +279,9 @@ def perform_hardware_check(paddleocr_path: str, use_gpu: bool) -> None:
     def check_cpu() -> None:
         try:
             if not has_avx():
-                raise SystemExit(
-                    f"{error_prefix} CPU or Operating System does not support the AVX instruction set, which is required."
-                )
+                raise SystemExit(f"{error_prefix} CPU or Operating System does not support the AVX instruction set, which is required.")
         except Exception as e:
-            print(
-                f"{warning_prefix} Could not determine CPU AVX support due to an error: {e}. Functionality is uncertain.",
-                flush=True,
-            )
+            print(f"{warning_prefix} Could not determine CPU AVX support due to an error: {e}. Functionality is uncertain.", flush=True)
 
     CUDA_COMPATIBILITY_MAP = {
         "CUDA-11.8": (6.1, 8.9) if sys.platform == "win32" else (6.0, 8.9),
@@ -223,33 +294,21 @@ def perform_hardware_check(paddleocr_path: str, use_gpu: bool) -> None:
     }
 
     def parse_version(v_str: str) -> tuple[int, ...]:
-        return tuple(map(int, v_str.split(".")))
+        return tuple(map(int, v_str.split('.')))
 
     def check_gpu() -> None:
         try:
-            command = [
-                "nvidia-smi",
-                "--query-gpu=driver_version,compute_cap",
-                "--format=csv,noheader",
-            ]
-            result = subprocess.run(
-                command, capture_output=True, text=True, check=True, encoding="utf-8"
-            )
+            command = ["nvidia-smi", "--query-gpu=driver_version,compute_cap", "--format=csv,noheader"]
+            result = subprocess.run(command, capture_output=True, text=True, check=True, encoding='utf-8')
 
-            first_gpu_info = result.stdout.strip().split("\n")[0]
+            first_gpu_info = result.stdout.strip().split('\n')[0]
             if not first_gpu_info:
-                raise SystemExit(
-                    f"{error_prefix} GPU mode enabled, but 'nvidia-smi' returned no GPU info."
-                )
+                raise SystemExit(f"{error_prefix} GPU mode enabled, but 'nvidia-smi' returned no GPU info.")
 
-            driver_version_str, compute_cap_str = [
-                item.strip() for item in first_gpu_info.split(",")
-            ]
+            driver_version_str, compute_cap_str = [item.strip() for item in first_gpu_info.split(',')]
             compute_capability = float(compute_cap_str)
 
-            detected_cuda_version = next(
-                (v for v in CUDA_COMPATIBILITY_MAP if v in paddleocr_path), None
-            )
+            detected_cuda_version = next((v for v in CUDA_COMPATIBILITY_MAP if v in paddleocr_path), None)
 
             if detected_cuda_version:
                 # Check Compute Capability
@@ -269,23 +328,20 @@ def perform_hardware_check(paddleocr_path: str, use_gpu: bool) -> None:
                     )
 
         except Exception as e:
-            print(
-                f"{warning_prefix} Could not determine GPU support due to an error: {e}. Functionality is uncertain.",
-                flush=True,
-            )
+            print(f"{warning_prefix} Could not determine GPU support due to an error: {e}. Functionality is uncertain.", flush=True)
 
     check_cpu()
 
     build_folder_name = os.path.basename(os.path.dirname(paddleocr_path))
 
-    if use_gpu and "GPU" in build_folder_name.upper():
+    if use_gpu and 'GPU' in build_folder_name.upper():
         check_gpu()
 
 
 def read_pipe(pipe: IO[str], output_list: list[str]) -> None:
     """Reads lines from a pipe and appends them to a list."""
     try:
-        for line in iter(pipe.readline, ""):
+        for line in iter(pipe.readline, ''):
             output_list.append(line)
     finally:
         pipe.close()
@@ -297,9 +353,7 @@ def is_process_running(pid: int) -> bool:
         if sys.platform == "win32":
             result = subprocess.run(
                 ["tasklist", "/FI", f"PID eq {pid}", "/NH"],
-                capture_output=True,
-                text=True,
-                timeout=5,
+                capture_output=True, text=True, timeout=5
             )
             return str(pid) in result.stdout
         else:
@@ -312,10 +366,10 @@ def is_process_running(pid: int) -> bool:
 
 def is_running_in_container() -> bool:
     """Check if the app is running inside a Docker container."""
-    return os.path.exists("/.dockerenv")
+    return os.path.exists('/.dockerenv')
 
 
-def create_clean_temp_dir(base_temp) -> str:
+def create_clean_temp_dir(base_temp: str | None = None) -> str:
     """Cleans up orphaned temporary directories from previous crashed runs and creates a fresh one for the current process."""
     current_pid = os.getpid()
     temp_prefix = f"videocr_temp_{current_pid}_"
@@ -342,14 +396,19 @@ def create_clean_temp_dir(base_temp) -> str:
     return tempfile.mkdtemp(prefix=temp_prefix, dir=base_temp)
 
 
+def make_clean_ocr_image_dir(path: str) -> None:
+    """(Re)creates an empty directory for OCR image output, clearing any existing content first."""
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+    os.makedirs(path)
+
+
 def log_error(message: str, log_name: str = "error_log.txt") -> str:
     """Saves errors to a log file."""
     if sys.platform == "win32":
-        log_dir = os.path.join(
-            os.getenv("LOCALAPPDATA") or os.path.expanduser("~"), "VideOCR"
-        )
+        log_dir = os.path.join(os.getenv('LOCALAPPDATA') or os.path.expanduser('~'), "VideOCR")
     else:
-        log_dir = os.path.join(os.path.expanduser("~"), ".config", "VideOCR")
+        log_dir = os.path.join(os.path.expanduser('~'), ".config", "VideOCR")
 
     os.makedirs(log_dir, exist_ok=True)
 
@@ -361,20 +420,15 @@ def log_error(message: str, log_name: str = "error_log.txt") -> str:
     return log_path
 
 
-def prepare_stitch_batch(
-    batch: list[Any],
-    counter: int,
-    zone_idx: int,
-    prefix: str,
-    out_dir: str,
-    target_map: dict[str, Any],
-    max_width: int,
-    grid_spacing: int,
-    zero_pad_length: int,
-) -> tuple[str, int, int, list[tuple[Any, int, int]]]:
+def grid_cols(item_w: int, max_width: int, padding: int, max_cols: int) -> int:
+    """Calculates the maximum number of frames that can fit in one row."""
+    return min(max_cols, max(1, (max_width + padding) // (item_w + padding)))
+
+
+def prepare_stitch_batch(batch: list[Any], counter: int, zone_idx: int, prefix: str, out_dir: str, target_map: dict[str, Any],
+                         cols: int, grid_spacing: int, zero_pad_length: int) -> tuple[str, int, int, list[tuple[Any, int, int]]]:
     """Calculates grid dimensions and maps coordinates for a batch. Returns queue arguments."""
-    h, w = batch[0]["img"].shape[:2]
-    cols = max(1, (max_width + grid_spacing) // (w + grid_spacing))
+    h, w = batch[0]["img"].height, batch[0]["img"].width
 
     actual_cols = min(len(batch), cols)
     actual_rows = (len(batch) + cols - 1) // cols
@@ -395,35 +449,29 @@ def prepare_stitch_batch(
 
         draw_instructions.append((item["img"], x_offset, y_offset))
 
-        mapping.append(
-            {
-                "grid_file": filepath,
-                "frame_idx": item["frame_idx"],
-                "zone_idx": zone_idx,
-                "x": x_offset,
-                "y": y_offset,
-                "w": w,
-                "h": h,
-            }
-        )
+        mapping.append({
+            "grid_file": filepath,
+            "frame_idx": item["frame_idx"],
+            "zone_idx": zone_idx,
+            "x": x_offset,
+            "y": y_offset,
+            "w": w,
+            "h": h
+        })
 
     target_map[filename] = mapping
 
     return filepath, canvas_w, canvas_h, draw_instructions
 
 
-def get_batch_limit(
-    w: int, h: int, max_width: int, max_height: int, padding: int
-) -> int:
-    """Calculates the maximum number of frames that can fit in a stitched grid."""
-    cols = max(1, (max_width + padding) // (w + padding))
-    rows = max(1, (max_height + padding) // (h + padding))
+def get_batch_limit(cols: int, h: int, max_height: int, padding: int, max_rows: int) -> int:
+    """Calculates the maximum number of frames that can fit in a stitched grid, for a given column count."""
+    rows = min(max_rows, max(1, (max_height + padding) // (h + padding)))
+
     return cols * rows
 
 
-def unstitch_polygon(
-    poly: list[list[float]], mapping: list[dict[str, Any]]
-) -> list[tuple[list[list[float]], dict[str, Any]]]:
+def unstitch_polygon(poly: list[list[float]], mapping: list[dict[str, Any]]) -> list[tuple[list[list[float]], dict[str, Any]]]:
     """Finds all grid frames a polygon intersects and clips coordinates to their local space."""
     poly_min_x = min(pt[0] for pt in poly)
     poly_max_x = max(pt[0] for pt in poly)
@@ -438,12 +486,9 @@ def unstitch_polygon(
         cell_min_y = m["y"]
         cell_max_y = m["y"] + m["h"]
 
-        if (
-            poly_min_x < cell_max_x
-            and poly_max_x > cell_min_x
-            and poly_min_y < cell_max_y
-            and poly_max_y > cell_min_y
-        ):
+        if (poly_min_x < cell_max_x and poly_max_x > cell_min_x and
+            poly_min_y < cell_max_y and poly_max_y > cell_min_y):
+
             inter_min_x = max(poly_min_x, cell_min_x)
             inter_max_x = min(poly_max_x, cell_max_x)
             inter_min_y = max(poly_min_y, cell_min_y)
@@ -461,7 +506,7 @@ def unstitch_polygon(
                 [local_min_x, local_min_y],
                 [local_max_x, local_min_y],
                 [local_max_x, local_max_y],
-                [local_min_x, local_max_y],
+                [local_min_x, local_max_y]
             ]
             intersections.append((adjusted_poly, m))
 
@@ -469,12 +514,9 @@ def unstitch_polygon(
         cx = sum(pt[0] for pt in poly) / 4.0
         cy = sum(pt[1] for pt in poly) / 4.0
 
-        best_m = min(
-            mapping,
-            key=lambda m: (
-                (cx - (m["x"] + m["w"] / 2.0)) ** 2
-                + (cy - (m["y"] + m["h"] / 2.0)) ** 2
-            ),
+        best_m = min(mapping, key=lambda m:
+            (cx - (m["x"] + m["w"] / 2.0))**2 +
+            (cy - (m["y"] + m["h"] / 2.0))**2
         )
 
         adjusted_poly = [[pt[0] - best_m["x"], pt[1] - best_m["y"]] for pt in poly]
@@ -483,26 +525,18 @@ def unstitch_polygon(
     return intersections
 
 
-def stream_cli_process(args: list[str], log_name: str) -> Iterator[str]:
+def stream_cli_process(args: list[str], log_name: str, extra_env: dict[str, str] | None = None) -> Iterator[str]:
     """Executes a CLI process, yields its stdout lines, and handles errors/logging."""
     cli_env = os.environ.copy()
     cli_env["PYTHONIOENCODING"] = "utf-8"
     cli_env["PYTHONUNBUFFERED"] = "1"
+    if extra_env:
+        cli_env.update(extra_env)
 
-    process = subprocess.Popen(
-        args,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        encoding="utf-8",
-        env=cli_env,
-        bufsize=1,
-    )
+    process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", env=cli_env, bufsize=1)
 
     stderr_lines: list[str] = []
-    stderr_thread = threading.Thread(
-        target=read_pipe, args=(process.stderr, stderr_lines)
-    )
+    stderr_thread = threading.Thread(target=read_pipe, args=(process.stderr, stderr_lines))
     stderr_thread.start()
 
     stdout_lines: list[str] = []
@@ -510,7 +544,7 @@ def stream_cli_process(args: list[str], log_name: str) -> Iterator[str]:
 
     try:
         assert process.stdout is not None
-        for line in iter(process.stdout.readline, ""):
+        for line in iter(process.stdout.readline, ''):
             stdout_lines.append(line)
             yield line
     except KeyboardInterrupt:
@@ -528,7 +562,7 @@ def stream_cli_process(args: list[str], log_name: str) -> Iterator[str]:
         if exit_code != 0 and not is_interrupted:
             full_stdout = "".join(stdout_lines)
             full_stderr = "".join(stderr_lines)
-            command_str = " ".join(args)
+            command_str = ' '.join(args)
             log_message = (
                 f"Process failed with exit code {exit_code}.\n"
                 f"Command: {command_str}\n\n"
@@ -536,10 +570,7 @@ def stream_cli_process(args: list[str], log_name: str) -> Iterator[str]:
                 f"--- STDERR ---\n{full_stderr}\n"
             )
             log_file_path = log_error(log_message, log_name=log_name)
-            print(
-                f"\nError: Process failed. See the log file for technical details:\n{log_file_path}",
-                flush=True,
-            )
+            print(f"\nError: Process failed. See the log file for technical details:\n{log_file_path}", flush=True)
             sys.exit(1)
 
 
@@ -567,10 +598,8 @@ def get_line_rects(polys: list[list[list[float]]]) -> list[list[float]]:
 
             if overlap_top < overlap_bottom:
                 merged_lines[-1] = [
-                    min(last[0], r[0]),
-                    min(last[1], r[1]),
-                    max(last[2], r[2]),
-                    max(last[3], r[3]),
+                    min(last[0], r[0]), min(last[1], r[1]),
+                    max(last[2], r[2]), max(last[3], r[3])
                 ]
             else:
                 merged_lines.append(r)
@@ -578,9 +607,7 @@ def get_line_rects(polys: list[list[list[float]]]) -> list[list[float]]:
     return merged_lines
 
 
-def are_rect_lists_similar(
-    rects1: list[list[float]], rects2: list[list[float]], tolerance: float
-) -> bool:
+def are_rect_lists_similar(rects1: list[list[float]], rects2: list[list[float]], tolerance: float) -> bool:
     """Compares two lists of bounding boxes to see if they are spatially similar within a tolerance."""
     if len(rects1) != len(rects2):
         return False
@@ -592,28 +619,17 @@ def are_rect_lists_similar(
         cx2, cy2 = r2[0] + w2 / 2, r2[1] + h2 / 2
 
         max_w, max_h = max(w1, w2, 1), max(h1, h2, 1)
-        if not (
-            abs(w1 - w2) / max_w <= tolerance
-            and abs(h1 - h2) / max_h <= tolerance
-            and abs(cx1 - cx2) / max_w <= tolerance
-            and abs(cy1 - cy2) / max_h <= tolerance
-        ):
+        if not (abs(w1 - w2) / max_w <= tolerance and
+                abs(h1 - h2) / max_h <= tolerance and
+                abs(cx1 - cx2) / max_w <= tolerance and
+                abs(cy1 - cy2) / max_h <= tolerance):
             return False
 
     return True
 
 
-def load_grid(g_file: str) -> tuple[str, Any]:
-    """Loads a grid image."""
-    return g_file, np.array(Image.open(g_file))
-
-
-def process_ssim_group(
-    union_rects: list[list[float]],
-    group_frames: list[tuple[int, list[list[float]], float, dict[str, Any]]],
-    loaded_grids: dict[str, Any],
-    ssim_threshold: float,
-) -> tuple[list[dict[str, Any]], int]:
+def process_ssim_group(union_rects: list[list[float]], group_frames: list[tuple[int, list[list[float]], float, dict[str, Any]]],
+                       loaded_grids: dict[str, Frame], ssim_threshold: float) -> tuple[list[dict[str, Any]], int]:
     """Processes a group for SSIM, keeping the frame with the highest detection score per contiguous block."""
     local_surviving_items: list[dict[str, Any]] = []
     current_similar_batch: list[dict[str, Any]] = []
@@ -621,19 +637,19 @@ def process_ssim_group(
 
     for i, (_, _, det_score, m) in enumerate(group_frames):
         grid_img = loaded_grids[m["grid_file"]]
-        img = grid_img[m["y"] : m["y"] + m["h"], m["x"] : m["x"] + m["w"]]
-        h, w = img.shape[:2]
+        img = grid_img.crop_rect(m["x"], m["y"], m["x"] + m["w"], m["y"] + m["h"])
+        h, w = img.height, img.width
 
         current_crops: list[Any] = []
         for rect in union_rects:
             cx1, cy1 = max(0, int(rect[0])), max(0, int(rect[1]))
             cx2, cy2 = min(w, int(rect[2])), min(h, int(rect[3]))
-            current_crops.append(img[cy1:cy2, cx1:cx2])
+            current_crops.append(img.crop_rect(cx1, cy1, cx2, cy2))
 
         item_dict = {
             "img": img.copy(),
             "frame_idx": m["frame_idx"],
-            "det_score": det_score,
+            "det_score": det_score
         }
 
         if i == 0:
@@ -643,10 +659,10 @@ def process_ssim_group(
 
         all_lines_match = True
         for prev_c, curr_c in zip(prev_crops, current_crops):
-            if prev_c.size == 0 or curr_c.size == 0:
+            if prev_c.width == 0 or prev_c.height == 0 or curr_c.width == 0 or curr_c.height == 0:
                 all_lines_match = False
                 break
-            score = fast_ssim.ssim(prev_c, curr_c, data_range=255)
+            score = fast_ssim.ssim(prev_c.data, curr_c.data, curr_c.width, curr_c.height, channels=3, data_range=255)
             if score <= ssim_threshold:
                 all_lines_match = False
                 break
@@ -669,3 +685,47 @@ def process_ssim_group(
     local_deleted = len(group_frames) - len(local_surviving_items)
 
     return local_surviving_items, local_deleted
+
+
+def levenshtein_ratio(s1: str, s2: str, score_cutoff: int = 0) -> int:
+    """Calculates a 0-100 Levenshtein similarity ratio."""
+    if s1 == s2:
+        return 100
+
+    len1, len2 = len(s1), len(s2)
+    if len1 == 0 or len2 == 0:
+        return 0
+
+    total_len = len1 + len2
+
+    if score_cutoff > 0:
+        best_possible_distance = abs(len1 - len2)
+        best_possible_score = ((total_len - best_possible_distance) / total_len) * 100
+        if best_possible_score < score_cutoff:
+            return 0
+
+    if len2 > len1:
+        s1, s2 = s2, s1
+        len1, len2 = len2, len1
+
+    prev_row = list(range(len2 + 1))
+    curr_row = [0] * (len2 + 1)
+
+    for i in range(len1):
+        curr_row[0] = i + 1
+        c1 = s1[i]
+        for j in range(len2):
+            cost = 0 if c1 == s2[j] else 2
+            del_cost = prev_row[j + 1] + 1
+            ins_cost = curr_row[j] + 1
+            sub_cost = prev_row[j] + cost
+            best = del_cost
+            if ins_cost < best:
+                best = ins_cost
+            if sub_cost < best:
+                best = sub_cost
+            curr_row[j + 1] = best
+        prev_row, curr_row = curr_row, prev_row
+
+    distance = prev_row[len2]
+    return round(((total_len - distance) / total_len) * 100)

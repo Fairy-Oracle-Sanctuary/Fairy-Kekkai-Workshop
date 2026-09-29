@@ -1,9 +1,13 @@
+import json
+import os
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 AUTHOR = "baby2016"
 TEAM = "天机阁(Fairy-Oracle-Sanctuary)"
-VERSION = "2.5.2"
+VERSION = "3.0.0"
 YEAR = "2026"
 UPDATE_TIME = "2026-8-16"
 # CI 测试版本警告，设为空字符串不显示，填入文字则显示警告
@@ -17,7 +21,90 @@ RELEASE_URL = "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/r
 GITHUB_URL = "https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop"
 OFFICIAL_WEBSITE = "https://fkw.ora-san.org"
 
-CONFIG_FOLDER = Path("AppData").absolute()
+_LEGACY_CONFIG_FOLDER = Path("AppData").absolute()
+
+
+def _move_legacy_data(old: Path, target: Path) -> None:
+    if not old.is_dir() or old == target:
+        return
+
+    directories = []
+    for source in old.rglob("*"):
+        destination = target / source.relative_to(old)
+        if source.is_dir():
+            try:
+                destination.mkdir(parents=True, exist_ok=True)
+            except OSError:
+                pass
+            directories.append(source)
+            continue
+
+        temporary = None
+        try:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            merged = None
+            if source == old / "config.json" and destination.is_file():
+                try:
+                    incoming = json.loads(source.read_text(encoding="utf-8"))
+                    existing = json.loads(destination.read_text(encoding="utf-8"))
+                    if isinstance(incoming, dict) and isinstance(existing, dict):
+                        for group, values in existing.items():
+                            if group not in incoming:
+                                incoming[group] = values
+                            elif isinstance(values, dict) and isinstance(incoming[group], dict):
+                                for key, value in values.items():
+                                    incoming[group].setdefault(key, value)
+                        merged = json.dumps(incoming, ensure_ascii=False, indent=4).encode("utf-8")
+                except (OSError, ValueError, TypeError):
+                    pass
+
+            if merged is None:
+                try:
+                    os.replace(source, destination)
+                    continue
+                except OSError:
+                    pass  # Cross-volume moves need an atomic copy in the target directory.
+            with tempfile.NamedTemporaryFile(
+                mode="wb", dir=destination.parent, prefix=".migration-", delete=False
+            ) as output:
+                temporary = Path(output.name)
+                if merged is not None:
+                    output.write(merged)
+                else:
+                    with source.open("rb") as incoming_file:
+                        shutil.copyfileobj(incoming_file, output)
+            os.replace(temporary, destination)
+            source.unlink()
+        except OSError:
+            pass  # Keep the source for the next startup.
+        finally:
+            if temporary is not None:
+                try:
+                    temporary.unlink(missing_ok=True)
+                except OSError:
+                    pass
+
+    for directory in sorted(directories, key=lambda path: len(path.parts), reverse=True):
+        try:
+            directory.rmdir()
+        except OSError:
+            pass
+    try:
+        old.rmdir()
+    except OSError:
+        pass
+
+
+if sys.platform == "win32":
+    CONFIG_FOLDER = (
+        Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+        / "Fairy-Oracle-Sanctuary"
+        / "Fairy-Kekkai-Workshop"
+    )
+    CONFIG_FOLDER.mkdir(parents=True, exist_ok=True)
+    _move_legacy_data(_LEGACY_CONFIG_FOLDER, CONFIG_FOLDER)
+else:
+    CONFIG_FOLDER = _LEGACY_CONFIG_FOLDER
 
 CONFIG_FILE = CONFIG_FOLDER / "config.json"
 DB_PATH = CONFIG_FOLDER / "database.db"

@@ -162,11 +162,11 @@ class VersionService:
         """根据本地 PADDLEOCR_VERSION 匹配对应的安装包 URL
 
         PADDLEOCR_VERSION 格式:
-          - PaddleOCR-CPU-v1.5.1
-          - PaddleOCR-GPU-v1.5.1-CUDA-11.8
-          - PaddleOCR-GPU-v1.5.1-CUDA-12.9
+          - PaddleOCR-CPU-v3.7.0
+          - PaddleOCR-GPU-v3.7.0-CUDA-11.8
+          - PaddleOCR-GPU-v3.7.0-CUDA-12.9
 
-        下载链接名中包含对应标识（如 "GPU-v1.5.1-CUDA-12.9"）即匹配。
+        下载链接名中包含对应标识（如 "GPU-v3.7.0-CUDA-12.9"）即匹配。
         """
         if not PADDLEOCR_VERSION:
             return None

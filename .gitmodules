@@ -1,3 +1,6 @@
 [submodule "libs"]
 	path = libs
 	url = https://github.com/Fairy-Oracle-Sanctuary/PySide6-Fluent-Widgets-Pro.git
+[submodule "third_party/Qt-Fluent-Widgets"]
+	path = third_party/Qt-Fluent-Widgets
+	url = https://github.com/Fairy-Oracle-Sanctuary/Qt-Fluent-Widgets.git
