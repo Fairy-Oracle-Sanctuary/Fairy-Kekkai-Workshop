@@ -21,7 +21,11 @@ on:
 jobs:
   build-cpp:
     name: Build C++ ${{ inputs.variant }} Installer
-    runs-on: windows-latest
+    # windows-latest 已于 2026-06 迁移到 VS2026 镜像（只装 VS 2026，没有 VS 2022），
+    # 本项目与 Qt 6.7.3 msvc2019_64 是在 VS 2022 上验证的，所以固定用 windows-2022。
+    # 若该镜像退役：改回 windows-latest 即可，下面的探测步骤会自动切到 VS2026 生成器
+    # （'Visual Studio 18 2026' 需要 CMake >= 4.2，VS2026 镜像自带 CMake 4.4）。
+    runs-on: windows-2022
     env:
       # OpenCV 用项目自己 Release 上备用的预编译包（world 版，解压后为 build\）
       OPENCV_ASSET_URL: https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0/opencv-4.12.0-windows-x64.zip
@@ -63,6 +67,34 @@ jobs:
           }
           "QT_ROOT=$qtRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "Qt root: $qtRoot"
+
+      - name: Resolve CMake generator
+        # CMake 的生成器名必须与镜像里实际安装的 Visual Studio 主版本对应，
+        # 否则报 "could not find any instance of Visual Studio"。
+        # 用 vswhere 探测后再映射，镜像换 VS 版本（2022 <-> 2026）时无需改 workflow。
+        run: |
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $generator = 'Visual Studio 17 2022'
+          if (Test-Path $vswhere) {
+            $version = & $vswhere -latest -products * `
+              -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationVersion
+            if (-not $version) { $version = & $vswhere -latest -products * -property installationVersion }
+            if ($version) {
+              switch ([int]($version.Split('.')[0])) {
+                17 { $generator = 'Visual Studio 17 2022' }
+                18 { $generator = 'Visual Studio 18 2026' }
+                default {
+                  Write-Error "未映射的 Visual Studio 主版本: $version，请在 Resolve CMake generator 步骤补充生成器名"
+                  exit 1
+                }
+              }
+            }
+            Write-Host "vswhere installationVersion: $version"
+          } else {
+            Write-Host "未找到 vswhere，沿用默认生成器: $generator"
+          }
+          "CMAKE_GENERATOR=$generator" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "CMake generator: $generator"
 
       - name: Resolve OCR variant
         # 变体名与 PaddleOCR-Standalone 资产名同构：PaddleOCR-<variant> / PaddleOCR-<variant>.7z
@@ -236,7 +268,7 @@ jobs:
             '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', '.\package-cpp-release.ps1',
             '-QtRoot', $env:QT_ROOT,
             '-OpenCVDir', $env:OPENCV_DIR,
-            '-Generator', 'Visual Studio 17 2022',
+            '-Generator', $env:CMAKE_GENERATOR,
             '-Setup'
           )
           if ("${{ inputs.variant }}" -eq 'Clear') {
