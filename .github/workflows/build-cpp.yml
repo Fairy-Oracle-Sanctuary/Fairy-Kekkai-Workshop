@@ -40,12 +40,12 @@ jobs:
 
       - name: Install Qt
         # Qt 6.7.3 只有 msvc2019_64 归档，与 runner 上的 MSVC 2022 二进制兼容；
-        # Qt6::Svg 属于独立归档 qtsvg，qtfluentwidgets 依赖它，必须显式安装。
+        # 6.7.3 的基础包自带 qtsvg（仓库里没有独立的 addons.qtsvg 包），
+        # 指定 modules: qtsvg 会让 aqt 找不到包而报错，因此不传 modules。
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.7.3'
           arch: win64_msvc2019_64
-          modules: 'qtsvg'
           cache: true
 
       - name: Locate Qt
