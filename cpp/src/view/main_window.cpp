@@ -1,7 +1,9 @@
 #include "view/main_window.h"
+#include <QApplication>
 #include <QCloseEvent>
 #include <QFileInfo>
 #include <QPainter>
+#include <QResizeEvent>
 #include <QSystemTrayIcon>
 #include <QTimer>
 #include <type_traits>
@@ -29,6 +31,50 @@
 
 namespace fkw
 {
+    LoadingSplashScreen::LoadingSplashScreen(const QIcon& icon, QWidget* parent) :
+        SplashScreen(icon, parent)
+    {
+        // 进度条（禁用动画，使同步初始化期间能即时显示进度）
+        progressBar_ = new qfw::ProgressBar(this, false);
+        progressBar_->setFixedWidth(320);
+        progressBar_->setValue(0);
+
+        // 状态文字
+        statusLabel_ = new qfw::BodyLabel(Text::instance().Starting, this);
+        statusLabel_->setAlignment(Qt::AlignCenter);
+
+        repositionExtras();
+    }
+
+    void LoadingSplashScreen::setProgress(int value, const QString& text)
+    {
+        progressBar_->setValue(value);
+        if (!text.isNull()) {
+            statusLabel_->setText(text);
+            statusLabel_->adjustSize();
+            repositionExtras();
+        }
+        QApplication::processEvents();
+    }
+
+    void LoadingSplashScreen::repositionExtras()
+    {
+        if (!progressBar_) return;
+        const int ih = iconSize().height();
+        const int cx = width() / 2;
+        const int cy = height() / 2;
+        const int py = cy + ih / 2 + 40;
+        progressBar_->move(cx - progressBar_->width() / 2, py);
+        statusLabel_->adjustSize();
+        statusLabel_->move(cx - statusLabel_->width() / 2, py + 24);
+    }
+
+    void LoadingSplashScreen::resizeEvent(QResizeEvent* event)
+    {
+        SplashScreen::resizeEvent(event);
+        repositionExtras();
+    }
+
     template<class WindowType>
     MainWindowT<WindowType>::MainWindowT(QWidget* parent) : WindowType(parent)
     {
@@ -38,10 +84,23 @@ namespace fkw
         refreshBackground();
         this->resize(960, 754);
         this->setMinimumWidth(760);
+
+        // 创建启动页面（在加载界面前显示 Logo 与加载进度）
+        splashScreen_ = new LoadingSplashScreen(this->windowIcon(), this);
+        splashScreen_->setIconSize(QSize(120, 120));
+        splashScreen_->resize(this->size());
+        splashScreen_->raise();
+
+        // 显示主窗口，使作为其子控件的启动页可见，并立即绘制
+        this->show();
+        QApplication::processEvents();
+        splashScreen_->setProgress(10, Text::instance().InitializingServices);
+
         if constexpr (std::is_same_v<WindowType, qfw::SplitFluentWindow>) {
             // Split leaves its content under the title bar; reserve room for app pages.
             this->widgetLayout_->setContentsMargins(0, 48, 0, 0);
         }
+        splashScreen_->setProgress(30, Text::instance().LoadingSettings);
         auto* bar = this->titleBar();
         themeButton_ = new qfw::TransparentToolButton(bar);
         themeButton_->setFixedSize(bar->minimizeButton()->size());
@@ -65,6 +124,7 @@ namespace fkw
         });
         QObject::connect(&qfw::QConfig::instance(), &qfw::QConfig::themeChanged,
                 this, &MainWindowT<WindowType>::updateThemeButtonIcon);
+        splashScreen_->setProgress(50, Text::instance().LoadingInterface);
         auto *home = new HomeInterface(this);
         auto *projects = new ProjectStackedInterface(this);
         auto *download = new DownloadStackedInterface(this);
@@ -84,6 +144,7 @@ namespace fkw
         this->addSubInterface(ffmpeg, qfw::FluentIconEnum::ZipFolder, trText("压制"), top);
         this->addSubInterface(settings, qfw::FluentIconEnum::Setting, trText("设置"), bottom);
         routes_ = {{QStringLiteral("home"), home}, {QStringLiteral("projects"), projects}, {QStringLiteral("download"), download}, {QStringLiteral("ocr"), ocr}, {QStringLiteral("whisper"), whisper}, {QStringLiteral("translate"), translate}, {QStringLiteral("ffmpeg"), ffmpeg}, {QStringLiteral("settings"), settings}};
+        splashScreen_->setProgress(80, Text::instance().IST);
         versionService_ = new VersionService(this);
         QObject::connect(versionService_, &VersionService::checked, this,
                 [this](bool hasNewVersion, const QString& error) {
@@ -150,6 +211,10 @@ namespace fkw
                 refreshBackground();
             }
         });
+        splashScreen_->setProgress(100, Text::instance().StartupComplete);
+
+        // 关闭启动页面
+        splashScreen_->finish();
     }
 
     template<class WindowType>

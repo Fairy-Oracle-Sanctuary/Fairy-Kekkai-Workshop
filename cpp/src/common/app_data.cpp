@@ -100,17 +100,37 @@ QString sourceRoot() {
     return QStringLiteral(FKW_SOURCE_ROOT);
 }
 
+QStringList softwareRoots() {
+    QStringList result;
+    const auto add = [&result](const QString& path) {
+        if (path.isEmpty()) return;
+        const QString clean = QDir::cleanPath(QDir(path).absolutePath());
+        // 盘符根目录会让「是否在软件目录内」对整块盘都成立，必须排除
+        if (clean.isEmpty() || QDir(clean).isRoot()) return;
+        for (const QString& existing : result)
+            if (existing.compare(clean, Qt::CaseInsensitive) == 0) return;
+        result << clean;
+    };
+    add(sourceRoot());
+    add(QCoreApplication::applicationDirPath());
+    return result;
+}
+
 bool insideSoftwareFolder(const QString& path) {
     if (path.isEmpty()) return false;
     // Windows 路径大小写不敏感，统一转小写后再比较
-    const QString software = QDir::cleanPath(QDir(sourceRoot()).absolutePath()).toLower();
     const QString target = QDir::cleanPath(QDir(path).absolutePath()).toLower();
     // 软件正好装在盘符根目录时 cleanPath 会留下结尾斜杠，这里补一次避免拼出双斜杠
     const auto withSeparator = [](const QString& value) {
         return value.endsWith(QLatin1Char('/')) ? value : value + QLatin1Char('/');
     };
-    return target == software || target.startsWith(withSeparator(software))
-        || software.startsWith(withSeparator(target));
+    for (const QString& root : softwareRoots()) {
+        const QString software = root.toLower();
+        if (target == software || target.startsWith(withSeparator(software))
+            || software.startsWith(withSeparator(target)))
+            return true;
+    }
+    return false;
 }
 
 QString defaultProjectFolder() {

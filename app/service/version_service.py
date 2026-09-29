@@ -166,19 +166,58 @@ class VersionService:
           - PaddleOCR-GPU-v3.7.0-CUDA-11.8
           - PaddleOCR-GPU-v3.7.0-CUDA-12.9
 
-        下载链接名中包含对应标识（如 "GPU-v3.7.0-CUDA-12.9"）即匹配。
+        匹配分三级，逐步放宽（与 C++ 版 VersionService::defaultDownloadUrl 保持一致）：
+          1. 链接名包含完整标识（如 "GPU-v3.7.0-CUDA-12.9"）——引擎代次未变时的精确匹配；
+          2. 仅按「机型 + 算力」匹配（如 -CPU- / -CUDA-12.9-）——换引擎后版本号跳变时仍能命中整包；
+          3. 本地标识读不到（只装过 Clear 包的机器）时退回 CPU 整包——
+             任何 Windows x64 机器都能跑，比给出不带引擎的 Clear 包安全。
+        任何一级都必须排除 Clear 增量包：它不携带 PADDLEOCR 标识与新模型，
+        配上启动时的旧资源清理会得到「旧引擎在、旧模型被删」的失效状态。
         """
         if not PADDLEOCR_VERSION:
             return None
 
         # 提取 PaddleOCR- 之后的部分作为匹配标识
         m = re.search(r"PaddleOCR-(.+)", PADDLEOCR_VERSION)
-        if not m:
-            return None
-        ocr_tag = m.group(1).strip()
+        identifier = m.group(1).strip() if m else ""
 
+        def is_installer(text, flavor):
+            if not flavor or "clear" in text.lower():
+                return False
+            upper = text.upper()
+            if flavor == "CPU":
+                return "-CPU-" in upper
+            if "-GPU-" not in upper:
+                return False
+            if flavor == "GPU":
+                return True
+            return f"-{flavor.upper()}-" in upper
+
+        # 1) 精确匹配本地标识
+        if identifier:
+            for name, url in downloads:
+                if identifier in name or identifier in url:
+                    return url
+
+        # 2) 跨代次：按机型 + 算力匹配同规格整包
+        flavor = ""
+        upper_identifier = identifier.upper()
+        if "CPU" in upper_identifier:
+            flavor = "CPU"
+        elif "CUDA-11.8" in upper_identifier:
+            flavor = "CUDA-11.8"
+        elif "CUDA-12.9" in upper_identifier:
+            flavor = "CUDA-12.9"
+        elif "GPU" in upper_identifier:
+            flavor = "GPU"
+        if flavor:
+            for name, url in downloads:
+                if is_installer(name, flavor) or is_installer(url, flavor):
+                    return url
+
+        # 3) 读不到标识时退回 CPU 整包
         for name, url in downloads:
-            if ocr_tag in name:
+            if is_installer(name, "CPU") or is_installer(url, "CPU"):
                 return url
         return None
 

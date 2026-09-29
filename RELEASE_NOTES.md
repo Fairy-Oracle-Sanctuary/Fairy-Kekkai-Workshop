@@ -1,61 +1,77 @@
 ## 更新日志
 
-### 重构 / Refactored
-- Whisper 语音识别服务迁移至 QRunnable + TaskInterface 架构，统一任务调度与生命周期管理
-  Whisper speech recognition migrated to QRunnable + TaskInterface architecture
-- 翻译服务迁移至 TaskInterface 模式，复用基类批量操作与事件总线
-  Translation service migrated to TaskInterface pattern
-- OCR 任务界面统一到 TaskInterface 基类，新增 getTaskGeneratedFiles 钩子
-  OCR task interface unified under TaskInterface base class with getTaskGeneratedFiles hook
-- 国际化文案统一收敛到 Text 类，移除散落的 self.tr() 调用
-  i18n strings consolidated into the Text class, removing scattered self.tr() calls
-- 主程序与 videocr CLI 依赖隔离，新建 paddleocr 副本断开 import 牵连，避免打包时带入 av/fast_ssim/scipy 等重型依赖
-  Isolated main app from videocr CLI dependencies via a paddleocr copy, preventing av/fast_ssim/scipy from being pulled into the build
+### 重大变化 / Breaking Changes
+- 核心全量重写：从 Python + PySide6 迁移到 C++17 + Qt 6 + Qt-Fluent-Widgets，编译为原生桌面程序，体积更小、启动更快、内存占用更低
+  Full core rewrite: migrated from Python + PySide6 to C++17 + Qt 6 + Qt-Fluent-Widgets, shipping as a native desktop application with smaller size, faster startup and lower memory usage
+- 从此版本起，安装包内不再附带 Python 运行时与 Python 依赖，老版本升级请使用增量包（Clear）或先卸载旧版
+  From this version onward the installer no longer bundles the Python runtime or Python dependencies; upgrading from an older build should use the incremental (Clear) package or uninstall the previous version first
+- 源码目录结构重组：新增 `cpp/` 原生源码树（view / components / service / common），原 Python 实现保留在 `app/` 作为参考
+  Source tree reorganized: new `cpp/` native source tree (view / components / service / common), with the original Python implementation kept under `app/` as reference
 
 ### 新增 / Added
-- 空状态卡片组件：任务列表为空时展示引导界面
-  Empty status card component showing guidance when the task list is empty
-- 跨平台文件操作工具，封装 showInFolder / openUrl
-  Cross-platform file utility wrapping showInFolder / openUrl
-- SingletonApplication 单例机制：基于 QSharedMemory + QLocalServer 实现进程间通信，第二个实例启动时自动激活主窗口
-  SingletonApplication via QSharedMemory + QLocalServer: second instance activates the main window through IPC
+- 悬浮截图翻译窗口：屏幕任意区域框选后即可 OCR 并调用 AI 翻译，无需切换窗口
+  Floating screenshot translation window: select any region on screen to OCR and translate with AI without leaving the current window
+  - 支持窗口绑定：可把框选区域锁定到指定窗口，随窗口移动、缩放自动跟随
+    Window binding: lock the selected region to a target window and follow its move/resize automatically
+  - 支持置顶、锁定、鼠标穿透、背景透明、圆角等显示模式
+    Supports always-on-top, lock, click-through, transparent background and rounded corners
+  - 内置历史记录，可回看并复制此前的识别 / 翻译结果
+    Built-in history to review and copy previous OCR / translation results
+- 启动维护机制：首次启动时自动把散落在软件目录中的项目迁移到独立数据目录，界面模态展示迁移进度
+  Startup maintenance: on first launch, projects scattered inside the install directory are migrated to a dedicated data directory with modal progress reporting
+- 旧版资源清理：启动时扫描并清理上一代 OCR 模型/资源与 Python(Nuitka + PySide6) 残留依赖，释放磁盘占用
+  Legacy cleanup: scans and removes the previous generation's OCR assets and leftover Python (Nuitka + PySide6) dependencies at startup to reclaim disk space
+- 全新打包链路：`package-cpp-release.ps1` 一键完成 CMake 构建 → windeployqt 依赖收集 → Inno Setup 打包
+  New packaging pipeline: `package-cpp-release.ps1` performs CMake build → windeployqt dependency collection → Inno Setup packaging in one command
+- 发布管线全面转向 C++：`.github/workflows/build-cpp.yml` 打 tag 即自动预检、并行构建并发布 CPU / GPU (CUDA 11.8 / 12.9) / Clear 四个安装包，Python 版旧管线 `release.yml`、`deploy-windows.yml` 已下线
+  Release pipeline fully moved to the C++ build: `.github/workflows/build-cpp.yml` pre-checks, builds and publishes the CPU / GPU (CUDA 11.8 / 12.9) / Clear installers on tag push, retiring the old Python workflows `release.yml` and `deploy-windows.yml`
+- 发布前自动校验发布说明契约（四个安装包链接齐全、链接版本号与 tag 一致、更换 OCR 引擎时自动要求补上引擎换代标记），避免更新包匹配错版本
+  The release body contract is now validated automatically (all four installer links present, link versions matching the tag, and the engine-swap marker enforced whenever the OCR engine changes), preventing updates from resolving to the wrong package
 
 ### 修复 / Fixed
-- 修复基类 _removeCard 清理不一致导致布局与卡片映射泄漏的问题
-  Fixed layout and card mapping leak caused by inconsistent _removeCard cleanup
-- 修复任务完成后「在文件夹中显示」功能
-  Fixed "Show in Folder" after task completion
-- 修复 PaddleOCR 模型路径正反斜杠混合导致找不到模型文件的问题
-  Fixed PaddleOCR model path not found due to mixed forward/backward slashes
-- 修复 SegmentedWidget 误传 QWidget 作为 routeKey 触发 Shiboken copy-convert 警告
-  Fixed Shiboken copy-convert warning caused by passing QWidget as routeKey to SegmentedWidget
-- 修复 _currentFilter 用 currentItem() 与 QWidget 比较永远为 False 导致标签页过滤失效的问题
-  Fixed tab filter always returning "all" due to currentItem() vs QWidget comparison always being False
+- 修复框选区域在高 DPI 屏幕下坐标偏移的问题（按设备像素比换算）
+  Fixed region selection offset on high-DPI screens (coordinates now scaled by device pixel ratio)
+- 修复悬浮窗关闭后入口按钮未恢复、无法再次打开的问题
+  Fixed the entry button not being re-enabled after the floating window closed
+- 修复悬浮窗历史菜单回调在菜单销毁时可能访问已释放内存导致的崩溃
+  Fixed a crash where the floating window's history menu callback could touch freed memory during menu teardown
+- 修复 C++ 版默认图标/主题资源在深色模式下显示异常的问题
+  Fixed incorrect default icon/theme rendering in dark mode on the C++ build
 
 ### 改进 / Improved
-- 完善各服务日志输出
-  Improved logging across services
-- 任务卡片按钮提示与确认对话框文案全部纳入国际化管理
-  Task card tooltips and confirmation dialogs fully internationalized
-- 过滤 qfluentwidgets 内部 QFont::setPointSize(-1) 无害警告，保持控制台输出整洁
-  Filter qfluentwidgets internal QFont::setPointSize(-1) harmless warnings for cleaner console output
+- OCR 引擎升级到 PaddleOCR-Standalone v3.7.0，安装包与 CI 变体同步更新
+  OCR engine upgraded to PaddleOCR-Standalone v3.7.0, with installer and CI variants updated accordingly
+- 版本号统一由 `cpp/resources/setting_data.json` 派生，打包脚本与界面展示保持一致
+  Version number now derives from `cpp/resources/setting_data.json`, keeping the packaging script and in-app display consistent
+- 任务执行统一到 QRunnable + 事件总线架构，屏幕 OCR / 屏幕翻译复用同一套线程池调度
+  Task execution unified under the QRunnable + event bus architecture; screen OCR and screen translation share the same thread-pool scheduling
+- 移植进度对照表 `cpp/PORTING_MATRIX.md` 持续维护，逐项记录与 Python 版的差异
+  Porting progress matrix `cpp/PORTING_MATRIX.md` is continuously maintained, recording differences against the Python version item by item
 
 ## 下载提示
 
 | 平台 / Platform | 类型 / Type | 安装包 / Installer |
 | --- | --- | --- |
-| Windows 10/11 | CPU | [Fairy-Kekkai-Workshop-v2.5.2-CPU-v1.5.1-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.2/Fairy-Kekkai-Workshop-v2.5.2-CPU-v1.5.1-Windows-x86_64-Setup.exe) |
-| Windows 10/11 | GPU (CUDA 11.8, Nvidia 10 系列) | [Fairy-Kekkai-Workshop-v2.5.2-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.2/Fairy-Kekkai-Workshop-v2.5.2-GPU-v1.5.1-CUDA-11.8-Windows-x86_64-Setup.exe) |
-| Windows 10/11 | GPU (CUDA 12.9, Nvidia 16 - 50 系列) | [Fairy-Kekkai-Workshop-v2.5.2-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.2/Fairy-Kekkai-Workshop-v2.5.2-GPU-v1.5.1-CUDA-12.9-Windows-x86_64-Setup.exe) |
+| Windows 10/11 | CPU | [Fairy-Kekkai-Workshop-v3.0.0-CPU-v3.7.0-Windows-x86_64-Setup.exe（含 PP-OCRv6 引擎与模型，替代旧版 PaddleOCR-CPU-v1.5.1）](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v3.0.0/Fairy-Kekkai-Workshop-v3.0.0-CPU-v3.7.0-Windows-x86_64-Setup.exe) |
+| Windows 10/11 | GPU (CUDA 11.8, Nvidia 10 系列) | [Fairy-Kekkai-Workshop-v3.0.0-GPU-v3.7.0-CUDA-11.8-Windows-x86_64-Setup.exe（含 PP-OCRv6 引擎与模型，替代旧版 PaddleOCR-GPU-v1.5.1-CUDA-11.8）](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v3.0.0/Fairy-Kekkai-Workshop-v3.0.0-GPU-v3.7.0-CUDA-11.8-Windows-x86_64-Setup.exe) |
+| Windows 10/11 | GPU (CUDA 12.9, Nvidia 16 - 50 系列) | [Fairy-Kekkai-Workshop-v3.0.0-GPU-v3.7.0-CUDA-12.9-Windows-x86_64-Setup.exe（含 PP-OCRv6 引擎与模型，替代旧版 PaddleOCR-GPU-v1.5.1-CUDA-12.9）](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v3.0.0/Fairy-Kekkai-Workshop-v3.0.0-GPU-v3.7.0-CUDA-12.9-Windows-x86_64-Setup.exe) |
 
-- 如果你已安装过上个版本（增量升级包）：
-  If you have installed the previous version (incremental upgrade package):
-  [Fairy-Kekkai-Workshop-v2.5.2-Clear-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.5.2/Fairy-Kekkai-Workshop-v2.5.2-Clear-Windows-x86_64-Setup.exe)
+- 从 2.x（Python 版）升级到 3.0.0 请下载上表中与你显卡对应的整包，**不要用 Clear 增量包**：本次同时换了 OCR 引擎，增量包不带新引擎与新模型，安装后启动维护会清掉旧模型，导致 OCR 不可用
+  To upgrade from 2.x (Python build) to 3.0.0 please download the matching full package above instead of the Clear incremental package: this release also swaps the OCR engine, and the incremental package carries neither the new engine nor the new models
+- Clear 增量包（仅适用于已安装 3.0.0 及以上版本、且引擎代次未变的机器）：
+  Clear incremental package (only for machines already running 3.0.0+ with an unchanged engine generation):
+  [Fairy-Kekkai-Workshop-v3.0.0-Clear-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v3.0.0/Fairy-Kekkai-Workshop-v3.0.0-Clear-Windows-x86_64-Setup.exe)
 - mac 版本无变动，直接下载上一个版本即可
   macOS version unchanged, download the previous version directly
 - 迅雷链接 / Thunder Drive: https://pan.xunlei.com/s/VOl2n0KP6LH3zXUqcYX1iYUAA1?pwd=yzim#
+- 从 2.x 升级无需手动卸载旧版：启动维护会自动迁移项目数据并清理旧版 PaddleOCR 引擎、旧代次识别模型与 Python 运行库残留
+  Upgrading from 2.x does not require uninstalling the old build: startup maintenance migrates project data and removes the previous PaddleOCR engine, the old model generation and leftover Python runtime files automatically
 
 ## 使用说明 / Usage
 
 - **Windows**：根据显卡选择对应版本运行安装包，按向导完成安装（需管理员权限）。
   Choose the version matching your GPU and run the installer, then follow the setup wizard (administrator privileges required).
+- 升级安装时若提示清理旧版资源，请保持网络与磁盘空间充足，清理过程不可中断。
+  If prompted to clean up legacy resources during an upgrade, make sure network and disk space are sufficient; the cleanup must not be interrupted.
+
+!OCRUPDATE!

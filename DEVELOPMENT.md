@@ -2,17 +2,22 @@
 
 ## 项目概述
 
-**Fairy-Kekkai-Workshop** 是一个功能完整的视频字幕处理和管理工具，支持视频下载、字幕提取、多语言翻译、视频压制以及 B 站直播内容上传等功能。该项目采用 PySide6 + QFluentWidgets 构建现代化桌面应用。
+**Fairy-Kekkai-Workshop** 是一个功能完整的视频字幕处理和管理工具，支持视频下载、字幕提取、多语言翻译、悬浮取词翻译、视频压制等功能。
+
+自 **v3.0.0** 起，主程序已从 PySide6 全量重写为 **C++17 + Qt 6 + Qt-Fluent-Widgets** 原生桌面应用，源码位于 `cpp/`，并通过 CMake + MSVC 构建、Inno Setup 打包分发。仓库中的 `app/` 目录保留旧版 Python + PySide6 实现，作为移植对照参考，不再随安装包分发。
+
+本文件同时覆盖两代实现：C++ 版架构见「[C++ 原生版架构](#c-原生版架构)」一节，其余章节如未特别说明，描述的都是 `app/` 下的 Python 参考实现。
 
 ### 核心特性
 - 📥 **视频下载**：基于 yt-dlp，支持 1800+ 视频网站
 - 🔤 **字幕提取**：基于 [VideOCR](https://github.com/timminator/VideOCR)，支持 PaddleOCR 与 Google Lens 双引擎，支持 200+ 种语言
 - 🎤 **语音识别**：基于 [Const-me/Whisper](https://github.com/Const-me/Whisper)，支持多语言语音转字幕，带实时进度显示
 - 🌐 **智能翻译**：支持多个 AI 模型（OpenAI、Deepseek、腾讯混元、ERNIE、Gemini、书生等）
+- 🔍 **悬浮取词翻译**：屏幕任意区域框选后 OCR + AI 翻译，支持窗口绑定、跟随、置顶、鼠标穿透（仅 Windows）
 - 🎬 **视频压制**：基于 FFmpeg，支持自定义编码参数
-- 💾 **项目管理**：完整的项目文件系统管理，支持导入/链接外部项目
+- 💾 **项目管理**：完整的项目文件系统管理，支持导入/链接外部项目，首次启动自动迁移到独立数据目录
 - 🎨 **主题切换**：标题栏快捷主题切换按钮，支持深色/浅色模式
-- 🚀 **启动页**：带进度条和状态文字的启动页面
+- 🚀 **启动页**：带进度条和状态文字的启动页面，含启动维护（项目迁移 / 旧版资源清理）
 - 🌍 **多语言支持**：支持中文、英文界面
 
 ---
@@ -113,7 +118,133 @@ Fairy-Kekkai-Workshop/
 
 ---
 
+## C++ 原生版架构
+
+> v3.0.0 起主程序使用本节的实现。Python 版（`app/`）保留为移植对照，两者共用同一套 `tools/` 外部工具与 `AppData/` 数据结构。
+
+```
+cpp/
+├── CMakeLists.txt                 # 构建入口（C++17 / AUTOMOC / AUTORCC）
+├── PORTING_MATRIX.md              # 与 Python 版的逐项移植对照表
+├── resources/
+│   ├── app_assets.qrc             # 图标等资源
+│   ├── app.rc.in                  # exe 图标资源模板（configure_file 生成）
+│   └── setting_data.json          # 版本号/更新地址/语言字典/AI 错误码映射
+└── src/
+    ├── main.cpp                   # 入口：QApplication、单例、主窗口
+    │
+    ├── common/                    # 公共基础设施
+    │   ├── application.*          # 应用级单例与全局初始化
+    │   ├── app_data.*             # AppData 目录布局与读写
+    │   ├── config.*               # 应用配置（写作配合 qfw::QConfig）
+    │   ├── config_keys.h          # 配置键常量
+    │   ├── event_bus.*            # 全局事件总线（跨界面/线程通信）
+    │   ├── events.h               # 事件数据结构
+    │   ├── logger.*               # 日志
+    │   ├── setting.*              # 应用常量与默认值
+    │   ├── style_sheet.*          # QSS 管理
+    │   ├── text.* / text_format.* # 国际化文案与占位符格式化
+    │   ├── task_status.h          # 任务状态枚举
+    │   └── utils.*                # showInFolder / openUrl 等跨平台工具
+    │
+    ├── components/                # 可复用 UI 组件
+    │   ├── base_stacked_interface.*  # 多页堆叠界面基类
+    │   ├── base_function_interface.* # 单个功能页基类
+    │   ├── base_task_interface.*     # 任务页基类（卡片调度/批量/清理）
+    │   ├── config_card.* / project_card.* / task_card.*
+    │   ├── dialog.*               # 自定义对话框（BaseInputDialog 等）
+    │   ├── info_card.*            # 主页「关于」卡片（含悬浮取词入口）
+    │   ├── floating_window.*      # 悬浮截图取词窗口（FloatingWindow/RangeSelector/RangeOverlay）
+    │   ├── startup_maintenance.*  # 启动维护对话框与后台 Worker
+    │   ├── project_migration.*    # 项目搬迁交互
+    │   ├── screen.*               # 屏幕截图/框选辅助
+    │   ├── update_dialog.*        # 更新提示对话框
+    │   ├── statistic_widget.* / empty_status_widget.* / file_item_widget.* / sample_card.* / pager.*
+    │   └── system_tray.* / notification_service.h
+    │
+    ├── service/                   # 业务逻辑
+    │   ├── task_base.*            # QRunnable + QObject 任务基类
+    │   ├── download_service.*     # yt-dlp 下载
+    │   ├── ffmpeg_service.*       # FFmpeg 压制
+    │   ├── ocr_service.* / paddleocr.* / ocr_migration.*   # OCR 与旧版资源迁移
+    │   ├── whisper_service.*      # Whisper 语音识别
+    │   ├── translate_service.*    # AI 翻译（含屏幕取词一次性翻译 Runner）
+    │   ├── project_service.* / project_health.* / project_relocate.*
+    │   ├── legacy_cleanup.*       # 上一代 Python 残留清理
+    │   ├── video_preview.* / video_frame_service.*
+    │   └── version_service.*      # 版本更新检查（解析 RELEASE_NOTES）
+    │
+    └── view/                      # 界面层
+        ├── main_window.*          # 主窗口（启动页、主题按钮、路由）
+        ├── home_interface.*       # 主页
+        ├── project_interface.* / project_detail_interface.* / project_stacked_interface.*
+        ├── download_interface.* / videocr_interface.* / whisper_interface.*
+        ├── translate_interface.* / ffmpeg_interface.*
+        ├── setting_interface.* / log_interface.*
+        └── *_task_interface.*     # 各功能的任务进度页
+```
+
+### 关键约定
+
+- **构建系统**：`cpp/CMakeLists.txt` 通过 `file(GLOB_RECURSE ... CONFIGURE_DEPENDS)` 收集 `src/**/*.cpp|h`，新增源文件无需手动登记。
+- **自动 MOC**：启用 `CMAKE_AUTOMOC` / `CMAKE_AUTORCC`，带 `Q_OBJECT` 的头文件会被自动处理。
+- **产物命名**：target 名为 `Fairy-Kekkai-Workshop-Cpp`，但 `OUTPUT_NAME` 统一为 `Fairy-Kekkai-Workshop`，与 Python 版共用同一 AppId 与安装目录，安装包与快捷方式可直接沿用。
+- **管理员权限**：MSVC 下通过 `/MANIFESTUAC:level='requireAdministrator'` 声明提权，屏幕框选等 Win32 能力依赖该权限。
+- **图标**：`configure_file` 由 `resources/app.rc.in` 生成 `.rc`，复用 Python 端同一份 `app/resource/images/logo.ico`。
+- **主题 API**：主题相关信号与查询在 `qfw::QConfig`（`themeChanged` / `isDarkTheme()`），不是 `fkw::AppConfig`。
+- **图标 API**：`qfw::FluentIcon` **没有** 隐式 `QIcon` 转换，`setIcon` 时必须显式 `.qicon()`。
+- **菜单回调**：`qfw::RoundMenu` 的菜单项槽需用 `QTimer::singleShot(0, ...)` 延后一个事件循环，避免菜单自身事件栈销毁时访问已释放内存。
+- **异步任务**：统一使用 `QObject + QRunnable`（`setAutoDelete(false)`，`run()` 末尾 `deleteLater()`），由 `QThreadPool::globalInstance()->start(...)` 调度，结果通过 `GlobalEventBus` 回传界面线程。
+- **版本号单一来源**：`cpp/resources/setting_data.json` 的 `VERSION` 字段，打包脚本与 README 徽章均从此派生。
+
+### 构建与打包
+
+**手动构建**：
+
+```bash
+cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release
+cmake --build cpp/build --config Release
+```
+
+依赖：Qt 6（Widgets / Svg / Network）、OpenCV 4.12（core / videoio）、Qt-Fluent-Widgets（`third_party/` 子目录）。若 CMake 找不到 OpenCV，可显式指定：
+
+```bash
+cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR=D:/CODE/opencv-4.12.0/build
+```
+
+**一键发布**（构建 + `windeployqt` 依赖收集 + Inno Setup 打包）：
+
+```powershell
+.\package-cpp-release.ps1                          # 默认 CPU 变体
+.\package-cpp-release.ps1 -Variant "GPU-v3.7.0-CUDA-12.9"
+.\package-cpp-release.ps1 -NoTools -Variant Clear  # 不含工具的增量升级包
+```
+
+产物命名规则：`Fairy-Kekkai-Workshop-v{version}-{Variant}-Windows-x86_64-Setup.exe`，其中 `Variant` 取值 `CPU-v3.7.0` / `GPU-v3.7.0-CUDA-11.8` / `GPU-v3.7.0-CUDA-12.9` / `Clear`。
+
+**CI**：`.github/workflows/build-cpp.yml` 是唯一的发布管线。`push: tags: ['v*']` 触发时先做预检（tag 与 `VERSION` 一致、`RELEASE_NOTES.md` 契约），再在 `windows-2022` 上并行构建四个变体，校验产物名与 `PADDLEOCR` 标识后发布 GitHub Release；`workflow_dispatch` 手工触发只构建并上传 artifact，不发布。OpenCV 与 PaddleOCR-Standalone 从 Release 资产获取。
+
+### 发布与更新约定
+
+程序内的「检查更新」完全由 GitHub Release 正文驱动（C++ 见 `cpp/src/service/version_service.cpp`，Python 参考实现见 `app/service/version_service.py`），正文格式因此是有约束的接口，发布时必须满足：
+
+- 正文必须含 `## 更新日志` 与 `## 下载提示` 两个二级标题，下载项必须是 markdown 链接 `[安装包名](url)`，否则客户端解析不到。
+- `## 下载提示` 中至少要有一个链接指向该 tag 下的 `Fairy-Kekkai-Workshop-v<版本>-Clear-Windows-x86_64-Setup.exe`（兜底路径），且三个整包与 Clear 包都要作为 Release 资产上传，缺一个就会出现 404。
+- **只要本次更新更换了 OCR 引擎，正文末尾必须单独加一行 `!OCRUPDATE!`**（客户端据此改抓与本地机型匹配的整包，标记本身会在 UI 中被剥离）。缺这一行时所有用户都会拿到不含引擎的 Clear 包。
+- 安装包名必须保留 `-CPU-` / `-GPU-...-CUDA-11.8-` / `-GPU-...-CUDA-12.9-` 机型分段：跨代次匹配只认这一段，因为 OCR 版本号在换引擎时必然跳变（`v1.5.1` → `v3.7.0` → 下一代）。
+- 换引擎的固定动作清单（以下硬编码需同步）：`setting.cpp::paddleOcrSupportFilesName()` 的模型代次、`ocr_migration.cpp` 的 `legacyEngineDirs()`/`legacyModelDirs()`/`legacyArchives()` 清单（引擎目录、模型目录、压缩包另有正则兜底，清单只影响清理报告的文案）、`build-cpp.yml` 的 `PADDLEOCR_BASE_URL` 与 `SUPPORT_ASSET`/`SUPPORT_DIR`，以及它的 `matrix.variant` 变体名（`CPU-v3.7.0` 等，换引擎后要跟着改，否则下载 URL 会 404）。
+- 命名三者必须一致：`PADDLEOCR` 第一行 `PaddleOCR-<Variant>`（安装包运行时据此定位 `tools\<Variant>` 与机型）→ 安装包文件名 `Fairy-Kekkai-Workshop-v<version>-<Variant>-Windows-x86_64-Setup.exe`；`package-cpp-release.ps1` 与 `build-cpp.yml` 的半成品目录名也由变体派生，改名时要一并改。
+- 发布只有一个入口：`.github/workflows/build-cpp.yml`（`push: tags: ['v*']` + `workflow_dispatch`）。Python 版的两条旧管线 `release.yml` / `deploy-windows.yml` 已删除，不会再出现「给 C++ 版本打 tag 却发布出 Python 产物」的情况。打 tag 前建议本地先跑一遍 `python scripts/check-release-notes.py --version <版本> --check-ocr-update`，它与 CI 预检跑的是同一个脚本：校验 tag 与 `cpp/resources/setting_data.json` 的 `VERSION` 一致、发布说明结构与四个安装包链接齐全、换引擎必须带 `!OCRUPDATE!`；release job 还会比对 `RELEASE_NOTES.md` 里列出的安装包与实际上传的资产是否完全一致，任何一个不满足都会直接失败。
+
+### 移植对照
+
+`cpp/PORTING_MATRIX.md` 逐文件记录 Python 实现与 C++ 实现的对应关系与差异，移植新功能或修复时应同步维护。
+
+---
+
 ## 环境搭建
+
+> 本节描述 **Python 参考实现（`app/`）** 的环境搭建。若需构建 C++ 版主程序，请直接参阅上文「[C++ 原生版架构](#c-原生版架构)」中的构建与打包说明。
 
 ### 系统要求
 - Python 3.9+
@@ -587,7 +718,7 @@ logger.error("错误信息")
 
 **日志位置**：`AppData/Log/`
 
-### 8. 启动页（`app/view/main_window.py`）
+### 8. 启动页（`app/view/main_window.py` / `cpp/src/view/main_window.cpp`）
 
 带进度条和状态文字的启动页面，在应用初始化时显示。
 
@@ -611,6 +742,12 @@ class LoadingSplashScreen(SplashScreen):
 - 50%: 加载界面
 - 80%: 初始化系统托盘
 - 100%: 启动完成
+
+**C++ 版对应实现**：
+
+- 基础组件（美化库）：`third_party/Qt-Fluent-Widgets/qtfluentwidgets/window/splash_screen.h` / `splash_screen.cpp`，即 `qfw::SplashScreen`，1:1 复刻 `libs/qfluentwidgets_pro/window/splash_screen.py`。默认图标尺寸 `QSize(96, 96)`；图标阴影 `rgba(0,0,0,50)`、blur 15、offset `(0, 4)`（由构造参数 `enableShadow` 控制）；背景色随主题为 `32`/`255` 的纯色；对 `parent()` 安装事件过滤器，`Resize` 时自适应父窗口大小、`ChildAdded` 时重新置顶；macOS 隐藏标题栏；`finish()` 即 `close()`。库中新增文件需在 `qtfluentwidgets/CMakeLists.txt` 的 window 段与 `qtfluentwidgets.h` 的 Fluent Window 段登记。
+- 应用层启动页：`cpp/src/view/main_window.cpp` 的 `LoadingSplashScreen`（声明在 `cpp/src/view/main_window.h`），用法与 Python 一致——禁用进度条动画（`qfw::ProgressBar(this, false)`）、宽度 320、状态文字使用 `Text` 单例、`setProgress()` 末尾调用 `QApplication::processEvents()` 使同步初始化期间进度即时刷新；主窗口构造中依次在 10/30/50/80/100 五个阶段更新进度，最后调用 `splashScreen_->finish()` 关闭启动页。
+- 注意：Python 版 `setIcon()` 只替换内部图标并 `update()`，不会同步已存在的 `IconWidget`（只有 `setIconSize()` 才会改动图标控件尺寸）；C++ 版按原样保留该行为。
 
 ### 9. 主题切换（`app/view/main_window.py`）
 
@@ -748,6 +885,17 @@ def _check_eligible(self, task_type, folder_num, folder_path):
 3. 系统自动筛选符合条件的剧集
 4. 勾选需要处理的剧集（支持全选/取消全选）
 5. 点击"添加任务"，系统通过event_bus派发任务
+
+**每张小卡片的快速加任务**（`app/view/project_detail_interface.py::FileItemWidget`、`cpp/src/components/file_item_widget.*`）：
+
+详情页每个文件小卡片上都有快捷按钮，直接投递任务，无需先切页再选文件。
+
+| 按钮 | 出现条件 | Python | C++ |
+| --- | --- | --- | --- |
+| OCR提取字幕 | 生肉.mp4 存在 | `add_video_signal` 让字幕界面装载视频，再 `switchToSampleCard("VideocrStackedInterfaces", 3)` 切页 | `add_video_signal`（由 `VideocrInterface` 接管并回填输入/输出路径）+ `navigation_requested{target:"ocr"}` 路由切页 |
+| 语音识别 | 生肉.mp4 存在 | `whisper_requested(生肉.mp4, 原文_Whisper.srt)` | 同 |
+| 翻译字幕 | 译文.srt 缺失且存在任一原文 | `translate_requested(原文.srt, 译文.srt)` | 同；原文.srt 缺失时回退到实际存在的原文（与批量任务 `dispatchTask` 一致） |
+| 视频压制 | 熟肉.mp4 存在 | `ffmpeg_requested(熟肉.mp4, 熟肉_压制.mp4)` | 同 |
 
 ### 11. 文件映射系统（`app/components/base_function_interface.py`）
 
@@ -1106,7 +1254,7 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 
 ## 更新日志
 
-> **格式约定**：CI（`.github/workflows/release.yml`）会把仓库根目录的
+> **格式约定**：CI（`.github/workflows/build-cpp.yml`）会把仓库根目录的
 > `RELEASE_NOTES.md` 原样写入 GitHub Release body，`VersionService.getUpdateInfo()`
 > （`app/service/version_service.py`）再从 body 中按以下规则解析：
 >
@@ -1119,6 +1267,36 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 >   匹配对应 CPU/GPU 安装包的逻辑；不需要时省略。
 >
 > 发布新版本前，请同步更新本节与 `RELEASE_NOTES.md`，确保二级标题与上述约定一致。
+
+### v3.0.0（2026-09-29）
+
+#### 重大变化 / Breaking Changes
+- 主程序从 Python + PySide6 全量重写为 C++17 + Qt 6 + Qt-Fluent-Widgets 原生桌面应用，源码位于 `cpp/`
+- 安装包不再附带 Python 运行时与依赖，旧版本升级需使用增量包（Clear）或先卸载旧版
+- 新增 `cpp/` 原生源码树（`common` / `components` / `service` / `view`），原 Python 实现保留在 `app/` 作为移植对照
+
+#### 新增 / Added
+- 悬浮截图取词窗口 `cpp/src/components/floating_window.*`：屏幕区域框选 → OCR → AI 翻译，支持窗口绑定与跟随、置顶、锁定、鼠标穿透、背景透明与历史记录
+- 屏幕一次性翻译 Runner `ScreenTranslateRunner`（`cpp/src/service/translate_service.*`），复用 Python 同款提示词与流式接口
+- 启动维护 `cpp/src/components/startup_maintenance.*`：首次启动自动把软件目录中的项目迁移到独立数据目录，模态展示进度
+- 旧版资源清理 `cpp/src/service/legacy_cleanup.*`：清理上一代 OCR 资源与 Python(Nuitka + PySide6) 残留，释放磁盘占用
+- C++ 打包链路 `package-cpp-release.ps1`（CMake 构建 → windeployqt → Inno Setup）与发布管线 `.github/workflows/build-cpp.yml`（打 tag 自动发布 CPU / GPU CUDA 11.8 / CUDA 12.9 / Clear 四个变体）
+- 移植对照表 `cpp/PORTING_MATRIX.md`
+
+#### 修复 / Fixed
+- 修复框选区域在高 DPI 屏幕下坐标偏移（按 `devicePixelRatioF()` 换算）
+- 修复悬浮窗关闭后入口按钮未恢复的问题（`ocr_window_closed` → 重新启用）
+- 修复 `qfw::FluentIcon` 缺少隐式 `QIcon` 转换导致的 `setIcon` 编译失败（统一改用 `.qicon()`）
+- 修复 `qfw::RoundMenu` 菜单回调在菜单销毁后访问已释放内存导致的崩溃（`QTimer::singleShot(0, ...)` 延后一个事件循环）
+- 修复换 OCR 引擎后「检查更新」匹配不到整包的问题（`version_service` 改为三级匹配：精确标识 → 机型/算力分段 → CPU 兜底）
+- 修复跨代次升级时旧引擎压缩包漏清的问题（`ocr_migration.cpp` 增加正则兜底，不再依赖写死的清单）
+
+#### 改进 / Improved
+- OCR 引擎升级到 PaddleOCR-Standalone v3.7.0，安装包与 CI 变体同步更新
+- 版本号统一由 `cpp/resources/setting_data.json` 的 `VERSION` 派生
+- 屏幕 OCR / 屏幕翻译统一到 `QObject + QRunnable` + 全局事件总线架构
+- 发布管线全面转向 C++：`build-cpp.yml` 改为 tag 触发并接管 GitHub Release 发布（预检 → 四变体并行构建 → 产物与标识校验 → 发布），下线 Python 版 `release.yml` / `deploy-windows.yml`
+- 新增 `scripts/check-release-notes.py`：打 tag 前后都可校验 Release 正文契约（结构、四个安装包链接、链接版本号、换引擎必须带 `!OCRUPDATE!`），CI 预检与本地手动发布共用同一套规则
 
 ### v2.5.2（2026-08-13）
 
@@ -1145,7 +1323,9 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 
 ## 技术栈
 
-- **UI 框架**：PySide6 + QFluentWidgets (Modern UI)
+- **主程序（C++ 版）**：C++17 + Qt 6 + Qt-Fluent-Widgets，CMake 3.21+ / MSVC 2022 构建
+- **图像处理**：OpenCV 4.12
+- **UI 框架（Python 参考实现）**：PySide6 + QFluentWidgets
 - **视频处理**：FFmpeg + yt-dlp
 - **字幕识别**：[VideOCR](https://github.com/timminator/VideOCR)（PaddleOCR / Google Lens）
 - **语音识别**：[Const-me/Whisper](https://github.com/Const-me/Whisper)
@@ -1153,9 +1333,10 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 - **B 站上传**：Bilibili API
 - **配置存储**：JSON + SQLite
 - **日志**：内置 Logger
-- **包管理**：uv（推荐）
+- **打包**：windeployqt + Inno Setup（C++ 版）/ uv + Nuitka（Python 版）
+- **包管理**：uv（Python 参考实现）
 
 ---
 
-**最后更新**：2026 年 8 月 13 日  
+**最后更新**：2026 年 8 月 16 日  
 **维护者**：`Baby2016` `镀铬酸钾`

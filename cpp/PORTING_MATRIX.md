@@ -26,8 +26,8 @@ The C++ code is not fully ported yet. Do not mark a placeholder as complete.
 | Python module | C++ counterpart | Status / remaining work |
 | --- | --- | --- |
 | ffmpeg_service.py | service/ffmpeg_service.* | Ported 1:1: FFmpegTask data class (Easy-FFmpeg fields, shared_ptr reference semantics), worker-thread audio probing, pure output-format fix and command building, QRunnable worker with QEventLoop sync and DirectConnection stderr handling, duration re-summing/freeze, progress parsing throttled to 4/s, cancel/kill and event_bus status/finish reporting; task-interface dispatch and user build verification pending |
-| ocr_service.py | service/ocr_service.* | Ported 1:1: `OcrTask` data class snapshotting every videocr parameter (lang/time range/GPU/dual-zone/angle-cls/server-model/similarity/merge-gap/SSIM/frames-skip/max-width/min-duration/confidence plus PaddleOCR/support-files/temp paths and the video-preview crop rects), pure `buildOcrCommand` emitting the videocr-cli argument order including single and second `--crop_*` zones, QRunnable `OcrWorker` with Logger naming, temp-dir cleanup, MergedChannels + DirectConnection stdout handling, `\r` normalization, per-line change-dedup for Step 1, the three-stage progress mapping (0-33 / 33-53 / 53-66 / 66-100), `taskLogSignal("videocr", …)` normal/error/flush routing, `taskkill /F /T /PID` cancel with 2s fallback kill, `原文.srt` activation (only for 生肉.mp4 when absent) and event_bus status/finish reporting, plus `ScreenOcrRunner` (main-thread `grabWindow` capture, `resolveModelDirs` command build, `PYTHONIOENCODING`/`PYTHONUNBUFFERED` environment, streamed `ppocr INFO` parsing via two regexes replacing `ast.literal_eval`, `screen_ocr_*` reporting). `view/videocr_task_interface.*` overrides createTask/createWorker/type-text/generated-files(+原文.srt)/legacy-finished/log-channel (videocr) and carries `setCropRects`, while `view/videocr_interface.*` adds `cropRects()`, the extraction-page log box with Python-identical `_log_message` semantics (hh:mm:ss prefix, red error lines, flush replacing the previous line, auto-scroll to bottom, clear-logs button) fed by the `videocr` `taskLogSignal` channel plus local video-load and custom-area lines, the pre-start `validateBeforeStart` port (missing PaddleOCR exe, CJK-path warnings for PaddleOCR/support-files/temp-dir, missing support files, empty input/output, empty selection) and forwards preview selections into the queue. Floating OCR window and user build verification pending |
-| translate_service.py | service/translate_service.* | Ported 1:1: SRT parse/assemble and `<thinking>...</thinking>` stripping, eight-provider OpenAI-compatible resolution (incl. custom-model base-URL normalization and endpoint preference, Deepseek model taken from the task snapshot), Qt streaming SSE client (`QNetworkAccessManager` + `QEventLoop`, cancel-aware abort via watchdog timer, no libcurl), 50-item batching, 2 retries, JSON/XML/numbered multi-strategy response parsing, SRT-safe text sanitizing, post-process thinking removal and event_bus status/log/finish reporting. `view/translate_task_interface.*` overrides createTask/createWorker/legacy-finished/generated-files, and `view/translate_interface.*` binds the language/model/context/Deepseek cards to config with pre-start API-key validation. The floating-window one-shot `ScreenTranslateThread` is deferred with the unported floating OCR window; user build verification pending |
+| ocr_service.py | service/ocr_service.* | Ported 1:1: `OcrTask` data class snapshotting every videocr parameter (lang/time range/GPU/dual-zone/angle-cls/server-model/similarity/merge-gap/SSIM/frames-skip/max-width/min-duration/confidence plus PaddleOCR/support-files/temp paths and the video-preview crop rects), pure `buildOcrCommand` emitting the videocr-cli argument order including single and second `--crop_*` zones, QRunnable `OcrWorker` with Logger naming, temp-dir cleanup, MergedChannels + DirectConnection stdout handling, `\r` normalization, per-line change-dedup for Step 1, the three-stage progress mapping (0-33 / 33-53 / 53-66 / 66-100), `taskLogSignal("videocr", …)` normal/error/flush routing, `taskkill /F /T /PID` cancel with 2s fallback kill, `原文.srt` activation (only for 生肉.mp4 when absent) and event_bus status/finish reporting, plus `ScreenOcrRunner` (main-thread `grabWindow` capture, `resolveModelDirs` command build, `PYTHONIOENCODING`/`PYTHONUNBUFFERED` environment, streamed `ppocr INFO` parsing via two regexes replacing `ast.literal_eval`, `screen_ocr_*` reporting). `view/videocr_task_interface.*` overrides createTask/createWorker/type-text/generated-files(+原文.srt)/legacy-finished/log-channel (videocr) and carries `setCropRects`, while `view/videocr_interface.*` adds `cropRects()`, the extraction-page log box with Python-identical `_log_message` semantics (hh:mm:ss prefix, red error lines, flush replacing the previous line, auto-scroll to bottom, clear-logs button) fed by the `videocr` `taskLogSignal` channel plus local video-load and custom-area lines, the pre-start `validateBeforeStart` port (missing PaddleOCR exe, CJK-path warnings for PaddleOCR/support-files/temp-dir, missing support files, empty input/output, empty selection) and forwards preview selections into the queue. User build verification pending |
+| translate_service.py | service/translate_service.* | Ported 1:1: SRT parse/assemble and `<thinking>...</thinking>` stripping, eight-provider OpenAI-compatible resolution (incl. custom-model base-URL normalization and endpoint preference, Deepseek model taken from the task snapshot), Qt streaming SSE client (`QNetworkAccessManager` + `QEventLoop`, cancel-aware abort via watchdog timer, no libcurl), 50-item batching, 2 retries, JSON/XML/numbered multi-strategy response parsing, SRT-safe text sanitizing, post-process thinking removal and event_bus status/log/finish reporting. `view/translate_task_interface.*` overrides createTask/createWorker/legacy-finished/generated-files, and `view/translate_interface.*` binds the language/model/context/Deepseek cards to config with pre-start API-key validation. The floating-window one-shot `ScreenTranslateThread` is ported as `ScreenTranslateRunner` (single user turn, prompt identical to Python, `resolveProvider` + `postStreamingChat` + `removeThinkingContent`, `screen_translate_finished`); user build verification pending |
 | whisper_service.py | service/whisper_service.* | Ported 1:1: WhisperTask data class (model/language/format/gpu snapshot), `getWhisperCliPath` custom-path-with-repo-fallback, pure command building (`-f/-l/-osrt/-otxt/-ovtt/-gpu/-m`), worker-thread duration probing via ffmpeg stderr, QRunnable worker with QEventLoop sync and MergedChannels/DirectConnection stdout handling, timestamp-line progress with change-dedup, error-line routing and `taskLogSignal` flush/error/normal channels, cancel/kill (cancelled tasks emit no finish), output activation (rename side-car output to task output, copy to 原文.srt only for 生肉.mp4 when absent). `view/whisper_task_interface.*` overrides createTask/createWorker/type-text/generated-files(+原文.srt)/legacy-finished, and `view/whisper_interface.*` binds language/format cards to config, validates CLI/model paths before start (WCPDNE/WMPDNE), shows the rich-text model hint and consumes `whisper_requested`/`whisper_video_load_signal`; user build verification pending |
 | version_service.py | common/version_service.*, components/update_dialog.* | Latest release check, version comparison, changelog, OCR installer selection, asynchronous installer download and folder reveal ported; user build and live release verification pending |
 
@@ -43,9 +43,9 @@ The C++ code is not fully ported yet. Do not mark a placeholder as complete.
 | dialog.py | components/dialog.* | Placeholder; most of 14 dialogs missing |
 | download_card.py | — | Missing download task widget |
 | empty_status_widget.py | components/empty_status_widget.* | Compare states and text |
-| floating_window.py | — | Missing floating OCR window and selection overlay; its `ScreenOCRThread` counterpart `ScreenOcrRunner` already exists in `service/ocr_service.*` and is ready to be wired once the window lands |
+| floating_window.py | components/floating_window.* | Ported 1:1: `FloatingWindow` (frameless top-most translucent window, 480x200 with 120px minimum height, runtime icon swap on every toggle, 14 `TransparentToolButton`s + `StrongBodyLabel` header + `CaptionLabel` status bar at the same 12/10/14/10 margins and 4-6px spacing), left-button drag, `RangeSelector` (full-screen `virtualGeometry()` `Qt::Tool` mask with `QRubberBand`, Esc cancel emitting a null `QRect`) and `RangeOverlay` (persistent 2px blue border showing the live OCR region), one-shot OCR / one-shot translate / OCR-then-translate flows driven by `ScreenOcrRunner` and `ScreenTranslateRunner` on `QThreadPool` with mutual button locking and a 50-item history ring, Win32 window binding (`GetAsyncKeyState` two-phase pick so the button's own release is not captured, `WindowFromPoint` + `GetAncestor(GA_ROOT)` + `GetWindowTextW`), `GetWindowRect` + `devicePixelRatioF()` position/size tracing that re-bases on resize and only follows translation, mouse pass-through via `GetWindowLongPtrW`/`SetWindowLongPtrW` + `WS_EX_TRANSPARENT` with a 100ms hover poll that temporarily restores clicks, top-most toggle that re-applies the extended style after `setWindowFlags` recreates the native window, toolbar lock, background transparency and rounded-corner painting; `WA_DeleteOnClose` + `ocr_window_closed` replace the Python thread refcount. `FIF.COMPLETED` is unavailable in the C++ icon set, so the lock button uses `LockOpen`/`LockClosed`; user build and visual verification pending |
 | infobar.py | components/notification_service.h | Four InfoBar types, timing and placement ported; integrate other call sites |
-| info_card.py | components/info_card.* | Partial |
+| info_card.py | components/info_card.* | Partial; the OCR entry button now opens the floating window and is disabled on click, restored by `ocr_window_closed`, and locked off entirely on non-Windows builds |
 | pager.py | components/pager.* | Page buttons, ellipses, jump and theme behavior ported; bottom project pager wired |
 | project_card.py | components/project_card.*, common/project_service.* | Core actions and drag reorder wired; adds a health badge and one-click repair button (see Intelligent repair); flyout styling and user verification remain |
 | sample_card.py | components/sample_card.* | Partial; compare all button variants |
@@ -56,6 +56,16 @@ The C++ code is not fully ported yet. Do not mark a placeholder as complete.
 | teaching_tips.py | — | Missing guided tour; settings button currently shows a short info tip |
 | tool_tip.py | Qt Fluent Widgets tooltip | Check all positions, delegates and per-item data |
 
+## Library components (Qt-Fluent-Widgets)
+
+These live in `third_party/Qt-Fluent-Widgets/qtfluentwidgets` and mirror
+`libs/qfluentwidgets_pro`. New files must be registered in
+`qtfluentwidgets/CMakeLists.txt` and re-exported from `qtfluentwidgets.h`.
+
+| Python module | C++ counterpart | Status / remaining work |
+| --- | --- | --- |
+| window/splash_screen.py | window/splash_screen.* | Ported 1:1: `qfw::SplashScreen` with the `QIcon` / `QString` / `FluentIconBase` constructors, default `QSize(96, 96)` icon size, `rgba(0,0,0,50)` / blur 15 / offset `(0, 4)` drop shadow gated by `enableShadow`, theme-aware solid background (`32` dark / `255` light), `IconWidget` holder plus `TitleBar` styled with `FluentStyleSheet::FluentWindow`, parent event filter (Resize follows the parent, ChildAdded re-raises), macOS title-bar hiding, `setTitleBar` replacement and `finish()`/`close()`. The Python quirk where `setIcon()` leaves the icon widget untouched (only `setIconSize()` resizes it) is preserved. App-side counterpart `LoadingSplashScreen` lives in `cpp/src/view/main_window.*`; user compilation and visual verification pending |
+
 ## Project management
 
 The C++ project service now reads Python's `AppData/project.json` links/order and
@@ -65,10 +75,21 @@ playlist metadata creation through asynchronous yt-dlp. The detail view supports
 insert/delete/edit episode, local file import, setting current subtitle, file
 delete, and checked batch delete. User compilation and visual verification pending.
 
-Still pending: playlist auto-download/cover generation; batch task dispatch;
-per-file download, OCR, Whisper, translation, and encoding actions. These depend
-on the unfinished C++ task queue and its signal consumers. Large copy/delete
+Still pending: playlist auto-download/cover generation. Large copy/delete
 operations currently run on the GUI thread and need background workers.
+
+The detail page (`view/project_detail_interface.*`) and its per-file cards
+(`components/file_item_widget.*`) are wired: the batch-task dialog dispatches
+download / Whisper / translation / encoding through the same signals Python
+uses, and every small card now carries the Python quick-task buttons — OCR
+(`add_video_signal` + a navigation route to the subtitle page instead of
+`switchToSampleCard`, with `view/videocr_interface.*` consuming the signal
+exactly like Python's `loadVideoFromProject`), `whisper_requested` with a
+sibling `原文_Whisper.srt` output, `translate_requested` from `译文.srt` back to
+the original subtitle (falling back to whichever original exists, matching
+`dispatchTask`), and `ffmpeg_requested`. The missing-file upload picker now
+also carries Python's per-file name filter. User compilation and visual
+verification pending.
 
 ## Intelligent repair (new, not in Python)
 
@@ -112,8 +133,11 @@ weighted by the pre-scanned total byte count.
 `components/project_migration.*` wraps this in a modal dialog that shows the
 current item, a progress bar and a per-project log; it disables the close button
 and ignores `reject()` while running, so the user can only continue after the
-move finishes. `main.cpp` triggers it at startup when `projectsIn(sourceRoot())`
-is non-empty (skipped for the `--capture-*` automation flags), and the settings
+move finishes. `main.cpp` triggers it at startup when `projectsIn()` finds
+anything in `softwareRoots()` — the compiled-in source root plus the executable
+directory, since a development build keeps its exe inside the build tree while a
+release build puts `PADDLEOCR` next to the exe (skipped for the `--capture-*`
+automation flags). The settings
 page adds a 项目目录 card that accepts only an empty folder and immediately
 migrates the existing projects into it. After a move, `applyRelocation()`
 rewrites the link and order tables, and registers any project that could not be
@@ -135,8 +159,10 @@ can never damage a working setup. `setting.h` owns the three helpers
 PP-OCRv5-fallback model names from the same source.
 
 `hasObsoleteResources()` / `scanObsoleteResources()` list what the previous
-release put in the software folder, taking the names from the release workflow
-(`.github/workflows/deploy-windows.yml`, mirrored by `release.yml`): the engine
+release put in the software folder, taking the names from the retired Python
+release workflows (`.github/workflows/deploy-windows.yml`, mirrored by
+`release.yml`; both were removed once the C++ `build-cpp.yml` took over
+tag-driven releases): the engine
 is downloaded as `PaddleOCR-{CPU,GPU}-v1.4.0[-CUDA-*].7z` and moved to
 `tools/PaddleOCR-{CPU,GPU}-v1.5.1[-CUDA-*]`, and the model archive
 `PaddleOCR.PP-OCRv5.support.files.VideOCR.7z` is expanded to
@@ -153,18 +179,40 @@ so the current version's own PaddleOCR and model directory are always preserved.
 directory is never sized on the UI thread) and reports per-item progress weighted
 by released bytes.
 
-`components/startup_maintenance.*` merges this with the legacy project relocation
-into a single modal dialog: `runStartupMaintenance()` returns without any window
-when neither is needed, otherwise a `StartupMaintenanceWorker` runs both phases
-sequentially on one `QThread` while the dialog shows the current item, a shared
-progress bar (project phase 0-55%, OCR phase 55-100% when both run, byte-weighted
-within each phase) and a per-item log. The dialog ignores `reject()` and hides the
-cancel button while running, so a half-moved project library or a half-deleted
-resource directory cannot be left behind. `main.cpp` calls it at startup in place
-of the former `migrateProjects()` + `startOcrCleanup()` pair and, when projects
-were moved, feeds the report back through `applyRelocation()` and refreshes the
-project list. `migrateProjects()` remains for the settings page's manual folder
-switch. User compilation and visual verification pending.
+`service/legacy_cleanup.*` handles the other half of the same upgrade problem: the
+Python (Nuitka + PySide6) build laid its whole dependency tree flat in the install
+directory, and both generations share one AppId and install folder, so
+`PIL`/`PySide6`/`certifi`/`charset_normalizer`/`cv2`/`jiter`/`numpy`/`numpy.libs`/
+`pydantic_core`/`shiboken6`, `python{3,39}.dll`, `pythoncom39.dll`,
+`pywintypes39.dll`, `pyside6*.dll`, `shiboken6*.dll`, `libcrypto-1_1*.dll`,
+`libssl-1_1*.dll`, `libffi-*.dll`, `qt6pdf/qt6sql/qt6xml.dll` and every `*.pyd`
+outlive the upgrade. The scan covers only the top level of each `softwareRoots()`
+entry, so `tools/`, the project folder and Qt's own plugin subdirectories are out
+of scope, and the rule set is exact names or `*`/`?` masks of Python-only
+artifacts — nothing the C++ build links (`Qt6{Core,Gui,Widgets,Svg,Network}.dll`,
+`opencv_*`, `opengl32sw`, `D3Dcompiler_47`, `concrt140`/`msvcp140*`/
+`vcruntime140*`, `translations/`, the Qt plugin folders, `tools/`, `PADDLEOCR`) can
+match. A directory containing `标题.txt` is treated as a user project and skipped
+unconditionally, and the running executable is skipped by absolute path, so a
+project folder that happens to be called `cv2` or `numpy` still survives.
+`ResidueCleaner` mirrors `ResourceCleaner` (worker thread, per-item progress
+weighted by released bytes, per-item failure logging).
+
+`components/startup_maintenance.*` merges all three into a single modal dialog:
+`runStartupMaintenance()` returns without any window when none is needed,
+otherwise a `StartupMaintenanceWorker` runs the phases sequentially on one
+`QThread` while the dialog shows the current item, a shared progress bar (the bar
+is split evenly across whichever phases are active, byte-weighted within each
+phase) and a per-item log. The dialog ignores `reject()` and hides the cancel
+button while running, so a half-moved project library or a half-deleted resource
+directory cannot be left behind. `main.cpp` calls it at startup in place of the
+former `migrateProjects()` + `startOcrCleanup()` pair and, when projects were
+moved, feeds the report back through `applyRelocation()` and refreshes the project
+list. `migrateProjects()` remains for the settings page's manual folder switch.
+The installer is deliberately left alone here: `[InstallDelete]` only removes the
+old main executable, and a leftover-hunting wildcard list there would risk wiping
+a user project that never got a chance to be relocated. User compilation and
+visual verification pending.
 
 ## Integration order
 

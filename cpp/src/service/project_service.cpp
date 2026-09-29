@@ -386,7 +386,12 @@ bool remove(const QString& path, bool unlink, QString* error) {
     // 项目库里的项目可以删除；历史遗留在软件目录里的项目也允许删，避免变成清理不掉的僵尸
     const QString parent = QDir::cleanPath(QFileInfo(path).absolutePath()).toLower();
     const bool inLibrary = parent == QDir::cleanPath(QDir(root()).absolutePath()).toLower();
-    const bool inSoftware = parent == QDir::cleanPath(QDir(sourceRoot()).absolutePath()).toLower();
+    bool inSoftware = false;
+    for (const QString& folder : softwareRoots())
+        if (parent == folder.toLower()) {
+            inSoftware = true;
+            break;
+        }
     if ((!inLibrary && !inSoftware) || !looksLikeProject(path))
         return fail(error, QStringLiteral("只能删除本地项目"));
     if (!QDir(path).removeRecursively())
