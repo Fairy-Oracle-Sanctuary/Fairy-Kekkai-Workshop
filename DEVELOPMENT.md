@@ -220,6 +220,10 @@ cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR=D:/CODE/opencv
 .\package-cpp-release.ps1 -NoTools -IncludeWhisper -Variant Clear  # 主程序 + Whisper/VAD 升级包
 ```
 
+CI 缓存：Qt 保留 install-qt-action 自带缓存；OpenCV、各 OCR 引擎、共享 OCR 模型、Whisper/VAD、videocr-cli、FFmpeg/yt-dlp 和 Inno 翻译使用 GitHub Actions 缓存，下载完成后在编译前保存。FFmpeg/yt-dlp 与翻译按 UTC 周刷新。替换同 URL 的资源需递增工作流 `DEPENDENCY_CACHE_REVISION`；更换 Whisper ZIP 还需更新 `WHISPER_ASSET_SHA256`，VAD 对应更新模型路径、URL 和 SHA256。修改有版本号的资源 URL 时同步修改其缓存键。
+
+CI 使用 MSVC + Ninja + sccache（GitHub Actions 后端）缓存 C/C++ 编译结果，编译器、输入和编译参数变化会影响命中；每次运行末尾输出统计。`package-cpp-release.ps1` 新增可选 `-CompilerLauncher` 参数，本机默认 Visual Studio 方式不变。首次运行仍需完整准备；建议先在 main 上手工运行以建立默认分支缓存，再打发布标签。缓存受 GitHub 的分支作用域、容量和淘汰规则影响，不是永久存储。
+
 当前四个安装包都包含 `tools/Whisper.model/ggml-silero-v6.2.0.bin` 与官方 Vulkan Whisper 运行文件。Clear 使用 `-NoTools -IncludeWhisper`，只更新主程序、Whisper 和 VAD，不包含 OCR 引擎、OCR 模型、FFmpeg、yt-dlp 或 `PADDLEOCR` 标识；用户现有 OCR 资源保留。三种整包仍包含完整工具链，但 Whisper 转录模型（small/medium/large）仍由用户自行提供。`scripts/stage-whisper.ps1` 使用精确清单，排除旧 main.exe、本机备份和下载缓存；工作流对四种包都检查 Whisper/VAD 文件，并校验 VAD 下载的 SHA256。
 
 产物命名规则：`Fairy-Kekkai-Workshop-v{version}-{Variant}-Windows-x86_64-Setup.exe`，其中 `Variant` 取值 `CPU-v3.7.0` / `GPU-v3.7.0-CUDA-11.8` / `GPU-v3.7.0-CUDA-12.9` / `Clear`。
