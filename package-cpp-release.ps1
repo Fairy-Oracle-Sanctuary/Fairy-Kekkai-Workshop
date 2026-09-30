@@ -7,6 +7,8 @@
     [string]$CMakePath = '',
     # Visual Studio 生成器；CI 的 windows-latest 用 'Visual Studio 17 2022'
     [string]$Generator = 'Visual Studio 16 2019',
+    # CI 用 Ninja + sccache；本机不指定则保持原有构建方式。
+    [string]$CompilerLauncher = '',
     [string]$Arch = 'x64',
     # 编译缓存目录（相对仓库根）
     [string]$BuildDir = 'build-cpp-release',
@@ -74,7 +76,19 @@ $configureArgs = @(
     '-UFFMPEG_DIR'
     '-UCMAKE_MODULE_PATH'
 )
-& $CMakePath -S $source -B $buildPath -G $Generator -A $Arch @configureArgs
+$generatorArgs = @('-G', $Generator)
+if ($Generator -eq 'Ninja') {
+    $configureArgs += @('-DCMAKE_BUILD_TYPE=Release', "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$buildPath/Release")
+} else {
+    $generatorArgs += @('-A', $Arch)
+}
+if ($CompilerLauncher) {
+    if ($Generator -ne 'Ninja') { throw 'CompilerLauncher 目前仅支持 Ninja 生成器。' }
+    $configureArgs += @("-DCMAKE_C_COMPILER_LAUNCHER=$CompilerLauncher", "-DCMAKE_CXX_COMPILER_LAUNCHER=$CompilerLauncher")
+} else {
+    $configureArgs += @('-UCMAKE_C_COMPILER_LAUNCHER', '-UCMAKE_CXX_COMPILER_LAUNCHER')
+}
+& $CMakePath -S $source -B $buildPath @generatorArgs @configureArgs
 if ($LASTEXITCODE -ne 0) { throw 'CMake 配置失败。' }
 
 Write-Host '[2/4] 编译 Release...'

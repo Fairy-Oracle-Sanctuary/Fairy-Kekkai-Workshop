@@ -96,6 +96,11 @@ jobs:
       TOOLS_BASE_URL: https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0
       VAD_MODEL_URL: https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin
       VAD_MODEL_SHA256: 2aa269b785eeb53a82983a20501ddf7c1d9c48e33ab63a41391ac6c9f7fb6987
+      WHISPER_ASSET_SHA256: 3d2f0762422ddce8bf36539c43c44731e5ac77851b4ee234c05ae6451dc3a143
+      # 替换同 URL 的资源时递增；有版本号的资源同时更新下面各缓存键。
+      DEPENDENCY_CACHE_REVISION: v1
+      SCCACHE_GHA_ENABLED: 'true'
+      SCCACHE_GHA_VERSION: cpp-msvc-release-v1
 
     steps:
       - name: Checkout
@@ -129,33 +134,25 @@ jobs:
           "QT_ROOT=$qtRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "Qt root: $qtRoot"
 
-      - name: Resolve CMake generator
-        # CMake 的生成器名必须与镜像里实际安装的 Visual Studio 主版本对应，
-        # 否则报 "could not find any instance of Visual Studio"。
-        # 用 vswhere 探测后再映射，镜像换 VS 版本（2022 <-> 2026）时无需改 workflow。
+      - name: Prepare MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Set up compiler cache
+        uses: mozilla-actions/sccache-action@v0.0.11
+        with:
+          version: v0.16.0
+
+      - name: Resolve build tools and rolling cache key
         run: |
-          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
-          $generator = 'Visual Studio 17 2022'
-          if (Test-Path $vswhere) {
-            $version = & $vswhere -latest -products * `
-              -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationVersion
-            if (-not $version) { $version = & $vswhere -latest -products * -property installationVersion }
-            if ($version) {
-              switch ([int]($version.Split('.')[0])) {
-                17 { $generator = 'Visual Studio 17 2022' }
-                18 { $generator = 'Visual Studio 18 2026' }
-                default {
-                  Write-Error "未映射的 Visual Studio 主版本: $version，请在 Resolve CMake generator 步骤补充生成器名"
-                  exit 1
-                }
-              }
-            }
-            Write-Host "vswhere installationVersion: $version"
-          } else {
-            Write-Host "未找到 vswhere，沿用默认生成器: $generator"
-          }
-          "CMAKE_GENERATOR=$generator" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          Write-Host "CMake generator: $generator"
+          if (-not (Get-Command ninja -ErrorAction SilentlyContinue)) { choco install ninja -y --no-progress }
+          if (-not (Get-Command ninja -ErrorAction SilentlyContinue)) { throw '未找到 Ninja' }
+          "CMAKE_GENERATOR=Ninja" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $today = [DateTime]::UtcNow
+          $week = '{0}-W{1:00}' -f [Globalization.ISOWeek]::GetYear($today), [Globalization.ISOWeek]::GetWeekOfYear($today)
+          "ROLLING_CACHE_WEEK=$week" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & "$env:SCCACHE_PATH" --show-stats
 
       - name: Resolve OCR variant
         # 变体名与 PaddleOCR-Standalone 资产名同构：PaddleOCR-<variant> / PaddleOCR-<variant>.7z
@@ -167,16 +164,24 @@ jobs:
           "PADDLEOCR_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "OCR variant: $variant, marker: $tag"
 
+      - name: Cache Inno Setup translations
+        id: cache-inno-languages
+        uses: actions/cache/restore@v4
+        with:
+          path: .ci-cache/inno-languages
+          key: windows-inno-languages-${{ env.DEPENDENCY_CACHE_REVISION }}-${{ env.ROLLING_CACHE_WEEK }}
+
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
 
       - name: Download Inno Setup translations
+        if: steps.cache-inno-languages.outputs.cache-hit != 'true'
         # choco 装的官方 Inno Setup 只带部分翻译，缺简体中文等语言。
         # 通过 GitHub API 拉取 issrc 仓库 Files/Languages 目录下的全部 .isl，
         # 再把 Unofficial 子目录中不与根目录重名的 .isl 也拉下来，尽量支持更多语言。
         # .iss 里的 EmitLanguagesSection 会自动包含它们
         run: |
-          $langDir = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\Languages"
+          $langDir = Join-Path (Get-Location) ".ci-cache\inno-languages"
           New-Item -ItemType Directory -Force -Path $langDir | Out-Null
           [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
@@ -195,7 +200,21 @@ jobs:
           }
           Write-Host "Installed translations: $((Get-ChildItem $langDir -Filter *.isl).Count)"
 
+      - name: Install cached Inno Setup translations
+        run: |
+          $langDir = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\Languages'
+          New-Item -ItemType Directory -Force -Path $langDir | Out-Null
+          Get-ChildItem .ci-cache\inno-languages -Filter *.isl | Copy-Item -Destination $langDir -Force
+
+      - name: Cache OpenCV
+        id: cache-opencv
+        uses: actions/cache/restore@v4
+        with:
+          path: opencv
+          key: windows-opencv-4.12.0-x64-${{ env.DEPENDENCY_CACHE_REVISION }}
+
       - name: Download OpenCV
+        if: steps.cache-opencv.outputs.cache-hit != 'true'
         # 解压后是 build\ 目录，其中含根 OpenCVConfig.cmake、include、x64\vc16\{bin,lib}
         run: |
           New-Item -ItemType Directory -Force -Path downloads | Out-Null
@@ -205,12 +224,23 @@ jobs:
           if (-not (Test-Path 'opencv\build\OpenCVConfig.cmake')) {
             Write-Error 'OpenCV 解压结果缺少 build\OpenCVConfig.cmake'; exit 1
           }
+
+      - name: Locate OpenCV
+        run: |
+          if (-not (Test-Path 'opencv\build\OpenCVConfig.cmake')) { throw 'OpenCV 缓存或下载不完整' }
           "OPENCV_DIR=$((Get-Location).Path)\opencv\build" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          Write-Host "OpenCV: $((Get-Location).Path)\opencv\build"
+
+      - name: Cache PaddleOCR engine
+        if: env.PADDLEOCR_TAG != ''
+        id: cache-paddle
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/${{ env.PADDLEOCR_TAG }}
+          key: windows-paddle-${{ env.PADDLEOCR_TAG }}-${{ env.DEPENDENCY_CACHE_REVISION }}
 
       - name: Download PaddleOCR engine
         # 引擎解压后重命名为 PADDLEOCR 标识对应的目录名（tools\<tag>），与程序运行期查找路径一致
-        if: env.PADDLEOCR_TAG != ''
+        if: env.PADDLEOCR_TAG != '' && steps.cache-paddle.outputs.cache-hit != 'true'
         run: |
           $tag = $env:PADDLEOCR_TAG
           $asset = "$tag.7z"
@@ -228,9 +258,17 @@ jobs:
           }
           Write-Host "PaddleOCR engine installed at $target"
 
+      - name: Cache PaddleOCR support files
+        if: env.PADDLEOCR_TAG != ''
+        id: cache-support
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/${{ env.SUPPORT_DIR }}
+          key: windows-paddle-v3.7.0-${{ env.SUPPORT_ASSET }}-${{ env.DEPENDENCY_CACHE_REVISION }}
+
       - name: Download PaddleOCR support files
         # PP-OCRv6 推理模型（VideOCR 版），CPU/GPU 三个变体共用
-        if: env.PADDLEOCR_TAG != ''
+        if: env.PADDLEOCR_TAG != '' && steps.cache-support.outputs.cache-hit != 'true'
         run: |
           New-Item -ItemType Directory -Force -Path downloads | Out-Null
           curl.exe -L --fail -o "downloads\$env:SUPPORT_ASSET" "$env:PADDLEOCR_BASE_URL/$env:SUPPORT_ASSET"
@@ -246,12 +284,25 @@ jobs:
           }
           Write-Host "Support files installed at $target"
 
+      - name: Cache Whisper and Silero VAD
+        id: cache-whisper
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            tools/whisper
+            tools/Whisper.model/ggml-silero-v6.2.0.bin
+          key: windows-whisper-${{ env.WHISPER_ASSET_SHA256 }}-vad-${{ env.VAD_MODEL_SHA256 }}-${{ env.DEPENDENCY_CACHE_REVISION }}
+
       - name: Download Whisper and Silero VAD for all installers
+        if: steps.cache-whisper.outputs.cache-hit != 'true'
         # Clear 也需要更换 Whisper 引擎；四种包始终带上轻量 VAD 模型。
         run: |
           New-Item -ItemType Directory -Force -Path downloads, tools\whisper, tools\Whisper.model | Out-Null
           curl.exe -L --fail --retry 3 -o downloads\whisper.zip "$env:TOOLS_BASE_URL/whisper.zip"
           if ($LASTEXITCODE -ne 0) { throw 'whisper.zip 下载失败' }
+          if ((Get-FileHash downloads\whisper.zip -Algorithm SHA256).Hash -ne $env:WHISPER_ASSET_SHA256) {
+            throw 'whisper.zip SHA256 不匹配：替换 Release 资产后请更新工作流中的校验值'
+          }
           Expand-Archive downloads\whisper.zip -DestinationPath downloads\whisper -Force
           $executables = @(Get-ChildItem downloads\whisper -Recurse -File -Filter whisper-cli.exe |
             Where-Object { $_.FullName -notmatch '(?i)[\\/](backup[^\\/]*|__MACOSX)[\\/]' })
@@ -269,8 +320,16 @@ jobs:
             throw 'Silero VAD 模型 SHA256 不匹配'
           }
 
-      - name: Download videocr-cli
+      - name: Cache videocr-cli
         if: env.PADDLEOCR_TAG != ''
+        id: cache-videocr
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/videocr-cli.exe
+          key: windows-videocr-cli-v2.0.0-${{ env.DEPENDENCY_CACHE_REVISION }}
+
+      - name: Download videocr-cli
+        if: env.PADDLEOCR_TAG != '' && steps.cache-videocr.outputs.cache-hit != 'true'
         run: |
           New-Item -ItemType Directory -Force -Path downloads, tools | Out-Null
           curl.exe -L --fail --retry 3 -o downloads\videocr-cli.zip "$env:TOOLS_BASE_URL/videocr-cli.zip"
@@ -280,10 +339,20 @@ jobs:
           if (-not $videocr) { throw 'videocr-cli.zip 中未找到 videocr-cli.exe' }
           Copy-Item -LiteralPath $videocr.FullName -Destination tools\videocr-cli.exe -Force
 
+      - name: Cache ffmpeg and yt-dlp
+        if: env.PADDLEOCR_TAG != ''
+        id: cache-download-tools
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            tools/ffmpeg.exe
+            tools/yt-dlp.exe
+          key: windows-download-tools-${{ env.DEPENDENCY_CACHE_REVISION }}-${{ env.ROLLING_CACHE_WEEK }}
+
       - name: Download ffmpeg and yt-dlp
         # ffmpeg 优先从 gyan.dev 获取（GitHub Actions 数据中心可能被 Cloudflare 拦截，
         # 失败时自动重试并回退到 BtbN 的 GitHub Release 镜像）；yt-dlp 从其官方 Release 获取
-        if: env.PADDLEOCR_TAG != ''
+        if: env.PADDLEOCR_TAG != '' && steps.cache-download-tools.outputs.cache-hit != 'true'
         run: |
           New-Item -ItemType Directory -Force -Path tools | Out-Null
 
@@ -338,6 +407,65 @@ jobs:
           }
           Write-Host "tools: $((Get-ChildItem tools -Force | ForEach-Object { $_.Name }) -join ', ')"
 
+      # 依赖下载完成即保存，后续编译失败也不必重新下载。
+      - name: Save Inno Setup translations cache
+        if: steps.cache-inno-languages.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .ci-cache/inno-languages
+          key: ${{ steps.cache-inno-languages.outputs.cache-primary-key }}
+
+      - name: Save OpenCV cache
+        if: steps.cache-opencv.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            opencv
+          key: ${{ steps.cache-opencv.outputs.cache-primary-key }}
+
+      - name: Save PaddleOCR engine cache
+        if: env.PADDLEOCR_TAG != '' && steps.cache-paddle.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            tools/${{ env.PADDLEOCR_TAG }}
+          key: ${{ steps.cache-paddle.outputs.cache-primary-key }}
+
+      - name: Save PaddleOCR support files cache
+        if: env.PADDLEOCR_TAG != '' && steps.cache-support.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            tools/${{ env.SUPPORT_DIR }}
+          key: ${{ steps.cache-support.outputs.cache-primary-key }}
+
+      - name: Save Whisper and Silero VAD cache
+        if: steps.cache-whisper.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            tools/whisper
+            tools/Whisper.model/ggml-silero-v6.2.0.bin
+          key: ${{ steps.cache-whisper.outputs.cache-primary-key }}
+
+      - name: Save videocr-cli cache
+        if: env.PADDLEOCR_TAG != '' && steps.cache-videocr.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            tools/videocr-cli.exe
+          key: ${{ steps.cache-videocr.outputs.cache-primary-key }}
+
+      - name: Save ffmpeg and yt-dlp cache
+        if: env.PADDLEOCR_TAG != '' && steps.cache-download-tools.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            tools/ffmpeg.exe
+            tools/yt-dlp.exe
+          key: ${{ steps.cache-download-tools.outputs.cache-primary-key }}
+
       - name: Build Release and create installer
         # 编译与打包都由 package-cpp-release.ps1 完成：
         # 配置/编译 Release -> windeployqt + OpenCV/tools -> ISCC 出 Setup
@@ -347,6 +475,7 @@ jobs:
             '-QtRoot', $env:QT_ROOT,
             '-OpenCVDir', $env:OPENCV_DIR,
             '-Generator', $env:CMAKE_GENERATOR,
+            '-CompilerLauncher', $env:SCCACHE_PATH,
             '-Setup'
           )
           if ("${{ matrix.variant }}" -eq 'Clear') {
@@ -423,6 +552,11 @@ jobs:
             }
             Write-Host "PADDLEOCR 标识校验通过：$first"
           }
+
+      - name: Report compiler cache statistics
+        if: always()
+        run: |
+          if ($env:SCCACHE_PATH) { & "$env:SCCACHE_PATH" --show-stats }
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
