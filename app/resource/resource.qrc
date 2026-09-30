@@ -32,12 +32,12 @@
         <file>images/icons/ernie-speed-128k.svg</file>
         <file>images/icons/gemini-3.5-flash.svg</file>
         <file>images/icons/custom-model.svg</file>
-        <file>images/icons/牛排.svg</file>
-        <file>images/icons/牛油果.svg</file>
-        <file>images/icons/番茄.svg</file>
-        <file>images/icons/豆腐.svg</file>
-        <file>images/icons/紫薯.svg</file>
-        <file>images/icons/生菜.svg</file>
+        <file alias="images/icons/牛排.svg">images/icons/steak.svg</file>
+        <file alias="images/icons/牛油果.svg">images/icons/avocado.svg</file>
+        <file alias="images/icons/番茄.svg">images/icons/tomato.svg</file>
+        <file alias="images/icons/豆腐.svg">images/icons/tofu.svg</file>
+        <file alias="images/icons/紫薯.svg">images/icons/purple-sweet-potato.svg</file>
+        <file alias="images/icons/生菜.svg">images/icons/lettuce.svg</file>
         <file>images/controls/SkipEndFill_white.svg</file>
         <file>images/controls/SkipStartFill_black.svg</file>
         <file>images/controls/SkipStartFill_white.svg</file>
