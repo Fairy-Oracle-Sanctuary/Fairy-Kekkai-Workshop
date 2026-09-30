@@ -7,7 +7,7 @@
 #include <QtGlobal>
 
 namespace fkw::legacy {
-// 一处需要清理的上一代 Python 版残留
+// 一处需要清理的上一代 Python / Whisper 残留
 struct ResidueItem {
     QString path;      // 绝对路径
     QString name;      // 条目名
@@ -23,14 +23,14 @@ struct ResidueResult {
     qint64 freedBytes = 0;  // 释放的字节数
 };
 
-// 软件目录顶层是否还有上一代 Python(Nuitka + PySide6) 版遗留的依赖。
+// 是否有顶层 Python 依赖或 tools/whisper 内已被完整新版替代的旧文件。
 // 只做名字比对，不统计体积，供启动时秒判是否需要弹窗。
 bool hasLegacyResidue();
 
-// 完整扫描一遍 Python 版残留，附带每项占用空间，供后台清理任务使用。
+// 完整扫描一遍旧版残留，附带每项占用空间，供后台清理任务使用。
 QVector<ResidueItem> scanLegacyResidue();
 
-// 后台清理任务：删除扫描到的 Python 版残留，过程中上报进度
+// 后台清理任务：删除扫描到的旧版残留，过程中上报进度
 class ResidueCleaner : public QObject {
     Q_OBJECT
 public:
