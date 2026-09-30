@@ -335,6 +335,7 @@ VideocrInterface::VideocrInterface(QWidget* parent)
     layout->addWidget(preview);
     auto* controls = new QHBoxLayout();
     auto* slider = new qfw::Slider(Qt::Horizontal, card);
+    slider->setTracking(true);
     slider->setEnabled(false);
     controls->addWidget(slider, 4);
     auto* frameLabel = new qfw::CaptionLabel(Text::instance().Frame, card);
@@ -363,7 +364,7 @@ VideocrInterface::VideocrInterface(QWidget* parent)
     pathDelay->setInterval(250);
     auto* seekDelay = new QTimer(this);
     seekDelay->setSingleShot(true);
-    seekDelay->setInterval(120);
+    seekDelay->setInterval(50);
 
     connect(inputFileCard_->lineEdit, &QLineEdit::textChanged, this,
             [this, frames, preview, slider, frameLabel, timeLabel, pathDelay, seekDelay](const QString&) {
@@ -408,7 +409,15 @@ VideocrInterface::VideocrInterface(QWidget* parent)
             {QString::number(count), QString::number(fps, 'f', 2)}));
     });
     connect(slider, &QSlider::valueChanged, seekDelay,
-            [seekDelay](int) { seekDelay->start(); });
+            [seekDelay](int) {
+        // Throttle without restarting: continuous dragging must still produce frames.
+        if (!seekDelay->isActive()) seekDelay->start();
+    });
+    connect(slider, &QSlider::sliderReleased, this,
+            [frames, slider, seekDelay]() {
+        seekDelay->stop();
+        frames->requestFrame(slider->sliderPosition());
+    });
     connect(seekDelay, &QTimer::timeout, this,
             [frames, slider]() { frames->requestFrame(slider->value()); });
     connect(frames, &VideoFrameService::frameReady, this,

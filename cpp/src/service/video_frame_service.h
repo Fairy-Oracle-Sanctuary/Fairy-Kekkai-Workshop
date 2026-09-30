@@ -24,6 +24,9 @@ signals:
     void failed(const QString& message);
 private:
     friend class FrameWorker;
+    void dispatchFrame(int frame);
+    bool frameRequestActive_ = false;
+    int pendingFrame_ = -1;
     QThread thread_;
     FrameWorker* worker_ = nullptr;
     std::atomic<int> generation_{0};

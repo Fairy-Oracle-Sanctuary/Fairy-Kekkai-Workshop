@@ -113,6 +113,8 @@ VideoFrameService::~VideoFrameService() {
 void VideoFrameService::open(const QString& path) {
     const int generation = ++generation_;
     ++requestGeneration_;
+    frameRequestActive_ = false;
+    pendingFrame_ = -1;
     totalFrames_ = 0;
     fps_ = 0.0;
     duration_ = 0.0;
@@ -126,10 +128,29 @@ void VideoFrameService::open(const QString& path) {
 void VideoFrameService::requestFrame(int frameNumber) {
     if (totalFrames_ < 1) return;
     const int frame = std::clamp(frameNumber, 0, totalFrames_ - 1);
+    if (frameRequestActive_) {
+        // Keep one latest target, rather than queuing every slider movement.
+        pendingFrame_ = frame;
+        return;
+    }
+    dispatchFrame(frame);
+}
+void VideoFrameService::dispatchFrame(int frame) {
+    frameRequestActive_ = true;
     const int generation = generation_.load();
     const int request = ++requestGeneration_;
-    QMetaObject::invokeMethod(worker_, [worker = worker_, frame, generation, request] {
+    QMetaObject::invokeMethod(worker_, [this, worker = worker_, frame, generation, request] {
         worker->readFrame(frame, generation, request);
+        // publishFrame queues its result first, so it is displayed before dispatching
+        // another request. Slow decoding cannot starve all intermediate previews.
+        QMetaObject::invokeMethod(this, [this, frame, generation, request] {
+            if (generation != generation_.load()
+                || request != requestGeneration_.load()) return;
+            frameRequestActive_ = false;
+            const int pending = pendingFrame_;
+            pendingFrame_ = -1;
+            if (pending >= 0 && pending != frame) dispatchFrame(pending);
+        }, Qt::QueuedConnection);
     }, Qt::QueuedConnection);
 }
 } // namespace fkw
