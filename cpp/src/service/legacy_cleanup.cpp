@@ -19,7 +19,7 @@
 // 两代共用同一个 AppId 与安装目录，覆盖升级后这些文件就留在了原地。
 //
 // 这里的判据是「名字精确命中 Python 生态的已知产物」，且只扫软件目录顶层一层：
-// 既不会碰到 C++ 版自己的文件，也不会深入 tools/ 或用户的项目目录。
+// 不碰 C++ 自身与项目；tools/whisper 另按精确清单清理旧引擎文件。
 namespace fkw::legacy {
 namespace {
 
@@ -118,9 +118,22 @@ qint64 entryBytes(const QFileInfo& info) {
     return info.isDir() ? treeBytes(info.absoluteFilePath()) : info.size();
 }
 
+const QStringList& legacyWhisperFiles() {
+    static const QStringList files = {
+        QStringLiteral("main.exe"), QStringLiteral("WhisperNetCLI.exe"),
+        QStringLiteral("WhisperNet.dll"), QStringLiteral("ComLight.dll")
+    };
+    // Whisper.dll 与新版 whisper.dll 在 Windows 上同名，绝不能作为残留删除。
+    return files;
+}
+
 // 命中则返回需要清理的原因，否则返回空串
 QString residueReason(const QFileInfo& entry) {
     const QString name = entry.fileName();
+    if (entry.isFile() && normalizedPath(entry.absolutePath()).endsWith(
+            QStringLiteral("/tools/whisper"), Qt::CaseInsensitive) &&
+        legacyWhisperFiles().contains(name, Qt::CaseInsensitive))
+        return QStringLiteral("上一代 Whisper 引擎文件");
     if (entry.isDir()) {
         // 用户项目优先：使用迁移的宽松识别，损坏项目或搬迁失败的项目也不能被清理，
         // 这里绝不能当成残留删除（项目目录恰好叫 cv2/numpy 这类名字时尤其危险）
@@ -161,6 +174,31 @@ QFileInfoList residueEntries() {
             if (seen.contains(key)) continue;
             seen.insert(key);
             if (residueReason(entry).isEmpty()) continue;
+            hits.append(entry);
+        }
+        // 仅在官方引擎完整安装后扫描固定子目录，不遍历模型或备份。
+        const QFileInfo toolsInfo(dir.filePath(QStringLiteral("tools")));
+        const QFileInfo whisperInfo(dir.filePath(QStringLiteral("tools/whisper")));
+        if (toolsInfo.isSymLink() || whisperInfo.isSymLink() || !whisperInfo.isDir()) continue;
+        const QString canonicalRoot = QFileInfo(root).canonicalFilePath();
+        if (canonicalRoot.isEmpty() || !whisperInfo.canonicalFilePath().startsWith(
+                canonicalRoot + QLatin1Char('/'), Qt::CaseInsensitive)) continue;
+        const QDir whisper(whisperInfo.absoluteFilePath());
+        bool complete = true;
+        for (const QString& name : {QStringLiteral("whisper-cli.exe"), QStringLiteral("whisper.dll"),
+                                   QStringLiteral("ggml.dll"), QStringLiteral("ggml-base.dll"),
+                                   QStringLiteral("ggml-cpu.dll"), QStringLiteral("ggml-vulkan.dll")}) {
+            const QFileInfo file(whisper.filePath(name));
+            if (!file.isFile() || file.isSymLink() || file.size() == 0) { complete = false; break; }
+        }
+        if (!complete) continue;
+        for (const QFileInfo& entry : whisper.entryInfoList(QDir::Files | QDir::NoDotAndDotDot)) {
+            if (entry.isSymLink() || !legacyWhisperFiles().contains(entry.fileName(), Qt::CaseInsensitive)) continue;
+            const QString path = normalizedPath(entry.absoluteFilePath());
+            if (path.compare(normalizedPath(QCoreApplication::applicationFilePath()), Qt::CaseInsensitive) == 0) continue;
+            const QString key = path.toLower();
+            if (seen.contains(key)) continue;
+            seen.insert(key);
             hits.append(entry);
         }
     }

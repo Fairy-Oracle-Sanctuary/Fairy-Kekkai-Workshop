@@ -64,3 +64,7 @@ cmake --build build/whisper-vulkan --config Release --target whisper-cli --paral
 发布此构建时，用户无需安装开发 SDK，但需要显卡驱动提供 Vulkan 支持和 `vulkan-1.dll`。此构建的 DLL 使用链接式 Vulkan 后端，即使传 `--no-gpu`，启动仍需要 Vulkan Loader；缺少 Loader 的系统可使用保留的纯 CPU 引擎包。CPU 后端使用 AVX2，较老 CPU 的兼容性需另行构建验证。此次仅在本机 NVIDIA GPU 验证，没有在 AMD / Intel 显卡测试。短样本测试只确认功能正确，不代表长视频速度或精度已改善。
 
 Qt 应用没有重新编译，长视频精度尚未测量。其余待验证：长静音视频、纯静音、无音轨、中文/空格路径、TXT/VTT、取消转换/转录及 VAD 开关。翻译源已更新，应用编译前运行 `lrelease Fairy-Kekkai-Workshop.pro`。
+
+## 启动清理旧引擎
+
+启动维护在新版六个运行文件均为非空普通文件时，清理软件自身 `tools/whisper/` 内的旧 `main.exe`、`WhisperNetCLI.exe`、`WhisperNet.dll`、`ComLight.dll`。不遍历备份或模型目录，不跟随符号链接；不删除 `Whisper.dll`，因为 Windows 下它与新版 `whisper.dll` 同名。新版未完整安装时保留旧文件，删除失败会记录日志并在下次启动重试。
