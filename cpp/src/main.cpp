@@ -16,6 +16,7 @@
 
 #include "common/app_data.h"
 #include "common/application.h"
+#include "common/config.h"
 #include "common/logger.h"
 #include "components/startup_maintenance.h"
 #include "service/ocr_migration.h"
@@ -119,6 +120,9 @@ int main(int argc, char* argv[]) {
                 projects->refreshProjectList();
         }
     }
+    // 在启动维护结束之后才显示首次引导，截图自动化不启动教程。
+    if (!automated && fkw::AppConfig::instance().value(fkw::ConfigKeys::isFirstRun, true).toBool())
+        window->startTutorial(500);
     const int themeAt = arguments.indexOf(QStringLiteral("--capture-theme"));
     if (themeAt >= 0 && themeAt + 1 < arguments.size())
         window->setAppTheme(arguments.at(themeAt + 1).compare(QStringLiteral("dark"),

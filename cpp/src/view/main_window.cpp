@@ -19,6 +19,7 @@
 #include "common/text.h"
 #include "components/notification_service.h"
 #include "components/system_tray.h"
+#include "components/teaching_tips.h"
 #include "view/download_interface.h"
 #include "view/ffmpeg_interface.h"
 #include "view/home_interface.h"
@@ -133,6 +134,9 @@ namespace fkw
         auto *translate = new TranslateStackedInterfaces(this);
         auto *ffmpeg = new FFmpegStackedInterfaces(this);
         auto *settings = new SettingInterface(this);
+        QObject::connect(settings, &SettingInterface::tutorialRequested, this, [this]() {
+            startTutorial();
+        });
         const auto top = qfw::NavigationItemPosition::Top;
         const auto bottom = qfw::NavigationItemPosition::Bottom;
         this->addSubInterface(home, qfw::FluentIconEnum::Home, Text::instance().Home, top);
@@ -215,6 +219,16 @@ namespace fkw
 
         // 关闭启动页面
         splashScreen_->finish();
+    }
+
+    template<class WindowType>
+    void MainWindowT<WindowType>::startTutorial(int delayMs)
+    {
+        if (!teachingTipManager_)
+            teachingTipManager_ = new TeachingTipManager(this, [this](const QString& route) {
+                openRoute(route);
+            }, [this](const QString& route) { return routes_.value(route, nullptr); });
+        teachingTipManager_->restartTour(delayMs);
     }
 
     template<class WindowType>

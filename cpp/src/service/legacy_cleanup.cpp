@@ -10,6 +10,7 @@
 
 #include "common/app_data.h"
 #include "common/logger.h"
+#include "service/project_service.h"
 
 // 上一代（Python + Nuitka/PySide6）版本的残留清理。
 //
@@ -121,9 +122,9 @@ qint64 entryBytes(const QFileInfo& info) {
 QString residueReason(const QFileInfo& entry) {
     const QString name = entry.fileName();
     if (entry.isDir()) {
-        // 用户项目优先：带 标题.txt 的目录是用户项目，启动维护会把它搬到独立数据目录，
+        // 用户项目优先：使用迁移的宽松识别，损坏项目或搬迁失败的项目也不能被清理，
         // 这里绝不能当成残留删除（项目目录恰好叫 cv2/numpy 这类名字时尤其危险）
-        if (QFileInfo::exists(
+        if (projects::looksLikeProject(entry.absoluteFilePath()) || QFileInfo::exists(
                 QDir(entry.absoluteFilePath()).filePath(QStringLiteral("标题.txt"))))
             return {};
         for (const QString& dir : legacyDirs())

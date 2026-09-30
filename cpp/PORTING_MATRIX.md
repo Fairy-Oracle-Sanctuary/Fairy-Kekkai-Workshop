@@ -28,7 +28,7 @@ The C++ code is not fully ported yet. Do not mark a placeholder as complete.
 | ffmpeg_service.py | service/ffmpeg_service.* | Ported 1:1: FFmpegTask data class (Easy-FFmpeg fields, shared_ptr reference semantics), worker-thread audio probing, pure output-format fix and command building, QRunnable worker with QEventLoop sync and DirectConnection stderr handling, duration re-summing/freeze, progress parsing throttled to 4/s, cancel/kill and event_bus status/finish reporting; task-interface dispatch and user build verification pending |
 | ocr_service.py | service/ocr_service.* | Ported 1:1: `OcrTask` data class snapshotting every videocr parameter (lang/time range/GPU/dual-zone/angle-cls/server-model/similarity/merge-gap/SSIM/frames-skip/max-width/min-duration/confidence plus PaddleOCR/support-files/temp paths and the video-preview crop rects), pure `buildOcrCommand` emitting the videocr-cli argument order including single and second `--crop_*` zones, QRunnable `OcrWorker` with Logger naming, temp-dir cleanup, MergedChannels + DirectConnection stdout handling, `\r` normalization, per-line change-dedup for Step 1, the three-stage progress mapping (0-33 / 33-53 / 53-66 / 66-100), `taskLogSignal("videocr", …)` normal/error/flush routing, `taskkill /F /T /PID` cancel with 2s fallback kill, `原文.srt` activation (only for 生肉.mp4 when absent) and event_bus status/finish reporting, plus `ScreenOcrRunner` (main-thread `grabWindow` capture, `resolveModelDirs` command build, `PYTHONIOENCODING`/`PYTHONUNBUFFERED` environment, streamed `ppocr INFO` parsing via two regexes replacing `ast.literal_eval`, `screen_ocr_*` reporting). `view/videocr_task_interface.*` overrides createTask/createWorker/type-text/generated-files(+原文.srt)/legacy-finished/log-channel (videocr) and carries `setCropRects`, while `view/videocr_interface.*` adds `cropRects()`, the extraction-page log box with Python-identical `_log_message` semantics (hh:mm:ss prefix, red error lines, flush replacing the previous line, auto-scroll to bottom, clear-logs button) fed by the `videocr` `taskLogSignal` channel plus local video-load and custom-area lines, the pre-start `validateBeforeStart` port (missing PaddleOCR exe, CJK-path warnings for PaddleOCR/support-files/temp-dir, missing support files, empty input/output, empty selection) and forwards preview selections into the queue. User build verification pending |
 | translate_service.py | service/translate_service.* | Ported 1:1: SRT parse/assemble and `<thinking>...</thinking>` stripping, eight-provider OpenAI-compatible resolution (incl. custom-model base-URL normalization and endpoint preference, Deepseek model taken from the task snapshot), Qt streaming SSE client (`QNetworkAccessManager` + `QEventLoop`, cancel-aware abort via watchdog timer, no libcurl), 50-item batching, 2 retries, JSON/XML/numbered multi-strategy response parsing, SRT-safe text sanitizing, post-process thinking removal and event_bus status/log/finish reporting. `view/translate_task_interface.*` overrides createTask/createWorker/legacy-finished/generated-files, and `view/translate_interface.*` binds the language/model/context/Deepseek cards to config with pre-start API-key validation. The floating-window one-shot `ScreenTranslateThread` is ported as `ScreenTranslateRunner` (single user turn, prompt identical to Python, `resolveProvider` + `postStreamingChat` + `removeThinkingContent`, `screen_translate_finished`); user build verification pending |
-| whisper_service.py | service/whisper_service.* | Ported 1:1: WhisperTask data class (model/language/format/gpu snapshot), `getWhisperCliPath` custom-path-with-repo-fallback, pure command building (`-f/-l/-osrt/-otxt/-ovtt/-gpu/-m`), worker-thread duration probing via ffmpeg stderr, QRunnable worker with QEventLoop sync and MergedChannels/DirectConnection stdout handling, timestamp-line progress with change-dedup, error-line routing and `taskLogSignal` flush/error/normal channels, cancel/kill (cancelled tasks emit no finish), output activation (rename side-car output to task output, copy to 原文.srt only for 生肉.mp4 when absent). `view/whisper_task_interface.*` overrides createTask/createWorker/type-text/generated-files(+原文.srt)/legacy-finished, and `view/whisper_interface.*` binds language/format cards to config, validates CLI/model paths before start (WCPDNE/WMPDNE), shows the rich-text model hint and consumes `whisper_requested`/`whisper_video_load_signal`; user build verification pending |
+| whisper_service.py | service/whisper_service.* | Replaced legacy Const-me CLI with official whisper.cpp v1.9.4 (source pinned by `tools/setup_whisper.py`). FFmpeg prepares task-private 16kHz mono PCM WAV; Silero v6.2.0 VAD with configurable threshold/silence/max segment and optional zero text context; official output prefix/progress/GPU flags. Normal exit plus output existence required, QSaveFile commits result atomically; cancellation covers conversion and inference, only SRT activates 原文.srt. SRT/TXT/VTT and suffixes synchronized; legacy default CLI/JSON settings migrated on read. Setup downloads VAD without compiling; build and runtime verification pending, see WHISPER.md |
 | version_service.py | common/version_service.*, components/update_dialog.* | Latest release check, version comparison, changelog, OCR installer selection, asynchronous installer download and folder reveal ported; user build and live release verification pending |
 
 ## Components
@@ -53,7 +53,7 @@ The C++ code is not fully ported yet. Do not mark a placeholder as complete.
 | statistic_widget.py | components/statistic_widget.* | Compare values and updates |
 | system_tray.py | components/system_tray.* | Tray menu and close-to-tray behavior wired; task-aware quit still missing |
 | task_card.py | components/task_card.* | Generic TaskCard ported (icon from `TaskBase::iconName`, status/progress/finished info, folder/cancel/retry/log/delete actions, selection mode, delete dialog); the four Python task cards collapse into this one card driven by `PreviewTaskKind`; user build and visual verification pending |
-| teaching_tips.py | — | Missing guided tour; settings button currently shows a short info tip |
+| teaching_tips.py | components/teaching_tips.* | Expanded for the next release: 24 Windows operation steps anchored to stable button/combo/key-field objectNames, route/subpage activation, scroll-to-target, directional TeachingTip and highlight tracking. Preserves previous/next/skip/finish, IsFirstRun and settings replay, starts after maintenance and skips capture automation. Six OCR/Whisper steps omitted outside Windows. Twenty detailed Text messages and eight translation sources synchronized; user must regenerate .qm and perform compilation/visual verification |
 | tool_tip.py | Qt Fluent Widgets tooltip | Check all positions, delegates and per-item data |
 
 ## Library components (Qt-Fluent-Widgets)
@@ -67,6 +67,23 @@ These live in `third_party/Qt-Fluent-Widgets/qtfluentwidgets` and mirror
 | window/splash_screen.py | window/splash_screen.* | Ported 1:1: `qfw::SplashScreen` with the `QIcon` / `QString` / `FluentIconBase` constructors, default `QSize(96, 96)` icon size, `rgba(0,0,0,50)` / blur 15 / offset `(0, 4)` drop shadow gated by `enableShadow`, theme-aware solid background (`32` dark / `255` light), `IconWidget` holder plus `TitleBar` styled with `FluentStyleSheet::FluentWindow`, parent event filter (Resize follows the parent, ChildAdded re-raises), macOS title-bar hiding, `setTitleBar` replacement and `finish()`/`close()`. The Python quirk where `setIcon()` leaves the icon widget untouched (only `setIconSize()` resizes it) is preserved. App-side counterpart `LoadingSplashScreen` lives in `cpp/src/view/main_window.*`; user compilation and visual verification pending |
 
 ## Project management
+
+The current development version adds browser-style project tabs via the library's
+`qfw::TabBar`: a permanent project-list tab, one independent detail page per
+project, duplicate-path reuse, close, drag reorder, horizontal scrolling, and a
+plus button returning to the list. Returning to the list keeps detail tabs open;
+closing a tab leaves project files and dispatched task queues intact. Rename,
+delete/unlink and library relocation synchronize opened tabs. Route keys map to
+pages independently of tab indexes. Tabs are session-only. Compilation and
+interaction verification are left to the user.
+
+The development detail view now uses compact collapsed episode rows with five
+workflow status icons and lazy creation of the original seven file cards on
+expansion. Header actions and episode actions are consolidated into Fluent menus.
+Episode selection persists across pages and restricts batch tasks/file deletion;
+no selection retains the whole-project dialogs. Pagination, expansion and selection
+are per detail page; same-page refresh restores scroll, and renumbering clears
+number-based selection/expansion. User compilation and visual verification pending.
 
 The C++ project service now reads Python's `AppData/project.json` links/order and
 `标题.txt` episode records. The list supports create, copy/link import, edit,
@@ -98,9 +115,15 @@ verification pending.
 `projects::candidates()` instead of the strict `projects::paths()`. A project is
 still listed when its episode folders are missing a number, when `标题.txt` was
 renamed or rewritten by hand, or when the project directory itself is gone.
-When `标题.txt` was deleted outright the folder is accepted only if its numeric
-folders form an unbroken `1..n`; a layout such as `1 2 4` is rejected so that
-unrelated folders are not mistaken for projects.
+Startup relocation and the project list share this tolerant recognizer. A damaged
+`标题.txt` is sufficient even if all episode folders are gone. A parseable renamed
+title also identifies a project without episode folders. When the title is missing,
+continuous `1..n` folders are accepted; gapped folders such as `1 2 4` also qualify
+when accompanied by an empty project marker, `icon.txt`, or a standard episode
+file such as `生肉.mp4` or `原文.srt`. Gapped numeric folders alone remain excluded
+to avoid moving unrelated directories. Relocation preserves damaged contents
+without automatically repairing them. Legacy cleanup uses the same recognizer
+to protect damaged projects when relocation fails.
 Damaged cards show a health badge and a one-click repair button. Structural
 damage (`标题.txt` missing/renamed/broken, missing episode folders, folders
 without records, project folder gone) blocks opening until repaired, while a

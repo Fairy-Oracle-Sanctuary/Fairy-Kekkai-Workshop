@@ -31,7 +31,8 @@ bool setOrder(const QStringList& paths, QString* error = nullptr);
 QVector<int> episodeNumbers(const QString& path);
 // 严格识别：存在 标题.txt，且分集目录为连续的 1..N
 bool isProject(const QString& path);
-// 宽松识别：已损坏的项目仍然算项目（存在 标题.txt，或存在数字分集目录）
+// 宽松识别：标题文件无需完好；标题缺失时以连续分集目录、可解析的改名标题，
+// 或不连续分集目录加项目标记/图标/标准分集文件确认项目身份。迁移与项目列表共用。
 bool looksLikeProject(const QString& path);
 // 严格识别通过的项目路径；candidates() 额外保留待修复与失联的项目
 QStringList paths();

@@ -256,6 +256,7 @@ SettingInterface::SettingInterface(QWidget* parent) : qfw::ScrollArea(parent) {
                 trText("未迁移成功的项目仍留在原目录，可在项目页重新导入"), this);
         }
     });
+    projectFolder->setObjectName(QStringLiteral("tutorial-project-folder"));
     project->addSettingCard(projectFolder);
     layout->addWidget(project);
 
@@ -327,9 +328,9 @@ SettingInterface::SettingInterface(QWidget* parent) : qfw::ScrollArea(parent) {
         qfw::FluentIconEnum::BookShelf, trText("新手引导"),
         trText("重新查看软件使用教程"), about);
     connect(tutorial, &qfw::PushSettingCard::clicked, this, [this]() {
-        NotificationService::info(trText("新手引导"),
-            trText("从左侧导航选择项目、下载、字幕、语音、翻译或压制功能。"), this);
+        emit tutorialRequested();
     });
+    tutorial->setObjectName(QStringLiteral("tutorial-replay"));
     about->addSettingCard(tutorial);
     layout->addWidget(about);
     layout->addStretch();

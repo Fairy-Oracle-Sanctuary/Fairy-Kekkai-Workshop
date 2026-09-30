@@ -174,9 +174,10 @@ ProjectProgressDialog::ProjectProgressDialog(const QString& title,
 }
 
 BatchDeleteDialog::BatchDeleteDialog(const QString& projectPath,
-                                     const QStringList& titles, QWidget* parent)
+                                     const QStringList& titles, QWidget* parent,
+                                     const QSet<int>& episodeScope)
     : BaseInputDialog(trText("批量删除文件"), 520, parent),
-      projectPath_(projectPath), titles_(titles) {
+      projectPath_(projectPath), titles_(titles), episodeScope_(episodeScope) {
     fileType_ = new qfw::ComboBox(this);
     fileType_->addItems({QStringLiteral("封面.jpg"), QStringLiteral("生肉.mp4"),
         QStringLiteral("熟肉.mp4"), QStringLiteral("原文.srt"),
@@ -217,6 +218,7 @@ void BatchDeleteDialog::updateFiles() {
     }
     choices_.clear();
     for (int i = 0; i < titles_.size(); ++i) {
+        if (!episodeScope_.isEmpty() && !episodeScope_.contains(i + 1)) continue;
         const QString path = QDir(projectPath_).filePath(
             QString::number(i + 1) + QLatin1Char('/') + fileType_->currentText());
         if (!QFileInfo::exists(path)) continue;
@@ -239,8 +241,10 @@ bool BatchDeleteDialog::validate() {
     return false;
 }
 
-BatchTaskDialog::BatchTaskDialog(const QVector<Episode>& episodes, QWidget* parent)
-    : BaseInputDialog(Text::instance().BatchAddTasks, 520, parent), episodes_(episodes) {
+BatchTaskDialog::BatchTaskDialog(const QVector<Episode>& episodes, QWidget* parent,
+                                 bool selectEligible)
+    : BaseInputDialog(Text::instance().BatchAddTasks, 520, parent), episodes_(episodes),
+      selectEligible_(selectEligible) {
     taskType_ = new qfw::ComboBox(this);
     taskType_->addItems({trText("下载"), trText("语音识别"), trText("翻译"), trText("压制")});
     viewLayout->addWidget(taskType_);
@@ -278,6 +282,7 @@ void BatchTaskDialog::updateEpisodes() {
         delete item;
     }
     choices_.clear();
+    yesButton->setEnabled(false);
     const int type = taskType_->currentIndex();
     for (const auto& episode : episodes_) {
         const QDir dir(episode.folderPath);
@@ -308,6 +313,7 @@ void BatchTaskDialog::updateEpisodes() {
         });
         episodeLayout_->addWidget(choice);
         choices_.append(qMakePair(choice, qMakePair(episode.folderNum, episode.folderPath)));
+        if (selectEligible_) choice->setChecked(true);
     }
 }
 QVector<BatchTaskDialog::Selection> BatchTaskDialog::selected() const {

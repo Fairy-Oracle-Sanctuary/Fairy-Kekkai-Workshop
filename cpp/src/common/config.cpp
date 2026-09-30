@@ -49,11 +49,17 @@ QJsonValue dynamicDefault(const QString& group, const QString& key) {
             return QDir(sourceRoot()).filePath(QStringLiteral("temp"));
     }
     if (group == QStringLiteral("Whisper")) {
-        if (key == QStringLiteral("ModelPath"))
-            return QDir(sourceRoot()).filePath(
+        if (key == QStringLiteral("ModelPath")) {
+            const QString legacy = QDir(sourceRoot()).filePath(
                 QStringLiteral("tools/Whisper.model/ggml-model-whisper-small.bin"));
+            return QFileInfo::exists(legacy) ? legacy : QDir(sourceRoot()).filePath(
+                QStringLiteral("tools/Whisper.model/ggml-small.bin"));
+        }
         if (key == QStringLiteral("CliPath"))
-            return QDir(sourceRoot()).filePath(QStringLiteral("tools/whisper/main") + executable);
+            return QDir(sourceRoot()).filePath(QStringLiteral("tools/whisper/whisper-cli") + executable);
+        if (key == QStringLiteral("VadModelPath"))
+            return QDir(sourceRoot()).filePath(
+                QStringLiteral("tools/Whisper.model/ggml-silero-v6.2.0.bin"));
     }
     if (group == QStringLiteral("Bilibili") && key == QStringLiteral("ApiPath"))
         return QDir(sourceRoot()).filePath(QStringLiteral("tools/upload-video") + executable);
@@ -72,6 +78,14 @@ QJsonObject AppConfig::snapshot() const {
 QJsonValue AppConfig::value(const QString& group, const QString& key,
                            const QJsonValue& fallback) const {
     const QJsonValue entry = snapshot().value(group).toObject().value(key);
+    // 旧版默认 main.exe 路径升级为官方 CLI；保留用户自定义路径。
+    if (group == QStringLiteral("Whisper") && key == QStringLiteral("CliPath")) {
+        const QString legacy = QDir(sourceRoot()).filePath(QStringLiteral("tools/whisper/main") + executableSuffix());
+        if (QDir::cleanPath(entry.toString()).compare(QDir::cleanPath(legacy), Qt::CaseInsensitive) == 0)
+            return dynamicDefault(group, key);
+    }
+    if (group == QStringLiteral("Whisper") && key == QStringLiteral("OutputFormat") && entry == QJsonValue(QStringLiteral("json")))
+        return QStringLiteral("srt");
     if (!entry.isUndefined()) return entry;
     const QJsonObject spec = schemaFor(group, key);
     if (spec.value(QStringLiteral("dynamicDefault")).toBool()) {

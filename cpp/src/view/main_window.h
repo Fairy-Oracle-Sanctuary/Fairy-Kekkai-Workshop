@@ -14,6 +14,7 @@ namespace fkw {
 class LogWindow;
 class SystemTray;
 class VersionService;
+class TeachingTipManager;
 
 /** 带加载进度条与状态文字的启动页（对应 Python 的 LoadingSplashScreen）。 */
 class LoadingSplashScreen : public qfw::SplashScreen {
@@ -43,6 +44,7 @@ public:
     virtual void openRoute(const QString& route) = 0;
     virtual void setAppTheme(qfw::Theme theme, bool persist = true) = 0;
     virtual void quitFromTray() = 0;
+    virtual void startTutorial(int delayMs = 0) = 0;
 };
 
 std::unique_ptr<MainWindowHandle> createMainWindow();
@@ -55,6 +57,7 @@ public:
     void openRoute(const QString& route) override;
     void setAppTheme(qfw::Theme theme, bool persist = true) override;
     void quitFromTray() override;
+    void startTutorial(int delayMs = 0) override;
 protected:
     void closeEvent(QCloseEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
@@ -64,6 +67,7 @@ private:
     void refreshBackground();
     QPointer<LoadingSplashScreen> splashScreen_;
     VersionService* versionService_ = nullptr;
+    TeachingTipManager* teachingTipManager_ = nullptr;
     qfw::TransparentToolButton* themeButton_ = nullptr;
     SystemTray* tray_ = nullptr;
     bool reallyQuit_ = false;

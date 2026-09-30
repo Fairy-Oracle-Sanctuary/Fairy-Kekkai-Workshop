@@ -715,6 +715,62 @@
       "dynamicDefault": true,
       "restart": false
     },
+    "UseVad": {
+      "member": "whisperUseVad",
+      "kind": "ConfigItem",
+      "default": true,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
+    "VadModelPath": {
+      "member": "whisperVadModelPath",
+      "kind": "ConfigItem",
+      "default": null,
+      "dynamicDefault": true,
+      "restart": false
+    },
+    "VadThreshold": {
+      "member": "whisperVadThreshold",
+      "kind": "RangeConfigItem",
+      "default": 0.5,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        0.1,
+        0.9
+      ]
+    },
+    "VadMinSilenceMs": {
+      "member": "whisperVadMinSilenceMs",
+      "kind": "RangeConfigItem",
+      "default": 500,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        100,
+        2000
+      ]
+    },
+    "VadMaxSpeechSeconds": {
+      "member": "whisperVadMaxSpeechSeconds",
+      "kind": "RangeConfigItem",
+      "default": 30,
+      "dynamicDefault": false,
+      "restart": false,
+      "range": [
+        10,
+        120
+      ]
+    },
+    "ResetContext": {
+      "member": "whisperResetContext",
+      "kind": "ConfigItem",
+      "default": true,
+      "dynamicDefault": false,
+      "restart": false,
+      "boolean": true
+    },
     "Language": {
       "member": "whisperLanguage",
       "kind": "OptionsConfigItem",
@@ -741,7 +797,7 @@
       "options": [
         "srt",
         "txt",
-        "json"
+        "vtt"
       ]
     },
     "UseGpu": {

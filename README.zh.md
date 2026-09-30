@@ -64,6 +64,7 @@
 
 ### 📁 项目管理
 - 完整的项目文件系统管理
+- 当前开发版本新增多项目标签页（下个版本发布）：支持切换、关闭、拖动排序，同时保留各项目详情页状态
 - 支持导入/链接外部项目
 - 项目进度自动追踪（封面、原视频、熟肉、原字幕、译文）
 - 批量任务智能筛选和派发
@@ -86,7 +87,7 @@
 - 实时日志输出
 
 ### 🎙️ 语音识别
-- 基于 [Const-me/Whisper](https://github.com/Const-me/Whisper)
+- 基于 [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)
 - 支持多语言语音转字幕（中文、日语、英语、韩语等）
 - 实时进度显示
 - 支持SRT、TXT、VTT输出格式
@@ -185,7 +186,7 @@ cmake --build cpp/build --config Release
 
 ### 首次运行
 
-首次运行时会显示新手引导，介绍软件的主要功能和使用方法。
+首次运行会按需执行项目迁移和旧版资源清理。当前开发版本已接入定位到具体组件的新手引导（计划随下个版本发布），维护结束后自动显示；可在设置页点击「新手引导」重播。引导会滚动并高亮目标按钮或输入控件，说明具体操作，支持上一步、下一步、跳过和完成，结束后返回主页。
 
 ### 主页功能
 
@@ -252,6 +253,9 @@ cmake --build cpp/build --config Release
 - 最大并发下载数
 
 ### Whisper（仅 Windows）
+
+当前引擎为官方 whisper.cpp v1.9.4，支持 Silero VAD 与停顿分段。源码准备、模型和编译说明见 [cpp/WHISPER.md](cpp/WHISPER.md)。
+
 - CLI路径
 - 模型路径
 - 语言选择
@@ -298,7 +302,7 @@ A:
 ### Q: Whisper 语音识别失败
 
 A:
-1. 确保 WhisperNetCLI.exe 存在于 `tools/Whisper/` 目录
+1. 确保 whisper-cli.exe 存在于 `tools/whisper/` 目录
 2. 确保所有依赖DLL（Whisper.dll、WhisperNet.dll、ComLight.dll）在同一目录
 3. 确保Whisper模型文件存在于 `tools/Whisper.model/` 目录
 4. 语言设置为 `auto` 时，CLI会自动检测语言
@@ -315,7 +319,7 @@ A:
 
 A:
 - 确保已配置相应AI服务的API Key（在设置页面）
-- 部分AI模型（Spark、GLM）因SDK不兼容已禁用
+- C++ 版已接入 Spark、GLM 等服务，通过 HTTP API 调用；请确认密钥、网络连接及账户的模型访问权限
 - 推荐使用Deepseek或腾讯混元（支持较好）
 - Deepseek深度思考模式会增加推理时间，但翻译质量更高
 
@@ -334,8 +338,8 @@ A:
 |------|------|------|
 | 视频下载 | ✅ | 基于yt-dlp，支持1800+网站 |
 | 字幕提取 | ✅ | 基于 VideOCR，支持 PaddleOCR/Google Lens 引擎，仅 Windows |
-| 语音识别 | ✅ | WhisperNet，仅Windows，支持实时进度 |
-| 翻译 | ✅ | 多AI模型支持，部分SDK不兼容 |
+| 语音识别 | ✅ | whisper.cpp，仅Windows，支持实时进度 |
+| 翻译 | ✅ | 多 AI 服务通过 HTTP API 接入，需配置对应密钥 |
 | 屏幕悬浮取词 | ✅ | 仅Windows，支持窗口绑定与跟随 |
 | 视频压制 | ✅ | 基于FFmpeg，支持多种编码器 |
 | B站上传 | ⚠️ | 功能已实现但因API问题未正式启用 |
@@ -349,7 +353,7 @@ A:
 - **图像处理**：OpenCV 4.12
 - **视频处理**：FFmpeg + yt-dlp
 - **字幕识别**：[VideOCR](https://github.com/timminator/VideOCR)（PaddleOCR / Google Lens）
-- **语音识别**：[Const-me/Whisper](https://github.com/Const-me/Whisper)
+- **语音识别**：[ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)
 - **翻译**：多个云API（OpenAI、Deepseek、腾讯混元等）
 - **JSON 处理**：nlohmann/json（header-only）
 - **配置存储**：JSON
@@ -383,7 +387,7 @@ A:
 ## 致谢
 
 - OCR 引擎来自 [VideOCR](https://github.com/timminator/VideOCR)
-- Whisper来自 [Const-me/Whisper](https://github.com/Const-me/Whisper)
+- Whisper来自 [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)
 
 ---
 

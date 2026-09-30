@@ -185,17 +185,32 @@ bool looksLikeProject(const QString& path) {
     if (!dir.exists()) return false;
     const QVector<int> numbers = episodeNumbers(path);
     const QString titleFile = dir.filePath(QStringLiteral("标题.txt"));
-    if (QFileInfo::exists(titleFile))
-        return !numbers.isEmpty() || parsesAsDocument(titleFile);
-    if (numbers.isEmpty()) return false;
-    // 标题.txt 可能被改名：非空的 .txt 只要能被解析就仍然认定为项目
+    // 迁移不要求项目能打开：即使标题损坏且所有分集目录已丢失，也要保留。
+    if (QFileInfo(titleFile).isFile()) return true;
+    // 标题被改名时，即使分集目录已丢失，仍可通过原格式确认项目身份。
+    bool hasMarker = false;
     for (const QFileInfo& entry : dir.entryInfoList({QStringLiteral("*.txt")}, QDir::Files)) {
-        if (entry.fileName() == QStringLiteral("icon.txt") || entry.size() == 0) continue;
-        if (parsesAsDocument(entry.absoluteFilePath())) return true;
+        if (entry.fileName() == QStringLiteral("icon.txt")) continue;
+        if (entry.size() == 0) hasMarker = true;
+        else if (parsesAsDocument(entry.absoluteFilePath())) return true;
     }
-    // 标题.txt 被整个删除：只有数字目录恰好是连续的 1..n 才认定为“缺标题.txt”的项目。
-    // 出现 1 2 4 这类中间缺失说明这些数字目录不是分集目录，直接判为非项目，避免认错。
-    return isContiguousSequence(numbers);
+    if (numbers.isEmpty()) return false;
+    if (isContiguousSequence(numbers)) return true;
+    // 标题删除且分集不连续：用项目标记、图标或标准分集文件补充识别依据。
+    // 单凭 1/2/4 等数字目录不能区分损坏项目与普通目录。
+    if (hasMarker || QFileInfo(dir.filePath(QStringLiteral("icon.txt"))).isFile()) return true;
+    const QStringList projectFiles = {
+        QStringLiteral("封面.jpg"), QStringLiteral("生肉.mp4"),
+        QStringLiteral("熟肉.mp4"), QStringLiteral("原文.srt"),
+        QStringLiteral("原文_OCR.srt"), QStringLiteral("原文_Whisper.srt"),
+        QStringLiteral("译文.srt")
+    };
+    for (int number : numbers) {
+        const QDir episode(dir.filePath(QString::number(number)));
+        for (const QString& name : projectFiles)
+            if (QFileInfo(episode.filePath(name)).isFile()) return true;
+    }
+    return false;
 }
 QStringList paths() {
     QStringList result;

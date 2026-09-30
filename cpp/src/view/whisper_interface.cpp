@@ -7,6 +7,7 @@
 #include "common/text.h"
 #include "common/text_format.h"
 #include "components/config_card.h"
+#include "service/whisper_service.h"
 
 #include <QFileInfo>
 #include <QVBoxLayout>
@@ -42,16 +43,29 @@ WhisperInterface::WhisperInterface(QWidget* parent)
                  QStringLiteral("ja"), QStringLiteral("en"),
                  QStringLiteral("ko"), QStringLiteral("fr"),
                  QStringLiteral("de"), QStringLiteral("es")});
-    boundChoice(this, settingsGroup_, ConfigKeys::whisperOutputFormat,
+    auto* formatCard = boundChoice(this, settingsGroup_, ConfigKeys::whisperOutputFormat,
                 qfw::FluentIconEnum::Document, t.OutputFormat, t.SSOF,
                 {QStringLiteral("srt"), QStringLiteral("txt"),
                  QStringLiteral("vtt")},
                 {QStringLiteral("srt"), QStringLiteral("txt"),
                  QStringLiteral("vtt")});
+    const auto applyOutputFormat = [this]() {
+        const QString format = AppConfig::instance().value(ConfigKeys::whisperOutputFormat).toString();
+        setOutputSuffix(QStringLiteral("_Whisper.") + format);
+        setSpecialFilenameMapping({{QStringLiteral("生肉.mp4"), QStringLiteral("原文_Whisper.") + format}});
+        if (!outputPath().isEmpty()) {
+            const QFileInfo output(outputPath());
+            outputFileCard_->lineEdit->setText(output.dir().filePath(
+                output.completeBaseName() + QLatin1Char('.') + format));
+        }
+    };
+    applyOutputFormat();
+    connect(formatCard->comboBox, &qfw::ComboBox::currentIndexChanged, this,
+            [applyOutputFormat](int) { applyOutputFormat(); });
 
     // 模型说明提示（对齐 Python：加入组外层布局而非卡片布局——
     // ExpandLayout 按控件当前高度排版，多行 wordWrap 文本会被裁断）
-    auto* hint = new qfw::BodyLabel(t.BeforeUsingThisFeatu, settingsGroup_);
+    auto* hint = new qfw::BodyLabel(t.WhisperEngineHelp, settingsGroup_);
     hint->setWordWrap(true);
     hint->setOpenExternalLinks(true);
     if (auto* groupLayout = qobject_cast<QVBoxLayout*>(settingsGroup_->layout())) {
@@ -65,7 +79,7 @@ bool WhisperInterface::validateBeforeStart(QString* errorMessage) {
     // 对齐 Python _start_processing：CLI 与模型路径存在性校验
     const auto& cfg = AppConfig::instance();
     const auto& t = Text::instance();
-    const QString cliPath = cfg.value(ConfigKeys::whisperCliPath).toString();
+    const QString cliPath = getWhisperCliPath();
     if (cliPath.isEmpty() || !QFileInfo::exists(cliPath)) {
         *errorMessage = formatText(t.WCPDNE, {cliPath});
         return false;
@@ -73,6 +87,16 @@ bool WhisperInterface::validateBeforeStart(QString* errorMessage) {
     const QString modelPath = cfg.value(ConfigKeys::whisperModelPath).toString();
     if (modelPath.isEmpty() || !QFileInfo::exists(modelPath)) {
         *errorMessage = formatText(t.WMPDNE, {modelPath});
+        return false;
+    }
+    if (cfg.value(ConfigKeys::whisperUseVad).toBool() &&
+        !QFileInfo::exists(cfg.value(ConfigKeys::whisperVadModelPath).toString())) {
+        *errorMessage = formatText(t.WMPDNE, {cfg.value(ConfigKeys::whisperVadModelPath).toString()});
+        return false;
+    }
+    const QString ffmpegPath = cfg.value(ConfigKeys::ffmpegPath).toString();
+    if (ffmpegPath.isEmpty() || !QFileInfo::exists(ffmpegPath)) {
+        *errorMessage = formatText(t.WCPDNE, {ffmpegPath});
         return false;
     }
     return true;

@@ -251,6 +251,12 @@ scripts/*
 # 发布说明契约校验脚本由 CI（build-cpp.yml 预检）调用，必须入库；
 # 其余 scripts/ 下的本地辅助脚本继续忽略
 !scripts/check-release-notes.py
+!scripts/stage-whisper.ps1
 .upstream_videocr/
 CPP_REWRITE_PLAN.md
 videocr_text_mask_filter_plan.md
+# Pinned upstream Whisper checkout, restored by cpp/tools/setup_whisper.py
+/third_party/whisper.cpp/
+!cpp/tools/
+cpp/tools/*
+!cpp/tools/setup_whisper.py

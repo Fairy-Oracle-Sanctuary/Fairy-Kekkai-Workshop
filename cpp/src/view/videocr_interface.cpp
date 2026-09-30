@@ -301,6 +301,7 @@ VideocrInterface::VideocrInterface(QWidget* parent)
             Text::instance().Udmurt,
             Text::instance().SakhaYakut,
         }, settingsGroup_);
+    languageCard->comboBox->setObjectName(QStringLiteral("tutorial-ocr-language"));
     settingsGroup_->addSettingCard(languageCard);
     const int selectedLanguage = languageCodes.indexOf(
         AppConfig::instance().value(ConfigKeys::ocr_lang, QStringLiteral("ch")).toString());

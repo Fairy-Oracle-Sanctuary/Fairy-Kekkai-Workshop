@@ -5145,5 +5145,121 @@ Los parámetros anteriores se ajustan en «Configuración avanzada»</translatio
         <source>填写更全面的相关信息，让更多的人能找到你的视频吧</source>
         <translation>Completa información más detallada para que más personas puedan encontrar tu video.</translation>
     </message>
+    <message>
+        <source>先看这里的应用信息。接下来提示会指向具体按钮；用「下一步」浏览，完成引导后再按提示操作。</source>
+        <translation>Aquí está la información de la aplicación. Los consejos señalan controles concretos. Recórrelos con Siguiente y realiza las operaciones después del tutorial.</translation>
+    </message>
+    <message>
+        <source>这里设置项目保存目录。更改时选择一个空文件夹，已有项目会一起迁移；视频和字幕保存在项目目录中。</source>
+        <translation>Aquí se configura la carpeta de proyectos. Para cambiarla, elige una carpeta vacía; los proyectos existentes también se trasladarán. Los vídeos y subtítulos se guardan dentro de cada proyecto.</translation>
+    </message>
+    <message>
+        <source>点击这个按钮，填写项目名、原标题和集数。一部视频系列建一个项目，每集会生成独立文件夹。</source>
+        <translation>Pulsa aquí e introduce el nombre del proyecto, el título original y el número de episodios. Crea un proyecto por serie; cada episodio tendrá su propia carpeta.</translation>
+    </message>
+    <message>
+        <source>已有项目用这里导入。选择项目根目录，再选择复制或仅连接；仅连接会继续使用原位置的文件。</source>
+        <translation>Importa aquí un proyecto existente. Selecciona la carpeta raíz y elige Copiar o Vincular. Vincular mantiene el uso de los archivos en su ubicación original.</translation>
+    </message>
+    <message>
+        <source>这里可以粘贴播放列表链接并创建项目，集数和标题由视频列表生成。先确认下载工具与网络连接可用。</source>
+        <translation>Pega una URL de lista de reproducción para crear un proyecto con episodios y títulos de la lista de vídeos. Comprueba antes la herramienta de descarga y la conexión.</translation>
+    </message>
+    <message>
+        <source>打开项目后会在这里新增标签。再次打开同一项目会切回已有标签；「＋」返回项目列表，关闭标签不会删除文件。</source>
+        <translation>Los proyectos abiertos aparecen como pestañas. Abrir el mismo selecciona la existente. Más vuelve a la lista; cerrar una pestaña conserva los archivos.</translation>
+    </message>
+    <message>
+        <source>点击这里打开下载对话框，粘贴视频链接并选择保存位置。项目中的下载快捷入口会自动带入对应分集目录。</source>
+        <translation>Abre aquí el diálogo de descarga, pega la URL del vídeo y elige el destino. Los accesos del proyecto indican automáticamente la carpeta del episodio.</translation>
+    </message>
+    <message>
+        <source>这里筛选全部、下载中、已完成或失败的任务。下载进度显示在下方任务卡中，失败时先查看任务日志。</source>
+        <translation>Filtra todas las tareas, en descarga, completadas o fallidas. Las tarjetas inferiores muestran el progreso; consulta el registro si una descarga falla.</translation>
+    </message>
+    <message>
+        <source>点击这里选择带硬字幕的视频。加载后在预览画面框选字幕区域，避免把画面中的其它文字一起识别。</source>
+        <translation>Selecciona un vídeo con subtítulos incrustados. Tras cargarlo, marca la zona de subtítulos en la vista previa para excluir otros textos de la imagen.</translation>
+    </message>
+    <message>
+        <source>这里选择视频字幕的原始语言，不是译文语言。使用 PaddleOCR 前还需在高级设置中确认程序与模型路径。</source>
+        <translation>Elige el idioma original de los subtítulos, no el de traducción. Antes de usar PaddleOCR, verifica también las rutas del programa y de los modelos en ajustes avanzados.</translation>
+    </message>
+    <message>
+        <source>确认输入、输出与参数后，点击这里添加任务。未选择输入时按钮不可用；添加成功后到上方任务页查看进度与日志。</source>
+        <translation>Comprueba entrada, salida y opciones antes de añadir la tarea. El botón requiere una entrada seleccionada. Consulta después la página de tareas para ver el progreso y los registros.</translation>
+    </message>
+    <message>
+        <source>这里选择已下载的 Whisper 模型文件。还需确认同页的识别程序路径；模型配置完成后回到语音识别页。</source>
+        <translation>Selecciona un modelo Whisper descargado. Comprueba también la ruta del programa en esta página y vuelve después a reconocimiento de voz.</translation>
+    </message>
+    <message>
+        <source>点击这里选择视频或音频，随后选择识别语言和字幕输出格式。自动检测用于不确定语种的情况；确认输出路径后添加任务。</source>
+        <translation>Selecciona vídeo o audio, el idioma y el formato de subtítulos. Usa detección automática si desconoces el idioma. Comprueba la ruta de salida antes de añadir la tarea.</translation>
+    </message>
+    <message>
+        <source>这里是 Deepseek 密钥输入框，其它服务的密钥在同页各自的分组中。填写你要使用的服务密钥，翻译页必须选择同一个服务。</source>
+        <translation>Este es el campo de clave API de Deepseek. Otros proveedores tienen sus grupos en esta página. Introduce la clave del proveedor que usarás y selecciona el mismo en traducción.</translation>
+    </message>
+    <message>
+        <source>点击这里选择原文 SRT 文件，确认预览中能看到字幕。项目的翻译快捷入口会自动选择原文，并把输出设为译文.srt。</source>
+        <translation>Selecciona el SRT original y comprueba la vista previa. El acceso de traducción del proyecto selecciona la fuente y fija la salida como 译文.srt.</translation>
+    </message>
+    <message>
+        <source>这里选择想得到的译文语言，同时检查上方的原文语言。两者不要填反；同一系列可启用上下文以保持术语一致。</source>
+        <translation>Elige el idioma de destino y comprueba el de origen arriba. No los intercambies. El contexto puede mantener la terminología coherente en una serie.</translation>
+    </message>
+    <message>
+        <source>这里选择 AI 服务，需与刚才填写的密钥匹配。选择 Deepseek 后还会显示其模型与思考选项；确认后添加翻译任务。</source>
+        <translation>Elige el proveedor AI que corresponda a tu clave. Deepseek muestra también opciones de modelo y razonamiento. Revísalas antes de añadir la traducción.</translation>
+    </message>
+    <message>
+        <source>这里修改结果文件的保存路径。先确认目标目录与文件名，再提交任务，避免把结果存到不方便查找的位置。</source>
+        <translation>Cambia aquí la ruta del resultado. Comprueba la carpeta y el nombre del archivo antes de enviar la tarea para encontrar fácilmente la salida.</translation>
+    </message>
+    <message>
+        <source>这里切换功能页、任务页与高级设置。任务页可以查看进度、日志和结果，以及取消或重试；配置工具路径则进入高级设置。</source>
+        <translation>Cambia entre función, tareas y ajustes avanzados. Tareas muestra progreso, registros, resultados, cancelación y reintento. Configura las rutas de herramientas en ajustes avanzados.</translation>
+    </message>
+    <message>
+        <source>以后可以从这个按钮重新查看完整引导。完成后返回主页：先建项目或导入项目，再按下载、识别、翻译、压制的顺序处理。</source>
+        <translation>Repite el tutorial desde este botón. Finalizar vuelve al inicio. Crea o importa un proyecto y continúa con descarga, reconocimiento, traducción y codificación.</translation>
+    </message>
+    <message>
+        <source>检测语音，减少静音或背景音乐产生的无效字幕；需要 Silero VAD 模型。</source>
+        <translation>Detecta voz para reducir subtítulos durante silencios o música; requiere un modelo Silero VAD.</translation>
+    </message>
+    <message>
+        <source>语音检测阈值</source>
+        <translation>Umbral de detección de voz</translation>
+    </message>
+    <message>
+        <source>调低可保留较轻的声音，调高可减少误检。</source>
+        <translation>Baja para conservar voces suaves; sube para reducir falsas detecciones.</translation>
+    </message>
+    <message>
+        <source>分段静音时长（毫秒）</source>
+        <translation>Silencio antes de dividir (ms)</translation>
+    </message>
+    <message>
+        <source>最长语音片段（秒）</source>
+        <translation>Duración máxima del segmento (s)</translation>
+    </message>
+    <message>
+        <source>按停顿分段并限制连续语音长度；字幕保留原视频时间轴。</source>
+        <translation>Divide en pausas y limita la voz continua; conserva la línea temporal original.</translation>
+    </message>
+    <message>
+        <source>减少前文影响</source>
+        <translation>Reducir la influencia del texto anterior</translation>
+    </message>
+    <message>
+        <source>不把前段识别结果作为后段文本提示，减少重复循环；可能降低上下文连贯性。</source>
+        <translation>No usa resultados anteriores como indicación; reduce repeticiones pero puede afectar la continuidad.</translation>
+    </message>
+    <message>
+        <source>使用官方 whisper-cli 和 ggml 模型；视频由 FFmpeg 转成音频后识别。GPU 加速需要引擎编译了对应后端。</source>
+        <translation>Usa whisper-cli oficial y modelos ggml; FFmpeg convierte el vídeo en audio. La GPU requiere un backend compilado compatible.</translation>
+    </message>
 </context>
 </TS>

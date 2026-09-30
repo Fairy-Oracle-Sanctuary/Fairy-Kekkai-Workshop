@@ -64,6 +64,7 @@
 
 ### 📁 Project Management
 - Complete project file system management
+- The current development version adds multiple project tabs for the next release, with switching, closing, drag reordering and independent detail-page state
 - Support for importing/linking external projects
 - Automatic project progress tracking (cover, raw video, cooked video, original subtitles, translated subtitles)
 - Intelligent batch task filtering and dispatch
@@ -86,7 +87,7 @@
 - Real-time log output
 
 ### 🎙️ Speech Recognition
-- Based on [Const-me/Whisper](https://github.com/Const-me/Whisper)
+- Based on [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)
 - Multi-language speech-to-subtitle support (Chinese, Japanese, English, Korean, etc.)
 - Real-time progress display
 - Support for SRT, TXT, VTT output formats
@@ -185,7 +186,7 @@ Download `tools.zip` from the [Releases](https://github.com/Fairy-Oracle-Sanctua
 
 ### First Run
 
-On first run, a tutorial will be displayed introducing the main features and usage of the software.
+On first run, project migration and legacy resource cleanup run when needed. The current development version includes a tutorial anchored to specific controls, planned for the next release, that starts after maintenance and can be replayed from settings. It scrolls to and highlights target controls with actionable instructions, offers Previous, Next, Skip and Finish, and returns to the home page when finished.
 
 ### Home Page Features
 
@@ -252,6 +253,9 @@ Main configuration items can be modified in the settings page:
 - Maximum concurrent downloads
 
 ### Whisper (Windows only)
+
+The current engine is official whisper.cpp v1.9.4 with Silero VAD and pause-based segmentation. See [cpp/WHISPER.md](cpp/WHISPER.md) for source preparation, models and build instructions.
+
 - CLI path
 - Model path
 - Language selection
@@ -298,8 +302,8 @@ A:
 ### Q: Whisper speech recognition failed
 
 A:
-1. Ensure WhisperNetCLI.exe exists in the `tools/Whisper/` directory
-2. Ensure all dependent DLLs (Whisper.dll, WhisperNet.dll, ComLight.dll) are in the same directory
+1. Ensure whisper-cli.exe exists in the `tools/whisper/` directory
+2. Ensure all dependent DLLs (whisper.cpp / ggml backend DLLs) are in the same directory
 3. Ensure Whisper model files exist in the `tools/Whisper.model/` directory
 4. When language is set to `auto`, CLI will automatically detect language
 5. Check if GPU driver supports DirectML (if using GPU)
@@ -315,7 +319,7 @@ A:
 
 A:
 - Ensure the corresponding AI service API Key is configured (in settings page)
-- Some AI models (Spark, GLM) are disabled due to SDK incompatibility
+- The C++ version integrates Spark, GLM and other providers through HTTP APIs; check your API key, network connection and account access to the selected model
 - Deepseek or Tencent Hunyuan are recommended (better support)
 - Deepseek deep reasoning mode increases inference time but provides higher translation quality
 
@@ -334,8 +338,8 @@ A:
 |---------|--------|-------|
 | Video Download | ✅ | Based on yt-dlp, supports 1800+ sites |
 | Subtitle Extraction | ✅ | Based on VideOCR, supports PaddleOCR/Google Lens engines, Windows only |
-| Speech Recognition | ✅ | WhisperNet, Windows only, real-time progress support |
-| Translation | ✅ | Multi-AI model support, some SDKs incompatible |
+| Speech Recognition | ✅ | whisper.cpp, Windows only, real-time progress support |
+| Translation | ✅ | Multiple AI providers via HTTP APIs; provider API keys required |
 | Floating Screen Capture | ✅ | Windows only, supports window binding and following |
 | Video Compression | ✅ | Based on FFmpeg, supports multiple encoders |
 | Bilibili Upload | ⚠️ | Feature implemented but not officially enabled due to API issues |
@@ -349,7 +353,7 @@ A:
 - **Image Processing**: OpenCV 4.12
 - **Video Processing**: FFmpeg + yt-dlp
 - **Subtitle Recognition**: [VideOCR](https://github.com/timminator/VideOCR) (PaddleOCR / Google Lens)
-- **Speech Recognition**: [Const-me/Whisper](https://github.com/Const-me/Whisper)
+- **Speech Recognition**: [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)
 - **Translation**: Multiple cloud APIs (OpenAI, Deepseek, Tencent Hunyuan, etc.)
 - **JSON**: nlohmann/json (header-only)
 - **Configuration Storage**: JSON
@@ -383,7 +387,7 @@ This project is licensed under the GPL license. See the LICENSE file in the repo
 ## Acknowledgments
 
 - OCR engine from [VideOCR](https://github.com/timminator/VideOCR)
-- Whisper from [Const-me/Whisper](https://github.com/Const-me/Whisper)
+- Whisper from [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)
 
 ---
 

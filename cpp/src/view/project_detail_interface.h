@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QStringList>
+#include <QSet>
 #include <QVBoxLayout>
 #include <qtfluentwidgets.h>
 
@@ -10,6 +11,7 @@ class ProjectDetailInterface : public qfw::ScrollArea {
 public:
     explicit ProjectDetailInterface(QWidget* parent = nullptr);
     void loadProject(const QString& path);
+    QString projectPath() const { return path_; }
     void reloadCurrentProject(bool notify = false);
     void showPage(int page);
 signals:
@@ -31,5 +33,9 @@ private:
     unsigned loadGeneration_ = 0;
     bool notifyOnLoad_ = false;
     bool notifyOnRefresh_ = false;
+    QSet<int> expandedEpisodes_;
+    QSet<int> selectedEpisodes_;
+    bool infoExpanded_ = false;
+    int pendingScrollPosition_ = -1;
 };
 }

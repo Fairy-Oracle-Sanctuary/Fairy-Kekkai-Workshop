@@ -25,6 +25,7 @@ namespace fkw
         setWidget(view);
         enableTransparentBackground();
         auto *info = new FairyKekkaiWorkshopInfoCard(view);
+        info->setObjectName(QStringLiteral("tutorial-home-info"));
         layout->addWidget(info, 0, Qt::AlignTop);
         connect(info, &FairyKekkaiWorkshopInfoCard::logRequested,
                 this, &HomeInterface::logRequested);

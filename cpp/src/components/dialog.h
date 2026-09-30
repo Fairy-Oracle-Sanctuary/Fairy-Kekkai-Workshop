@@ -2,6 +2,7 @@
 #include <qtfluentwidgets.h>
 #include <QVBoxLayout>
 #include <QVector>
+#include <QSet>
 
 namespace fkw {
 class BaseInputDialog : public qfw::MessageBoxBase {
@@ -48,13 +49,15 @@ class BatchDeleteDialog : public BaseInputDialog {
     Q_OBJECT
 public:
     BatchDeleteDialog(const QString& projectPath, const QStringList& titles,
-                      QWidget* parent = nullptr);
+                      QWidget* parent = nullptr,
+                      const QSet<int>& episodeScope = {});
     QStringList selectedPaths() const;
     bool validate() override;
 private:
     void updateFiles();
     QString projectPath_;
     QStringList titles_;
+    QSet<int> episodeScope_;
     qfw::ComboBox* fileType_;
     QVBoxLayout* episodeLayout_;
     QVector<QPair<qfw::CheckBox*, QString>> choices_;
@@ -73,12 +76,14 @@ public:
         int folderNum;
         QString folderPath;
     };
-    explicit BatchTaskDialog(const QVector<Episode>& episodes, QWidget* parent = nullptr);
+    explicit BatchTaskDialog(const QVector<Episode>& episodes, QWidget* parent = nullptr,
+                             bool selectEligible = false);
     QVector<Selection> selected() const;
     bool validate() override;
 private:
     void updateEpisodes();
     QVector<Episode> episodes_;
+    bool selectEligible_ = false;
     qfw::ComboBox* taskType_;
     QVBoxLayout* episodeLayout_;
     QVector<QPair<qfw::CheckBox*, QPair<int, QString>>> choices_;

@@ -195,6 +195,7 @@ namespace fkw
         auto *layout = new QVBoxLayout(view);
         auto *add = new qfw::PrimaryPushButton(
             qfw::FluentIcon(qfw::FluentIconEnum::Add).qicon(), Text::instance().AddDownloadTask, view);
+        add->setObjectName(QStringLiteral("tutorial-download-add"));
         updateButton_ = new qfw::PushButton(Text::instance().UpdateYtDlpButton, view);
         auto *tabs = new qfw::SegmentedWidget(view);
         tabs->addItem(QStringLiteral("allTab"), Text::instance().All,
@@ -209,6 +210,7 @@ namespace fkw
         tabs->addItem(QStringLiteral("failedTab"), Text::instance().Failed3,
                       [this](bool)
                       { filterTasks(QStringLiteral("failed")); });
+        tabs->setObjectName(QStringLiteral("tutorial-download-status"));
         tabs->setCurrentItem(QStringLiteral("allTab"));
         tabs->setMaximumHeight(30);
         layout->addWidget(add);

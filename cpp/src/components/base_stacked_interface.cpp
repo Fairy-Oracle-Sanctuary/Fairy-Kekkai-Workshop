@@ -5,6 +5,7 @@ namespace fkw
     BaseStackedInterfaces::BaseStackedInterfaces(QWidget *parent) : QWidget(parent)
     {
         pivot_ = new qfw::Pivot(this);
+        pivot_->setObjectName(QStringLiteral("tutorial-page-tabs"));
         stackedWidget_ = new QStackedWidget(this);
         auto *layout = new QVBoxLayout(this);
         layout->setContentsMargins(30, 0, 30, 30);
