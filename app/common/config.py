@@ -610,13 +610,22 @@ class Config(QConfig):
     whisperModelPath = ConfigItem(
         "Whisper",
         "ModelPath",
-        str(Path("tools/Whisper.model/ggml-model-whisper-small.bin").absolute()),
+        str(Path("tools/Whisper.model/ggml-small.bin").absolute()),
     )
     whisperCliPath = ConfigItem(
         "Whisper",
         "CliPath",
-        str(Path(f"tools/whisper/main{EXE_SUFFIX}").absolute()),
+        str(Path(f"tools/whisper/whisper-cli{EXE_SUFFIX}").absolute()),
     )
+    whisperUseVad = ConfigItem("Whisper", "UseVad", True, BoolValidator())
+    whisperVadModelPath = ConfigItem(
+        "Whisper", "VadModelPath",
+        str(Path("tools/Whisper.model/ggml-silero-v6.2.0.bin").absolute()),
+    )
+    whisperVadThreshold = RangeConfigItem("Whisper", "VadThreshold", 0.5, RangeValidator(0.1, 0.9))
+    whisperVadMinSilenceMs = RangeConfigItem("Whisper", "VadMinSilenceMs", 500, RangeValidator(100, 2000))
+    whisperVadMaxSpeechSeconds = RangeConfigItem("Whisper", "VadMaxSpeechSeconds", 30, RangeValidator(10, 120))
+    whisperResetContext = ConfigItem("Whisper", "ResetContext", True, BoolValidator())
     whisperLanguage = OptionsConfigItem(
         "Whisper",
         "Language",
@@ -628,7 +637,7 @@ class Config(QConfig):
         "Whisper",
         "OutputFormat",
         "srt",
-        OptionsValidator(["srt", "txt", "json"]),
+        OptionsValidator(["srt", "txt", "vtt"]),
         restart=False,
     )
     whisperUseGpu = ConfigItem(

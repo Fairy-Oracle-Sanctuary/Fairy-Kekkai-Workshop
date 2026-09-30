@@ -38,6 +38,9 @@ namespace fkw
         layout->setContentsMargins(10, 10, 10, 10);
         layout->setSpacing(10);
         auto *buttons = new TopButtonCard(view);
+        buttons->newProjectButton->setObjectName(QStringLiteral("tutorial-project-new"));
+        buttons->importProjectButton->setObjectName(QStringLiteral("tutorial-project-import"));
+        buttons->newFromPlaylistButton->setObjectName(QStringLiteral("tutorial-project-playlist"));
         layout->addWidget(buttons);
         cardsContainer_ = new QWidget(view);
         cardsContainer_->setAcceptDrops(true);
@@ -309,6 +312,9 @@ namespace fkw
                                       dialog.titleInput->text(), dialog.selectedIcon(), &error))
                     NotificationService::error(trText("编辑项目失败"), error, this);
                 else {
+                    const QString newPath = QDir(QFileInfo(projectPath).absolutePath())
+                        .filePath(dialog.nameInput->text().trimmed());
+                    emit projectChanged(projectPath, newPath);
                     refreshProjectList();
                     NotificationService::success(Text::instance().Success,
                         Text::instance().ProjectInfoUpdated, this);
@@ -335,6 +341,7 @@ namespace fkw
                 if (!projects::remove(projectPath, unlink, &error))
                     NotificationService::error(trText("操作失败"), error, this);
                 else {
+                    emit projectRemoved(projectPath);
                     refreshProjectList();
                     NotificationService::success(Text::instance().Success,
                         unlink ? formatText(Text::instance().UnlinkedProject, {projectPath})

@@ -23,8 +23,10 @@
     [string]$PaddleOcrTag = '',
     # 收录整个 tools 目录（安装包必须完整，-Setup 时自动开启）
     [switch]$FullTools,
-    # Clear 增量升级包：不收录 tools 与 PADDLEOCR 标识
+    # 不收录普通工具与 PADDLEOCR 标识
     [switch]$NoTools,
+    # Clear 引擎升级：即使 -NoTools，也收录 Whisper 与 Silero VAD
+    [switch]$IncludeWhisper,
     [switch]$IncludeProjects
 )
 
@@ -102,9 +104,9 @@ if (-not $NoTools) {
     New-Item -ItemType Directory -Path $toolDest -Force | Out-Null
     # -Setup 时安装包必须自带完整工具链，等价于 -FullTools
     if ($FullTools -or $Setup) {
-        # Whisper.model 由用户自行下载，*.zip 是下载缓存，都不进安装包
+        # Whisper 由下面的精确清单收录；转录模型和下载缓存不进安装包。
         Get-ChildItem -LiteralPath $toolSource -Force | Where-Object {
-            $_.Name -ne 'Whisper.model' -and $_.Extension -ne '.zip'
+            $_.Name -notin @('Whisper.model', 'whisper') -and $_.Extension -ne '.zip'
         } | ForEach-Object {
             Copy-Item -LiteralPath $_.FullName -Destination $toolDest -Recurse
         }
@@ -121,6 +123,11 @@ if (-not $NoTools) {
     } elseif (Test-Path (Join-Path $repo 'PADDLEOCR')) {
         Copy-Item -LiteralPath (Join-Path $repo 'PADDLEOCR') -Destination $markerDest
     }
+}
+
+if (-not $NoTools -or $IncludeWhisper) {
+    & (Join-Path $repo 'scripts\stage-whisper.ps1') `
+        -SourceTools (Join-Path $repo 'tools') -DestinationTools (Join-Path $stagePath 'tools')
 }
 
 $background = Join-Path $repo 'background.jpg'

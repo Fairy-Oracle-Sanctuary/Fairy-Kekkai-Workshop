@@ -148,6 +148,7 @@ qfw::PushSettingCard* boundPath(QWidget* owner, qfw::SettingCardGroup* group,
                                 const QString& filter = {}, bool remember = false) {
     auto* card = new qfw::PushSettingCard(
         button, icon, title, AppConfig::instance().value(key).toString(), group);
+    card->setObjectName(QStringLiteral("tutorial-setting-%1-%2").arg(QLatin1String(key.group), QLatin1String(key.name)));
     group->addSettingCard(card);
     QObject::connect(&AppConfig::instance(), &AppConfig::valueChanged, card,
                      [card, key](const QString& groupName, const QString& name,
@@ -177,6 +178,7 @@ LineEditSettingCard* boundField(QWidget* owner, qfw::SettingCardGroup* group,
                                 int width = 250) {
     auto* card = new LineEditSettingCard(icon, title, description,
         AppConfig::instance().value(key).toVariant().toString(), password, group);
+    card->lineEdit->setObjectName(QStringLiteral("tutorial-setting-%1-%2").arg(QLatin1String(key.group), QLatin1String(key.name)));
     card->lineEdit->setFixedWidth(width);
     card->lineEdit->setPlaceholderText(placeholder.isEmpty() ? description : placeholder);
     group->addSettingCard(card);
@@ -237,6 +239,7 @@ DictSettingCard* boundChoice(QWidget* owner, qfw::SettingCardGroup* group,
     const int selected = values.indexOf(numeric ? QString::number(saved.toInt())
                                                 : saved.toString());
     card->comboBox->setCurrentIndex(qMax(0, selected));
+    card->comboBox->setObjectName(QStringLiteral("tutorial-setting-%1-%2").arg(QLatin1String(key.group), QLatin1String(key.name)));
     group->addSettingCard(card);
     QObject::connect(card->comboBox, &qfw::ComboBox::currentIndexChanged, owner,
                      [key, values, numeric](int index) {
@@ -584,14 +587,27 @@ WhisperSettingInterface::WhisperSettingInterface(QWidget* parent)
     const auto& t = Text::instance();
     auto* cli = addGroup(t.ProgramPath);
     boundPath(this, cli, ConfigKeys::whisperCliPath, iconOf(qfw::FluentIconEnum::Application),
-              QStringLiteral("main.exe"), t.SelectProgram,
+              QStringLiteral("whisper-cli.exe"), t.SelectProgram,
               QStringLiteral("Executable files (*.exe);;All files (*.*)"), true);
     auto* model = addGroup(t.ModelPath);
     boundPath(this, model, ConfigKeys::whisperModelPath, iconOf(qfw::FluentIconEnum::Document),
               t.ModelFile, t.SelectModelFile, t.ModelFileFilter, true);
     auto* gpu = addGroup(t.GPUAcceleration);
     boundSwitch(this, gpu, ConfigKeys::whisperUseGpu, qfw::FluentIconEnum::Game,
-                t.EGA2, t.UGFSRA);
+                t.EGA2, t.WhisperEngineHelp);
+    auto* vad = addGroup(QStringLiteral("Silero VAD"));
+    boundSwitch(this, vad, ConfigKeys::whisperUseVad, qfw::FluentIconEnum::Microphone,
+                QStringLiteral("VAD"), t.WhisperVadHelp);
+    boundPath(this, vad, ConfigKeys::whisperVadModelPath, iconOf(qfw::FluentIconEnum::Document),
+              QStringLiteral("Silero VAD"), t.SelectModelFile, t.ModelFileFilter, true);
+    boundFloatRange(this, vad, ConfigKeys::whisperVadThreshold, qfw::FluentIconEnum::Setting,
+                    t.WhisperVadThreshold, t.WhisperVadThresholdHelp, 0.1, 0.9);
+    boundRange(this, vad, ConfigKeys::whisperVadMinSilenceMs, qfw::FluentIconEnum::Setting,
+               t.WhisperVadSilence, t.WhisperVadSplitHelp, 100, 2000);
+    boundRange(this, vad, ConfigKeys::whisperVadMaxSpeechSeconds, qfw::FluentIconEnum::Setting,
+               t.WhisperVadMaxSpeech, t.WhisperVadSplitHelp, 10, 120);
+    boundSwitch(this, vad, ConfigKeys::whisperResetContext, qfw::FluentIconEnum::Setting,
+                t.WhisperResetContext, t.WhisperResetContextHelp);
     finish();
 }
 

@@ -5145,5 +5145,121 @@
         <source>填写更全面的相关信息，让更多的人能找到你的视频吧</source>
         <translation>填寫更全面的相關資訊，讓更多的人能找到你的影片吧</translation>
     </message>
+    <message>
+        <source>先看这里的应用信息。接下来提示会指向具体按钮；用「下一步」浏览，完成引导后再按提示操作。</source>
+        <translation>先看這裡的應用資訊。接下來提示會指向具體按鈕；用「下一步」瀏覽，完成引導後再按提示操作。</translation>
+    </message>
+    <message>
+        <source>这里设置项目保存目录。更改时选择一个空文件夹，已有项目会一起迁移；视频和字幕保存在项目目录中。</source>
+        <translation>這裡設定專案儲存目錄。更改時選擇一個空資料夾，已有專案會一起遷移；影片和字幕儲存在專案目錄中。</translation>
+    </message>
+    <message>
+        <source>点击这个按钮，填写项目名、原标题和集数。一部视频系列建一个项目，每集会生成独立文件夹。</source>
+        <translation>點擊這個按鈕，填寫專案名稱、原標題和集數。一部影片系列建立一個專案，每集會產生獨立資料夾。</translation>
+    </message>
+    <message>
+        <source>已有项目用这里导入。选择项目根目录，再选择复制或仅连接；仅连接会继续使用原位置的文件。</source>
+        <translation>已有專案用這裡匯入。選擇專案根目錄，再選擇複製或僅連結；僅連結會繼續使用原位置的檔案。</translation>
+    </message>
+    <message>
+        <source>这里可以粘贴播放列表链接并创建项目，集数和标题由视频列表生成。先确认下载工具与网络连接可用。</source>
+        <translation>這裡可以貼上播放清單連結並建立專案，集數和標題由影片清單產生。先確認下載工具與網路連線可用。</translation>
+    </message>
+    <message>
+        <source>打开项目后会在这里新增标签。再次打开同一项目会切回已有标签；「＋」返回项目列表，关闭标签不会删除文件。</source>
+        <translation>開啟專案後會在這裡新增分頁。再次開啟同一專案會切回已有分頁；「＋」返回專案清單，關閉分頁不會刪除檔案。</translation>
+    </message>
+    <message>
+        <source>点击这里打开下载对话框，粘贴视频链接并选择保存位置。项目中的下载快捷入口会自动带入对应分集目录。</source>
+        <translation>點擊這裡開啟下載對話框，貼上影片連結並選擇儲存位置。專案中的下載捷徑會自動帶入對應分集目錄。</translation>
+    </message>
+    <message>
+        <source>这里筛选全部、下载中、已完成或失败的任务。下载进度显示在下方任务卡中，失败时先查看任务日志。</source>
+        <translation>這裡篩選全部、下載中、已完成或失敗的工作。下載進度顯示在下方工作卡中，失敗時先查看工作記錄。</translation>
+    </message>
+    <message>
+        <source>点击这里选择带硬字幕的视频。加载后在预览画面框选字幕区域，避免把画面中的其它文字一起识别。</source>
+        <translation>點擊這裡選擇帶硬字幕的影片。載入後在預覽畫面框選字幕區域，避免把畫面中的其它文字一起辨識。</translation>
+    </message>
+    <message>
+        <source>这里选择视频字幕的原始语言，不是译文语言。使用 PaddleOCR 前还需在高级设置中确认程序与模型路径。</source>
+        <translation>這裡選擇影片字幕的原始語言，不是譯文語言。使用 PaddleOCR 前還需在進階設定中確認程式與模型路徑。</translation>
+    </message>
+    <message>
+        <source>确认输入、输出与参数后，点击这里添加任务。未选择输入时按钮不可用；添加成功后到上方任务页查看进度与日志。</source>
+        <translation>確認輸入、輸出與參數後，點擊這裡新增工作。未選擇輸入時按鈕不可用；新增成功後到上方工作頁查看進度與記錄。</translation>
+    </message>
+    <message>
+        <source>这里选择已下载的 Whisper 模型文件。还需确认同页的识别程序路径；模型配置完成后回到语音识别页。</source>
+        <translation>這裡選擇已下載的 Whisper 模型檔案。還需確認同頁的辨識程式路徑；模型設定完成後回到語音辨識頁。</translation>
+    </message>
+    <message>
+        <source>点击这里选择视频或音频，随后选择识别语言和字幕输出格式。自动检测用于不确定语种的情况；确认输出路径后添加任务。</source>
+        <translation>點擊這裡選擇影片或音訊，隨後選擇辨識語言和字幕輸出格式。自動偵測用於不確定語種的情況；確認輸出路徑後新增工作。</translation>
+    </message>
+    <message>
+        <source>这里是 Deepseek 密钥输入框，其它服务的密钥在同页各自的分组中。填写你要使用的服务密钥，翻译页必须选择同一个服务。</source>
+        <translation>這裡是 Deepseek 金鑰輸入框，其它服務的金鑰在同頁各自的分組中。填寫你要使用的服務金鑰，翻譯頁必須選擇同一個服務。</translation>
+    </message>
+    <message>
+        <source>点击这里选择原文 SRT 文件，确认预览中能看到字幕。项目的翻译快捷入口会自动选择原文，并把输出设为译文.srt。</source>
+        <translation>點擊這裡選擇原文 SRT 檔案，確認預覽中能看到字幕。專案的翻譯捷徑會自動選擇原文，並把輸出設為译文.srt。</translation>
+    </message>
+    <message>
+        <source>这里选择想得到的译文语言，同时检查上方的原文语言。两者不要填反；同一系列可启用上下文以保持术语一致。</source>
+        <translation>這裡選擇想得到的譯文語言，同時檢查上方的原文語言。兩者不要填反；同一系列可啟用上下文以保持術語一致。</translation>
+    </message>
+    <message>
+        <source>这里选择 AI 服务，需与刚才填写的密钥匹配。选择 Deepseek 后还会显示其模型与思考选项；确认后添加翻译任务。</source>
+        <translation>這裡選擇 AI 服務，需與剛才填寫的金鑰匹配。選擇 Deepseek 後還會顯示其模型與思考選項；確認後新增翻譯工作。</translation>
+    </message>
+    <message>
+        <source>这里修改结果文件的保存路径。先确认目标目录与文件名，再提交任务，避免把结果存到不方便查找的位置。</source>
+        <translation>這裡修改結果檔案的儲存路徑。先確認目標目錄與檔名，再提交工作，避免把結果存到不方便查找的位置。</translation>
+    </message>
+    <message>
+        <source>这里切换功能页、任务页与高级设置。任务页可以查看进度、日志和结果，以及取消或重试；配置工具路径则进入高级设置。</source>
+        <translation>這裡切換功能頁、工作頁與進階設定。工作頁可以查看進度、記錄和結果，以及取消或重試；設定工具路徑則進入進階設定。</translation>
+    </message>
+    <message>
+        <source>以后可以从这个按钮重新查看完整引导。完成后返回主页：先建项目或导入项目，再按下载、识别、翻译、压制的顺序处理。</source>
+        <translation>以後可以從這個按鈕重新查看完整引導。完成後返回首頁：先建立專案或匯入專案，再按下載、辨識、翻譯、壓制的順序處理。</translation>
+    </message>
+    <message>
+        <source>检测语音，减少静音或背景音乐产生的无效字幕；需要 Silero VAD 模型。</source>
+        <translation>偵測語音，減少靜音或背景音樂產生的無效字幕；需要 Silero VAD 模型。</translation>
+    </message>
+    <message>
+        <source>语音检测阈值</source>
+        <translation>語音偵測閾值</translation>
+    </message>
+    <message>
+        <source>调低可保留较轻的声音，调高可减少误检。</source>
+        <translation>調低可保留較輕的聲音，調高可減少誤判。</translation>
+    </message>
+    <message>
+        <source>分段静音时长（毫秒）</source>
+        <translation>分段靜音時長（毫秒）</translation>
+    </message>
+    <message>
+        <source>最长语音片段（秒）</source>
+        <translation>最長語音片段（秒）</translation>
+    </message>
+    <message>
+        <source>按停顿分段并限制连续语音长度；字幕保留原视频时间轴。</source>
+        <translation>按停頓分段並限制連續語音長度；字幕保留原影片時間軸。</translation>
+    </message>
+    <message>
+        <source>减少前文影响</source>
+        <translation>減少前文影響</translation>
+    </message>
+    <message>
+        <source>不把前段识别结果作为后段文本提示，减少重复循环；可能降低上下文连贯性。</source>
+        <translation>不把前段辨識結果作為後段文字提示，減少重複循環；可能降低上下文連貫性。</translation>
+    </message>
+    <message>
+        <source>使用官方 whisper-cli 和 ggml 模型；视频由 FFmpeg 转成音频后识别。GPU 加速需要引擎编译了对应后端。</source>
+        <translation>使用官方 whisper-cli 和 ggml 模型；影片由 FFmpeg 轉成音訊後辨識。GPU 加速需要引擎編譯了對應後端。</translation>
+    </message>
 </context>
 </TS>

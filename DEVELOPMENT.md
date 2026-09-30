@@ -11,14 +11,14 @@
 ### 核心特性
 - 📥 **视频下载**：基于 yt-dlp，支持 1800+ 视频网站
 - 🔤 **字幕提取**：基于 [VideOCR](https://github.com/timminator/VideOCR)，支持 PaddleOCR 与 Google Lens 双引擎，支持 200+ 种语言
-- 🎤 **语音识别**：基于 [Const-me/Whisper](https://github.com/Const-me/Whisper)，支持多语言语音转字幕，带实时进度显示
+- 🎤 **语音识别**：C++ 应用使用官方 whisper.cpp v1.9.4 与 Silero VAD，支持多语言语音转字幕和实时进度；接入及编译说明见 `cpp/WHISPER.md`。
 - 🌐 **智能翻译**：支持多个 AI 模型（OpenAI、Deepseek、腾讯混元、ERNIE、Gemini、书生等）
 - 🔍 **悬浮取词翻译**：屏幕任意区域框选后 OCR + AI 翻译，支持窗口绑定、跟随、置顶、鼠标穿透（仅 Windows）
 - 🎬 **视频压制**：基于 FFmpeg，支持自定义编码参数
 - 💾 **项目管理**：完整的项目文件系统管理，支持导入/链接外部项目，首次启动自动迁移到独立数据目录
 - 🎨 **主题切换**：标题栏快捷主题切换按钮，支持深色/浅色模式
 - 🚀 **启动页**：带进度条和状态文字的启动页面，含启动维护（项目迁移 / 旧版资源清理）
-- 🌍 **多语言支持**：支持中文、英文界面
+- 🌍 **多语言支持**：支持 9 种语言界面（简体中文、英语、日语、韩语、德语、西班牙语、法语、葡萄牙语、繁体中文）
 
 ---
 
@@ -217,8 +217,10 @@ cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR=D:/CODE/opencv
 ```powershell
 .\package-cpp-release.ps1                          # 默认 CPU 变体
 .\package-cpp-release.ps1 -Variant "GPU-v3.7.0-CUDA-12.9"
-.\package-cpp-release.ps1 -NoTools -Variant Clear  # 不含工具的增量升级包
+.\package-cpp-release.ps1 -NoTools -IncludeWhisper -Variant Clear  # 主程序 + Whisper/VAD 升级包
 ```
+
+当前四个安装包都包含 `tools/Whisper.model/ggml-silero-v6.2.0.bin` 与官方 Vulkan Whisper 运行文件。Clear 使用 `-NoTools -IncludeWhisper`，只更新主程序、Whisper 和 VAD，不包含 OCR 引擎、OCR 模型、FFmpeg、yt-dlp 或 `PADDLEOCR` 标识；用户现有 OCR 资源保留。三种整包仍包含完整工具链，但 Whisper 转录模型（small/medium/large）仍由用户自行提供。`scripts/stage-whisper.ps1` 使用精确清单，排除旧 main.exe、本机备份和下载缓存；工作流对四种包都检查 Whisper/VAD 文件，并校验 VAD 下载的 SHA256。
 
 产物命名规则：`Fairy-Kekkai-Workshop-v{version}-{Variant}-Windows-x86_64-Setup.exe`，其中 `Variant` 取值 `CPU-v3.7.0` / `GPU-v3.7.0-CUDA-11.8` / `GPU-v3.7.0-CUDA-12.9` / `Clear`。
 
@@ -235,6 +237,32 @@ cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release -DOpenCV_DIR=D:/CODE/opencv
 - 换引擎的固定动作清单（以下硬编码需同步）：`setting.cpp::paddleOcrSupportFilesName()` 的模型代次、`ocr_migration.cpp` 的 `legacyEngineDirs()`/`legacyModelDirs()`/`legacyArchives()` 清单（引擎目录、模型目录、压缩包另有正则兜底，清单只影响清理报告的文案）、`build-cpp.yml` 的 `PADDLEOCR_BASE_URL` 与 `SUPPORT_ASSET`/`SUPPORT_DIR`，以及它的 `matrix.variant` 变体名（`CPU-v3.7.0` 等，换引擎后要跟着改，否则下载 URL 会 404）。
 - 命名三者必须一致：`PADDLEOCR` 第一行 `PaddleOCR-<Variant>`（安装包运行时据此定位 `tools\<Variant>` 与机型）→ 安装包文件名 `Fairy-Kekkai-Workshop-v<version>-<Variant>-Windows-x86_64-Setup.exe`；`package-cpp-release.ps1` 与 `build-cpp.yml` 的半成品目录名也由变体派生，改名时要一并改。
 - 发布只有一个入口：`.github/workflows/build-cpp.yml`（`push: tags: ['v*']` + `workflow_dispatch`）。Python 版的两条旧管线 `release.yml` / `deploy-windows.yml` 已删除，不会再出现「给 C++ 版本打 tag 却发布出 Python 产物」的情况。打 tag 前建议本地先跑一遍 `python scripts/check-release-notes.py --version <版本> --check-ocr-update`，它与 CI 预检跑的是同一个脚本：校验 tag 与 `cpp/resources/setting_data.json` 的 `VERSION` 一致、发布说明结构与四个安装包链接齐全、换引擎必须带 `!OCRUPDATE!`；release job 还会比对 `RELEASE_NOTES.md` 里列出的安装包与实际上传的资产是否完全一致，任何一个不满足都会直接失败。
+
+### 项目多标签（当前开发版本，下个版本发布）
+
+- `ProjectStackedInterface` 使用美化库 `qfw::TabBar` + `QStackedWidget`。项目列表是不可关闭标签，每个打开的项目拥有独立 `ProjectDetailInterface`，切换标签保留该页的分页、滚动位置与控件状态。
+- 重复打开相同项目切回已有标签；路径使用规范化绝对路径，存在时优先使用 canonical 路径，Windows 下忽略大小写。标签使用独立 routeKey，拖动标签排序不会让页面与标签错配。
+- 标签支持关闭、拖动和横向滚动；「＋」返回项目列表以选择更多项目，详情页返回列表不会关闭当前标签。关闭标签不删除项目，不取消已派发到功能页队列的任务；目前不保存标签到下次启动。
+- 项目列表的编辑/改名同步标签名称、路径与详情；删除或解除链接关闭对应标签。设置页迁移项目库后，`applyRelocation()` 通过 `project_updated{old_path,path}` 同步已打开标签。
+- `TabBar::removeTab()` 的中间索引信号在应用侧屏蔽，删除后按 routeKey 重新选页。关闭按钮操作延迟一个事件循环，详情页的异步加载回调仍绑定自身 QObject 生命周期。
+- 本次未编译或运行，需用户验收多项目打开、重复打开、拖动、关闭、改名、删除以及项目库迁移。
+
+### 紧凑项目详情（当前开发版本，下个版本发布）
+
+- 顶部显示项目名、五阶段文件就绪进度、批量任务和添加新集；路径与原标题通过信息按钮展开。刷新、返回列表、批量删除保留在「更多」菜单。
+- 分集默认收起，显示选择框、标题及封面/原视频/原字幕/译文/成片五个状态图标，悬停查看名称；展开时才创建原有七种 `FileItemWidget`，原有文件导入、下载、OCR、Whisper、翻译、压制、原文激活和删除功能保持可用。
+- 每集的编辑标题、插入、视频链接与删除进入 Fluent 菜单。菜单动作延后一轮执行，并绑定按钮生命周期，防止刷新销毁页面后继续调用旧控件。
+- 本页全选支持跨分页累计选择；选择工具栏只在有选中分集时显示。批量任务和文件删除限定在选中分集内，无选择时从顶部或菜单进入则面向整个项目。批量任务仍按原规则筛选可执行项，删除仍需选择文件和确认。
+- 分页、展开与选择状态由各详情页独立保存；同页刷新恢复滚动位置，插入/删除导致集号变化时清空编号选择与展开状态，避免误作用于重编号后的其它分集。总进度是五类文件存在率，不代表后台任务执行进度。
+- 本次只做源码静态检查，未编译或运行；需用户验收窄窗口、多语言长标题、分页、折叠、批量范围及原文件操作。
+
+### 新手引导（当前开发版本，下个版本发布）
+
+- `cpp/src/components/teaching_tips.*` 在原 Python 引导流程上扩展为 Windows 24 个具体操作点（非 Windows 跳过 OCR/Whisper 六步），覆盖项目目录、新建/导入/播放列表、多标签、下载与筛选、OCR/Whisper 输入和模型、翻译密钥与语言/服务、输出、任务页及重播入口。
+- 每步由 route、子页面索引和稳定的控件 objectName 定位。文件浏览按钮、项目操作按钮、下拉框及密钥输入框直接作为 TeachingTip 的 target；设置卡片进一步定位实际按钮。项目引导切回列表，功能引导主动切到相应主页面、任务页或高级设置。
+- 显示前将目标滚动到可见区域，箭头优先放在控件下方，空间不足时放在上方；目标加高亮边框。窗口/祖先移动、布局和滚动引起位置变化时重新定位，关闭引导时清理过滤器，控件销毁时解除提示并重新定位。
+- 保留上一步、下一步、跳过、完成和应用模态浏览；引导不自动点击业务按钮、创建项目或提交任务。结束写入 `MainWindow/IsFirstRun=false` 并返回主页。首次引导在启动维护后显示，截图自动化跳过；设置页可重播。
+- 20 条详细说明统一加入 `app/common/text.py` 并由 `cpp/tools/generate_text.py` 生成 C++ Text；八份 `.ts` 翻译源同步。用户构建前应运行 `lrelease Fairy-Kekkai-Workshop.pro` 更新 `.qm`（C++ qrc 直接引用这些文件）。本次未运行翻译编译、C++ 编译或界面验收。
 
 ### 移植对照
 
@@ -569,6 +597,8 @@ https://www.youtube.com/watch?v=yyy
 
 ### 4. 翻译服务（`app/service/translate_service.py`）
 
+> 本节代码示例及 SDK 限制描述旧版 Python 实现。当前 C++ 版在 `cpp/src/service/translate_service.cpp` 的 `resolveProvider()` 中接入 Deepseek、GLM、Spark、混元、书生、ERNIE、Gemini 和自定义服务，统一通过 Qt HTTP 客户端调用；Spark、GLM 未因旧版 SDK 限制而禁用。实际请求能否成功取决于密钥、网络及服务端模型权限。
+
 支持多个 AI 模型的流式翻译。
 
 ```python
@@ -596,8 +626,8 @@ thread.start()
 - ✅ 百度 ERNIE Speed 128K
 - ✅ 书生（InternLM）
 - ✅ Google Gemini 3 Flash
-- ✅ 讯飞 Spark Lite（SDK 不兼容）
-- ✅ GLM-4.5 Flash（SDK 不兼容）
+- ⚠️ 讯飞 Spark Lite（旧版 Python SDK 不兼容；C++ 版已接入 HTTP API）
+- ⚠️ GLM-4.5 Flash（旧版 Python SDK 不兼容；C++ 版已接入 HTTP API）
 - ✅ 自定义模型（兼容 OpenAI API 格式）
 
 **Deepseek 专属功能**：
@@ -669,7 +699,7 @@ process.start()
 
 ### 6. Whisper 语音识别服务（`app/service/whisper_service.py`）
 
-基于 [Const-me/Whisper](https://github.com/Const-me/Whisper) 的语音转字幕服务，支持实时进度显示。
+以下是旧 Python / Const-me 服务的历史参考。当前 C++ 服务 `cpp/src/service/whisper_service.cpp` 使用官方 whisper.cpp v1.9.4，先经 FFmpeg 转音频，再执行 Silero VAD 与识别；配置、源码准备及编译说明见 `cpp/WHISPER.md`。
 
 ```python
 from app.service.whisper_service import WhisperProcess, WhisperTask
@@ -774,7 +804,7 @@ def _toggleTheme(self):
 
 ### 10. 多语言系统（`app/common/text.py`、`app/resource/i18n/`）
 
-应用支持中文、英文、日语、韩语界面，使用 Qt Linguist 管理翻译资源。当前项目统一通过 `Text` 类集中维护 UI 文案，业务代码应访问 `self.globalText.<属性名>`，避免散落的 `self.tr(...)` 或 `QCoreApplication.translate(...)`。
+当前版本支持 9 种语言界面：简体中文、英语、日语、韩语、德语、西班牙语、法语、葡萄牙语、繁体中文，使用 Qt Linguist 管理翻译资源。当前项目统一通过 `Text` 类集中维护 UI 文案，业务代码应访问 `self.globalText.<属性名>`，避免散落的 `self.tr(...)` 或 `QCoreApplication.translate(...)`。
 
 **核心文件**：
 - `app/common/text.py` - 集中定义全部可翻译 UI 文案
@@ -1162,7 +1192,7 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 
 **A**:
 - 确保已配置相应 AI 服务的 API Key（在设置页面）
-- 部分 AI 模型（Spark、GLM）因 SDK 不兼容已禁用
+- 旧版 Python 的 Spark、GLM 曾受 SDK 兼容性限制；当前 C++ 版已接入其 HTTP API，请检查密钥、网络及模型访问权限
 - 推荐使用 Deepseek 或腾讯混元（支持较好）
 - Deepseek 深度思考模式会增加推理时间，但翻译质量更高
 
@@ -1211,8 +1241,8 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 |------|------|------|
 | 视频下载 | ✅ | 基于 yt-dlp，支持大多数平台 |
 | 字幕提取 | ✅ | 基于 [VideOCR](https://github.com/timminator/VideOCR)，支持 PaddleOCR/Google Lens 引擎，仅 Windows |
-| 语音识别 | ✅ | [Const-me/Whisper](https://github.com/Const-me/Whisper)，仅 Windows，支持实时进度 |
-| 翻译 | ✅ | 多 AI 模型支持，部分 SDK 不兼容 |
+| 语音识别 | ✅ | 官方 whisper.cpp v1.9.4 + Silero VAD，应用当前仅 Windows，支持实时进度 |
+| 翻译 | ✅ | C++ 版通过 HTTP API 接入多个 AI 服务；旧版 Python SDK 限制见翻译服务章节 |
 | 视频压制 | ✅ | 基于 FFmpeg，支持多种编码器 |
 | B站上传 | ⚠️ | 功能已实现但因 API 版权问题未正式启用 |
 | 实时预览 | ❌ | 当前不支持 |
@@ -1272,7 +1302,7 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 
 #### 重大变化 / Breaking Changes
 - 主程序从 Python + PySide6 全量重写为 C++17 + Qt 6 + Qt-Fluent-Widgets 原生桌面应用，源码位于 `cpp/`
-- 安装包不再附带 Python 运行时与依赖，旧版本升级需使用增量包（Clear）或先卸载旧版
+- 安装包不再附带 Python 运行时与依赖，旧版本升级可使用 Clear 包，无需因主程序大版本变化而卸载；Clear 不含外部工具与模型，需另行保留或补齐所需资源
 - 新增 `cpp/` 原生源码树（`common` / `components` / `service` / `view`），原 Python 实现保留在 `app/` 作为移植对照
 
 #### 新增 / Added
@@ -1328,7 +1358,7 @@ def _dispatch_task(self, task_type, folder_num, folder_path):
 - **UI 框架（Python 参考实现）**：PySide6 + QFluentWidgets
 - **视频处理**：FFmpeg + yt-dlp
 - **字幕识别**：[VideOCR](https://github.com/timminator/VideOCR)（PaddleOCR / Google Lens）
-- **语音识别**：[Const-me/Whisper](https://github.com/Const-me/Whisper)
+- **语音识别**：[ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)（旧 Python 参考采用 Const-me）
 - **翻译**：多个云 API（OpenAI、Deepseek、腾讯混元等）
 - **B 站上传**：Bilibili API
 - **配置存储**：JSON + SQLite

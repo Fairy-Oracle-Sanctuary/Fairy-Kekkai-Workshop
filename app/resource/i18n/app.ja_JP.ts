@@ -5145,5 +5145,121 @@
         <source>填写更全面的相关信息，让更多的人能找到你的视频吧</source>
         <translation>より詳細な関連情報を記入して、より多くの人があなたの動画を見つけられるようにしましょう</translation>
     </message>
+    <message>
+        <source>先看这里的应用信息。接下来提示会指向具体按钮；用「下一步」浏览，完成引导后再按提示操作。</source>
+        <translation>ここにはアプリの情報があります。案内は実際のボタンを指します。「次へ」で確認し、案内を終えてから操作してください。</translation>
+    </message>
+    <message>
+        <source>这里设置项目保存目录。更改时选择一个空文件夹，已有项目会一起迁移；视频和字幕保存在项目目录中。</source>
+        <translation>プロジェクトの保存先を設定します。変更時は空のフォルダーを選びます。既存のプロジェクトも移動し、動画と字幕は各プロジェクト内に保存されます。</translation>
+    </message>
+    <message>
+        <source>点击这个按钮，填写项目名、原标题和集数。一部视频系列建一个项目，每集会生成独立文件夹。</source>
+        <translation>このボタンでプロジェクト名、元のタイトル、話数を入力します。動画シリーズごとに作成し、各話には専用フォルダーができます。</translation>
+    </message>
+    <message>
+        <source>已有项目用这里导入。选择项目根目录，再选择复制或仅连接；仅连接会继续使用原位置的文件。</source>
+        <translation>既存のプロジェクトはここから取り込みます。ルートフォルダーを選び、コピーまたはリンクを選択します。リンクの場合は元の場所のファイルを使います。</translation>
+    </message>
+    <message>
+        <source>这里可以粘贴播放列表链接并创建项目，集数和标题由视频列表生成。先确认下载工具与网络连接可用。</source>
+        <translation>再生リストの URL を貼り付けてプロジェクトを作成できます。話数とタイトルは動画一覧から取得します。先にダウンロードツールと接続を確認してください。</translation>
+    </message>
+    <message>
+        <source>打开项目后会在这里新增标签。再次打开同一项目会切回已有标签；「＋」返回项目列表，关闭标签不会删除文件。</source>
+        <translation>開いたプロジェクトはタブになります。同じプロジェクトを再度開くと既存のタブに戻ります。「＋」は一覧に戻り、タブを閉じてもファイルは削除されません。</translation>
+    </message>
+    <message>
+        <source>点击这里打开下载对话框，粘贴视频链接并选择保存位置。项目中的下载快捷入口会自动带入对应分集目录。</source>
+        <translation>ここでダウンロード画面を開き、動画の URL と保存先を指定します。プロジェクト内のショートカットは該当する話のフォルダーを自動指定します。</translation>
+    </message>
+    <message>
+        <source>这里筛选全部、下载中、已完成或失败的任务。下载进度显示在下方任务卡中，失败时先查看任务日志。</source>
+        <translation>すべて、ダウンロード中、完了、失敗で絞り込みます。進捗は下のタスクカードに表示されます。失敗時はログを確認してください。</translation>
+    </message>
+    <message>
+        <source>点击这里选择带硬字幕的视频。加载后在预览画面框选字幕区域，避免把画面中的其它文字一起识别。</source>
+        <translation>字幕が焼き込まれた動画を選択します。読み込み後、プレビューで字幕の範囲を指定し、画面内の他の文字を除外してください。</translation>
+    </message>
+    <message>
+        <source>这里选择视频字幕的原始语言，不是译文语言。使用 PaddleOCR 前还需在高级设置中确认程序与模型路径。</source>
+        <translation>ここでは字幕の元の言語を選びます。翻訳先の言語ではありません。PaddleOCR を使う前に詳細設定でプログラムとモデルのパスも確認してください。</translation>
+    </message>
+    <message>
+        <source>确认输入、输出与参数后，点击这里添加任务。未选择输入时按钮不可用；添加成功后到上方任务页查看进度与日志。</source>
+        <translation>入力、出力、設定を確認してタスクを追加します。入力未選択ではボタンは使えません。追加後は上のタスクページで進捗とログを確認します。</translation>
+    </message>
+    <message>
+        <source>这里选择已下载的 Whisper 模型文件。还需确认同页的识别程序路径；模型配置完成后回到语音识别页。</source>
+        <translation>ダウンロード済みの Whisper モデルを選びます。同じページの認識プログラムのパスも確認し、設定後に音声認識ページへ戻ってください。</translation>
+    </message>
+    <message>
+        <source>点击这里选择视频或音频，随后选择识别语言和字幕输出格式。自动检测用于不确定语种的情况；确认输出路径后添加任务。</source>
+        <translation>動画または音声を選び、認識言語と字幕形式を指定します。言語が不明なら自動検出を使います。出力先を確認してタスクを追加してください。</translation>
+    </message>
+    <message>
+        <source>这里是 Deepseek 密钥输入框，其它服务的密钥在同页各自的分组中。填写你要使用的服务密钥，翻译页必须选择同一个服务。</source>
+        <translation>これは Deepseek の API キー欄です。他のサービスにもこのページに専用欄があります。使用するサービスのキーを入力し、翻訳ページで同じサービスを選びます。</translation>
+    </message>
+    <message>
+        <source>点击这里选择原文 SRT 文件，确认预览中能看到字幕。项目的翻译快捷入口会自动选择原文，并把输出设为译文.srt。</source>
+        <translation>元の SRT を選び、プレビューに字幕が出るか確認します。プロジェクトの翻訳ショートカットは原文と出力先の 译文.srt を自動指定します。</translation>
+    </message>
+    <message>
+        <source>这里选择想得到的译文语言，同时检查上方的原文语言。两者不要填反；同一系列可启用上下文以保持术语一致。</source>
+        <translation>翻訳先の言語を選び、上の原文言語も確認します。逆にしないでください。シリーズでは文脈を有効にすると用語を統一しやすくなります。</translation>
+    </message>
+    <message>
+        <source>这里选择 AI 服务，需与刚才填写的密钥匹配。选择 Deepseek 后还会显示其模型与思考选项；确认后添加翻译任务。</source>
+        <translation>入力した API キーに対応する AI サービスを選びます。Deepseek ではモデルと思考の設定も表示されます。確認後に翻訳タスクを追加します。</translation>
+    </message>
+    <message>
+        <source>这里修改结果文件的保存路径。先确认目标目录与文件名，再提交任务，避免把结果存到不方便查找的位置。</source>
+        <translation>結果ファイルの保存先を変更できます。保存場所とファイル名を確認してからタスクを送信すると、結果を見つけやすくなります。</translation>
+    </message>
+    <message>
+        <source>这里切换功能页、任务页与高级设置。任务页可以查看进度、日志和结果，以及取消或重试；配置工具路径则进入高级设置。</source>
+        <translation>機能、タスク、詳細設定を切り替えます。タスクでは進捗、ログ、結果、キャンセルや再試行を操作できます。ツールのパスは詳細設定で変更します。</translation>
+    </message>
+    <message>
+        <source>以后可以从这个按钮重新查看完整引导。完成后返回主页：先建项目或导入项目，再按下载、识别、翻译、压制的顺序处理。</source>
+        <translation>このボタンでいつでも案内を再表示できます。完了するとホームへ戻ります。プロジェクトを作成または取り込み、ダウンロード、認識、翻訳、エンコードの順に進めます。</translation>
+    </message>
+    <message>
+        <source>检测语音，减少静音或背景音乐产生的无效字幕；需要 Silero VAD 模型。</source>
+        <translation>発話を検出して無音や音楽による誤字幕を減らします。Silero VADモデルが必要です。</translation>
+    </message>
+    <message>
+        <source>语音检测阈值</source>
+        <translation>音声検出しきい値</translation>
+    </message>
+    <message>
+        <source>调低可保留较轻的声音，调高可减少误检。</source>
+        <translation>下げると小さな声を保持し、上げると誤検出を減らします。</translation>
+    </message>
+    <message>
+        <source>分段静音时长（毫秒）</source>
+        <translation>分割する無音の長さ（ミリ秒）</translation>
+    </message>
+    <message>
+        <source>最长语音片段（秒）</source>
+        <translation>音声区間の最大長（秒）</translation>
+    </message>
+    <message>
+        <source>按停顿分段并限制连续语音长度；字幕保留原视频时间轴。</source>
+        <translation>無音で分割し、連続発話の長さを制限します。元の時間軸を保持します。</translation>
+    </message>
+    <message>
+        <source>减少前文影响</source>
+        <translation>前のテキストの影響を抑える</translation>
+    </message>
+    <message>
+        <source>不把前段识别结果作为后段文本提示，减少重复循环；可能降低上下文连贯性。</source>
+        <translation>前の結果を後続のプロンプトに使いません。反復を減らしますが一貫性が低下する場合があります。</translation>
+    </message>
+    <message>
+        <source>使用官方 whisper-cli 和 ggml 模型；视频由 FFmpeg 转成音频后识别。GPU 加速需要引擎编译了对应后端。</source>
+        <translation>公式whisper-cliとggmlモデルを使用します。FFmpegで動画を音声に変換します。GPUには対応バックエンドが必要です。</translation>
+    </message>
 </context>
 </TS>

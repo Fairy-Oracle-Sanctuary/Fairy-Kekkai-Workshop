@@ -4,6 +4,8 @@
 #include <functional>
 #include <memory>
 #include <QDesktopServices>
+#include <QAction>
+#include <QScrollBar>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -52,7 +54,13 @@ namespace fkw
     }
     void ProjectDetailInterface::loadProject(const QString &path)
     {
-        if (path_ != path) currentPage_ = 1;
+        if (path_ != path) {
+            currentPage_ = 1;
+            expandedEpisodes_.clear();
+            selectedEpisodes_.clear();
+            infoExpanded_ = false;
+            verticalScrollBar()->setValue(0);
+        }
         path_ = path;
         notifyOnLoad_ = true;
         notifyOnRefresh_ = false;
@@ -193,6 +201,7 @@ namespace fkw
     void ProjectDetailInterface::beginLoad(int page)
     {
         if (path_.isEmpty()) return;
+        pendingScrollPosition_ = page == currentPage_ ? verticalScrollBar()->value() : 0;
         currentPage_ = page;
         const unsigned generation = ++loadGeneration_;
         const QString path = path_;
@@ -236,6 +245,9 @@ namespace fkw
 
     void ProjectDetailInterface::showPage(int page)
     {
+        const int scrollPosition = pendingScrollPosition_ >= 0
+            ? pendingScrollPosition_ : verticalScrollBar()->value();
+        pendingScrollPosition_ = -1;
         ++loadGeneration_;
         {
             // 项目存在异常时不进入正常页面，改为展示修复入口
@@ -290,20 +302,91 @@ namespace fkw
         const int perPage = std::clamp(configured, 1, 10);
         const int totalPages = std::max(1, (static_cast<int>(entries.size()) + perPage - 1) / perPage);
         currentPage_ = std::clamp(page, 1, totalPages);
-        auto *actions = new QHBoxLayout();
-        auto *back = new qfw::PrimaryPushButton(trText("返回项目列表"), content_);
-        auto *refresh = new qfw::PushButton(trText("刷新项目列表"), content_);
-        auto *batchTask = new qfw::PushButton(trText("批量任务"), content_);
-        auto *batchDelete = new qfw::PushButton(trText("批量删除"), content_);
-        actions->setSpacing(6);
-        actions->addWidget(back, 1);
-        actions->addWidget(refresh, 1);
-        actions->addWidget(batchTask, 1);
-        actions->addWidget(batchDelete, 1);
-        body->addLayout(actions);
-        connect(back, &QPushButton::clicked, this, &ProjectDetailInterface::backToProjectList);
-        connect(refresh, &QPushButton::clicked, this, [this]()
-                { reloadCurrentProject(true); });
+        // 标题与常用操作只占一行，低频操作收进 Fluent 菜单。
+        auto* header = new QHBoxLayout;
+        const QString projectTitle = folder.dirName();
+        auto* title = new qfw::StrongBodyLabel(projectTitle, content_);
+        title->setTextFormat(Qt::PlainText);
+        title->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+        title->setMinimumWidth(0);
+        title->setToolTip(projectTitle);
+        header->addWidget(title, 1);
+        auto* batchTask = new qfw::PushButton(Text::instance().BatchAddTasks, content_);
+        auto* append = new qfw::PrimaryPushButton(trText("添加新集"), content_);
+        auto* more = new qfw::TransparentToolButton(qfw::FluentIconEnum::More, content_);
+        more->setToolTip(Text::instance().ProjectManagement);
+        header->addWidget(batchTask);
+        header->addWidget(append);
+        header->addWidget(more);
+        body->addLayout(header);
+        connect(append, &QPushButton::clicked, this,
+                [this, count = entries.size()]() { addEpisode(count + 1); });
+        auto* batchDelete = new qfw::PushButton(trText("批量删除"), content_);
+        batchDelete->hide(); // 由菜单与选择工具栏触发，共用原删除确认流程。
+        connect(more, &QPushButton::clicked, this, [this, more, batchDelete]() {
+            auto* menu = new qfw::RoundMenu(QString(), more);
+            const auto add = [menu, more](const QString& text, const std::function<void()>& action) {
+                auto* item = new QAction(text, menu);
+                menu->addAction(item);
+                connect(item, &QAction::triggered, more, [more, action]() {
+                    QTimer::singleShot(0, more, action);
+                });
+            };
+            add(Text::instance().BackToProjectList, [this]() { emit backToProjectList(); });
+            add(Text::instance().RefreshProjectList, [this]() { reloadCurrentProject(true); });
+            add(trText("批量删除"), [batchDelete]() { batchDelete->click(); });
+            connect(menu, &qfw::RoundMenu::closedSignal, menu, &QObject::deleteLater);
+            menu->execAt(more->mapToGlobal(QPoint(0, more->height())));
+        });
+        // 五个工作流阶段汇总；OCR/Whisper/手工原文任一存在即算原文就绪。
+        const auto stageStatus = [](const QDir& dir) {
+            return QVector<bool>{QFileInfo::exists(dir.filePath(QStringLiteral("封面.jpg"))),
+                QFileInfo::exists(dir.filePath(QStringLiteral("生肉.mp4"))),
+                QFileInfo::exists(dir.filePath(QStringLiteral("原文.srt"))) ||
+                    QFileInfo::exists(dir.filePath(QStringLiteral("原文_OCR.srt"))) ||
+                    QFileInfo::exists(dir.filePath(QStringLiteral("原文_Whisper.srt"))),
+                QFileInfo::exists(dir.filePath(QStringLiteral("译文.srt"))),
+                QFileInfo::exists(dir.filePath(QStringLiteral("熟肉.mp4")))};
+        };
+        int complete = 0;
+        for (const auto& entry : entries)
+            for (bool ready : stageStatus(QDir(entry.absoluteFilePath()))) if (ready) ++complete;
+        auto* overview = new QHBoxLayout;
+        auto* progress = new qfw::ProgressBar(content_, false);
+        progress->setFixedWidth(130);
+        progress->setRange(0, 100);
+        const int percent = entries.isEmpty() ? 0 : complete * 100 / (entries.size() * 5);
+        progress->setValue(percent);
+        overview->addWidget(progress);
+        overview->addWidget(new qfw::CaptionLabel(QStringLiteral("%1% · %2").arg(percent).arg(
+            formatText(Text::instance().EpisodesTotalPage,
+                {QString::number(entries.size()), QString::number(currentPage_),
+                 QString::number(totalPages)})), content_), 1);
+        auto* infoToggle = new qfw::TransparentToolButton(qfw::FluentIconEnum::Info, content_);
+        infoToggle->setCheckable(true);
+        infoToggle->setChecked(infoExpanded_);
+        infoToggle->setToolTip(Text::instance().Project);
+        overview->addWidget(infoToggle);
+        body->addLayout(overview);
+        QStringList projectInfo{QDir::toNativeSeparators(path_)};
+        for (const auto& marker : folder.entryInfoList({QStringLiteral("*.txt")}, QDir::Files)) {
+            if (marker.fileName() == QStringLiteral("标题.txt") ||
+                marker.fileName() == QStringLiteral("icon.txt")) continue;
+            projectInfo << Text::instance().OriginalTitle + QStringLiteral(": ") + marker.completeBaseName();
+            break;
+        }
+        auto* info = new qfw::BodyLabel(projectInfo.join(QLatin1Char('\n')), content_);
+        info->setTextFormat(Qt::PlainText);
+        info->setWordWrap(true);
+        info->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        info->setVisible(infoExpanded_);
+        body->addWidget(info);
+        connect(infoToggle, &QPushButton::toggled, this, [this, info](bool expanded) {
+            infoExpanded_ = expanded;
+            info->setVisible(expanded);
+        });
+        QSizePolicy wrapPolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+        wrapPolicy.setHeightForWidth(true);
         connect(batchTask, &QPushButton::clicked, this,
                 [this, entries, document]() {
             if (entries.isEmpty()) {
@@ -314,6 +397,7 @@ namespace fkw
             QVector<BatchTaskDialog::Episode> episodes;
             for (const auto &entry : entries) {
                 const int folderNum = entry.fileName().toInt();
+                if (!selectedEpisodes_.isEmpty() && !selectedEpisodes_.contains(folderNum)) continue;
                 BatchTaskDialog::Episode episode{folderNum, entry.absoluteFilePath(), {}, {}};
                 if (folderNum >= 1 && folderNum <= document.episodes.size()) {
                     episode.title = document.episodes.at(folderNum - 1).originalTitle;
@@ -321,7 +405,7 @@ namespace fkw
                 }
                 episodes.append(episode);
             }
-            BatchTaskDialog dialog(episodes, window());
+            BatchTaskDialog dialog(episodes, window(), !selectedEpisodes_.isEmpty());
             if (!dialog.exec()) return;
             const auto selected = dialog.selected();
             if (selected.isEmpty()) {
@@ -350,7 +434,7 @@ namespace fkw
             }
             QStringList titles;
             for (const auto& episode : document.episodes) titles << episode.originalTitle;
-            BatchDeleteDialog dialog(path_, titles, window());
+            BatchDeleteDialog dialog(path_, titles, window(), selectedEpisodes_);
             if (!dialog.exec()) return;
             const QStringList selected = dialog.selectedPaths();
             if (selected.isEmpty()) {
@@ -373,51 +457,54 @@ namespace fkw
             else NotificationService::error(Text::instance().Error,
                 failed.join(QLatin1Char('\n')), this);
         });
-        const QString projectTitle = folder.dirName();
-        auto *title = new qfw::TitleLabel(wrapLongLatinRuns(projectTitle), content_);
-        QSizePolicy wrapPolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-        wrapPolicy.setHeightForWidth(true);
-        title->setTextFormat(Qt::PlainText);
-        title->setWordWrap(true);
-        title->setSizePolicy(wrapPolicy);
-        title->setToolTip(projectTitle);
-        title->setTextInteractionFlags(Qt::TextSelectableByMouse);
-        body->addWidget(title, 0, Qt::AlignTop);
-        body->addWidget(new qfw::BodyLabel(formatText(Text::instance().EpisodesTotalPage,
-            {QString::number(entries.size()), QString::number(currentPage_),
-             QString::number(totalPages)}), content_));
-        auto addPips = [this, body, totalPages](bool top)
-        {
-            if (totalPages < 2)
-                return;
-            auto *row = new QHBoxLayout();
+        QSet<int> present;
+        for (const auto& entry : entries) present.insert(entry.fileName().toInt());
+        selectedEpisodes_.intersect(present);
+        expandedEpisodes_.intersect(present);
+        auto* selectPage = new qfw::TransparentPushButton(Text::instance().SelectAll, content_);
+        body->addWidget(selectPage, 0, Qt::AlignLeft);
+        connect(selectPage, &QPushButton::clicked, this, [this]() {
+            for (auto* choice : content_->findChildren<qfw::CheckBox*>(QStringLiteral("episodeSelection")))
+                choice->setChecked(true);
+        });
+        auto* selectionBar = new QWidget(content_);
+        auto* selectionLayout = new QHBoxLayout(selectionBar);
+        selectionLayout->setContentsMargins(0, 0, 0, 0);
+        auto* selectionCount = new qfw::CaptionLabel(selectionBar);
+        selectionLayout->addWidget(selectionCount, 1);
+        auto* selectedTasks = new qfw::PushButton(Text::instance().BatchAddTasks, selectionBar);
+        auto* selectedDelete = new qfw::PushButton(trText("批量删除"), selectionBar);
+        auto* clearSelection = new qfw::TransparentPushButton(Text::instance().DeselectAll, selectionBar);
+        selectionLayout->addWidget(selectedTasks);
+        selectionLayout->addWidget(selectedDelete);
+        selectionLayout->addWidget(clearSelection);
+        body->addWidget(selectionBar);
+        const auto updateSelection = [this, selectionBar, selectionCount, batchTask]() {
+            selectionBar->setVisible(!selectedEpisodes_.isEmpty());
+            selectionCount->setText(QStringLiteral("✓ %1").arg(selectedEpisodes_.size()));
+            batchTask->setVisible(selectedEpisodes_.isEmpty());
+        };
+        updateSelection();
+        connect(selectedTasks, &QPushButton::clicked, batchTask, &QPushButton::click);
+        connect(selectedDelete, &QPushButton::clicked, batchDelete, &QPushButton::click);
+        // 只取消分集选择，保持分页和展开状态。
+        connect(clearSelection, &QPushButton::clicked, this, [this]() {
+            selectedEpisodes_.clear();
+            showPage(currentPage_);
+        });
+        auto addPager = [this, body, totalPages]() {
+            if (totalPages < 2) return;
+            auto* row = new QHBoxLayout;
             row->addStretch();
-            if (top)
-            {
-                auto *pager = new qfw::PipsPager(content_);
-                pager->setPageNumber(totalPages);
-                pager->setVisibleNumber(std::min(totalPages, 5));
-                pager->setCurrentIndex(currentPage_ - 1);
-                pager->setPreviousButtonDisplayMode(qfw::PipsScrollButtonDisplayMode::Always);
-                pager->setNextButtonDisplayMode(qfw::PipsScrollButtonDisplayMode::Always);
-                connect(pager, &qfw::PipsPager::currentIndexChanged, this,
-                        [this](int index)
-                        { if (index + 1 != currentPage_) beginLoad(index + 1); });
-                row->addWidget(pager);
-            }
-            else
-            {
-                auto *pager = new Pager(totalPages, std::min(totalPages, 5), content_);
-                pager->setCurrentPage(currentPage_);
-                connect(pager, &Pager::currentPageChanged, this,
-                        [this](int page)
-                        { if (page != currentPage_) beginLoad(page); });
-                row->addWidget(pager);
-            }
+            auto* pager = new Pager(totalPages, std::min(totalPages, 5), content_);
+            pager->setCurrentPage(currentPage_);
+            connect(pager, &Pager::currentPageChanged, this, [this](int page) {
+                if (page != currentPage_) beginLoad(page);
+            });
+            row->addWidget(pager);
             row->addStretch();
             body->addLayout(row);
         };
-        addPips(true);
         const int start = (currentPage_ - 1) * perPage;
         const int end = std::min(start + perPage, static_cast<int>(entries.size()));
         for (int i = start; i < end; ++i)
@@ -428,83 +515,135 @@ namespace fkw
                 ? document.episodes.at(number - 1) : projects::Episode{};
             const QString episode = formatText(Text::instance().Episode,
                 {QString::number(number), data.originalTitle});
-            auto* episodeGroup = new QWidget(content_);
+            auto* episodeGroup = new qfw::SimpleCardWidget(content_);
             auto* episodeLayout = new QVBoxLayout(episodeGroup);
-            episodeLayout->setContentsMargins(10, 0, 10, 0);
-            episodeLayout->setSpacing(8);
-            auto *heading = new QHBoxLayout();
-            auto *label = new qfw::StrongBodyLabel(wrapLongLatinRuns(episode), episodeGroup);
+            episodeLayout->setContentsMargins(10, 6, 10, 6);
+            episodeLayout->setSpacing(6);
+            auto* heading = new QHBoxLayout;
+            heading->setSpacing(6);
+            auto* selected = new qfw::CheckBox(episodeGroup);
+            selected->setObjectName(QStringLiteral("episodeSelection"));
+            selected->setChecked(selectedEpisodes_.contains(number));
+            selected->setToolTip(episode);
+            heading->addWidget(selected);
+            connect(selected, &QCheckBox::toggled, this, [this, number, updateSelection](bool checked) {
+                if (checked) selectedEpisodes_.insert(number);
+                else selectedEpisodes_.remove(number);
+                updateSelection();
+            });
+            auto* expand = new qfw::TransparentToolButton(
+                expandedEpisodes_.contains(number) ? qfw::FluentIconEnum::ChevronDown
+                                                   : qfw::FluentIconEnum::ChevronRight, episodeGroup);
+            expand->setCheckable(true);
+            expand->setChecked(expandedEpisodes_.contains(number));
+            expand->setToolTip(episode);
+            heading->addWidget(expand);
+            auto* label = new qfw::BodyLabel(wrapLongLatinRuns(episode), episodeGroup);
             label->setTextFormat(Qt::PlainText);
             label->setWordWrap(true);
             label->setSizePolicy(wrapPolicy);
-            label->setTextInteractionFlags(Qt::TextSelectableByMouse);
             label->setToolTip(episode);
             heading->addWidget(label, 1);
-            auto addButton = [this, heading](qfw::FluentIconEnum icon,
-                                            const char* tooltip, bool enabled,
-                                            const std::function<void()>& action) {
-                auto* button = new qfw::TransparentToolButton(icon, content_);
-                button->setToolTip(trText(tooltip));
-                button->setEnabled(enabled);
-                connect(button, &QPushButton::clicked, this, action);
-                heading->addWidget(button);
-            };
-            addButton(qfw::FluentIconEnum::Add, "插入新集", true,
-                      [this, number]() { addEpisode(number); });
-            addButton(qfw::FluentIconEnum::Delete, "删除本集", entries.size() > 1,
-                      [this, number]() { removeEpisode(number); });
-            addButton(qfw::FluentIconEnum::Edit, "编辑标题", true,
-                      [this, number]() { editEpisode(number); });
+            const auto ready = stageStatus(QDir(entry.absoluteFilePath()));
+            const QStringList names{Text::instance().Cover, Text::instance().OriginalVideo,
+                Text::instance().OriginalSubtitle, Text::instance().TranslatedSubtitle,
+                Text::instance().TranslatedVideo};
+            const QVector<qfw::FluentIconEnum> icons{qfw::FluentIconEnum::Photo,
+                qfw::FluentIconEnum::Video, qfw::FluentIconEnum::Document,
+                qfw::FluentIconEnum::Globe, qfw::FluentIconEnum::Video};
+            for (int stage = 0; stage < ready.size(); ++stage) {
+                auto* status = new QWidget(episodeGroup);
+                auto* statusLayout = new QHBoxLayout(status);
+                statusLayout->setContentsMargins(0, 0, 0, 0);
+                statusLayout->setSpacing(3);
+                auto* icon = new qfw::IconWidget(qfw::FluentIcon(icons.at(stage)).qicon(), status);
+                icon->setFixedSize(16, 16);
+                statusLayout->addWidget(icon);
+                statusLayout->addWidget(new qfw::CaptionLabel(
+                    ready.at(stage) ? QStringLiteral("✓") : QStringLiteral("—"), status));
+                status->setToolTip(names.at(stage) + QStringLiteral(": ") +
+                    (ready.at(stage) ? QStringLiteral("✓") : QStringLiteral("—")));
+                heading->addWidget(status);
+            }
             const QString url = data.videoUrl.trimmed();
-            auto *link = new qfw::TransparentToolButton(qfw::FluentIconEnum::Link, content_);
-            link->setToolTip(url);
-            connect(link, &QPushButton::clicked, this, [url]()
-                    {
-            if (QUrl(url).isValid()) QDesktopServices::openUrl(QUrl(url)); });
-            heading->addWidget(link);
+            auto* moreEpisode = new qfw::TransparentToolButton(qfw::FluentIconEnum::More, episodeGroup);
+            moreEpisode->setToolTip(episode);
+            heading->addWidget(moreEpisode);
+            connect(moreEpisode, &QPushButton::clicked, this,
+                    [this, moreEpisode, number, url, count = entries.size()]() {
+                auto* menu = new qfw::RoundMenu(QString(), moreEpisode);
+                const auto add = [menu, moreEpisode](const QString& text, bool enabled,
+                                              const std::function<void()>& action) {
+                    auto* item = new QAction(text, menu);
+                    item->setEnabled(enabled);
+                    menu->addAction(item);
+                    connect(item, &QAction::triggered, moreEpisode, [moreEpisode, action]() {
+                        QTimer::singleShot(0, moreEpisode, action);
+                    });
+                };
+                add(trText("编辑标题"), true, [this, number]() { editEpisode(number); });
+                add(trText("插入新集"), true, [this, number]() { addEpisode(number); });
+                add(Text::instance().VideoURL, !url.isEmpty() && QUrl(url).isValid(),
+                    [url]() { QDesktopServices::openUrl(QUrl(url)); });
+                add(trText("删除本集"), count > 1, [this, number]() { removeEpisode(number); });
+                connect(menu, &qfw::RoundMenu::closedSignal, menu, &QObject::deleteLater);
+                menu->execAt(moreEpisode->mapToGlobal(QPoint(0, moreEpisode->height())));
+            });
             episodeLayout->addLayout(heading);
             auto *files = new QWidget(episodeGroup);
             auto *fileLayout = new QVBoxLayout(files);
             fileLayout->setContentsMargins(10, 0, 0, 0);
             fileLayout->setSpacing(6);
-            const QDir episodeDir(entry.absoluteFilePath());
-            const bool original = QFileInfo::exists(episodeDir.filePath(QStringLiteral("原文.srt"))) || QFileInfo::exists(episodeDir.filePath(QStringLiteral("原文_OCR.srt"))) || QFileInfo::exists(episodeDir.filePath(QStringLiteral("原文_Whisper.srt")));
-            const bool encoded = QFileInfo::exists(episodeDir.filePath(QStringLiteral("熟肉.mp4")));
-            const struct
-            {
-                const char *name;
-                qfw::FluentIconEnum icon;
-                bool download, extract, translate, encode, archive;
-            } expected[] = {
-                {"封面.jpg", qfw::FluentIconEnum::Photo, true, false, false, false, false},
-                {"生肉.mp4", qfw::FluentIconEnum::Video, true, true, false, false, false},
-                {"熟肉.mp4", qfw::FluentIconEnum::Video, false, false, false, encoded, false},
-                {"原文.srt", qfw::FluentIconEnum::Document, false, false, false, false, false},
-                {"原文_OCR.srt", qfw::FluentIconEnum::Document, false, false, false, false, true},
-                {"原文_Whisper.srt", qfw::FluentIconEnum::Document, false, false, false, false, true},
-                {"译文.srt", qfw::FluentIconEnum::Document, false, false, original, false, false},
+            const auto createFiles = [this, files, fileLayout, url,
+                                      episodePath = entry.absoluteFilePath()]() {
+                if (files->property("filesLoaded").toBool()) return;
+                files->setProperty("filesLoaded", true);
+                const QDir episodeDir(episodePath);
+                const bool original = QFileInfo::exists(episodeDir.filePath(QStringLiteral("原文.srt"))) || QFileInfo::exists(episodeDir.filePath(QStringLiteral("原文_OCR.srt"))) || QFileInfo::exists(episodeDir.filePath(QStringLiteral("原文_Whisper.srt")));
+                const bool encoded = QFileInfo::exists(episodeDir.filePath(QStringLiteral("熟肉.mp4")));
+                const struct
+                {
+                    const char *name;
+                    qfw::FluentIconEnum icon;
+                    bool download, extract, translate, encode, archive;
+                } expected[] = {
+                    {"封面.jpg", qfw::FluentIconEnum::Photo, true, false, false, false, false},
+                    {"生肉.mp4", qfw::FluentIconEnum::Video, true, true, false, false, false},
+                    {"熟肉.mp4", qfw::FluentIconEnum::Video, false, false, false, encoded, false},
+                    {"原文.srt", qfw::FluentIconEnum::Document, false, false, false, false, false},
+                    {"原文_OCR.srt", qfw::FluentIconEnum::Document, false, false, false, false, true},
+                    {"原文_Whisper.srt", qfw::FluentIconEnum::Document, false, false, false, false, true},
+                    {"译文.srt", qfw::FluentIconEnum::Document, false, false, original, false, false},
+                };
+                for (const auto &file : expected)
+                {
+                    const auto name = QString::fromUtf8(file.name);
+                    auto* item = new FileItemWidget(name, episodeDir.filePath(name), file.icon,
+                                                    file.download, file.extract, file.translate,
+                                                    file.encode, file.archive, files, url);
+                    connect(item, &FileItemWidget::fileChanged, this,
+                            [this]() { showPage(currentPage_); });
+                    fileLayout->addWidget(item);
+                }
             };
-            for (const auto &file : expected)
-            {
-                const auto name = QString::fromUtf8(file.name);
-                auto* item = new FileItemWidget(name, episodeDir.filePath(name), file.icon,
-                                                file.download, file.extract, file.translate,
-                                                file.encode, file.archive, files, url);
-                connect(item, &FileItemWidget::fileChanged, this,
-                        [this]() { showPage(currentPage_); });
-                fileLayout->addWidget(item);
-            }
+            if (expandedEpisodes_.contains(number)) createFiles();
+            files->setVisible(expandedEpisodes_.contains(number));
+            connect(expand, &QPushButton::toggled, this, [this, number, files, expand, createFiles](bool expanded) {
+                if (expanded) createFiles();
+                if (expanded) expandedEpisodes_.insert(number);
+                else expandedEpisodes_.remove(number);
+                files->setVisible(expanded);
+                expand->setIcon(qfw::FluentIcon(expanded ? qfw::FluentIconEnum::ChevronDown
+                                                       : qfw::FluentIconEnum::ChevronRight));
+            });
             episodeLayout->addWidget(files);
             body->addWidget(episodeGroup);
         }
-        addPips(false);
-        if (currentPage_ == totalPages) {
-            auto* append = new qfw::PrimaryPushButton(trText("添加新集"), content_);
-            connect(append, &QPushButton::clicked, this,
-                    [this, count = entries.size()]() { addEpisode(count + 1); });
-            body->addWidget(append, 0, Qt::AlignHCenter);
-        }
+        addPager();
         body->addStretch();
+        QTimer::singleShot(0, this, [this, generation = loadGeneration_, scrollPosition]() {
+            if (generation == loadGeneration_) verticalScrollBar()->setValue(scrollPosition);
+        });
         if (notifyOnLoad_) {
             notifyOnLoad_ = false;
             emit projectLoaded(path_);
@@ -533,6 +672,8 @@ namespace fkw
         if (!projects::insertEpisode(path_, number, episode, &error))
             NotificationService::error(trText("插入失败"), error, this);
         else {
+            selectedEpisodes_.clear();
+            expandedEpisodes_.clear();
             showPage(currentPage_);
             NotificationService::success(Text::instance().Success,
                 Text::instance().NewEpisodeInserted, this);
@@ -546,6 +687,8 @@ namespace fkw
         if (!confirm.exec()) return;
         QString error;
         const bool removed = projects::deleteEpisode(path_, number, &error);
+        selectedEpisodes_.clear();
+        expandedEpisodes_.clear();
         showPage(currentPage_);
         if (!removed)
             NotificationService::error(trText("删除失败"), error, this);

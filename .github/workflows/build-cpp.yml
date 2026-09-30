@@ -92,8 +92,10 @@ jobs:
       PADDLEOCR_BASE_URL: https://github.com/timminator/PaddleOCR-Standalone/releases/download/v3.7.0
       SUPPORT_ASSET: PaddleOCR.PP-OCRv6.support.files.VideOCR.7z
       SUPPORT_DIR: PaddleOCR.PP-OCRv6.support.files
-      # videocr-cli.exe 与 whisper 工具来自本项目历史 Release v2.0.0 的压缩包资产
+      # videocr-cli 与新版 Vulkan Whisper 来自本项目 v2.0.0 的 ZIP 资产
       TOOLS_BASE_URL: https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v2.0.0
+      VAD_MODEL_URL: https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin
+      VAD_MODEL_SHA256: 2aa269b785eeb53a82983a20501ddf7c1d9c48e33ab63a41391ac6c9f7fb6987
 
     steps:
       - name: Checkout
@@ -244,22 +246,39 @@ jobs:
           }
           Write-Host "Support files installed at $target"
 
-      - name: Download videocr-cli and whisper
+      - name: Download Whisper and Silero VAD for all installers
+        # Clear 也需要更换 Whisper 引擎；四种包始终带上轻量 VAD 模型。
+        run: |
+          New-Item -ItemType Directory -Force -Path downloads, tools\whisper, tools\Whisper.model | Out-Null
+          curl.exe -L --fail --retry 3 -o downloads\whisper.zip "$env:TOOLS_BASE_URL/whisper.zip"
+          if ($LASTEXITCODE -ne 0) { throw 'whisper.zip 下载失败' }
+          Expand-Archive downloads\whisper.zip -DestinationPath downloads\whisper -Force
+          $executables = @(Get-ChildItem downloads\whisper -Recurse -File -Filter whisper-cli.exe |
+            Where-Object { $_.FullName -notmatch '(?i)[\\/](backup[^\\/]*|__MACOSX)[\\/]' })
+          if ($executables.Count -ne 1) { throw 'whisper.zip 必须包含唯一的 whisper-cli.exe（不支持旧 main.exe）' }
+          $engineRoot = $executables[0].DirectoryName
+          foreach ($file in @('whisper-cli.exe', 'whisper.dll', 'ggml.dll', 'ggml-base.dll', 'ggml-cpu.dll', 'ggml-vulkan.dll')) {
+            $source = Join-Path $engineRoot $file
+            if (-not (Test-Path $source -PathType Leaf)) { throw "whisper.zip 缺少 $file" }
+            Copy-Item -LiteralPath $source -Destination tools\whisper -Force
+          }
+          $vad = 'tools\Whisper.model\ggml-silero-v6.2.0.bin'
+          curl.exe -L --fail --retry 3 -o $vad "$env:VAD_MODEL_URL"
+          if ($LASTEXITCODE -ne 0) { throw 'Silero VAD 模型下载失败' }
+          if ((Get-FileHash $vad -Algorithm SHA256).Hash -ne $env:VAD_MODEL_SHA256) {
+            throw 'Silero VAD 模型 SHA256 不匹配'
+          }
+
+      - name: Download videocr-cli
         if: env.PADDLEOCR_TAG != ''
         run: |
-          New-Item -ItemType Directory -Force -Path downloads, tools\whisper | Out-Null
-          curl.exe -L --fail -o downloads\videocr-cli.zip "$env:TOOLS_BASE_URL/videocr-cli.zip"
-          curl.exe -L --fail -o downloads\whisper.zip "$env:TOOLS_BASE_URL/whisper.zip"
-          if ($LASTEXITCODE -ne 0) { Write-Error 'videocr-cli / whisper 下载失败'; exit 1 }
+          New-Item -ItemType Directory -Force -Path downloads, tools | Out-Null
+          curl.exe -L --fail --retry 3 -o downloads\videocr-cli.zip "$env:TOOLS_BASE_URL/videocr-cli.zip"
+          if ($LASTEXITCODE -ne 0) { throw 'videocr-cli 下载失败' }
           Expand-Archive downloads\videocr-cli.zip -DestinationPath downloads\videocr -Force
-          $videocr = Get-ChildItem downloads\videocr -Recurse -Filter videocr-cli.exe | Select-Object -First 1
-          if (-not $videocr) { Write-Error 'videocr-cli.zip 中未找到 videocr-cli.exe'; exit 1 }
-          Move-Item $videocr.FullName tools\videocr-cli.exe -Force
-          Expand-Archive downloads\whisper.zip -DestinationPath downloads\whisper -Force
-          Get-ChildItem downloads\whisper -Recurse -File | ForEach-Object {
-            Copy-Item $_.FullName "tools\whisper\$($_.Name)" -Force
-          }
-          Write-Host "tools\whisper: $((Get-ChildItem tools\whisper -File | ForEach-Object { $_.Name }) -join ', ')"
+          $videocr = Get-ChildItem downloads\videocr -Recurse -File -Filter videocr-cli.exe | Select-Object -First 1
+          if (-not $videocr) { throw 'videocr-cli.zip 中未找到 videocr-cli.exe' }
+          Copy-Item -LiteralPath $videocr.FullName -Destination tools\videocr-cli.exe -Force
 
       - name: Download ffmpeg and yt-dlp
         # ffmpeg 优先从 gyan.dev 获取（GitHub Actions 数据中心可能被 Cloudflare 拦截，
@@ -331,8 +350,8 @@ jobs:
             '-Setup'
           )
           if ("${{ matrix.variant }}" -eq 'Clear') {
-            # Clear 增量升级包：不带 tools 与 OCR 标识，仅升级主程序
-            $params += @('-NoTools', '-Variant', 'Clear')
+            # Clear 升级主程序与 Whisper/VAD，保留用户现有 OCR 引擎与标识
+            $params += @('-NoTools', '-IncludeWhisper', '-Variant', 'Clear')
           } else {
             $params += @('-PaddleOcrTag', $env:PADDLEOCR_TAG)
           }
@@ -342,7 +361,7 @@ jobs:
       - name: Verify installer and staged payload
         # 三件事：(1) 产物名与版本号/变体严格一致；(2) 非 Clear 包必须带 PADDLEOCR 标识
         # 且第一行内容与变体一致（程序运行期据此定位 tools\<tag> 与机型）；
-        # (3) Clear 包必须不带 tools 与 PADDLEOCR，否则会覆盖用户已装好的引擎。
+        # (3) 四包都有 Whisper/VAD；Clear 的 tools 只允许 Whisper/VAD，不带 OCR 标识。
         run: |
           $version = "${{ needs.preflight.outputs.version }}"
           $variant = "${{ matrix.variant }}"
@@ -367,10 +386,27 @@ jobs:
 
           $marker = Join-Path $stage 'PADDLEOCR'
           $tools = Join-Path $stage 'tools'
+          $whisperPayload = @(
+            'whisper\whisper-cli.exe', 'whisper\whisper.dll', 'whisper\ggml.dll',
+            'whisper\ggml-base.dll', 'whisper\ggml-cpu.dll', 'whisper\ggml-vulkan.dll',
+            'Whisper.model\ggml-silero-v6.2.0.bin'
+          )
+          foreach ($relative in $whisperPayload) {
+            if (-not (Test-Path (Join-Path $tools $relative) -PathType Leaf)) {
+              throw "待打包目录缺少 tools\$relative"
+            }
+          }
+          $vadFiles = @(Get-ChildItem (Join-Path $tools 'Whisper.model') -File -Recurse)
+          if ($vadFiles.Count -ne 1 -or $vadFiles[0].Name -ne 'ggml-silero-v6.2.0.bin') {
+            throw 'Whisper.model 只应收录 Silero VAD，不能打入大型转录模型'
+          }
           if ($variant -eq 'Clear') {
             if (Test-Path $marker) { Write-Error 'Clear 增量包不应携带 PADDLEOCR 标识文件'; exit 1 }
-            if (Test-Path $tools) { Write-Error 'Clear 增量包不应携带 tools 目录'; exit 1 }
-            Write-Host 'Clear 增量包校验通过：不含 PADDLEOCR 与 tools'
+            foreach ($file in Get-ChildItem $tools -Recurse -File) {
+              $relative = [IO.Path]::GetRelativePath((Resolve-Path $tools).Path, $file.FullName)
+              if ($relative -notin $whisperPayload) { throw "Clear 包包含不允许的工具文件: $relative" }
+            }
+            Write-Host 'Clear 校验通过：仅主程序与 Whisper/VAD，不含 PADDLEOCR 标识'
           } else {
             $expected = "PaddleOCR-$variant"
             if (-not (Test-Path $marker)) { Write-Error "缺少 PADDLEOCR 标识文件: $marker"; exit 1 }

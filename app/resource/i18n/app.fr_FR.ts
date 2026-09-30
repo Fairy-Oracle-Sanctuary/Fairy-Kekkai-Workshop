@@ -5145,5 +5145,121 @@ Ces paramètres sont ajustés dans « Paramètres avancés »</translation>
         <source>填写更全面的相关信息，让更多的人能找到你的视频吧</source>
         <translation>Remplissez des informations plus complètes pour que davantage de personnes puissent trouver votre vidéo.</translation>
     </message>
+    <message>
+        <source>先看这里的应用信息。接下来提示会指向具体按钮；用「下一步」浏览，完成引导后再按提示操作。</source>
+        <translation>Voici les informations de l’application. Les conseils pointent vers les commandes précises. Parcourez-les avec Suivant, puis effectuez les opérations après le tutoriel.</translation>
+    </message>
+    <message>
+        <source>这里设置项目保存目录。更改时选择一个空文件夹，已有项目会一起迁移；视频和字幕保存在项目目录中。</source>
+        <translation>Définissez ici le dossier des projets. Pour le changer, choisissez un dossier vide ; les projets existants seront déplacés avec leurs vidéos et sous-titres.</translation>
+    </message>
+    <message>
+        <source>点击这个按钮，填写项目名、原标题和集数。一部视频系列建一个项目，每集会生成独立文件夹。</source>
+        <translation>Cliquez ici et indiquez le nom du projet, le titre original et le nombre d’épisodes. Créez un projet par série ; chaque épisode aura son dossier.</translation>
+    </message>
+    <message>
+        <source>已有项目用这里导入。选择项目根目录，再选择复制或仅连接；仅连接会继续使用原位置的文件。</source>
+        <translation>Importez ici un projet existant. Sélectionnez son dossier racine, puis Copier ou Lier. Un lien conserve l’utilisation des fichiers à leur emplacement d’origine.</translation>
+    </message>
+    <message>
+        <source>这里可以粘贴播放列表链接并创建项目，集数和标题由视频列表生成。先确认下载工具与网络连接可用。</source>
+        <translation>Collez une URL de playlist pour créer un projet dont les épisodes et titres viennent de la liste vidéo. Vérifiez d’abord l’outil de téléchargement et le réseau.</translation>
+    </message>
+    <message>
+        <source>打开项目后会在这里新增标签。再次打开同一项目会切回已有标签；「＋」返回项目列表，关闭标签不会删除文件。</source>
+        <translation>Les projets ouverts apparaissent en onglets. Rouvrir le même projet sélectionne son onglet. Plus revient à la liste ; fermer un onglet conserve les fichiers.</translation>
+    </message>
+    <message>
+        <source>点击这里打开下载对话框，粘贴视频链接并选择保存位置。项目中的下载快捷入口会自动带入对应分集目录。</source>
+        <translation>Ouvrez ici la fenêtre de téléchargement, collez une URL vidéo et choisissez la destination. Les raccourcis du projet renseignent automatiquement le dossier de l’épisode.</translation>
+    </message>
+    <message>
+        <source>这里筛选全部、下载中、已完成或失败的任务。下载进度显示在下方任务卡中，失败时先查看任务日志。</source>
+        <translation>Filtrez les tâches : toutes, en cours, terminées ou échouées. La progression figure dans les cartes ci-dessous ; consultez le journal en cas d’échec.</translation>
+    </message>
+    <message>
+        <source>点击这里选择带硬字幕的视频。加载后在预览画面框选字幕区域，避免把画面中的其它文字一起识别。</source>
+        <translation>Sélectionnez une vidéo avec sous-titres incrustés. Après chargement, délimitez la zone des sous-titres dans l’aperçu pour exclure les autres textes de l’image.</translation>
+    </message>
+    <message>
+        <source>这里选择视频字幕的原始语言，不是译文语言。使用 PaddleOCR 前还需在高级设置中确认程序与模型路径。</source>
+        <translation>Choisissez la langue des sous-titres d’origine, pas celle de traduction. Avant PaddleOCR, vérifiez aussi les chemins du programme et des modèles dans les paramètres avancés.</translation>
+    </message>
+    <message>
+        <source>确认输入、输出与参数后，点击这里添加任务。未选择输入时按钮不可用；添加成功后到上方任务页查看进度与日志。</source>
+        <translation>Vérifiez l’entrée, la sortie et les options, puis ajoutez la tâche. Le bouton nécessite une entrée sélectionnée. Consultez ensuite la page des tâches pour la progression et les journaux.</translation>
+    </message>
+    <message>
+        <source>这里选择已下载的 Whisper 模型文件。还需确认同页的识别程序路径；模型配置完成后回到语音识别页。</source>
+        <translation>Sélectionnez un modèle Whisper téléchargé. Vérifiez aussi le chemin du programme de reconnaissance sur cette page, puis revenez à la reconnaissance vocale.</translation>
+    </message>
+    <message>
+        <source>点击这里选择视频或音频，随后选择识别语言和字幕输出格式。自动检测用于不确定语种的情况；确认输出路径后添加任务。</source>
+        <translation>Sélectionnez une vidéo ou un audio, puis la langue et le format des sous-titres. Utilisez la détection automatique si la langue est inconnue. Vérifiez la sortie avant d’ajouter la tâche.</translation>
+    </message>
+    <message>
+        <source>这里是 Deepseek 密钥输入框，其它服务的密钥在同页各自的分组中。填写你要使用的服务密钥，翻译页必须选择同一个服务。</source>
+        <translation>Voici le champ de clé API Deepseek. Les autres fournisseurs ont leurs groupes sur cette page. Entrez la clé du fournisseur choisi et sélectionnez le même sur la page de traduction.</translation>
+    </message>
+    <message>
+        <source>点击这里选择原文 SRT 文件，确认预览中能看到字幕。项目的翻译快捷入口会自动选择原文，并把输出设为译文.srt。</source>
+        <translation>Sélectionnez le SRT original et vérifiez l’aperçu. Le raccourci de traduction d’un projet sélectionne la source et définit la sortie comme 译文.srt.</translation>
+    </message>
+    <message>
+        <source>这里选择想得到的译文语言，同时检查上方的原文语言。两者不要填反；同一系列可启用上下文以保持术语一致。</source>
+        <translation>Choisissez la langue cible et vérifiez la langue source au-dessus. Ne les inversez pas. Le contexte aide à garder une terminologie cohérente dans une série.</translation>
+    </message>
+    <message>
+        <source>这里选择 AI 服务，需与刚才填写的密钥匹配。选择 Deepseek 后还会显示其模型与思考选项；确认后添加翻译任务。</source>
+        <translation>Choisissez le fournisseur AI correspondant à votre clé. Deepseek affiche aussi des options de modèle et de raisonnement. Vérifiez-les avant d’ajouter la traduction.</translation>
+    </message>
+    <message>
+        <source>这里修改结果文件的保存路径。先确认目标目录与文件名，再提交任务，避免把结果存到不方便查找的位置。</source>
+        <translation>Modifiez ici le chemin de sortie. Vérifiez le dossier et le nom du fichier avant de soumettre la tâche pour retrouver facilement le résultat.</translation>
+    </message>
+    <message>
+        <source>这里切换功能页、任务页与高级设置。任务页可以查看进度、日志和结果，以及取消或重试；配置工具路径则进入高级设置。</source>
+        <translation>Passez entre fonction, tâches et paramètres avancés. Les tâches affichent progression, journaux, résultats, annulation et nouvelle tentative. Les chemins des outils se règlent dans les paramètres avancés.</translation>
+    </message>
+    <message>
+        <source>以后可以从这个按钮重新查看完整引导。完成后返回主页：先建项目或导入项目，再按下载、识别、翻译、压制的顺序处理。</source>
+        <translation>Rejouez le tutoriel depuis ce bouton. Terminer revient à l’accueil. Créez ou importez un projet, puis procédez au téléchargement, à la reconnaissance, à la traduction et à l’encodage.</translation>
+    </message>
+    <message>
+        <source>检测语音，减少静音或背景音乐产生的无效字幕；需要 Silero VAD 模型。</source>
+        <translation>Détecter la parole pour réduire les sous-titres dus au silence ou à la musique ; modèle Silero VAD requis.</translation>
+    </message>
+    <message>
+        <source>语音检测阈值</source>
+        <translation>Seuil de détection de parole</translation>
+    </message>
+    <message>
+        <source>调低可保留较轻的声音，调高可减少误检。</source>
+        <translation>Baisser pour conserver les voix faibles, augmenter pour réduire les faux positifs.</translation>
+    </message>
+    <message>
+        <source>分段静音时长（毫秒）</source>
+        <translation>Silence avant découpage (ms)</translation>
+    </message>
+    <message>
+        <source>最长语音片段（秒）</source>
+        <translation>Durée maximale du segment (s)</translation>
+    </message>
+    <message>
+        <source>按停顿分段并限制连续语音长度；字幕保留原视频时间轴。</source>
+        <translation>Découper aux pauses et limiter la parole continue ; conserver la chronologie originale.</translation>
+    </message>
+    <message>
+        <source>减少前文影响</source>
+        <translation>Réduire l’influence du texte précédent</translation>
+    </message>
+    <message>
+        <source>不把前段识别结果作为后段文本提示，减少重复循环；可能降低上下文连贯性。</source>
+        <translation>Ne pas reprendre les résultats précédents comme invite ; moins de répétitions, cohérence parfois réduite.</translation>
+    </message>
+    <message>
+        <source>使用官方 whisper-cli 和 ggml 模型；视频由 FFmpeg 转成音频后识别。GPU 加速需要引擎编译了对应后端。</source>
+        <translation>Utiliser whisper-cli officiel et les modèles ggml ; conversion audio par FFmpeg. Le GPU nécessite un backend compilé compatible.</translation>
+    </message>
 </context>
 </TS>

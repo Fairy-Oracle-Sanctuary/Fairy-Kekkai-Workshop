@@ -34,6 +34,8 @@ namespace fkw
                                                     trText("输出文件"),
                                                     formatText(Text::instance().SetSavePathForFile, {functionName}),
                                                     trText("输出文件路径..."), fileSelectionGroup_);
+        inputFileCard_->browseBtn->setObjectName(QStringLiteral("tutorial-input"));
+        outputFileCard_->browseBtn->setObjectName(QStringLiteral("tutorial-output"));
         fileSelectionGroup_->addSettingCard(inputFileCard_);
         fileSelectionGroup_->addSettingCard(outputFileCard_);
         mainLayout_->addWidget(fileSelectionGroup_);
@@ -43,6 +45,7 @@ namespace fkw
         auto *actions = new QHBoxLayout();
         startButton_ = new qfw::PrimaryPushButton(qfw::FluentIcon(qfw::FluentIconEnum::Play).qicon(),
                                                   trText("添加任务"), view);
+        startButton_->setObjectName(QStringLiteral("tutorial-start"));
         startButton_->setEnabled(false);
         auto *previous = new qfw::PushButton(qfw::FluentIcon(qfw::FluentIconEnum::Up).qicon(),
                                              trText("上一个"), view);

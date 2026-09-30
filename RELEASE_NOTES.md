@@ -3,8 +3,8 @@
 ### 重大变化 / Breaking Changes
 - 核心全量重写：从 Python + PySide6 迁移到 C++17 + Qt 6 + Qt-Fluent-Widgets，编译为原生桌面程序，体积更小、启动更快、内存占用更低
   Full core rewrite: migrated from Python + PySide6 to C++17 + Qt 6 + Qt-Fluent-Widgets, shipping as a native desktop application with smaller size, faster startup and lower memory usage
-- 从此版本起，安装包内不再附带 Python 运行时与 Python 依赖，老版本升级请使用增量包（Clear）或先卸载旧版
-  From this version onward the installer no longer bundles the Python runtime or Python dependencies; upgrading from an older build should use the incremental (Clear) package or uninstall the previous version first
+- 从此版本起，安装包内不再附带 Python 运行时与 Python 依赖，老版本升级可使用增量包（Clear），无需因主程序大版本变化而卸载；Clear 不含外部工具与模型，需另行保留或补齐所需资源
+  From this version onward the installer no longer bundles the Python runtime or Python dependencies; older builds can be upgraded with the incremental (Clear) package without uninstalling solely because of a major application version change; Clear excludes external tools and models, which must be retained or supplied separately
 - 源码目录结构重组：新增 `cpp/` 原生源码树（view / components / service / common），原 Python 实现保留在 `app/` 作为参考
   Source tree reorganized: new `cpp/` native source tree (view / components / service / common), with the original Python implementation kept under `app/` as reference
 
@@ -56,10 +56,10 @@
 | Windows 10/11 | GPU (CUDA 11.8, Nvidia 10 系列) | [Fairy-Kekkai-Workshop-v3.0.0-GPU-v3.7.0-CUDA-11.8-Windows-x86_64-Setup.exe（含 PP-OCRv6 引擎与模型，替代旧版 PaddleOCR-GPU-v1.5.1-CUDA-11.8）](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v3.0.0/Fairy-Kekkai-Workshop-v3.0.0-GPU-v3.7.0-CUDA-11.8-Windows-x86_64-Setup.exe) |
 | Windows 10/11 | GPU (CUDA 12.9, Nvidia 16 - 50 系列) | [Fairy-Kekkai-Workshop-v3.0.0-GPU-v3.7.0-CUDA-12.9-Windows-x86_64-Setup.exe（含 PP-OCRv6 引擎与模型，替代旧版 PaddleOCR-GPU-v1.5.1-CUDA-12.9）](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v3.0.0/Fairy-Kekkai-Workshop-v3.0.0-GPU-v3.7.0-CUDA-12.9-Windows-x86_64-Setup.exe) |
 
-- 从 2.x（Python 版）升级到 3.0.0 请下载上表中与你显卡对应的整包，**不要用 Clear 增量包**：本次同时换了 OCR 引擎，增量包不带新引擎与新模型，安装后启动维护会清掉旧模型，导致 OCR 不可用
-  To upgrade from 2.x (Python build) to 3.0.0 please download the matching full package above instead of the Clear incremental package: this release also swaps the OCR engine, and the incremental package carries neither the new engine nor the new models
-- Clear 增量包（仅适用于已安装 3.0.0 及以上版本、且引擎代次未变的机器）：
-  Clear incremental package (only for machines already running 3.0.0+ with an unchanged engine generation):
+- 从 2.x（Python 版）升级到 3.0.0 可以使用 Clear 增量包，也可以下载上表中与你显卡对应的整包。Clear 不含 OCR 引擎与模型；本次更换了引擎代次，如需 OCR 功能，请另行准备新版引擎与模型，或直接使用对应整包。启动维护会清理旧代次资源
+  You can upgrade from 2.x (Python build) to 3.0.0 using either Clear or the matching full package above. Clear excludes OCR engines and models. This release changes the engine generation; to use OCR, supply the new engine and models separately or use the matching full package. Startup maintenance removes obsolete resources
+- Clear 增量包（可用于旧版本升级，包括主程序大版本更新；不含外部工具与模型）：
+  Clear incremental package (supports upgrades from older versions, including major application updates; excludes external tools and models):
   [Fairy-Kekkai-Workshop-v3.0.0-Clear-Windows-x86_64-Setup.exe](https://github.com/Fairy-Oracle-Sanctuary/Fairy-Kekkai-Workshop/releases/download/v3.0.0/Fairy-Kekkai-Workshop-v3.0.0-Clear-Windows-x86_64-Setup.exe)
 - mac 版本无变动，直接下载上一个版本即可
   macOS version unchanged, download the previous version directly

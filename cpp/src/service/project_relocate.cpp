@@ -7,6 +7,7 @@
 #include <QFileInfo>
 
 #include "service/project_service.h"
+#include "common/event_bus.h"
 
 namespace fkw::projects {
 namespace {
@@ -137,6 +138,10 @@ void applyRelocation(const RelocateReport& report) {
         if (!currentLinks.contains(path)) currentLinks << path;
     setLinks(currentLinks, nullptr);
     setOrder(rewrite(order()), nullptr);
+    for (const auto& pair : moved)
+        emit GlobalEventBus::instance().project_updated(QJsonObject{
+            {QStringLiteral("old_path"), pair.first},
+            {QStringLiteral("path"), pair.second}});
 }
 
 RelocateWorker::RelocateWorker(const QStringList& sources, const QString& target,

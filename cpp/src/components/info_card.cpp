@@ -4,6 +4,7 @@
 #include <QDesktopServices>
 #include <QFile>
 #include <QIcon>
+#include <QRegularExpression>
 #include <QSize>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -35,8 +36,16 @@ FairyKekkaiWorkshopInfoCard::FairyKekkaiWorkshopInfoCard(QWidget* parent)
         trText("版本"), QStringLiteral("v") + settingData(QStringLiteral("VERSION")).toString(), this);
     auto* updateTime = new StatisticsWidget(
         trText("更新时间"), settingData(QStringLiteral("UPDATE_TIME")).toString(), this);
-    // OCR 项显示当前 PaddleOCR 变体（含 CPU/GPU 标识），与 Python 端 info_card 的 PADDLEOCR_VERSION 对齐。
-    auto* ocrVersion = new StatisticsWidget(QStringLiteral("OCR"), paddleOcrVersion(), this);
+    // 首页只显示运行类型和版本号，完整引擎名称放到悬停提示中。
+    const QString fullOcrVersion = paddleOcrVersion();
+    const auto ocrMatch = QRegularExpression(
+        QStringLiteral("PaddleOCR-(CPU|GPU)-(v[0-9.]+)"),
+        QRegularExpression::CaseInsensitiveOption).match(fullOcrVersion);
+    const QString shortOcrVersion = ocrMatch.hasMatch()
+        ? ocrMatch.captured(1).toUpper() + QLatin1Char(' ') + ocrMatch.captured(2)
+        : fullOcrVersion.left(16);
+    auto* ocrVersion = new StatisticsWidget(QStringLiteral("OCR"), shortOcrVersion, this);
+    ocrVersion->setToolTip(fullOcrVersion);
     auto* description = new qfw::BodyLabel(trText("仙 · 结界工坊"), this);
     description->setWordWrap(true);
     auto* log = new qfw::PrimaryPushButton(qfw::FluentIcon(qfw::FluentIconEnum::BookShelf).qicon(),

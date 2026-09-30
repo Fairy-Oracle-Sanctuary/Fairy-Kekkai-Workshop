@@ -11,6 +11,8 @@ public:
     void refreshProjectList();
 signals:
     void openProjectDetail(const QString& path);
+    void projectChanged(const QString& oldPath, const QString& newPath);
+    void projectRemoved(const QString& path);
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
 private:

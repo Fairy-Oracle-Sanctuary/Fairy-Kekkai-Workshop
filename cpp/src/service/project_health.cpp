@@ -180,7 +180,7 @@ Health check(const QString& path) {
                     ? QStringLiteral("缺少 标题.txt")
                     : QStringLiteral("缺少 标题.txt，将按连续分集目录 1..%1 补建标题记录，"
                                      "原有标题与链接已无法恢复")
-                          .arg(numbers.size()), {}});
+                          .arg(maxNumber), {}});
         }
     }
 

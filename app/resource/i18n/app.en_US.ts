@@ -5152,5 +5152,121 @@ All parameters above can be adjusted in &quot;Advanced Settings&quot;</translati
         <source>填写更全面的相关信息，让更多的人能找到你的视频吧</source>
         <translation>Fill in more comprehensive related information to help more people find your video.</translation>
     </message>
+    <message>
+        <source>先看这里的应用信息。接下来提示会指向具体按钮；用「下一步」浏览，完成引导后再按提示操作。</source>
+        <translation>Start with the application information here. Tips will point to specific controls. Use Next to explore, then follow the instructions after finishing the tour.</translation>
+    </message>
+    <message>
+        <source>这里设置项目保存目录。更改时选择一个空文件夹，已有项目会一起迁移；视频和字幕保存在项目目录中。</source>
+        <translation>This sets the project storage folder. Choose an empty folder when changing it; existing projects will move with it. Videos and subtitles live inside project folders.</translation>
+    </message>
+    <message>
+        <source>点击这个按钮，填写项目名、原标题和集数。一部视频系列建一个项目，每集会生成独立文件夹。</source>
+        <translation>Click this button and enter the project name, original title and episode count. Create one project per video series; each episode gets its own folder.</translation>
+    </message>
+    <message>
+        <source>已有项目用这里导入。选择项目根目录，再选择复制或仅连接；仅连接会继续使用原位置的文件。</source>
+        <translation>Import an existing project here. Select its root folder, then choose Copy or Link. Linking continues to use the files in their original location.</translation>
+    </message>
+    <message>
+        <source>这里可以粘贴播放列表链接并创建项目，集数和标题由视频列表生成。先确认下载工具与网络连接可用。</source>
+        <translation>Paste a playlist URL here to create a project with episode counts and titles from the video list. Check the download tool and network connection first.</translation>
+    </message>
+    <message>
+        <source>打开项目后会在这里新增标签。再次打开同一项目会切回已有标签；「＋」返回项目列表，关闭标签不会删除文件。</source>
+        <translation>Opened projects appear as tabs here. Opening the same project again selects its existing tab. Plus returns to the project list; closing a tab keeps the files.</translation>
+    </message>
+    <message>
+        <source>点击这里打开下载对话框，粘贴视频链接并选择保存位置。项目中的下载快捷入口会自动带入对应分集目录。</source>
+        <translation>Click here to open the download dialog, paste a video URL and choose a destination. Download shortcuts inside a project supply the episode folder automatically.</translation>
+    </message>
+    <message>
+        <source>这里筛选全部、下载中、已完成或失败的任务。下载进度显示在下方任务卡中，失败时先查看任务日志。</source>
+        <translation>Use these filters for all, downloading, completed or failed tasks. Progress appears on the task cards below; check the task log if a download fails.</translation>
+    </message>
+    <message>
+        <source>点击这里选择带硬字幕的视频。加载后在预览画面框选字幕区域，避免把画面中的其它文字一起识别。</source>
+        <translation>Select a video with burned-in subtitles here. After loading it, select the subtitle region in the preview to avoid recognizing unrelated text in the picture.</translation>
+    </message>
+    <message>
+        <source>这里选择视频字幕的原始语言，不是译文语言。使用 PaddleOCR 前还需在高级设置中确认程序与模型路径。</source>
+        <translation>Choose the original subtitle language here, not the translation language. Before using PaddleOCR, also check the program and model paths in advanced settings.</translation>
+    </message>
+    <message>
+        <source>确认输入、输出与参数后，点击这里添加任务。未选择输入时按钮不可用；添加成功后到上方任务页查看进度与日志。</source>
+        <translation>After checking input, output and options, click here to add a task. The button is unavailable until input is selected. Open the Tasks page above to view progress and logs.</translation>
+    </message>
+    <message>
+        <source>这里选择已下载的 Whisper 模型文件。还需确认同页的识别程序路径；模型配置完成后回到语音识别页。</source>
+        <translation>Select a downloaded Whisper model file here. Also check the recognition program path on this page, then return to the speech recognition page.</translation>
+    </message>
+    <message>
+        <source>点击这里选择视频或音频，随后选择识别语言和字幕输出格式。自动检测用于不确定语种的情况；确认输出路径后添加任务。</source>
+        <translation>Select video or audio here, then choose the recognition language and subtitle format. Use automatic detection if the language is unknown. Check the output path before adding the task.</translation>
+    </message>
+    <message>
+        <source>这里是 Deepseek 密钥输入框，其它服务的密钥在同页各自的分组中。填写你要使用的服务密钥，翻译页必须选择同一个服务。</source>
+        <translation>This is the Deepseek API key field; other providers have their own groups on this page. Enter the key for your chosen provider and select that same provider on the translation page.</translation>
+    </message>
+    <message>
+        <source>点击这里选择原文 SRT 文件，确认预览中能看到字幕。项目的翻译快捷入口会自动选择原文，并把输出设为译文.srt。</source>
+        <translation>Select the source SRT file here and check that subtitles appear in the preview. Project translation shortcuts select the source automatically and set the output to 译文.srt.</translation>
+    </message>
+    <message>
+        <source>这里选择想得到的译文语言，同时检查上方的原文语言。两者不要填反；同一系列可启用上下文以保持术语一致。</source>
+        <translation>Choose the desired translation language here and check the source language above. Do not reverse them. For a series, context can help keep terminology consistent.</translation>
+    </message>
+    <message>
+        <source>这里选择 AI 服务，需与刚才填写的密钥匹配。选择 Deepseek 后还会显示其模型与思考选项；确认后添加翻译任务。</source>
+        <translation>Choose an AI provider here that matches the API key you entered. Selecting Deepseek also shows its model and reasoning options. Check the settings before adding a translation task.</translation>
+    </message>
+    <message>
+        <source>这里修改结果文件的保存路径。先确认目标目录与文件名，再提交任务，避免把结果存到不方便查找的位置。</source>
+        <translation>Change the result file path here. Check the destination folder and filename before submitting the task so that the output is easy to find.</translation>
+    </message>
+    <message>
+        <source>这里切换功能页、任务页与高级设置。任务页可以查看进度、日志和结果，以及取消或重试；配置工具路径则进入高级设置。</source>
+        <translation>Switch between the feature, Tasks and advanced settings here. Tasks shows progress, logs and results, with cancel and retry actions. Use advanced settings for tool paths.</translation>
+    </message>
+    <message>
+        <source>以后可以从这个按钮重新查看完整引导。完成后返回主页：先建项目或导入项目，再按下载、识别、翻译、压制的顺序处理。</source>
+        <translation>Replay the full tour from this button whenever needed. Finish to return home: create or import a project, then work through downloading, recognition, translation and encoding.</translation>
+    </message>
+    <message>
+        <source>检测语音，减少静音或背景音乐产生的无效字幕；需要 Silero VAD 模型。</source>
+        <translation>Detect speech to reduce subtitles from silence or music; requires a Silero VAD model.</translation>
+    </message>
+    <message>
+        <source>语音检测阈值</source>
+        <translation>Speech detection threshold</translation>
+    </message>
+    <message>
+        <source>调低可保留较轻的声音，调高可减少误检。</source>
+        <translation>Lower to retain quieter speech; raise to reduce false detections.</translation>
+    </message>
+    <message>
+        <source>分段静音时长（毫秒）</source>
+        <translation>Silence before splitting (ms)</translation>
+    </message>
+    <message>
+        <source>最长语音片段（秒）</source>
+        <translation>Maximum speech segment (s)</translation>
+    </message>
+    <message>
+        <source>按停顿分段并限制连续语音长度；字幕保留原视频时间轴。</source>
+        <translation>Split at pauses and limit continuous speech; subtitles retain the original timeline.</translation>
+    </message>
+    <message>
+        <source>减少前文影响</source>
+        <translation>Reduce previous-text influence</translation>
+    </message>
+    <message>
+        <source>不把前段识别结果作为后段文本提示，减少重复循环；可能降低上下文连贯性。</source>
+        <translation>Do not use earlier results as text prompts; reduces repetition but may weaken continuity.</translation>
+    </message>
+    <message>
+        <source>使用官方 whisper-cli 和 ggml 模型；视频由 FFmpeg 转成音频后识别。GPU 加速需要引擎编译了对应后端。</source>
+        <translation>Use official whisper-cli and ggml models; FFmpeg converts video to audio. GPU acceleration requires a matching compiled backend.</translation>
+    </message>
 </context>
 </TS>
